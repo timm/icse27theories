@@ -1,0 +1,17 @@
+project:
+  website: https://ambari.apache.org
+
+version_control:
+  log: /Users/timm/gits/timm/icse27theories/data/ambari/git_repo/.git
+  log_url: https://github.com/apache/ambari
+  branch:
+    - trunk
+
+commit_message_id_regex:
+  issue_id: "AMBARI-[0-9]+"
+
+filter:
+  keep_filepaths_ending_with:
+    - java
+  remove_filepaths_containing:
+    - test
