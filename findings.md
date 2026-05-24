@@ -22,11 +22,20 @@ done, others awaiting SZZ pass.
 
 ### F1. **Replicated boundary-adequacy failure: brooksq.leak_rate**
 
-Lifted on both Helix (0.571) and junit5 (0.604). Model's declared
-`hi = 0.5`. Both projects exceed the bound. Not a Helix quirk — the
-model's parameter range was specified too narrowly to span real-world
-projects. The paper should either widen the bound or revise the
-metric definition.
+Confirmed on **all three** projects:
+
+| project | leak_rate |
+|---------|----------:|
+| Helix   | 0.571     |
+| junit5  | 0.604     |
+| Ambari  | 0.697     |
+
+Model's declared `hi = 0.5`. Three independent Apache-style Java
+projects all exceed the bound, monotonically. Not a one-project
+quirk — the model's parameter range was specified too narrowly to
+span real-world projects. The paper should either widen the bound or
+revise the metric definition (`fraction of bugs with fix latency >
+30 days`).
 
 ### F2. **debt.pay_rate is convergent across projects**
 
@@ -50,36 +59,56 @@ effect; Ambari the weakest. Possible explanations: different team-size
 distributions, different mentoring practices, different release
 cadences. Worth probing in EMSE extension.
 
-### F4. **brooksq quality thesis NOT supported on Helix**
+### F4. **brooksq quality thesis: SPLIT empirical verdict across 3 projects**
 
-`inj_rate_increase` median = 0.0 on Helix; -0.011 on junit5 (slight
-*decrease*). Brooks's quality-of-output claim ("late hires inject
-more bugs") fails on both projects' median. The brooks-velocity side
-(F3) holds; the brooks-quality side falsifies.
+| project | inj_rate_increase | verdict on thesis        |
+|---------|------------------:|--------------------------|
+| Helix   | 0.000             | neutral / not triggered   |
+| junit5  | -0.011            | mild *refutation*         |
+| Ambari  | +0.094            | clear support             |
 
-This is the cleanest single-thesis falsification result from the
-session.
+Brooks's quality-of-output claim ("late hires inject more bugs") is
+mixed across projects: Ambari confirms, junit5 mildly refutes, Helix
+sits at the boundary. The brooks-velocity side (F3) holds in all 3
+projects but with very different magnitudes; the brooks-quality side
+is project-dependent.
+
+This split — same hypothesis, divergent verdicts on three
+projects — is itself paper material: it argues against claiming
+Brooks-Q as a universal SE law without a project-aware caveat.
 
 ### F5. **Project regimes for defmap and dora are predicted-bad**
 
-| metric              | Helix       | junit5     | thesis-bad threshold |
-|---------------------|------------:|-----------:|---------------------:|
-| defmap.tst_proxy    | 0.375       | 0.150      | model says low = bad |
-| dora.batch_size     | 73.9        | 38.4       | model says high = bad|
-| dora.cfr            | 0.049       | 0.272      | high = bad           |
+| metric              | Ambari | Helix | junit5 | bad regime says |
+|---------------------|-------:|------:|-------:|-----------------|
+| defmap.tst_proxy    | 0.098  | 0.375 | 0.150  | low = bad       |
+| dora.batch_size     | 48.3   | 73.9  | 38.4   | high = bad      |
+| dora.cfr            | 0.341  | 0.049 | 0.272  | high = bad      |
+| dora.MTTR_days      | 154    | 88    | 73     | high = bad      |
 
-Both projects operate in the **predicted-bad** regime for these
-models. defmap predicts high leaked defects under low tst — Helix
-confirms (876 leaked vs 421 caught). dora predicts CFR rises with
-batch size — both projects in elevated-CFR territory.
+All three projects operate in the **predicted-bad** regime for these
+models. Ambari has the worst defmap (0.098) and longest MTTR (154d)
+— consistent with its heavyweight enterprise-Hadoop deployment
+profile. junit5 has the smallest batches but highest junit-specific
+CFR (likely an issue-tag artifact).
 
-### F6. **rework thesis NOT triggered on Helix; mildly triggered on junit5**
+Across the 3 projects, no single project escapes the predicted-bad
+regime in *any* of these four metrics. That's a strong family-member
+consistency on the "world is in the bad regime" side of the
+thesis-state.
 
-Helix failrate=0.019 (safely below 0.5 dominance threshold). junit5
-failrate=0.273 (still below 0.5 but 14x higher). Helix isn't even
-near the rework-dominates regime; junit5 is approaching but not at
-it. Thesis predictions never reach the verdict-domain on these
-projects' operating points.
+### F6. **rework thesis trigger varies by project**
+
+| project | failrate_median | rework regime              |
+|---------|----------------:|----------------------------|
+| Helix   | 0.019           | safely below 0.5 threshold |
+| junit5  | 0.273           | approaching, not at it     |
+| Ambari  | 0.274           | approaching, not at it     |
+
+junit5 and Ambari are essentially tied (0.27) and 14x above Helix
+(0.019). No project is *in* the rework-dominates regime (≥ 0.5), but
+two of three sit close enough that small operational changes could
+tip them. Helix has plenty of headroom.
 
 ### F7. **Calibrated `rq()` gaps shift meaningfully without flipping verdicts**
 
