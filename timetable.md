@@ -39,19 +39,21 @@ Carlos PR review).
   5 process-conditional, 3 fragile, 1 world-conditional. 9-test bank
   pass rate ~91% (most FAILs are mr_monotone or boundary_adq on
   long-horizon ctrl sweeps).
-- **S13 + S14 DONE for 7 models** via `scripts/boundary_check.py` →
-  `outputs/boundary_check.csv`. Two findings:
+- **S13 + S14 DONE for 8 models** via `scripts/boundary_check.py` →
+  `outputs/boundary_check.csv`. Three findings:
     - brooksq.leak_rate = 0.571 **out_of_range** (model hi=0.5)
-    - learn.train_rate = 1.0 **at_boundary** (yearly-slice method
+    - archpat.Legacy   = 384   **out_of_range** (model hi=200)
+    - learn.train_rate = 1.0   **at_boundary** (yearly-slice method
       overstates rate)
-- **S15 (calibrated rq rerun) DONE for 7 models** via
+- **S15 (calibrated rq rerun) DONE for 8 models** via
   `scripts/calibrate.py` → `outputs/calibrated_verdicts.csv`. All
-  seven retain CONFIRM at default + calibrated; gap magnitudes
+  eight retain CONFIRM at default + calibrated; gap magnitudes
   shift meaningfully:
     - brooksq: -45.9 → -58.7 (Helix's leak_rate strengthens thesis)
     - debt:    -56.7 → -8.83 (Helix's pay_rate blunts thesis)
     - dora:    -45.4 → -20.0 (low arrival_rate eases pressure)
     - learn:   -5.28 → -6.54 (more Jr → more starvation when Sr=0)
+    - archpat: +229  → +390  (Helix's bigger Legacy strengthens repair)
     - brooks/rework/defmap: no direct override possible (notes in CSV)
 
 ## Per-model table
@@ -74,7 +76,7 @@ Carlos PR review).
 | teamtopo   | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~1.5  | no org-chart data |
 | burnout    | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~1.5  | no HR/wellbeing data |
 | aidebt     | 1.0 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~2.0  | richer S0 (note_aidebt.md, regime crossover tmax≈26); no AI attribution → S7+ n/a; paper's "methodological case" |
-| archpat    | 1.0 | 0.5 | 0.5 | 0* | —  | 0* | 0.5 | 0.5 | **0.5**| 0*     | **1.0**| ~1.5     | **0.5** | **~5.5** | **lift_archpat_helix.csv** ✓ Patterned=130, Legacy=384, Drift=0, Other=1471 (helix-core). **pattern4 CLI breakthrough** — IS callable via `java -jar pattern4.jar -target <classes> -output <xml>` (memory note corrected). Maven + Helix compile + pattern4 ran in this session. |
+| archpat    | 1.0 | 0.5 | 0.5 | 0* | —  | 0* | 0.5 | 0.5 | **0.5**| 0*     | **1.0**| ~1.5     | **0.5** | **~5.5** | **lift_archpat_helix.csv** ✓ Patterned=149, Legacy=384, Drift=0, Other=1452 (5 helix modules). **pattern4 CLI breakthrough** — IS callable via `java -jar pattern4.jar -target <classes> -output <xml>`. Maven + Helix compile + pattern4 + multi-module aggregation all ran in this session. Calibrated archpat gap +229 → +390 (Helix's larger Legacy strengthens repair thesis). |
 | congruence | 0.5 | **0.3** | **0.1** | **0** | —  | **0** | **0** | 0.5 | 0.5    | 0*     | 0*     | —        | —       | **~1.9** | **SD model coded today** (broker_loss ctrl; CONFIRM gap -314.85, strongest in bank). Lift blocked: mbox not on this machine (was on Claude.ai sandbox). S10 reusable when mbox fetched |
 
 **Per-model subtotal (pre-2026-05-24 est): ~35.5h**
@@ -215,8 +217,9 @@ Logged **~5h** active session time. Outputs:
   `java -jar pattern4.jar -target <classes-dir> -output <xml>`.
   Detected 147 pattern instances on helix-core (State 57, Adapter
   42, Singleton 24, etc).
-- **lift_archpat_helix.csv** — Patterned=130, Legacy=384, Drift=0,
-  Other=1471 (helix-core, n=1985 files). 8th lift complete.
+- **lift_archpat_helix.csv** — Patterned=149, Legacy=384, Drift=0,
+  Other=1452 (5 helix modules aggregated, n=1985 files). 8th lift
+  complete. archpat now in S13/S14/S15 pipelines too.
 - **congruence SD model coded** (sd.py +35 lines); CONFIRM gap
   -314.85; ALL_MODELS now 18-strong. Lift requires mbox download.
 - 7 lift CSVs in `outputs/` (brooks, brooksq, debt, rework, defmap,
