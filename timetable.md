@@ -33,14 +33,26 @@ Future steps S13–S20 (param plausibility, boundary adq, calibrated
 rq rerun, behavior reprod/pred, family-member, verdict write-up,
 Carlos PR review).
 
-**Update 2026-05-24 (eve)**: **S16 (family-member) partially done**
-via `scripts/cross_project.py` → `outputs/cross_project.csv`. Six
-lifts run on second project (junit5, 10,784 commits, 113 tags). Two
-boundary violations replicate across both projects:
-- brooksq.leak_rate OUT on both (helix 0.571, junit5 0.604; hi=0.5)
-- learn.train_rate AT boundary on both (1.0 = hi)
+**Update 2026-05-24 (eve)**: **S16 (family-member) running across
+3 projects** via `scripts/cross_project.py` →
+`outputs/cross_project.csv`.
 
-Not a Helix-specific quirk — structural model-bound failures.
+- **junit5** (10,784 commits, 113 tags) — 7 lifts run. debt
+  pay_rate=0.590 nearly identical to Helix's 0.588 (F2 finding).
+- **Ambari** (25,090 commits, 133 tags) — brooks + learn lifts
+  done; SZZ pass in background; 5 more lifts queued.
+
+Replicated boundary violations across applicable projects:
+- brooksq.leak_rate OUT on Helix (0.571) AND junit5 (0.604); hi=0.5
+- learn.train_rate **fixed** (was an artifact of 365-day slice +
+  365-day Jr cutoff; switched to 90-day slices → now in-range
+  realistic values 0.7–0.89 across all 3 projects)
+
+Cross-project finding (F3): Brooks effect varies 8x across projects
+(Ambari 0.029, Helix 0.113, junit5 0.222) — supports thesis but
+suggests methodology variance is high.
+
+See `findings.md` for the 8 paper-relevant findings.
 
 **Update 2026-05-24**:
 - **S3+S5+S6 sweep DONE for all 18 models** via `scripts/full_audit.py`
