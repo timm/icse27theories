@@ -6,3 +6,4 @@ rework,CONFIRM,-48.3,CONFIRM,-48.3,False,"failrate_median = 0.0188394652785993 (
 defmap,CONFIRM,-100,CONFIRM,-100,False,"tst_proxy is ratio (caught/injected) in [0,1]; model's tst is multiplicative coef in [0,10]; unit mismatch, no calib applied"
 dora,CONFIRM,-45.4,CONFIRM,-20,False,batch_size in lift = 73.9069767441861 (Helix operating point); rq() ctrl is batch_size so override is moot; cfr_coef not lifted
 learn,CONFIRM,-5.28,CONFIRM,-6.54,False,mentor_rate left at default; not lifted from gitlog alone
+archpat,CONFIRM,+229,CONFIRM,+390,False,"Drift = NA (no recent-churn data); rate params not lifted | clipped Legacy: 384 -> [0,200] => 200"

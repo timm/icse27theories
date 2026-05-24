@@ -1,34 +1,30 @@
 #!/usr/bin/env python3
-"""Parse pattern4.jar XML output into a patterned-files CSV.
+"""Parse pattern4.jar XML output(s) into a patterned-files CSV.
 
-For each pattern instance, extract the class name from each role's
-`element` attribute (format: `pkg.Class::method...`) and map to its
-source file path under helix-core/src/main/java/.
+Scans data/helix/derived/pattern4/*.xml and produces an aggregated
+CSV. The module name comes from the XML filename stem; the source
+prefix is `<module>/src/main/java/`.
 
 Output: data/helix/derived/pattern4/patterned_files.csv
-  columns: file_pathname, pattern_type, role
+  columns: file_pathname, pattern_type, role, module
 """
 
-import csv, os, sys, xml.etree.ElementTree as ET
+import csv, glob, os, sys, xml.etree.ElementTree as ET
 
-XML_PATH    = "data/helix/derived/pattern4/helix-core.xml"
-OUT_CSV     = "data/helix/derived/pattern4/patterned_files.csv"
-SRC_PREFIX  = "helix-core/src/main/java/"
+XML_GLOB = "data/helix/derived/pattern4/*.xml"
+OUT_CSV  = "data/helix/derived/pattern4/patterned_files.csv"
 
 
-def class_to_path(cls):
-    """`org.apache.helix.X$Inner` -> `helix-core/src/main/java/org/apache/helix/X.java`."""
+def class_to_path(cls, module):
+    """`org.apache.helix.X$Inner` + module → `<module>/src/main/java/.../X.java`."""
     outer = cls.split("$", 1)[0]
-    return SRC_PREFIX + outer.replace(".", "/") + ".java"
+    return f"{module}/src/main/java/" + outer.replace(".", "/") + ".java"
 
 
-def main():
-    if not os.path.exists(XML_PATH):
-        print(f"missing {XML_PATH}", file=sys.stderr)
-        return 1
-
-    root = ET.parse(XML_PATH).getroot()
+def parse_xml(path):
+    module = os.path.splitext(os.path.basename(path))[0]
     rows = []
+    root = ET.parse(path).getroot()
     for pat in root.findall("pattern"):
         ptype = pat.get("name", "?")
         for inst in pat.findall("instance"):
@@ -37,22 +33,40 @@ def main():
                 if not cls:
                     continue
                 rows.append({
-                    "file_pathname": class_to_path(cls),
+                    "file_pathname": class_to_path(cls, module),
                     "pattern_type":  ptype,
                     "role":          role.get("name", ""),
+                    "module":        module,
                 })
+    return rows
 
-    rows = list({(r["file_pathname"], r["pattern_type"], r["role"]): r
-                 for r in rows}.values())  # dedupe
 
-    os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
+def main():
+    paths = sorted(glob.glob(XML_GLOB))
+    if not paths:
+        print(f"no XMLs found at {XML_GLOB}", file=sys.stderr)
+        return 1
+
+    all_rows = []
+    for p in paths:
+        rows = parse_xml(p)
+        print(f"  {os.path.basename(p):40s} {len(rows)} role-rows")
+        all_rows.extend(rows)
+
+    # Dedupe on (file, pattern_type, role)
+    seen = {}
+    for r in all_rows:
+        key = (r["file_pathname"], r["pattern_type"], r["role"])
+        seen[key] = r
+    deduped = list(seen.values())
+
     with open(OUT_CSV, "w", newline="") as f:
-        w = csv.DictWriter(f,
-                           fieldnames=["file_pathname", "pattern_type", "role"])
+        w = csv.DictWriter(f, fieldnames=["file_pathname", "pattern_type",
+                                          "role", "module"])
         w.writeheader()
-        w.writerows(rows)
-    print(f"Wrote {OUT_CSV} ({len(rows)} rows, "
-          f"{len(set(r['file_pathname'] for r in rows))} unique files)")
+        w.writerows(deduped)
+    unique_files = len(set(r["file_pathname"] for r in deduped))
+    print(f"Wrote {OUT_CSV} ({len(deduped)} rows, {unique_files} unique files)")
 
 
 if __name__ == "__main__":

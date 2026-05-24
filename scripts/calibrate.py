@@ -17,7 +17,8 @@ that override and note it.
 import csv, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.sd import (brooks, brooksq, debt, rework, defmap, dora, learn)
+from models.sd import (brooks, brooksq, debt, rework, defmap, dora, learn,
+                       archpat)
 
 
 def _clip(v, lo, hi):
@@ -139,6 +140,20 @@ def calibrate_learn(csv_row):
     return m.rq(), m.rq(bg=bg), notes
 
 
+def calibrate_archpat(csv_row):
+    """archpat.init has Patterned, Legacy, Drift stocks + many rate
+    params. Lift gives stock counts. ctrl is migrate, so bg override
+    is moot for the rq comparison, but stocks shape baseline."""
+    m = archpat()
+    overrides = {
+        'Patterned': float(csv_row['Patterned_n']),
+        'Legacy':    float(csv_row['Legacy_n']),
+    }
+    notes = ["Drift = NA (no recent-churn data); rate params not lifted"]
+    bg = _override_init(m.init, overrides, notes)
+    return m.rq(), m.rq(bg=bg), notes
+
+
 MODELS = [
     ('brooks',   calibrate_brooks),
     ('brooksq',  calibrate_brooksq),
@@ -147,6 +162,7 @@ MODELS = [
     ('defmap',   calibrate_defmap),
     ('dora',     calibrate_dora),
     ('learn',    calibrate_learn),
+    ('archpat',  calibrate_archpat),
 ]
 
 

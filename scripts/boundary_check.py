@@ -12,7 +12,7 @@ ranges in sd.py's init dict. Report:
 import csv, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.sd import brooks, brooksq, debt, rework, defmap, dora, learn
+from models.sd import brooks, brooksq, debt, rework, defmap, dora, learn, archpat
 
 
 CHECKS = [
@@ -40,6 +40,10 @@ CHECKS = [
         'Sr':           'Sr_n',
         'train_rate':   'train_rate',
         'promote_rate': 'promote_rate',
+    }),
+    ('archpat', archpat, {
+        'Patterned': 'Patterned_n',
+        'Legacy':    'Legacy_n',
     }),
 ]
 
