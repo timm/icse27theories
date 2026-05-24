@@ -201,20 +201,27 @@ compute_cohorts <- function(project_git, jr_max_days = 365,
 
 #' Estimate Transition Rates from Cohort Trajectories
 #'
-#' Buckets the project history into yearly slices and counts devs who
+#' Buckets the project history into time slices and counts devs who
 #' moved Jr→Tr (train) and Tr→Sr (promote) between slices. Rates =
-#' transitions / starting-bucket-size.
+#' transitions / starting-bucket-size, normalised to per-year.
+#'
+#' Slice size defaults to 90 days (not 365) to avoid the artifact where
+#' jr_max_days=365 + slice=365 forces every surviving Jr to graduate,
+#' saturating train_rate at 1.0.
 #'
 #' @param project_git A gitlog data.table with identity_id.
 #' @param jr_max_days Tenure < this = Jr at slice midpoint.
 #' @param sr_min_days Tenure >= this = Sr at slice midpoint.
-#' @return list with train_rate, promote_rate (medians over yearly slices).
+#' @param slice_days Time-slice width. Default 90.
+#' @return list with train_rate, promote_rate (medians over slices,
+#'   annualised by multiplying per-slice fractions by 365/slice_days).
 #' @export
 estimate_transition_rates <- function(project_git, jr_max_days = 365,
-                                      sr_min_days = 1095) {
+                                      sr_min_days = 1095,
+                                      slice_days = 90) {
   start <- min(project_git$author_datetimetz)
   end   <- max(project_git$author_datetimetz)
-  step  <- as.difftime(365, units = "days")
+  step  <- as.difftime(slice_days, units = "days")
   cuts  <- seq(start, end, by = step)
   if (length(cuts) < 2) return(list(train_rate = NA_real_,
                                     promote_rate = NA_real_))
@@ -247,10 +254,14 @@ estimate_transition_rates <- function(project_git, jr_max_days = 365,
     promote_n <- c(promote_n, sum(m$cohort_0 == "Tr" & m$cohort_1 == "Sr"))
   }
 
+  annualise <- 365 / slice_days
   list(
-    train_rate   = median(train_n   / pmax(jr_at_t, 1), na.rm = TRUE),
-    promote_rate = median(promote_n / pmax(tr_at_t, 1), na.rm = TRUE),
-    n_slices     = length(cuts) - 1
+    train_rate   = annualise * median(train_n   / pmax(jr_at_t, 1),
+                                      na.rm = TRUE),
+    promote_rate = annualise * median(promote_n / pmax(tr_at_t, 1),
+                                      na.rm = TRUE),
+    n_slices     = length(cuts) - 1,
+    slice_days   = slice_days
   )
 }
 

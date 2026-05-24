@@ -5,5 +5,5 @@ brooksq,leak_rate,0.571318427139553,0.604449313221539,0,0.5,helix:OUT junit5:OUT
 debt,pay_rate_median,0.588235294117647,—,0,1,helix:in junit5:-
 defmap,tst_median,0.375,0.15,-,-,n/a
 dora,cfr,0.0494021397105098,0.271923703186788,-,-,n/a
-learn,train_rate,1,1,0,1,helix:BOUND junit5:BOUND
+learn,train_rate,0.811111111111111,0.885141093474427,0,1,helix:in junit5:in
 rework,failrate_median,0.0188394652785993,0.272727272727273,0,1,helix:in junit5:in

@@ -1,2 +1,2 @@
-project,Jr_n,Tr_n,Sr_n,train_rate,promote_rate,n_slices,seed
-helix,43,21,9,1,0.375,14,1
+project,Jr_n,Tr_n,Sr_n,train_rate,promote_rate,n_slices,slice_days,seed
+helix,43,21,9,0.811111111111111,0.238562091503268,59,90,1
