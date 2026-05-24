@@ -2,7 +2,7 @@ model,key_metric,helix,junit5,lo,hi,boundary_status
 archpat,Legacy_n,384,—,0,200,helix:OUT junit5:-
 brooks,brooks_tax_median,0.112676056338028,0.222222222222222,-,-,n/a
 brooksq,leak_rate,0.571318427139553,0.604449313221539,0,0.5,helix:OUT junit5:OUT
-debt,pay_rate_median,0.588235294117647,—,0,1,helix:in junit5:-
+debt,pay_rate_median,0.588235294117647,0.589595375722543,0,1,helix:in junit5:in
 defmap,tst_median,0.375,0.15,-,-,n/a
 dora,cfr,0.0494021397105098,0.271923703186788,-,-,n/a
 learn,train_rate,0.811111111111111,0.885141093474427,0,1,helix:in junit5:in
