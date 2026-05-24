@@ -9,8 +9,9 @@ __pycache__/
 # External tool installs (large, re-clone/download per README)
 tools/
 
-# Cloned dataset (large, public — re-clone from apache/helix)
+# Cloned datasets (large, public — re-clone from upstream)
 data/helix/git_repo/
+data/*/git_repo/
 
 # Large derived artifacts (re-generate via scripts/szz_helix.py + RefactoringMiner)
 data/helix/derived/refminer.json
