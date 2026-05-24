@@ -13,9 +13,8 @@ tools/
 data/helix/git_repo/
 data/*/git_repo/
 
-# Large derived artifacts (re-generate via scripts/szz_helix.py + RefactoringMiner)
-data/helix/derived/refminer.json
-data/helix/derived/refminer_*.json
+# Large derived artifacts (re-generate via scripts/szz_*.py + RefactoringMiner)
+data/*/derived/refminer*.json
 
 # Editor / IDE
 *.swp
