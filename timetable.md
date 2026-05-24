@@ -74,7 +74,7 @@ Carlos PR review).
 | teamtopo   | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~1.5  | no org-chart data |
 | burnout    | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~1.5  | no HR/wellbeing data |
 | aidebt     | 1.0 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~2.0  | richer S0 (note_aidebt.md, regime crossover tmax≈26); no AI attribution → S7+ n/a; paper's "methodological case" |
-| archpat    | 1.0 | 0.5 | 0.5 | 0* | —  | 0* | 0.5 | 0.5 | **0.5**| 0*     | —      | ~1.5     | —       | ~4.5  | pattern4 jar + Arcan repo both on disk today. Both blocked at S10 by **need for compiled Helix bytecode** (`mvn install` of Helix). Arcan also needs `mvn install` of itself. Maven not yet installed. |
+| archpat    | 1.0 | 0.5 | 0.5 | 0* | —  | 0* | 0.5 | 0.5 | **0.5**| 0*     | **1.0**| ~1.5     | **0.5** | **~5.5** | **lift_archpat_helix.csv** ✓ Patterned=130, Legacy=384, Drift=0, Other=1471 (helix-core). **pattern4 CLI breakthrough** — IS callable via `java -jar pattern4.jar -target <classes> -output <xml>` (memory note corrected). Maven + Helix compile + pattern4 ran in this session. |
 | congruence | 0.5 | **0.3** | **0.1** | **0** | —  | **0** | **0** | 0.5 | 0.5    | 0*     | 0*     | —        | —       | **~1.9** | **SD model coded today** (broker_loss ctrl; CONFIRM gap -314.85, strongest in bank). Lift blocked: mbox not on this machine (was on Claude.ai sandbox). S10 reusable when mbox fetched |
 
 **Per-model subtotal (pre-2026-05-24 est): ~35.5h**
@@ -153,14 +153,14 @@ What actually happened, ignoring hour estimates:
 | teamtopo   | ✓ | n/a | n/a | n/a | n/a | n/a |
 | burnout    | ✓ | n/a | n/a | n/a | n/a | n/a |
 | aidebt     | ✓ | n/a | n/a | n/a | n/a | n/a |
-| archpat    | ✓ | ✓   | partial (GUI blocker) | shared git | ~ skeleton | — |
+| archpat    | ✓ | ✓   | ✓ (pattern4 CLI works) | ✓ + compiled bytecode | ✓ | **✓** |
 | congruence | ✓ (today) | ✓ | ✓ | (mbox local?) | — | — |
 
-**7 of 18 lifted on Helix in one session.** 7 structurally dark
-(data missing field-wide). 1 blocked at S8 (archpat — pattern4 GUI).
-1 SD model coded today but lift blocked at S9 (congruence — mbox not
-on this machine). **1 untouched at S12: bugs** (needs JIRA dump from
-Carlos's Drive).
+**8 of 18 lifted on Helix in one session** (brooks, brooksq, debt,
+rework, defmap, dora, learn, archpat). 7 structurally dark (data
+missing field-wide). 1 SD model coded today but lift blocked at S9
+(congruence — mbox not on this machine). **1 untouched at S12:
+bugs** (needs JIRA dump from Carlos's Drive).
 
 ## Caveats
 
@@ -209,7 +209,14 @@ Carlos's Drive).
 
 ### 2026-05-24
 
-Logged **~4.5h** active session time. Outputs:
+Logged **~5h** active session time. Outputs:
+- **pattern4.jar CLI breakthrough** — the earlier "GUI-only" memory
+  note was wrong. Working invocation:
+  `java -jar pattern4.jar -target <classes-dir> -output <xml>`.
+  Detected 147 pattern instances on helix-core (State 57, Adapter
+  42, Singleton 24, etc).
+- **lift_archpat_helix.csv** — Patterned=130, Legacy=384, Drift=0,
+  Other=1471 (helix-core, n=1985 files). 8th lift complete.
 - **congruence SD model coded** (sd.py +35 lines); CONFIRM gap
   -314.85; ALL_MODELS now 18-strong. Lift requires mbox download.
 - 7 lift CSVs in `outputs/` (brooks, brooksq, debt, rework, defmap,
