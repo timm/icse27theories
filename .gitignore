@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Python venv
+.venv/
+__pycache__/
+*.pyc
+
+# External tool installs (large, re-clone/download per README)
+tools/
+
+# Cloned dataset (large, public — re-clone from apache/helix)
+data/helix/git_repo/
+
+# Large derived artifacts (re-generate via scripts/szz_helix.py + RefactoringMiner)
+data/helix/derived/refminer.json
+data/helix/derived/refminer_*.json
+
+# Editor / IDE
+*.swp
+.idea/
+.vscode/

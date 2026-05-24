@@ -1,0 +1,103 @@
+---
+title: "Lift — Learn Model from Apache Helix"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Lift Learn}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls())
+seed <- 1
+set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr)
+source("functions.R")
+```
+
+# Introduction
+
+The `learn` model (Sterman 2000) tracks a workforce-flow pipeline:
+Jr → Tr → Sr → Ment(or). `ctrl` is `Sr` (senior stock). Thesis:
+removing seniors (`Sr = 0`) starves the training pipeline.
+
+This notebook lifts cohort counts + transition rates from Apache Helix.
+Only git + kaiaulu's identity_match required.
+
+# Project Configuration
+
+```{r}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../conf/helix.yml")
+git_repo_path <- get_git_repo_path(conf)
+perceval_path <- get_tool_project("perceval", tool)
+```
+
+# Parse Git Log + Identity Match
+
+```{r}
+project_git <- parse_gitlog(perceval_path, git_repo_path) %>%
+  filter_by_file_extension(get_file_extensions(conf), "file_pathname") %>%
+  filter_by_filepath_substring(get_substring_filepath(conf), "file_pathname")
+project_git$author_datetimetz <- as.POSIXct(project_git$author_datetimetz,
+                                            format = "%a %b %d %H:%M:%S %Y %z",
+                                            tz = "UTC")
+project_git <- identity_match(list(git_log = project_git),
+                              c("author_name_email"),
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = "identity_id")$git_log
+uniqueN(project_git$identity_id)
+```
+
+# Compute Cohorts at End of Project
+
+```{r}
+cohorts <- compute_cohorts(project_git,
+                           jr_max_days = 365,
+                           sr_min_days = 1095)
+kable(head(cohorts[order(-tenure_days)], 20))
+table(cohorts$cohort)
+```
+
+# Estimate Transition Rates
+
+```{r}
+rates <- estimate_transition_rates(project_git,
+                                   jr_max_days = 365,
+                                   sr_min_days = 1095)
+str(rates)
+```
+
+# Outputs
+
+```{r}
+dir.create("../outputs", showWarnings = FALSE)
+counts <- table(cohorts$cohort)
+out <- data.table(
+  project       = "helix",
+  Jr_n          = as.integer(counts["Jr"]),
+  Tr_n          = as.integer(counts["Tr"]),
+  Sr_n          = as.integer(counts["Sr"]),
+  train_rate    = rates$train_rate,
+  promote_rate  = rates$promote_rate,
+  n_slices      = rates$n_slices,
+  seed          = seed
+)
+fwrite(out, "../outputs/lift_learn_helix.csv")
+kable(out)
+```
+
+# Verdict Interpretation
+
+`learn`'s thesis (Sr=0 starves training) is structural — it requires
+running the SD model with `Sr` set to 0 and comparing to the calibrated
+Sr count from this lift. Plug the lifted Jr_n/Tr_n/Sr_n into the model
+init and rerun `model.rq(bg=calib)`.

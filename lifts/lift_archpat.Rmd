@@ -1,0 +1,231 @@
+---
+title: "Lift — Archpat Model from Apache Helix (GoF + RefactoringMiner)"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Lift Archpat}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls())
+seed <- 1
+set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu)
+require(data.table)
+require(stringi)
+require(knitr)
+require(yaml)
+require(magrittr)
+source("functions.R")
+```
+
+# Introduction
+
+The archpat model (Ric Kazman's claim) tests whether design patterns
+applied to an already-bad codebase can pay down architectural debt.
+The model has three stocks (Patterned files, Legacy files, Drift
+files) plus a Debt accumulator.
+
+This notebook lifts archpat parameters from Apache Helix using:
+- **pattern4.jar** for GoF pattern instances per file (Patterned partition)
+- **RefactoringMiner** for refactoring events (gen_pat: pattern application rate)
+- **kaiaulu gitlog + JIRA** for the Debt accumulator (defect frequency)
+- **Arcan** (fallback) — see note at end if pattern4 is unavailable
+
+Parameters lifted: 11 of 15 archpat init keys. Three (intr_rate,
+drift_to_legacy, pay_rate) remain fitted via sd.opt() because they
+appear only as net Debt change, not as observable individual flows.
+One (pat_strength) is dead code — flagged for Ric.
+
+# Project Configuration
+
+```{r}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../conf/helix.yml")
+
+perceval_path     <- get_tool_project("perceval", tool)
+pattern4_jar      <- get_tool_project("pattern4", tool)
+refminer_jar      <- get_tool_project("refactoring_miner", tool)
+
+git_repo_path     <- get_git_repo_path(conf)
+jira_issues_path  <- get_jira_issues_path(conf, "project_key_1")
+issue_id_regex    <- get_issue_id_regex(conf)
+
+file_extensions      <- get_file_extensions(conf)
+substring_filepath   <- get_substring_filepath(conf)
+```
+
+# Parse Git Log
+
+```{r}
+project_git <- parse_gitlog(perceval_path, git_repo_path)
+
+project_git <- project_git %>%
+  filter_by_file_extension(file_extensions, "file_pathname") %>%
+  filter_by_filepath_substring(substring_filepath, "file_pathname")
+
+project_git$author_datetimetz <- as.POSIXct(project_git$author_datetimetz,
+                                            format = "%Y-%m-%d %H:%M:%S")
+
+# Mutate gitlog to add commit_message_id (extracts issue keys from commit messages)
+project_git <- parse_commit_message_id(project_git, issue_id_regex)
+```
+
+# Parse JIRA
+
+```{r}
+parsed_jira    <- parse_jira(jira_issues_path)
+jira_issues    <- parsed_jira$issues
+jira_comments  <- parsed_jira$comments
+
+# CORRECTION: parse_jira()'s issue_status is statusCategory.name
+# ("To Do" / "In Progress" / "Done"), NOT status.name. Use "Done"
+# for "completed" semantics. See kaiaulu_notes/known_bugs.md.
+jira_bugs_done <- jira_issues[issue_type == "Bug" & issue_status == "Done"]
+
+nrow(jira_bugs_done)
+```
+
+# GoF Pattern Detection (Patterned Partition)
+
+Run pattern4.jar on a snapshot of Helix source (e.g. the HEAD commit
+of each release tag). Function defined in functions.R; calls
+parse_gof_patterns wrapper:
+
+```{r}
+release_tags <- get_release_tags(git_repo_path)
+gof_per_tag  <- lapply(release_tags, function(tag) {
+  source_path <- checkout_snapshot(git_repo_path, tag)
+  parse_gof_patterns(pattern4_jar, source_path)
+})
+names(gof_per_tag) <- release_tags
+```
+
+`parse_gof_patterns` returns a data.table per snapshot with:
+```
+file_path        chr   path within the snapshot
+pattern_type     chr   "Singleton" / "Factory Method" / ...
+pattern_role     chr   role of this file in the pattern instance
+```
+
+Build the Patterned partition for the latest snapshot:
+
+```{r}
+latest_gof  <- gof_per_tag[[length(gof_per_tag)]]
+patterned_files <- unique(latest_gof$file_path)
+length(patterned_files)
+```
+
+# RefactoringMiner (gen_pat — Pattern Application Rate)
+
+```{r}
+refminer_output <- run_refactoring_miner(refminer_jar, git_repo_path)
+refactorings    <- flatten_refactoring_json(refminer_output)
+```
+
+`flatten_refactoring_json` (in functions.R) converts the nested JSON
+into a flat data.table:
+```
+commit_hash, refactoring_type, refactoring_description,
+left_locations, right_locations
+```
+
+Per-month refactor rate as proxy for gen_pat:
+
+```{r}
+refactorings$commit_datetimetz <- merge_commit_dates(refactorings,
+                                                     project_git)
+refactor_rate_per_month <- refactorings[,
+  .N,
+  by = .(month = format(commit_datetimetz, "%Y-%m"))
+]
+gen_pat_helix <- mean(refactor_rate_per_month$N) / 30  # per day
+gen_pat_helix
+```
+
+# Build Legacy and Drift Partitions
+
+A file is **Legacy** if it has high accumulated bug frequency AND no
+GoF pattern participation. A file is **Drift** if it has changed
+hands recently (high churn) but has no pattern instance yet.
+
+```{r}
+file_bug_freq <- compute_file_bug_frequency(project_git,
+                                            jira_bugs_done,
+                                            issue_id_regex)
+file_churn    <- compute_file_churn(project_git,
+                                    window_days = 180)
+
+partition <- assign_file_partition(
+  patterned_files = patterned_files,
+  file_bug_freq   = file_bug_freq,
+  file_churn      = file_churn,
+  legacy_bug_threshold   = 5,
+  drift_churn_threshold  = 0.7
+)
+
+partition[, .N, by = stock]
+```
+
+# Lift the Other archpat Parameters
+
+```{r}
+init_archpat <- list(
+  Patterned    = partition[stock == "Patterned",   .N],
+  Legacy       = partition[stock == "Legacy",      .N],
+  Drift        = partition[stock == "Drift",       .N],
+  Debt         = sum(file_bug_freq$bug_count),  # total accumulated debt
+  Feat         = compute_feature_velocity(project_git, jira_issues),
+  migrate      = compute_migration_rate(gof_per_tag),
+  decay_rate   = compute_smell_appearance_rate(gof_per_tag),
+  gen_pat      = gen_pat_helix,
+  gen_leg      = compute_legacy_growth_rate(project_git, patterned_files),
+  born_pat     = compute_born_pat_rate(refactorings, gof_per_tag),
+  born_leg     = compute_born_leg_rate(project_git, patterned_files)
+  # intr_rate, drift_to_legacy, pay_rate: fitted via sd.opt(),
+  # not lifted (only net Debt change is observable)
+  # pat_strength: defined in sd.py but unused in step() — flag for Ric
+)
+str(init_archpat)
+```
+
+# Sanity Checks
+
+**(1) Bug-count dependency**: this lift uses bug counts heavily for
+the Legacy partition and the Debt accumulator. Therefore JIRA is
+required. Helix has JIRA — OK. Datasets without JIRA (or equivalent
+issue tracker) cannot support archpat as-is.
+
+**(2) Identity bridging**: comms data (mbox, github) is not used in
+this lift, so the comms↔code identity_match constraint does not
+apply. Only git's own identity_match runs.
+
+# Outputs for the SD Framework
+
+```{r}
+out <- as.data.table(init_archpat)
+out[, project := "helix"]
+out[, seed := seed]
+fwrite(out, "../outputs/lift_archpat_helix.csv")
+kable(out)
+```
+
+# Fallback: Arcan Instead of pattern4.jar
+
+If pattern4.jar is unavailable, substitute Arcan smells for the
+Patterned/Legacy partition. The smells are conceptually different
+(anti-patterns rather than GoF patterns) but structurally identical
+— each row is (file, smell_type, smell_id). The downstream
+partition assignment in `functions.R::assign_file_partition` accepts
+either Arcan or pattern4 output as long as it has a `file_path`
+column.
+
+Note in any paper deliverable which detector was used; the model is
+agnostic but the empirical numbers will differ.

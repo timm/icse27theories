@@ -1,0 +1,176 @@
+---
+title: "Lift — Brooks Model from Apache Helix"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Lift Brooks}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls())
+seed <- 1
+set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu)
+require(data.table)
+require(stringi)
+require(knitr)
+require(yaml)
+require(magrittr)
+source("functions.R")
+```
+
+# Introduction
+
+The Brooks model expresses the thesis from *The Mythical Man-Month*:
+adding people to a late project makes it later. The SD form has two
+stocks (veteran developers and new hires) and a productivity tax on
+veterans when newcomers join (training time, comm overhead).
+
+This notebook lifts Brooks parameters from Apache Helix using only
+the git log and kaiaulu's identity_match. No proprietary tools needed.
+
+The lift produces three calibration values:
+- `late_hire_events`: timestamps where new committers first appear
+- `pre_velocity`: veteran commit rate in the window before each hire
+- `post_velocity`: veteran commit rate in the post-hire window
+
+The SD parameter `brooks_tax` = (pre_velocity - post_velocity) /
+pre_velocity. Positive values support Brooks; negative values
+falsify (paradoxical: new hires accelerate veterans).
+
+# Project Configuration
+
+```{r}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../conf/helix.yml")
+
+perceval_path <- get_tool_project("perceval", tool)
+git_repo_path <- get_git_repo_path(conf)
+
+file_extensions      <- get_file_extensions(conf)
+substring_filepath   <- get_substring_filepath(conf)
+```
+
+# Parse Git Log
+
+```{r}
+project_git <- parse_gitlog(perceval_path, git_repo_path)
+
+project_git <- project_git %>%
+  filter_by_file_extension(file_extensions, "file_pathname") %>%
+  filter_by_filepath_substring(substring_filepath, "file_pathname")
+
+project_git$author_datetimetz <- as.POSIXct(project_git$author_datetimetz,
+                                            format = "%a %b %d %H:%M:%S %Y %z",
+                                            tz = "UTC")
+```
+
+Sanity check the basic shape:
+
+```{r}
+nrow(project_git)
+length(unique(project_git$commit_hash))
+length(unique(project_git$author_name_email))
+```
+
+# Identity Resolution
+
+Merge name+email aliases so one human contributor is one developer.
+Required by Carlos's sanity check #2 (single source here, but
+identity_match is the canonical kaiaulu step).
+
+```{r}
+project_log <- list(git_log = project_git)
+name_column <- c("author_name_email")
+project_log <- identity_match(project_log,
+                              name_column,
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = "identity_id")
+project_git <- project_log$git_log
+```
+
+After identity_match, each row has `identity_id` and `raw_name`. Use
+`identity_id` for all downstream cohort analysis.
+
+# Detect Late-Hire Events
+
+A late hire is a developer whose first commit is at least
+`min_project_age_days` after project start. Function defined in
+`functions.R`:
+
+```{r}
+project_start <- min(project_git$author_datetimetz)
+late_hires    <- detect_late_hires(project_git,
+                                   min_project_age_days = 365)
+kable(head(late_hires, 20))
+```
+
+# Compute Veteran Velocity Before and After Each Hire
+
+Window size in days:
+
+```{r}
+window_days <- 90
+```
+
+```{r}
+velocity_changes <- compute_velocity_changes(project_git,
+                                             late_hires,
+                                             window_days = window_days)
+kable(velocity_changes)
+```
+
+# Compute brooks_tax
+
+```{r}
+brooks_tax_values <- velocity_changes[,
+  brooks_tax := (pre_velocity - post_velocity) / pre_velocity
+]
+
+summary(brooks_tax_values$brooks_tax)
+```
+
+Median brooks_tax for Helix is the calibration value for the SD
+`brooks` model. A positive median supports Brooks; a negative or near-zero
+median is itself an interesting falsification.
+
+# Sanity Checks
+
+Carlos's two-part check:
+
+**(1) Bug-count dependency**: this lift does NOT use bug count, so
+the choice of communication source (mbox/github/jira) is irrelevant.
+The lift would work on any git-only project.
+
+**(2) Identity bridging**: we used identity_match on a single source
+(git). The lift does not require comms-to-code bridging. If the
+brooks model were later extended to discriminate bug-introducing
+late-hires from feature-introducing late-hires, JIRA + git
+identity_match would be required, and GitHub would need an extra
+alias source.
+
+# Outputs for the SD Framework
+
+Write the calibrated `brooks_tax` value(s) to a CSV the Python
+framework can consume:
+
+```{r}
+out <- data.table(
+  project          = "helix",
+  brooks_tax_median = median(brooks_tax_values$brooks_tax, na.rm = TRUE),
+  brooks_tax_mean   = mean(brooks_tax_values$brooks_tax,   na.rm = TRUE),
+  n_hires          = nrow(velocity_changes),
+  window_days      = window_days,
+  seed             = seed
+)
+fwrite(out, "../outputs/lift_brooks_helix.csv")
+kable(out)
+```

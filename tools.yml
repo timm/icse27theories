@@ -1,0 +1,4 @@
+perceval: /Users/timm/gits/timm/icse27theories/.venv/bin/perceval
+refactoring_miner: /Users/timm/gits/timm/icse27theories/tools/RefactoringMiner-3.0.10/bin/RefactoringMiner
+pattern4: /Users/timm/gits/timm/icse27theories/tools/pattern4/pattern4.jar
+tmp: /tmp

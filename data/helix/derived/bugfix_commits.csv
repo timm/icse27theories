@@ -1,0 +1,181 @@
+commit_hash,jira_keys,author,date,files_touched,msg_first_line
+b8d5fce331675d4d00d65e1626bb41bd5849d70c,HELIX-86,zzhang@linkedin.com,2012-08-07T14:30:23-07:00,8,fix replica=null problem in idealState. add a test case. Helix-86 reduce log severity from ERROR to WARN when session id
+717d041ec2415c68c491c42c1f702a6dad457e35,HELIX-89,zzhang@linkedin.com,2012-08-13T11:22:02-07:00,2,Helix-89: Helix reset partitio need to check partition exists and in error state before send ERROR->initialState message
+986892cbca57c6eb0470f31657ab204378d98baf,HELIX-92,zzhang@linkedin.com,2012-08-13T14:55:34-07:00,2,Helix-92: drop instance should fail and give an error message  if instance is still in LIVEINSTANCES
+b9cbbd409b676ad9c57115ee2aee3108d2f5becd,HELIX-3,olamy@apache.org,2012-10-25T10:01:27+02:00,12,[HELIX-3] Fix license headers in sources
+3e1c461060615d543f15424ca4890410e857194a,HELIX-3,olamy@apache.org,2012-10-25T10:44:11+02:00,39,[HELIX-3] Fix license headers in sources
+bb501c5a58c1fd4f244cd7deba71ade9bdc2d9d6,HELIX-3,olamy@apache.org,2012-10-25T13:58:24+02:00,56,[HELIX-3] Fix license headers in sources
+c54c616333fa4a6d28b2fdf4d256d3e9d928b076,HELIX-3,olamy@apache.org,2012-10-25T23:53:15+02:00,391,[HELIX-3] Fix license headers in sources
+ff79cce91b3ba8942fe6ceba1428e8c9a5c54bdd,HELIX-3,olamy@apache.org,2012-10-26T17:35:26+02:00,39,[HELIX-3] Fix license headers in sources
+22113e82623a086052904c2037b9719cc9257eff,HELIX-5,g.kishore@gmail.com,2012-11-14T10:23:56-08:00,4,[Helix-5] Fixing a broken test case after removing deprecated api
+2d2b85f94e113e54733bfd8a792c1e1318f70a24,HELIX-7,lushi04@gmail.com,2012-11-14T16:50:10-08:00,5,[HELIX-7] update waiting parameters in testcases to fix helix random
+4167d37719f8efbd6cddc3a8d1b803fdd72e519f,HELIX-7,lushi04@gmail.com,2012-11-14T20:11:52-08:00,1,[HELIX-7] Tune test parameters to fix random test failures
+0fff6b82d8f8727d4f080eff8f3801836c2fb780,HELIX-7,zzhang@apache.org,2012-11-19T14:21:01-08:00,1,[HELIX-7]: Tune test parameters to fix random test failures
+7d478437de4dfe510fd09498b4df71be7c51ecd9,HELIX-7,zzhang@apache.org,2012-11-28T15:43:55-08:00,2,[HELIX-7] fix random test failures
+fdd48b963ef6ec0013646e4efc905d99b3c4dc6b,HELIX-14,zzhang5@uci.edu,2012-12-10T14:49:57-08:00,1,[Helix-14] fix error in ivy file
+747f21d5814a831a85cc970cb0c2670e753e5ea2,HELIX-7,lushi04@gmail.com,2012-12-17T17:25:17-08:00,2,[HELIX-7] Tune test parameters to fix random test failures
+bbdd6ae6b8b446c0fc816acbdfc413fffeb61c90,HELIX-7,lushi04@gmail.com,2012-12-19T12:20:51-08:00,1,[Helix-7]Tune test parameters to fix random test failures
+f7cc98631ef9e82f90b8ca90cda50a40b7811ac8,HELIX-7,lushi04@gmail.com,2013-01-02T10:59:15-08:00,2,[HELIX-7]Tune test parameters to fix random test failures
+914b6780267fb029b05b774f253ed0dc628067fb,HELIX-18,g.kishore@gmail.com,2013-01-06T09:17:33-08:00,1,[HELIX-18] Moving some rebalancing methods to HelixAdmin from clustersetup. FIX
+03423e6248fb970251c4443ddba94fac79076d93,HELIX-40,zzhang5@uci.edu,2013-02-03T17:50:00-08:00,15,HELIX-40: fix zkclient subscribe path leaking and zk callback-handler leaking in case of session expiry
+c744c1b8b457488e48ef1cc08193662e61722e89,HELIX-41,zzhang5@uci.edu,2013-02-03T18:17:01-08:00,2,HELIX-41: fix intermittent test failures
+ca1ef910820f938d8ff2f2f77d7f5c0c6b46e56a,HELIX-41,zzhang5@uci.edu,2013-02-03T18:26:57-08:00,1,HELIX-41: fix intermittent test failures
+18d2e636279f77af87dbc19dd3da2ba9132e040e,HELIX-41,zzhang5@uci.edu,2013-02-03T18:31:48-08:00,1,HELIX-41: fix intermittent test failures
+f82ddf27009eb4e92e9fed65d90e64a267524ed0,HELIX-41,zzhang5@uci.edu,2013-02-04T14:40:01-08:00,2,HELIX-41: fix intermittent test failures
+2ce94bc413c3d184b801a99bb5d6ca4cab8e903c,HELIX-41,zzhang5@uci.edu,2013-02-05T10:39:31-08:00,1,HELIX-41: fix intermittent test failures
+1ec3ac65ada7801ceb62900a30dcbd66a8f82037,HELIX-41,zzhang5@uci.edu,2013-02-05T10:52:01-08:00,2,HELIX-41: fix intermittent test failures
+c3de04f61208f91e026dafc5ea0169c96c35d9d5,HELIX-41,zzhang5@uci.edu,2013-02-05T15:38:28-08:00,1,HELIX-41: fix intermittent test failures
+88cd2143251e9970446ed631325f5e593be3b46c,HELIX-41,zzhang5@uci.edu,2013-02-06T15:47:45-08:00,3,HELIX-41: fix intermittent test failures
+98b6c97ad8519df3680630f0adc7729cec57e72a,HELIX-41,zzhang5@uci.edu,2013-02-07T11:01:55-08:00,3,HELIX-41: fix intermittent test failures
+76aa2b660342fa5ac2ba9afedfdbf93825480fac,HELIX-41,zzhang5@uci.edu,2013-02-11T10:33:48-08:00,1,HELIX-41: fix intermittent test failures
+0c01bbbdb8ef2daf4a15aabe02f65ea4d5b2b4ef,HELIX-7,lushi04@gmail.com,2013-02-19T18:50:39-08:00,1,[HELIX-7]Fix a test compile issue
+7d454672062b7652704daeafb5dac4bbeb50dd14,HELIX-7,lushi04@gmail.com,2013-02-20T10:33:20-08:00,1,[HELIX-7] fix intermittent failures
+7c14fdeb8a21f8bc9206538ae50e0049beb2486e,HELIX-76,g.kishore@gmail.com,2013-03-29T08:29:03-07:00,1,[HELIX-76] minor bug fix in changeloggenerator where parsing file name
+cd8272c952377ef9bbb478356ea4a2a9f8e7d3fa,HELIX-43,zzhang5@uci.edu,2013-04-01T11:07:34-07:00,28,HELIX-43: Add support for error->dropped transition
+fe6c846b1a138a719484b344c9bf5d7310301df4,HELIX-7,lushi04@gmail.com,2013-04-02T18:53:43-07:00,1,[HELIX-7]Fix test failure
+58944dc4bbb6a427da6b557851a456b07856c143,HELIX-7,lushi04@gmail.com,2013-04-02T19:04:24-07:00,4,[HELIX-7] fix test failures
+26ea0afc38a81db917a3633ac311b52576429743,HELIX-7,lushi04@gmail.com,2013-04-04T18:10:54-07:00,1,[HELIX-7] fix intermitent test failures
+c50a1ae8d6cfa6c19fa4e94ef1ecb5030bfa1b64,HELIX-73,lushi04@gmail.com,2013-04-12T18:40:02-07:00,3,[HELIX-73] fix build failures
+c8393f0485ceacc97df0894df3889ede0171ffc0,HELIX-81,zzhang5@uci.edu,2013-04-15T18:34:05-07:00,1,HELIX-81: org.apache.helix.manager.zk.ZKUtil#isClusterSetup() should not log error
+6d5397990d9629009e304ae6eea4a046d5429871,HELIX-195,zzhang@apache.org,2013-08-06T13:34:59-07:00,15,HELIX-195: fix race condition between FINALIZE callbacks and zk callbacks  rb=13345
+d1808bc6f0d25bff0d4cb5a2183bccdac207180e,HELIX-147,zzhang@apache.org,2013-08-06T15:39:46-07:00,1,HELIX-147: Fix typo in Idealstate property max_partitions_per_instance  rb=13364
+11df95e810a0102584d4ba690dcbe241a8a00b1b,HELIX-197,zzhang@apache.org,2013-08-09T13:29:34-07:00,9,HELIX-197: fix state model leak  rb=13437
+f1a80a40f37baf788c1df298e005e1ddee4c0bca,HELIX-197,zzhang@apache.org,2013-08-09T14:27:12-07:00,1,HELIX-197: fix state model leak  fix compile error  rb=13437
+8592340ffa84e92602e1345d0d6e53caa87f7683,HELIX-221,zzhang5@uci.edu,2013-08-20T21:47:07-07:00,2,[HELIX-221] Can't find default error->dropped transition method using name convention  rb=13700
+34369b26de712ef85bd9c86cf4576844071c2b6f,HELIX-221,zzhang5@uci.edu,2013-08-20T22:07:51-07:00,1,[HELIX-221] Can't find default error->dropped transition method using name convention  rb=13700  fix compile error
+0c3796b304c1b26f5887073295faee324f8411fa,HELIX-264,zzhang@apache.org,2013-10-18T14:28:43-07:00,3,[HELIX-264] fix zkclient#close() bug  port fix to 0.6.2 release branch  rb=14483
+a3a2e87a8f3ee016339b7a6e300f362db3e141c0,HELIX-144,kanak@apache.org,2013-10-18T16:31:58-07:00,1,[HELIX-144] Validate StateModelDefinition before adding it to the cluster (fix test failure)  rb=14704
+610b28be9a16cc10dcd4f5daf8a1ef8127163fa5,HELIX-274,kanak@apache.org,2013-10-22T17:26:58-07:00,2,[HELIX-274] Verify FULL_AUTO tagged node behavior  fix bug in AutoRebalancer  rb=14858
+711561b8ad342819969c3964dc3a0af8c0c04307,HELIX-284,kanak@apache.org,2013-10-30T15:50:36-07:00,1,[HELIX-284] Support participant auto join in YAML cluster setup (fix issue)  rb=15070
+cfc099e28b1b092f1d401954cec679626dd7788a,HELIX-343,zzhang@apache.org,2013-12-10T16:07:21-08:00,3,[HELIX-343] fix bump-up.command  rename ivy files to 0.6.3
+1689c67366b9f1947547271328db453713fe1a96,HELIX-343,zzhang@apache.org,2013-12-10T18:00:06-08:00,2,[HELIX-343] fix ivy files
+d8a618eaf741a876eeb6304d0f69a4e85b7f922c,HELIX-343,zzhang5@uci.edu,2013-12-11T16:27:08-08:00,2,[HELIX-343] fix ivy files
+4e881378cd262505efa6ea6378cfcb0a88d2902f,HELIX-380,zzhang5@uci.edu,2014-02-13T16:19:46-08:00,6,[HELIX-380] Incompatibility issue with HELIX_PROPERTYSTORE  rb=18053
+c7b54e26bd1ed4341a95009b7e7ceef08fca6778,HELIX-378,kanak@apache.org,2014-02-19T13:34:44-08:00,2,[HELIX-378] Add instance gauges to ClusterStatusMonitor  fix test failure
+44707c6c6b0a58da1c54aa0fdf341fae2f030a39,HELIX-383,kanak@apache.org,2014-02-20T14:29:23-08:00,1,[HELIX-383] Fix Javadoc for HelixManager usage
+304995e75a1f65810157455b9bc416fc40bf250d,HELIX-397,kanak@apache.org,2014-03-05T17:59:34-08:00,4,[HELIX-397] REST GET for resources should include tag information  fix CI issue
+c6cb2c2c8ff4fc5ba4644f2503117c210c4bfebc,HELIX-363,kanak@apache.org,2014-03-12T10:35:19-07:00,1,[HELIX-363] Fix hpost-review for TLP  rb=17167
+4dc2b42576490c1b0479b0b50c5073b67bacfcfe,HELIX-410,kanak@apache.org,2014-03-20T15:41:09-07:00,3,[HELIX-410] Fix parsing and filtering of resources in ClusterStateVerifier
+82d9d09bf4aeae77ddd6b0cb9fef6d8ba95dda17,HELIX-414,kanak@apache.org,2014-03-25T14:19:25-07:00,2,[HELIX-414] Fix property store paths for rsync recipe
+d540ba8a20795d474472c62a89dc1b7bb5afd011,HELIX-423,kanak@apache.org,2014-04-03T12:59:25-07:00,5,[HELIX-423] Remove election code duplication  fix metrics reset
+44d4d17cf73b07178c035b4bd55cc810d0b3ad42,HELIX-429,kanak@apache.org,2014-04-12T11:53:43-07:00,2,[HELIX-429] Upgrade restlet to 2.2.0  fix ivy files
+9a1c205d986ca6a60609b2467d264222f01daa16,HELIX-433,kanak@apache.org,2014-04-16T16:55:17-07:00,2,[HELIX-433] Fix how FULL_AUTO responds to untagging
+2ef81543bebcd9bae0a73d36329717760ad77613,HELIX-430,kanak@apache.org,2014-05-20T16:30:53-07:00,5,[HELIX-430] Fix test failures caused by restlet 2.2
+05147327c5b59f1eb3570f08dd9419201cea1efd,HELIX-443,zzhang@apache.org,2014-05-21T15:09:14-07:00,1,[HELIX-443] Race condition in Helix register/unregister MessageHandlerFactory  rb=21248
+590f65cf9538435c89dfd71922479b281a159e60,HELIX-445,zzhang@apache.org,2014-05-21T18:26:40-07:00,12,[HELIX-445] NPE in ZkPathDataDumpTask  rb=21504
+7ecee11d6e4faf84cf994aa4f616c04f766e5205,HELIX-464,zzhang@apache.org,2014-06-26T17:10:19-07:00,7,[HELIX-464] rabbitmq recipe is broken  rb=23099
+4f85a26fff1d27a2849a99f6597c11b40248273c,HELIX-491,zzhang5@uci.edu,2014-07-28T16:14:39-07:00,1,[HELIX-491] ZKHelixManager#waitUntilConnected() bug  rb=24016
+d9869eae1f5ba7006c744d3024840712d0f45347,HELIX-422,kanak@apache.org,2014-08-07T13:47:53-07:00,1,[HELIX-422] Simplify single job creation  fix merge
+45a9fd3a960f6bb7b32c3135fb692ab23e8dc5a7,HELIX-550,kanak.b@hotmail.com,2014-11-18T20:41:20-08:00,1,[HELIX-550] ZKHelixManager should shutdown GenericHelixController  minor fix
+b2794e744e945da966c7ac6ae6408636951281d3,HELIX-555,acurtis@linkedin.com,2014-11-20T20:36:01-08:00,1,[HELIX-555] Fix deficiency in ClusterStateVerifier api
+5378afab5646a6451665c1d8d3edb699daea5c64,HELIX-541,zzhang@apache.org,2014-11-25T10:59:30-08:00,12,[HELIX-541] Fix possible livelock in Helix controller  rb=28413
+e89174053fa9c447dacd99af3fcba89c82467b60,HELIX-559,zzhang@apache.org,2014-12-11T16:52:32-08:00,13,[HELIX-559] Fix Helix web admin performance issues  rb=28974
+e2e3fec2daaba859f8b9ff40c9bb08720f63db02,HELIX-559,zzhang@apache.org,2014-12-15T13:17:01-08:00,2,[HELIX-559] Fix Helix web admin performance issues  add missing a test
+3a4ff21b4424be359205d53e16e9504217bcae8f,HELIX-574,zzhang5@uci.edu,2015-03-12T00:31:28-07:00,9,[HELIX-574] fix bucketize resource bug in current state carryover  rb=31970
+d83fb5801bb623e716af3672f979614b41983b6b,HELIX-569,zzhang@apache.org,2015-03-17T11:35:07-07:00,3,[HELIX-569] fix ivy files issue
+5dc6fe7c393db2e60f22025d41b39425e075ae29,HELIX-580,zzhang@apache.org,2015-03-17T14:12:04-07:00,1,[HELIX-580] Fix test: TestBatchMessage#testSubMsgExecutionFail  rb=32173
+49ceac0e9449940546e37628780e5098ac4e8678,HELIX-578,lxia@linkedin.com,2015-03-19T13:54:05-07:00,3,[HELIX-578] NPE while deleting a job from a recurrent job queue.
+e924a4c4ee1f1c52dcf6b478bbc88d3050e9d0f8,HELIX-584,lxia@linkedin.com,2015-03-20T16:02:05-07:00,5,[HELIX-584] SimpleDateFormat should not be used as singleton due to its race conditions.
+516faa0c504c807bbc9133694998f227e8e0d114,HELIX-587,zzhang@apache.org,2015-03-20T21:30:48-07:00,2,[HELIX-587] Fix NPE in ClusterStateVerifier  rb=32344
+e94a9f5f90099a248181d6dc50314aec0e8d9512,HELIX-589,cji@linkedin.com,2015-04-02T15:40:09-07:00,2,[HELIX-589] Delete job API throws NPE if the job does not exist in last scheduled workflow
+308c2cc6f45d9c942d9b4a8f52e4cf534528e2d5,HELIX-612,cji@linkedin.com,2015-09-24T10:03:40-07:00,12,[Helix-612] Bump up the version of zkClient and zookeeper to avoid NPE
+456ddb0c4a900ee7cdf081777eff9445378df513,HELIX-613,lxia@linkedin.com,2015-11-07T22:43:04-08:00,2,[HELIX-613] Fix thread leaking problems in TaskStateModel by sharing one thread pool among all tasks and timeout tasks f
+d129d3ab780adb1ff41fe5a0bfb3dafd7d5068a3,HELIX-614,lxia@linkedin.com,2015-11-20T15:38:31-08:00,5,[HELIX-614] Fix the bug when job expiry time is shorter than job schedule interval in recurring job queue.
+6b6bb8f601099b4de5189172b050d5f1df2e2a41,HELIX-624,cji@linkedin.com,2016-01-13T10:18:58-08:00,1,[Helix-624] Fix NPE in TestMessageService.TestMultiMessageCriteria
+1563338ee5488f5f1e563059ee127edd1ac350c6,HELIX-645,jxue@linkedin.com,2016-12-15T16:49:25-08:00,1,[HELIX-645] Fix Task State Model INIT priority number
+4c3fc7f6613e04ba85b88f5acbd6a16044331847,HELIX-649,jxue@linkedin.com,2016-12-16T15:26:22-08:00,1,[HELIX-649] Fix StateModelDef name is not consistent
+befcc65c2e67df9767ab5d2eca837339894c5581,HELIX-653,jxue@linkedin.com,2017-02-09T11:36:32-08:00,12,[HELIX-653] Fix enable/disable partition in instances for resource specific
+8d409fc7e466b583fe09774ef2d2c1ad850d6c56,HELIX-631,jxue@linkedin.com,2017-05-10T11:22:01-07:00,2,[HELIX-631] Fix AutoRebalanceStrategy replica not assigned
+091337c4249f37fd3235c9cf630a861a6abee557,HELIX-657,jjwang@linkedin.com,2017-05-24T12:05:57-07:00,6,[HELIX-657] Fix unexpected idealstate overwrite when persist assignment is on.
+8cbbf834efa30b07c31067e1b48ac6332763b02e,HELIX-654,wkong@linkedin.com,2017-07-12T13:58:05-07:00,11,[HELIX-654] Running task rebalance
+d57882b9b613a2203886e1ef0da74ccc077d64c3,HELIX-668,jxue@linkedin.com,2017-10-03T18:47:09-07:00,4,[HELIX-668] Fix remove context with namespaced job name
+d2c3ebb486c95a010a0d6c9dcafa2b968e30fce2,HELIX-670,dongqixue@gmail.com,2017-10-04T13:57:23-07:00,2,[HELIX-670] Fix typo in Javadoc
+401ada6391883f5cfcd7e04858dc94ee2b227ff7,HELIX-631,jjwang@linkedin.com,2018-01-24T18:30:33-08:00,3,Temporary disable logging rebalance error before HELIX-631 is resolved.
+ec7eaaae93b47f3cb5a5a3aea5513335b7349910,HELIX-661,hrzhang@linkedin.com,2018-01-24T18:32:42-08:00,1,HELIX-661: fix accidentally deleted import
+f415f606c521ed05c3f51ca805952e431b88815c,HELIX-673,jxue@linkedin.com,2018-01-29T18:12:15-08:00,1,[HELIX-673] Fix inconsistent behavior in ZKCacheBaseDataAccessor
+9083950d9a0e5f5c377672fb5b21af13cdde0d9a,HELIX-676,jjwang@linkedin.com,2018-03-08T17:24:28-08:00,2,[HELIX-676] Fix the issue that the controller keep updating idealstates when there is no real diff.
+08ff9d0b287ece2a17f2430ba82bd4f2373263e7,HELIX-676,jjwang@linkedin.com,2018-03-08T17:25:01-08:00,1,[HELIX-676] Adding test for intermediate state cal stage.
+5383e7318e874d94bb0f01072be56bb57c392275,HELIX-677,jjwang@linkedin.com,2018-03-13T15:52:42-07:00,1,[HELIX-677] Change error log to info/warning when replica count cannot be read in ResourceMonitor.
+b5c72bc164e8be8155c6108cb8d4567122aafd12,HELIX-678,jjwang@linkedin.com,2018-03-13T15:57:07-07:00,1,[HELIX-678] Don't clear event queues when the controller is no longer leader.
+f9e43c0229be20ea1f34cb5aa7f26f3452b99486,HELIX-844,jxue@linkedin.com,2018-04-02T11:21:59-07:00,3,Avoid to read data from ZK for ExternalViewStage
+90ef589aa47ef1726356ce5ea37e12d27372b342,HELIX-699,narendly@gmail.com,2018-04-19T14:10:50-07:00,1,[HELIX-699] Compare InstanceConfigs using their IDs in RoutingTable
+fa7cabf7ea12a4046b824a674294887bae82a99b,HELIX-897,jxue@linkedin.com,2018-04-19T17:40:30-07:00,5,Make Task limitation configurable and refactor the system property keys
+317c300c8f951c7e8308cb0b24e48f97a1ef32ef,HELIX-696,zhan849@usc.edu,2018-04-20T09:56:34-07:00,6,[HELIX-696] fix workflow state flip-flop issue
+5f9fadc72bc1916f008792707db848ee51bbd997,HELIX-682,zhan849@usc.edu,2018-04-24T15:40:17-07:00,3,[HELIX-682] delete duplicated message and log error in HelixTaskExecutor on participant
+8a6ac8ff278aa9b4ad8445700266af820d0d62cc,HELIX-714,narendly@gmail.com,2018-07-09T13:52:19-07:00,4,[HELIX-714] [HaaS] Fix aggregate metrics in ClusterStatusMonitor
+c35551c374a852d89b4ccbe5efd43cb395e33a68,HELIX-723,narendly@gmail.com,2018-07-10T11:36:51-07:00,1,[HELIX-723] Remove null statement from AssignableInstanceManagerControllerSwitch
+030706c96968745c8b459f745ddc31e8458ddf99,HELIX-719,narendly@gmail.com,2018-07-10T14:16:43-07:00,1,[HELIX-719] [HELIX] Verify downward load balance and fix TestPartitionMovementThrottle
+d02083e652797673e4826a45fc19896f610803c2,HELIX-929,lxia@linkedin.com,2018-07-11T15:28:06-07:00,16,Change RoutingDataCache to use zk version based selective update when reading the ExternalViews and TargetExternalView.
+c145c7c71b996f7a223d82683f1eeff8222f728c,HELIX-1052,jjwang@linkedin.com,2018-07-12T13:45:17-07:00,2,DelayedAutoRebalancer should calculate assignment based on full partition list.
+4db61b56e473b64ec9956f694dd2ac6a8d328ed4,HELIX-730,narendly@gmail.com,2018-07-13T17:38:58-07:00,39,[HELIX-730] Add ThreadCountBasedAssignmentCalculator and integrate with Workflow/JobRebalancer and fix rebalancing logic
+343f8dd33d49a74e6def97a9e58b4adf6b007ee3,HELIX-731,narendly@gmail.com,2018-07-16T14:55:31-07:00,2,[HELIX-731] Fix TestStateTransitionThrottle and comparison operator change
+bd171f26d164dc33ac91fc393d11de269c2665b0,HELIX-733,narendly@gmail.com,2018-07-16T15:02:47-07:00,1,[HELIX-733] Fix TestAssignableInstanceManagerControllerSwitch
+811222654a255924edef768bf5d4000c6f146f1f,HELIX-734,narendly@gmail.com,2018-07-17T11:41:09-07:00,2,[HELIX-734] Fix test configs for TestRecoveryLoadBalance
+f4bb7d60782150c7d713c907211cc9d41f002c48,HELIX-740,hrzhang@linkedin.com,2018-07-17T15:50:02-07:00,1,[HELIX-740] check NPE in getInstancesInClusterWithTag and throw more meaningful exception
+c012c7b9dea35137935ac29c035a96aea570bf9c,HELIX-743,narendly@gmail.com,2018-07-24T12:20:00-07:00,1,[HELIX-743] Fix purgeExpiredJobs() so that jobs whose removal has failed do not get removed from DAG
+0af6e8c19af5ee916f93acd8582e53b776e9c712,HELIX-745,narendly@gmail.com,2018-07-24T17:47:50-07:00,4,[HELIX-745] Make AssignableInstanceManager listen on data changes to update AssignableInstances
+ae23842d24409e26c67f5c99113762bd0eb714b0,HELIX-746,narendly@gmail.com,2018-07-24T17:48:32-07:00,1,[HELIX-746] Fix removeJob so its behavior is more consistent with removeWorkflow
+580f1facc349cfcaa8cab93de3409834dd592ac4,HELIX-752,hulee@linkedin.com,2018-09-21T13:32:54-07:00,1,[HELIX-752] Add missing shutdown for RoutingTableProvider
+11b721350091247cd3aa9716345ebdd53199ab53,HELIX-751,hulee@linkedin.com,2018-09-21T13:40:20-07:00,1,[HELIX-751] TASK: Fix AssignableInstanceComparator so that it sorts unsupported quota types
+1b4e0bbb89736ea7e0bd92c1af98e1ab102397f1,HELIX-985,jxue@linkedin.com,2018-09-21T15:14:38-07:00,4,Create AbstractTaskDispatcher for future Task Framework
+e492d9f663d8edad0f344208cc8affc6828708a3,HELIX-763,hulee@linkedin.com,2018-10-26T18:49:52-07:00,1,[HELIX-763] Task:Ignore tasks whose workflow and job are inactive
+d33d9efea25fe9d2bbbb9e84a4ce7614b544ef2d,HELIX-764,hulee@linkedin.com,2018-10-26T19:03:47-07:00,1,[HELIX-764] TASK: Fix LiveInstanceCurrentState change flag
+930a4b7ae7eb63be0a751a593ba630ae55fb2cfb,HELIX-765,hulee@linkedin.com,2018-10-26T19:06:42-07:00,1,[HELIX-765] TASK: Build quota profile from scratch every rebalance
+65bb35090a90679cc0973d142a1d9a27d1522bbe,HELIX-768,hulee@linkedin.com,2018-10-29T15:54:04-07:00,2,[HELIX-768] TASK: Fix a bug in WorkflowAccessor
+cf010f90426003dab7e713945c2c9daa23ffed13,HELIX-770,hulee@linkedin.com,2018-10-29T17:47:51-07:00,2,[HELIX-770] HELIX: Fix a possible NPE in loadBalance in IntermediateStateCalcStage
+ceba1a55ae351090144c001324f908f2364212a4,HELIX-778,hulee@linkedin.com,2018-10-31T17:20:37-07:00,2,[HELIX-778] TASK: Fix a race condition in updatePreviousAssignedTasksStatus
+3844ad60034b029f3bbd916f629a7969117c1b26,HELIX-782,narendly@gmail.com,2018-11-01T16:54:48-07:00,3,[HELIX-782] TASK: Make TaskDriver use ZKClient's create when creating workflows
+befb1036f8d8be2729a800d3dde88fc1362a6489,HELIX-784,narendly@gmail.com,2018-11-01T16:57:33-07:00,3,[HELIX-784] TASK: Fix a bug in getExpiredJobs
+dc25bac1ebdcddb08aaab2765abfe72008b06a31,HELIX-786,narendly@gmail.com,2018-11-02T14:03:16-07:00,1,[HELIX-786] TASK: Fix stuck tasks after Participant connection loss
+59536d39c85d3535408a40a46a1a60a4105ee6e4,HELIX-788,narendly@gmail.com,2018-11-02T14:19:16-07:00,3,[HELIX-788] HELIX: Fix DefaultPipeline so that it doesn't rebalance task resources
+4561496b4fb8a5791e371b202ff1a0e2d11ff73c,HELIX-792,narendly@gmail.com,2019-02-25T17:46:12-08:00,1,[HELIX-792] HELIX: fix typo in WorkflowDataProvider
+ddb3690486a631efa9db704531781745d02ee546,HELIX-794,narendly@gmail.com,2019-02-25T17:49:45-08:00,3,[HELIX-794] TASK: Fix double-booking of tasks upon Participant disconnect
+010d786cc2df1b3e2f4c5c9e1e4c04f77527b2a9,HELIX-799,narendly@gmail.com,2019-02-26T10:27:11-08:00,1,[HELIX-799] TEST: Fix TestTaskRebalancerFailover
+3d7c162d6e10589e8079a0690b538473bf2645de,HELIX-800,narendly@gmail.com,2019-02-26T10:27:11-08:00,1,[HELIX-800] TASK: Fix Participant-side log
+4f863c3549631b5e9fccc6f40b513fff6fe435fa,HELIX-801,narendly@gmail.com,2019-02-26T10:27:11-08:00,12,[HELIX-801] HELIX: Implement maintenance history for maintenance mode
+70b63558797d193164a08bc73eb99816cf3a6094,HELIX-808,narendly@gmail.com,2019-02-26T18:15:06-08:00,3,[HELIX-808] TASK: Fix double-booking of tasks with task CurrentStates
+ae586ac6f511ebed7bb01e0bec61f526b7d4b178,HELIX-809,narendly@gmail.com,2019-02-26T18:15:06-08:00,1,[HELIX-809] TEST: Fix unstable TestClusterInMaintenanceModeWhenReachingMaxPartition
+c1f9af5b4ffb88a4893ac04890690946e97082e4,HELIX-810,narendly@gmail.com,2019-02-26T18:15:06-08:00,1,[HELIX-810] HELIX: Fix NPE in InstanceMessagesCache
+4ecd923f279a53554fc66e9a71356af2f125c451,HELIX-812,narendly@gmail.com,2019-02-26T18:15:06-08:00,3,[HELIX-812] HELIX: Fix maintenance history bug
+e8fb0ad332cf9371ed7b7a084961c0d637ba5207,HELIX-814,narendly@gmail.com,2019-02-28T15:30:20-08:00,1,[HELIX-814] HELIX: Add back ClusterDataCache for backward-compatibility
+f4b85691441d30fade4b9d9a3f85930399e7dbf7,HELIX-815,bd2019us@126.com,2019-04-01T12:32:03-07:00,1,[HELIX-815] fix bug to avoid potential crash
+ca36fbfa3c59f6dc0eec31f312f103749874f7c0,HELIX-1742,hulee@linkedin.com,2019-05-22T15:02:12-07:00,3,Migrate Helix to Java 8
+babc471bbd81907da73f5f33b2f9f5a035e20177,HELIX-1645,ywang4@linkedin.com,2019-05-22T16:02:20-07:00,9,get instance's pending messages with state model def parameter
+241baae6831e08eb2807f01fbf670c00b154dbbb,HELIX-1682,ywang4@linkedin.com,2019-05-22T16:04:37-07:00,3,Add adminGroup check for write operations
+2d712e14f35d379af717b7e213853e0c98ae73c3,HELIX-1678,jxue@linkedin.com,2019-05-22T16:07:36-07:00,7,Dummy check for customized API
+ae2e3cb4d40f15cd89ba9b99831d0feb1b64bdd8,HELIX-1676,jxue@linkedin.com,2019-05-22T16:08:05-07:00,1,Add Util check instance is already in stable state
+aebb0cfed286819029875ad60e102851d8d53cf5,HELIX-1646,ywang4@linkedin.com,2019-05-22T16:12:33-07:00,11,Interface design for zone mapping information
+9f326a131444ed6026f91f341f601375182d3761,HELIX-1646,ywang4@linkedin.com,2019-05-24T18:19:20-07:00,1,Interface design for zone mapping information
+58fe0e8d18967ec26119daa215ecb570183140b7,HELIX-1732,ywang4@linkedin.com,2019-05-24T18:19:20-07:00,6,Report instance started & health status when getting by id
+87de68624f692b58b41beb2232015ba981815236,HELIX-1680,jxue@linkedin.com,2019-05-24T18:19:20-07:00,6,Global instance stoppable API
+e9fb49652d37b7f5eec5e0924056804112a43b96,HELIX-1725,jxue@linkedin.com,2019-05-24T18:19:20-07:00,9,Refactor InstanceAccessor to InstancesAccessor and PerInstanceAccessor
+9526ffdc610049d34539d698da3a04f21cbaf9c5,HELIX-1725,jxue@linkedin.com,2019-05-24T18:19:20-07:00,5,Fix test failures and fix logic check stable state
+a8e2cf7b76a802a5b005d32082699d4c9e39875a,HELIX-1742,hulee@linkedin.com,2019-05-24T18:19:21-07:00,6,Task Framework code style change
+402dd6d0b4fb25625b111318dfbd0c4892ff790b,HELIX-1742,hulee@linkedin.com,2019-05-24T18:19:21-07:00,1,IntermediateStateCalcStage style change
+5459e8f848df1e30110f1c3ec32f3e30ca813274,HELIX-1776,jxue@linkedin.com,2019-05-24T18:19:21-07:00,4,Add util for checking per instance level health and partition level health
+a749afa0cfcb52fdf7be970017f3c2a452e2e819,HELIX-1794,hulee@linkedin.com,2019-05-24T18:19:21-07:00,1,TASK: Fix String formatting issue
+393c1a4eace5d6bf6a13be809f04e02d01a272c8,HELIX-1785,jxue@linkedin.com,2019-05-24T18:19:21-07:00,4,Support partion level health mapping fetch from ZK
+0854c8fba9581b40e341d421969b05e79b29fda4,HELIX-1851,jjwang@linkedin.com,2019-05-24T18:19:21-07:00,1,Avoid lock the cache object when require a FullRefresh.
+cd821cd620b6821cbe3d4ccf7072efeb3b924d32,HELIX-1875,hulee@linkedin.com,2019-05-24T18:19:21-07:00,7,Fix critical Task Framework throttle bug
+fe66049e7ae037e129d4e1428f8eccc13a939bc7,HELIX-1842,ksun@ksun-ld1.linkedin.biz,2019-05-24T18:19:21-07:00,2,Title: Helix-1842: add a resource/cluster to super cluster with default FULL_AUTO
+fa5767f2f4a83c05091e48a25a7a45ba947bc2f8,HELIX-1625,jjwang@linkedin.com,2019-05-24T18:19:21-07:00,7,Add message latency record to StateTransitionStatMonitor.
+88e2188f7e8af41a0b4d2329006beb0e9230a817,HELIX-1890,jxue@linkedin.com,2019-05-24T18:19:21-07:00,5,Refactor StateTransitionStatMonitor extends DynamicMbean
+15438960debf58d3e5d46dca2aa4de5027ebb86c,HELIX-1890,jxue@linkedin.com,2019-06-24T11:00:48-07:00,2,Change state transition monitor to per cluster per state transition
+831593c414e56695725da6ad99a0bd2128157be4,HELIX-1871,lxia@linkedin.com,2019-06-24T11:01:06-07:00,5,Remove workaround in sending S->M message when there is a same pending relay message.
+8abfe67fa5612cae39f591c2c0bd7a41b48b91e7,HELIX-1910,jxue@linkedin.com,2019-06-24T11:01:21-07:00,3,Fix check for disabled partitions
+0e6cccbaf2e7a0c0fd4c1e3da6d5df349f3dedf6,HELIX-1911,jxue@linkedin.com,2019-06-24T11:01:38-07:00,6,Change output behavior for non-exist instances
+5db99fb6df198a57315b2f371186f6e9c64c1dda,HELIX-1900,lxia@linkedin.com,2019-06-24T16:45:28-07:00,4,Remove relay message from controller's message cache immediately if the partition on relay host turned to ERROR state wh
+0616e972b318c66fdd8f5ce787fc8670aa9459dd,HELIX-1963,jxue@linkedin.com,2019-06-24T16:45:42-07:00,2,Enable default Jersey server metric reporting
+f6f50c2ab72131be6072a74ec558a9147e979687,HELIX-1974,jxue@linkedin.com,2019-06-24T16:45:58-07:00,3,Fix compute IdealState mapping tool
+ad0c2edb31a4d0e5c455d1fa0f96658bac1382d5,HELIX-1969,jjwang@linkedin.com,2019-06-24T16:46:15-07:00,33,Always try reading from EphemeralOwner state first while reading the session ID from a live instance node.
+43554304ab2d36ab344b555d3efccdd90b3b1f13,HELIX-919,1803880+jiajunwang@users.noreply.github.com,2020-03-31T11:08:52-07:00,2,Refresh live instance while fetching the current state information in the RoutingTableProvider. (#920)
+cfabb47b9b7f056a24ca8dbb3238b29514219783,HELIX-862,micah.stubbs@gmail.com,2022-03-03T17:08:34-05:00,1,[HELIX-862] s/maintainence/maintenance docs fix (#1968)
+4cc91b7acc222a27ca9bf30ed9215ccad5377144,HELIX-705,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,9,HELIX-705: created project infrastructure for helix-view-aggregator module
+e619e17c32a83737eab21e67cbc27fdd30d615d3,HELIX-705,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,10,HELIX-705: create interfaces and interactions among HelixViewAggregator components
+7bfbb36444cb852f0ee6d5c20329877844221138,HELIX-705,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,7,HELIX-705: implement view cluster config change related logics and tests
+440d109db0e275c0b5938c2ac79ee787706a2416,HELIX-705;HELIX-775,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,4,HELIX-705: implemented SourceClusterDataProvider's core logic and related tests
+6b992c066e18523f85c7b868e75d007ccfa7c4cb,HELIX-705;HELIX-776,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,6,HELIX-705: Implement ViewClusterRefresher logic and tests
+8d9db16c33d632ad080805f65955a2ca190c7f9d,HELIX-797,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,2,HELIX-797: add mssing package def to helix-view-aggregator's pom and ivy files
+87a5f1515f7abb94cb3918edb4167418a7fe6237,HELIX-708,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,3,HELIX-708: adding basic metrics to HelixViewAggregator
+8efd83f19e68a09b652e0484f594663e9e058587,HELIX-711,zhan849@usc.edu,2022-04-11T12:03:14-07:00,4,HELIX-711: implement distributed state model for helix view aggregator
+258f49a8ddf6b345bc0cde840e10f99eaf9b1704,HELIX-1233,hrzhang@linkedin.com,2022-04-11T12:03:14-07:00,1,HELIX-1233: fix broken test in helix view aggregator module

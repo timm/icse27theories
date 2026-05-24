@@ -1,0 +1,16 @@
+model,param,lifted,lo,hi,status
+brooks,(none mapped),-,-,-,no_direct_mapping
+brooksq,inj_rate,0.01111,0,0.5,in_range
+brooksq,leak_rate,0.5713,0,0.5,out_of_range
+debt,pay_rate,0.5882,0,1,in_range
+debt,born_rate,0.25,0,1,in_range
+rework,failrate,0.01884,0,1,in_range
+defmap,(none mapped),-,-,-,no_direct_mapping
+dora,batch_size,73.91,1,100,in_range
+dora,arrival_rate,0.5886,0,50,in_range
+dora,rec_rate,0.01136,0,1,in_range
+learn,Jr,43,0,100,in_range
+learn,Tr,21,0,100,in_range
+learn,Sr,9,0,100,in_range
+learn,train_rate,1,0,1,at_boundary
+learn,promote_rate,0.375,0,1,in_range
