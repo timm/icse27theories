@@ -33,6 +33,15 @@ Future steps S13–S20 (param plausibility, boundary adq, calibrated
 rq rerun, behavior reprod/pred, family-member, verdict write-up,
 Carlos PR review).
 
+**Update 2026-05-24 (eve)**: **S16 (family-member) partially done**
+via `scripts/cross_project.py` → `outputs/cross_project.csv`. Six
+lifts run on second project (junit5, 10,784 commits, 113 tags). Two
+boundary violations replicate across both projects:
+- brooksq.leak_rate OUT on both (helix 0.571, junit5 0.604; hi=0.5)
+- learn.train_rate AT boundary on both (1.0 = hi)
+
+Not a Helix-specific quirk — structural model-bound failures.
+
 **Update 2026-05-24**:
 - **S3+S5+S6 sweep DONE for all 18 models** via `scripts/full_audit.py`
   → `outputs/full_audit.csv`. Stress typology populated: 10 universal,
