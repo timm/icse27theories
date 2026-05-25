@@ -98,25 +98,26 @@ model's prior (defects fix fast in healthy projects) is unrealistic,
 or (b) the 30-day threshold is too tight for what practitioners
 call "leaked." Both readings are paper-worthy.
 
-### F2. **debt.pay_rate falls in narrow band across 4 Java projects**
+### F2. **debt.pay_rate falls in narrow band across 5 Java projects**
 
 | project | pay_rate_median |
 |---------|----------------:|
 | tomcat  | 0.365           |
+| camel   | 0.461           |
 | Ambari  | 0.527           |
 | Helix   | 0.588           |
 | junit5  | 0.590           |
 
-Four independent Apache-style Java projects all fall in 0.36–0.59.
-Earlier 3-project claim ("essentially identical at 0.59") was too
-strong; tomcat broadens the band downward. Possible drivers: tomcat
-is older (Ant build, pre-Maven style) and RefactoringMiner may catch
-fewer of its refactor patterns. The spread (60%) is still much
-narrower than failrate (15x), cfr (180x), or brooks_tax (11x) — so
-**pay_rate is the most family-coherent metric in the bank**.
+Five independent Apache-style Java projects all fall in 0.36–0.59
+(median 0.527). The spread (60%) is much narrower than failrate
+(15x), cfr (180x), or brooks_tax (11x). **pay_rate is the most
+family-coherent metric in the bank.**
 
-camel debt pending (RefMiner running). If camel lands in same band,
-F2 is stronger; if it diverges, weaker.
+The two lower-pay-rate projects (tomcat 0.37, camel 0.46) are also
+the older / pre-Maven-style codebases. The three higher (Ambari, Helix,
+junit5) are modern-Maven. Possible artifact of how RefactoringMiner
+detects refactors in older codebases. Either way, the convergence
+within Java OSS is striking enough to anchor a paper claim.
 
 ### F3. **Brooks effect highly variable across 8 projects**
 
