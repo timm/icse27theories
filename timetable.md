@@ -39,14 +39,20 @@ Carlos PR review).
 
 - **junit5** (10,784 commits, 113 tags) — 7 lifts run. debt
   pay_rate=0.590 nearly identical to Helix's 0.588 (F2 finding).
-- **Ambari** (25,090 commits, 133 tags) — brooks + learn lifts
-  done; SZZ pass in background; 5 more lifts queued.
+- **Ambari** (25,090 commits, 133 tags) — **8/8 lifts done** (incl.
+  archpat via mvn compile + pattern4 CLI; debt via 127MB RefMiner
+  JSON across 66,037 refactorings).
 
-Replicated boundary violations across applicable projects:
-- brooksq.leak_rate OUT on Helix (0.571) AND junit5 (0.604); hi=0.5
+Replicated boundary violations:
+- brooksq.leak_rate OUT on **all 3 projects** (Helix 0.571, junit5
+  0.604, Ambari 0.697; hi=0.5) — monotonically beyond bound
+- archpat.Legacy   OUT on **2 of 2 testable projects** (Helix 384,
+  Ambari 1890; junit5 blocked by Gradle; hi=200)
 - learn.train_rate **fixed** (was an artifact of 365-day slice +
   365-day Jr cutoff; switched to 90-day slices → now in-range
   realistic values 0.7–0.89 across all 3 projects)
+
+23 lifts total: Helix 8/8, junit5 7/8, Ambari 8/8.
 
 Cross-project finding (F3): Brooks effect varies 8x across projects
 (Ambari 0.029, Helix 0.113, junit5 0.222) — supports thesis but
