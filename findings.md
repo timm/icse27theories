@@ -12,11 +12,14 @@ three Apache-style Java projects in one Claude Code session.
 | identities  | 73             | 185           | 134            |
 | span        | 14.8 years     | 11 years      | 14+ years      |
 | issue scheme| JIRA HELIX-N   | GH #N         | JIRA AMBARI-N  |
-| lifts done  | 8              | 7             | 2 (+SZZ pending)|
+| SZZ pairs   | 1,297          | 11,867        | 15,992         |
+| refactor evts| 21,945        | 36,204        | 66,037         |
+| lifts done  | 8              | 7             | 8              |
 
-Helix is fully lifted (8/8 informable models). junit5 has 7/8 (archpat
-blocked by Gradle JDK toolchain mismatch). Ambari has brooks + learn
-done, others awaiting SZZ pass.
+**Helix and Ambari both fully lifted (8/8 informable models). junit5
+has 7/8 (archpat blocked by Gradle JDK toolchain mismatch — junit5
+requires JDK 25, host has Temurin 26).** Total: 23 lifts across 3
+projects in one session.
 
 ## Headline findings
 
@@ -39,11 +42,17 @@ revise the metric definition (`fraction of bugs with fix latency >
 
 ### F2. **debt.pay_rate is convergent across projects**
 
-Helix: 0.588. junit5: 0.590. Two independent Java OSS projects show
-essentially identical refactoring-activity-per-90-day-window. Either
-a real property of how Java OSS projects evolve, or a stable artifact
-of RefactoringMiner's detection. Either way, defensible as an
-observation.
+| project | pay_rate_median |
+|---------|----------------:|
+| Helix   | 0.588           |
+| junit5  | 0.590           |
+| Ambari  | 0.527           |
+
+Three independent Apache-style Java projects all fall in 0.5–0.6.
+Either a real property of how Java OSS projects evolve, or a stable
+artifact of RefactoringMiner's detection convention. Either way,
+defensible as an observation. Spread is ~12%; the other lifted
+metrics (failrate, cfr, brooks_tax) spread by 5–14x.
 
 ### F3. **Brooks effect varies 8x across projects**
 
