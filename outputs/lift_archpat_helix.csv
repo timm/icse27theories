@@ -1,2 +1,2 @@
 project,Patterned_n,Legacy_n,Drift_n,Other_n,n_files,n_patterned_input,modules,seed
-helix,149,384,,1452,1985,149,"helix-core,zookeeper-api,helix-common,metadata-store-directory-common,metrics-common",1
+helix,149,384,,1452,1985,149,"helix-core,metadata-store-directory-common,zookeeper-api",1

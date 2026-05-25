@@ -1,6 +1,6 @@
 ---
 title: "Lift — Archpat Model from Apache Helix (GoF + RefactoringMiner)"
-output: 
+output:
   html_document:
     toc: true
     number_sections: true
@@ -17,215 +17,223 @@ set.seed(seed)
 ```
 
 ```{r warning=FALSE, message=FALSE}
-require(kaiaulu)
-require(data.table)
-require(stringi)
-require(knitr)
-require(yaml)
-require(magrittr)
+require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr); require(jsonlite)
 source("functions.R")
 ```
 
 # Introduction
 
-The archpat model (Ric Kazman's claim) tests whether design patterns
-applied to an already-bad codebase can pay down architectural debt.
-The model has three stocks (Patterned files, Legacy files, Drift
-files) plus a Debt accumulator.
+The `archpat` model (Ric Kazman's claim) tests whether design
+patterns applied to an already-bad codebase can pay down architectural
+debt. The SD form (`models/sd.py:archpat()`) has three architectural
+stocks plus a Debt accumulator:
 
-This notebook lifts archpat parameters from Apache Helix using:
-- **pattern4.jar** for GoF pattern instances per file (Patterned partition)
-- **RefactoringMiner** for refactoring events (gen_pat: pattern application rate)
-- **kaiaulu gitlog + JIRA** for the Debt accumulator (defect frequency)
-- **Arcan** (fallback) — see note at end if pattern4 is unavailable
+```
+Legacy ──migrate──> Patterned ──decay_rate──> Drift ──drift_to_legacy──> Legacy
+            (effort applied)     (Perry-Wolf erosion)
+```
 
-Parameters lifted: 11 of 15 archpat init keys. Three (intr_rate,
-drift_to_legacy, pay_rate) remain fitted via sd.opt() because they
-appear only as net Debt change, not as observable individual flows.
-One (pat_strength) is dead code — flagged for Ric.
+`ctrl` = `migrate`. Thesis: starting from
+`Patterned=10, Legacy=90, Debt=40`, aggressive migration
+(`migrate=1.5`) repairs the project faster than slow migration
+(`migrate=0.2`).
 
-# Project Configuration
+**Method outline** (full chain):
+
+1. `mvn compile -pl helix-core -am -DskipTests` — produces `.class`
+   files in `target/classes/`.
+2. `java -jar pattern4.jar -target <classes> -output <xml>` — GoF
+   patterns per class. Discovered today: pattern4 IS CLI-callable
+   despite its GUI-default manifest (the dispatch is in
+   `MatrixFrame.main`). See memory:
+   `reference_pattern4_gotcha.md` for full incantation.
+3. `parse_pattern4_xml.py <pattern4-dir>` — Python parser, emits a
+   `patterned_files.csv` with `file_pathname, pattern_type, role,
+   module` columns. (We do this in Python because R's kaiaulu wrapper
+   `parse_gof_patterns()` is a parser, not a runner — same data, two
+   languages.)
+4. Bug-frequency signal: SZZ-introducing-commits touching each file
+   (`scripts/szz_helix.py` → `szz_pairs.csv`). Replaces JIRA-Bug
+   filter because the partial JIRA dump on disk has 0 Bug-type
+   issues.
+5. File-churn: `compute_file_churn()` from `functions.R`.
+6. Assign each .java file to one of {Patterned, Legacy, Drift, Other}
+   via `assign_file_partition()`.
+
+**Fallback path**: if pattern4 setup were unavailable, Arcan
+(structural smells) is the kaiaulu-documented substitute. Arcan
+output has the same `(file, smell_type, smell_id)` shape; the
+partition logic is detector-agnostic. Document the substitution in
+any paper deliverable since smells ≠ GoF patterns semantically.
+
+# Configuration
 
 ```{r}
 tool <- parse_config("../tools.yml")
 conf <- parse_config("../conf/helix.yml")
 
-perceval_path     <- get_tool_project("perceval", tool)
-pattern4_jar      <- get_tool_project("pattern4", tool)
-refminer_jar      <- get_tool_project("refactoring_miner", tool)
-
-git_repo_path     <- get_git_repo_path(conf)
-jira_issues_path  <- get_jira_issues_path(conf, "project_key_1")
-issue_id_regex    <- get_issue_id_regex(conf)
-
-file_extensions      <- get_file_extensions(conf)
-substring_filepath   <- get_substring_filepath(conf)
+perceval_path <- get_tool_project("perceval", tool)
+git_repo_path <- get_git_repo_path(conf)
 ```
 
 # Parse Git Log
 
 ```{r}
-project_git <- parse_gitlog(perceval_path, git_repo_path)
-
-project_git <- project_git %>%
-  filter_by_file_extension(file_extensions, "file_pathname") %>%
-  filter_by_filepath_substring(substring_filepath, "file_pathname")
-
+project_git <- parse_gitlog(perceval_path, git_repo_path) %>%
+  filter_by_file_extension(get_file_extensions(conf), "file_pathname") %>%
+  filter_by_filepath_substring(get_substring_filepath(conf),
+                               "file_pathname")
 project_git$author_datetimetz <- as.POSIXct(project_git$author_datetimetz,
-                                            format = "%Y-%m-%d %H:%M:%S")
-
-# Mutate gitlog to add commit_message_id (extracts issue keys from commit messages)
-project_git <- parse_commit_message_id(project_git, issue_id_regex)
+                                            format = "%a %b %d %H:%M:%S %Y %z",
+                                            tz = "UTC")
+cat("gitlog rows:", nrow(project_git),
+    " commits:", uniqueN(project_git$commit_hash), "\n")
 ```
 
-# Parse JIRA
+# Patterned Partition (pattern4)
+
+The pattern4 + Python parser run is OUT-OF-NOTEBOOK (pre-knit) since
+`mvn compile` is a multi-minute side effect. The produced CSV lives
+at `../data/helix/derived/pattern4/patterned_files.csv`.
 
 ```{r}
-parsed_jira    <- parse_jira(jira_issues_path)
-jira_issues    <- parsed_jira$issues
-jira_comments  <- parsed_jira$comments
-
-# CORRECTION: parse_jira()'s issue_status is statusCategory.name
-# ("To Do" / "In Progress" / "Done"), NOT status.name. Use "Done"
-# for "completed" semantics. See kaiaulu_notes/known_bugs.md.
-jira_bugs_done <- jira_issues[issue_type == "Bug" & issue_status == "Done"]
-
-nrow(jira_bugs_done)
+pat_dt <- fread("../data/helix/derived/pattern4/patterned_files.csv")
+patterned_files <- unique(pat_dt$file_pathname)
+cat("Modules scanned:", paste(unique(pat_dt$module), collapse = ", "), "\n")
+cat("Pattern instances:", nrow(pat_dt),
+    "  unique patterned files:", length(patterned_files), "\n")
+cat("Pattern type distribution:\n")
+print(pat_dt[, .N, by = pattern_type][order(-N)])
 ```
 
-# GoF Pattern Detection (Patterned Partition)
-
-Run pattern4.jar on a snapshot of Helix source (e.g. the HEAD commit
-of each release tag). Function defined in functions.R; calls
-parse_gof_patterns wrapper:
+# Bug-Frequency Signal (SZZ)
 
 ```{r}
-release_tags <- get_release_tags(git_repo_path)
-gof_per_tag  <- lapply(release_tags, function(tag) {
-  source_path <- checkout_snapshot(git_repo_path, tag)
-  parse_gof_patterns(pattern4_jar, source_path)
-})
-names(gof_per_tag) <- release_tags
+szz <- parse_szz_bugfixes("../data/helix/derived/szz_pairs.csv")
+cat("SZZ pairs:", nrow(szz),
+    "  unique introducing commits:", uniqueN(szz$introducing_commit_hash), "\n")
+
+intro_hashes <- unique(szz$introducing_commit_hash)
+intro_files  <- unique(project_git[commit_hash %in% intro_hashes,
+                                   .(commit_hash, file_pathname)])
+file_bug_freq <- intro_files[, .(bug_count = uniqueN(commit_hash)),
+                              by = file_pathname]
+nrow(file_bug_freq)
 ```
 
-`parse_gof_patterns` returns a data.table per snapshot with:
-```
-file_path        chr   path within the snapshot
-pattern_type     chr   "Singleton" / "Factory Method" / ...
-pattern_role     chr   role of this file in the pattern instance
-```
-
-Build the Patterned partition for the latest snapshot:
+# Churn Signal
 
 ```{r}
-latest_gof  <- gof_per_tag[[length(gof_per_tag)]]
-patterned_files <- unique(latest_gof$file_path)
-length(patterned_files)
+file_churn <- compute_file_churn(project_git, window_days = 180)
+nrow(file_churn)
 ```
 
-# RefactoringMiner (gen_pat — Pattern Application Rate)
+# Assign Partition
 
 ```{r}
-refminer_output <- run_refactoring_miner(refminer_jar, git_repo_path)
-refactorings    <- flatten_refactoring_json(refminer_output)
-```
-
-`flatten_refactoring_json` (in functions.R) converts the nested JSON
-into a flat data.table:
-```
-commit_hash, refactoring_type, refactoring_description,
-left_locations, right_locations
-```
-
-Per-month refactor rate as proxy for gen_pat:
-
-```{r}
-refactorings$commit_datetimetz <- merge_commit_dates(refactorings,
-                                                     project_git)
-refactor_rate_per_month <- refactorings[,
-  .N,
-  by = .(month = format(commit_datetimetz, "%Y-%m"))
-]
-gen_pat_helix <- mean(refactor_rate_per_month$N) / 30  # per day
-gen_pat_helix
-```
-
-# Build Legacy and Drift Partitions
-
-A file is **Legacy** if it has high accumulated bug frequency AND no
-GoF pattern participation. A file is **Drift** if it has changed
-hands recently (high churn) but has no pattern instance yet.
-
-```{r}
-file_bug_freq <- compute_file_bug_frequency(project_git,
-                                            jira_bugs_done,
-                                            issue_id_regex)
-file_churn    <- compute_file_churn(project_git,
-                                    window_days = 180)
-
 partition <- assign_file_partition(
-  patterned_files = patterned_files,
-  file_bug_freq   = file_bug_freq,
-  file_churn      = file_churn,
-  legacy_bug_threshold   = 5,
-  drift_churn_threshold  = 0.7
+  patterned_files       = patterned_files,
+  file_bug_freq         = file_bug_freq,
+  file_churn            = file_churn,
+  legacy_bug_threshold  = 3,
+  drift_churn_threshold = 0.5
 )
-
-partition[, .N, by = stock]
+print(table(partition$stock, useNA = "ifany"))
 ```
-
-# Lift the Other archpat Parameters
-
-```{r}
-init_archpat <- list(
-  Patterned    = partition[stock == "Patterned",   .N],
-  Legacy       = partition[stock == "Legacy",      .N],
-  Drift        = partition[stock == "Drift",       .N],
-  Debt         = sum(file_bug_freq$bug_count),  # total accumulated debt
-  Feat         = compute_feature_velocity(project_git, jira_issues),
-  migrate      = compute_migration_rate(gof_per_tag),
-  decay_rate   = compute_smell_appearance_rate(gof_per_tag),
-  gen_pat      = gen_pat_helix,
-  gen_leg      = compute_legacy_growth_rate(project_git, patterned_files),
-  born_pat     = compute_born_pat_rate(refactorings, gof_per_tag),
-  born_leg     = compute_born_leg_rate(project_git, patterned_files)
-  # intr_rate, drift_to_legacy, pay_rate: fitted via sd.opt(),
-  # not lifted (only net Debt change is observable)
-  # pat_strength: defined in sd.py but unused in step() — flag for Ric
-)
-str(init_archpat)
-```
-
-# Sanity Checks
-
-**(1) Bug-count dependency**: this lift uses bug counts heavily for
-the Legacy partition and the Debt accumulator. Therefore JIRA is
-required. Helix has JIRA — OK. Datasets without JIRA (or equivalent
-issue tracker) cannot support archpat as-is.
-
-**(2) Identity bridging**: comms data (mbox, github) is not used in
-this lift, so the comms↔code identity_match constraint does not
-apply. Only git's own identity_match runs.
 
 # Outputs for the SD Framework
 
 ```{r}
-out <- as.data.table(init_archpat)
-out[, project := "helix"]
-out[, seed := seed]
+counts <- table(partition$stock)
+out <- data.table(
+  project           = "helix",
+  Patterned_n       = as.integer(counts["Patterned"]),
+  Legacy_n          = as.integer(counts["Legacy"]),
+  Drift_n           = as.integer(counts["Drift"]),
+  Other_n           = as.integer(counts["Other"]),
+  n_files           = nrow(partition),
+  n_patterned_input = length(patterned_files),
+  modules           = paste(unique(pat_dt$module), collapse = ","),
+  seed              = seed
+)
 fwrite(out, "../outputs/lift_archpat_helix.csv")
 kable(out)
 ```
 
-# Fallback: Arcan Instead of pattern4.jar
+# Verdict on Helix
 
-If pattern4.jar is unavailable, substitute Arcan smells for the
-Patterned/Legacy partition. The smells are conceptually different
-(anti-patterns rather than GoF patterns) but structurally identical
-— each row is (file, smell_type, smell_id). The downstream
-partition assignment in `functions.R::assign_file_partition` accepts
-either Arcan or pattern4 output as long as it has a `file_path`
-column.
+Helix's partition: ~6.5% Patterned (149 files), ~19% Legacy
+(384 files), 0 Drift (no file passes the 0.5 churn threshold in the
+recent 180-day window — Helix is a mature, stable codebase), ~74%
+Other.
 
-Note in any paper deliverable which detector was used; the model is
-agnostic but the empirical numbers will differ.
+Running `models/sd.py:archpat.rq(bg=helix_calib)` with these stocks
+(plugged in via `scripts/calibrate.py`) widens the thesis gap from
++229 (default) to +390. **Helix's bigger Legacy stock strengthens
+the repair thesis** — more legacy means more headroom for migrate to
+move files into the Patterned bucket.
+
+**Family-member test on Ambari** (2nd Java + Maven project):
+
+| project | Patterned | Legacy   | Drift | Other  | n_files |
+|---------|----------:|---------:|------:|-------:|--------:|
+| Helix   | 149       | 384 (OUT)| 0     | 1,452  | 1,985   |
+| Ambari  | 381 (OUT) | 1,890 (OUT) | 0  | 4,329  | 6,600   |
+
+**Boundary-adequacy failure**: archpat's `Legacy` stock has model
+declared `hi = 200`. Both Helix (384) and Ambari (1,890) exceed.
+`Patterned hi = 200` also exceeded by Ambari (381). The model's
+bounds were specified at small-project scale and don't span mature
+OSS. Recommend widening to ≥ 1000 / ≥ 3000 respectively. See
+`findings.md` F0 for the full boundary-violation table.
+
+# Sanity Checks
+
+**(1) Bug-count dependency**: this lift requires bug-classification
+per commit. We use SZZ-introducing-commit-touches as a proxy because
+the partial JIRA dump on disk has 0 Bug-type issues. With the full
+Carlos-cleaned Helix JIRA dump (on his Drive), we could tighten this
+to JIRA-Bug-type-filtered commits, narrowing false-positives.
+
+**(2) Identity bridging**: this lift uses git only, not comms. No
+cross-source identity_match required.
+
+# Pattern4 Setup Notes (memory: reference_pattern4_gotcha.md)
+
+The pattern4.jar from
+https://users.encs.concordia.ca/~nikolaos/files/pattern_detection/pattern4.jar
+declares `Main-Class: gr.uom.java.pattern.gui.MatrixFrame`, which
+*opens a Swing GUI* on `java -jar pattern4.jar` with no args. But
+`MatrixFrame.main(args)` dispatches:
+
+```java
+if (args.length == 4) {
+  if (args[0].equals("-target") && args[2].equals("-output")) {
+    new Console(inputDir, outputXML);  // batch mode!
+  }
+} else {
+  new MatrixFrame();  // GUI
+}
+```
+
+So:
+```bash
+java -Xmx2g -jar pattern4.jar -target <classes-dir> -output <xml>
+```
+runs the batch detector. This was NOT obvious until we read the
+decompiled main; an earlier session memory had "pattern4 is GUI-only"
+which is wrong. Corrected in
+`~/.claude/projects/.../memory/reference_pattern4_gotcha.md`.
+
+# References
+
+- Martin, R. C. (2008). *Clean Architecture*.
+- Perry, D. E. & Wolf, A. L. (1992). Foundations for the study of
+  software architecture. *ACM SIGSOFT Software Engineering Notes*.
+- Tsantalis, N. et al. — pattern4 GoF detector
+  (https://users.encs.concordia.ca/~nikolaos/pattern_detection.html).
+- Arcelli Fontana, F. et al. — Arcan smell detector
+  (https://essere.disco.unimib.it/wiki/arcan/) — documented fallback.
+- `models/sd.py:archpat()` — the SD model.
+- `findings.md` F0 — multi-project boundary-violation summary.
