@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>diapers — SD-Theses</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ diapers</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>diapers<span class="tag">dark cell</span></h1>
+<p class="sub-title">Toy demonstrator (no real-world referent).</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Smallest possible compartmental model used to demonstrate the framework&#x27;s machinery. Has no Brooks- or Sterman-style intent — it exists to show the SD harness running end-to-end with one stock and one flow.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p>Net inflow above a fixed baseline.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p>A baseline shift hurts net output. Trivially true by construction.</p>
+    <h2>Status</h2>
+    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>:</p>
+    <pre><code class="language-python">def diapers():
+  &quot;&quot;&quot;Toy: weekly diaper supply.  Sat = bulk buy + wash all dirty.
+  RQ: skip wash on Sat t=13 -&gt; dirty pileup.&quot;&quot;&quot;
+  init = {&#x27;Clean&#x27;:[100,0,200], &#x27;Dirty&#x27;:[0,0,200], &#x27;Buy&#x27;:[0,0,100],
+          &#x27;Use&#x27;:[8,0,20], &#x27;wash_amt&#x27;:[0,0,200], &#x27;skip&#x27;:[0,0,1]}
+
+  def step(dt, t, u, v):
+    sat = int(t) % 7 == 6
+    v.Clean = u.Clean + dt * (u.Buy - u.Use)
+    v.Dirty = v.Dirty + dt * (u.Use - u.wash_amt)
+    v.Buy   = 70 if sat else 0
+    v.wash_amt = u.Dirty if sat else 0
+    if t == 13 and u.skip &gt; 0.5: v.wash_amt = 0
+    v.skip = u.skip
+
+  def y(out):
+    return min(r.Clean for _, r in out) - 0.5 * max(r.Dirty for _, r in out)
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;skip wash@t=13 -&gt; Dirty pileup&quot;,
+                   y(run({**bi, &#x27;skip&#x27;:[0,0,1]}, step)),
+                   y(run({**bi, &#x27;skip&#x27;:[1,0,1]}, step)), &#x27;down&#x27;)
+
+  return Model(init, step, y, rq, &#x27;skip&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>Toy by design. No project data corresponds to its abstract stocks.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -24.00</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 45/200 CONFIRM, params 200/200)</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Used as a sanity check that the engine executes a model. Passes structural V&amp;V on cell stress, fails mr_scale and mr_dt_halving (the toy is not physically faithful — by design).</p>
+    
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

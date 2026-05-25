@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bugs — SD-Theses</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ bugs</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>bugs<span class="tag">process-cond. cell</span></h1>
+<p class="sub-title">Goel, A. L. &amp; Okumoto, K. (1979). Time-dependent error-detection rate model.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Software-reliability-growth: cumulative defects discovered N(t) follows an exponential approach to an asymptote a. The discovery rate b decays as Latent bugs are removed from the system.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p>Cumulative Fixed at the end of the run.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p>Doubling initial Latent stock approximately doubles eventual Fixed (linearity of recovery process).</p>
+    <h2>Status</h2>
+    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_bugs.Rmd</code></p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>:</p>
+    <pre><code class="language-python">def bugs():
+  &quot;&quot;&quot;Goel-Okumoto [2]: exponential reliability growth.
+  RQ: 2x initial Latent -&gt; ~2x eventual Fixed (linearity of recovery).&quot;&quot;&quot;
+  init = {&#x27;Latent&#x27;:[100,0,200], &#x27;Found&#x27;:[0,0,200], &#x27;Fixed&#x27;:[0,0,200],
+          &#x27;find_rate&#x27;:[0.15,0.01,0.5], &#x27;fix_rate&#x27;:[0.5,0.05,1]}
+
+  def step(dt, t, u, v):
+    find = u.Latent * u.find_rate
+    fix  = u.Found  * u.fix_rate
+    v.Latent = u.Latent - dt * find
+    v.Found  = u.Found  + dt * (find - fix)
+    v.Fixed  = u.Fixed  + dt * fix
+    v.find_rate, v.fix_rate = u.find_rate, u.fix_rate
+
+  def y(out):
+    &quot;&quot;&quot;Mid-curve recovery (t=10 of 20): tests scaling, not asymptote.
+    Asymptote is always ~1.0 by construction (exponential decay).&quot;&quot;&quot;
+    mid_idx = len(out) // 2
+    return out[mid_idx][1].Fixed
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;2x initial Latent -&gt; ~2x mid-curve Fixed&quot;,
+                   y(run({**bi, &#x27;Latent&#x27;:[ 50,0,200]}, step)),
+                   y(run({**bi, &#x27;Latent&#x27;:[100,0,200]}, step)), &#x27;up&#x27;)
+
+  return Model(init, step, y, rq, &#x27;Latent&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>The lift is documented end-to-end in <code>lifts/lift_bugs.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap +38.06</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 64/200 CONFIRM, params 200/200)</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Lifted on 3 projects with bug-classification data: Helix (170 GH-bug-label closed, a=245, R²=0.62), kaiaulu (22 closed, a=26, R²=0.91), camel (185 JIRA-Bug-type resolved, a=178, R²=0.60). All three are in the early-discovery regime — none have saturated, so the linearity claim cannot be falsified yet.</p>
+    <h3>Per-project lifted value</h3>
+<p>Key metric: <code>gokumoto_a</code>. Bounds: <code>[-, -]</code>.</p>
+<table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
+<tr><td>airflow</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
+<tr><td>ambari</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
+<tr><td>camel</td><td class="num mono">177.60</td><td><span class="dim">-</span></td></tr>
+<tr><td>helix</td><td class="num mono">244.80</td><td><span class="dim">-</span></td></tr>
+<tr><td>junit5</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
+<tr><td>kaiaulu</td><td class="num mono">26.40</td><td><span class="dim">-</span></td></tr>
+<tr><td>openssl</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
+<tr><td>tomcat</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
+</tbody></table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

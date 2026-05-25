@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dora — SD-Theses</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ dora</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>dora<span class="tag">universal cell</span></h1>
+<p class="sub-title">Forsgren, N., Humble, J., &amp; Kim, G. (2018). Accelerate.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>DORA&#x27;s deploy-cycle dynamic: larger batches → higher change-failure rate (CFR) → longer mean-time-to-recover (MTTR) → bottleneck on the next deploy. Four params: batch_size (ctrl), cfr_coef, arrival_rate, rec_rate.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p>Deploys − 2·Incidents at end of run.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p>batch_size 5 → 50 hurts net Deploys (incidents grow faster than Deploys).</p>
+    <h2>Status</h2>
+    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_dora.Rmd</code></p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>:</p>
+    <pre><code class="language-python">def dora():
+  &quot;&quot;&quot;Forsgren, Humble, Kim [12]: large batches -&gt; CFR up.
+  RQ: batch_size 5 -&gt; 50 hurts net deploys.&quot;&quot;&quot;
+  init = {&#x27;Wip&#x27;:[100,0,500], &#x27;Deploys&#x27;:[0,0,200],
+          &#x27;Incidents&#x27;:[0,0,100], &#x27;Recovery&#x27;:[0,0,200],
+          &#x27;batch_size&#x27;:[10,1,100], &#x27;cfr_coef&#x27;:[0.005,0,0.1],
+          &#x27;arrival_rate&#x27;:[8,0,50], &#x27;rec_rate&#x27;:[0.3,0,1]}
+
+  def step(dt, t, u, v):
+    cfr     = min(0.5, u.batch_size * u.cfr_coef)
+    cap     = max(0.1, 1 - u.Recovery / 50)
+    deploys = min(u.Wip / max(1, u.batch_size), 5) * cap
+    new_inc = deploys * cfr
+    rec     = u.Incidents * u.rec_rate
+    v.Wip       = u.Wip - dt * deploys * u.batch_size + dt * u.arrival_rate
+    v.Deploys   = u.Deploys + dt * deploys
+    v.Incidents = u.Incidents + dt * (new_inc - rec)
+    v.Recovery  = u.Recovery + dt * (new_inc * 2 - u.Recovery * 0.4)
+    for p in (&#x27;batch_size&#x27;,&#x27;cfr_coef&#x27;,&#x27;arrival_rate&#x27;,&#x27;rec_rate&#x27;):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    return end.Deploys - 2 * end.Incidents
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;batch_size=50 hurts net deploys&quot;,
+                   y(run({**bi, &#x27;batch_size&#x27;:[ 5,1,100]}, step)),
+                   y(run({**bi, &#x27;batch_size&#x27;:[50,1,100]}, step)), &#x27;down&#x27;)
+
+  return Model(init, step, y, rq, &#x27;batch_size&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>The lift is documented end-to-end in <code>lifts/lift_dora.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -45.35</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 183/200 CONFIRM, params 200/200)</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Lifted on 7 projects via tag-deploy + SZZ-CFR-and-MTTR. Helix batch=73.9, MTTR=88d; junit5 batch=38.4, MTTR=73d; openssl batch=54.8, MTTR=686d (huge — old project with infrequent tags). All projects operate above the model&#x27;s batch=50 threshold or with very long MTTR; the predicted-bad regime is the common case.</p>
+    <h3>Per-project lifted value</h3>
+<p>Key metric: <code>cfr</code>. Bounds: <code>[-, -]</code>.</p>
+<table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
+<tr><td>airflow</td><td class="num mono">0.250293634014564</td><td><span class="dim">-</span></td></tr>
+<tr><td>ambari</td><td class="num mono">0.341386884217132</td><td><span class="dim">-</span></td></tr>
+<tr><td>camel</td><td class="num mono">0.0772727272727273</td><td><span class="dim">-</span></td></tr>
+<tr><td>helix</td><td class="num mono">0.0494021397105098</td><td><span class="dim">-</span></td></tr>
+<tr><td>junit5</td><td class="num mono">0.271923703186788</td><td><span class="dim">-</span></td></tr>
+<tr><td>kaiaulu</td><td class="num mono">0.243697478991597</td><td><span class="dim">-</span></td></tr>
+<tr><td>openssl</td><td class="num mono">0.0512527992563485</td><td><span class="dim">-</span></td></tr>
+<tr><td>tomcat</td><td class="num mono">0.161696793772266</td><td><span class="dim">-</span></td></tr>
+</tbody></table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

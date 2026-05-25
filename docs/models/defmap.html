@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>defmap — SD-Theses</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ defmap</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>defmap<span class="tag">universal cell</span></h1>
+<p class="sub-title">Abdel-Hamid &amp; Madnick (1991) — defect-management submodel.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Defect flow: Injected → Caught (by testing) or → Latent → Prod (field-escape). The ctrl tst (testing intensity) modulates how many defects get Caught before reaching Prod.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p>−end.Prod − 0.5·end.Latent — negative because we want fewer escaped + fewer pending.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p>tst 2.5 → 0.5 (sharp reduction in testing) inflates Prod defects.</p>
+    <h2>Status</h2>
+    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_defmap.Rmd</code></p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>:</p>
+    <pre><code class="language-python">def defmap():
+  &quot;&quot;&quot;Abdel-Hamid &amp; Madnick [5] defect submodel.
+  RQ: tst 2.5 -&gt; 0.5 balloons operational defects.&quot;&quot;&quot;
+  init = {&#x27;Cmplx&#x27;:[20,0,100], &#x27;Dsn&#x27;:[20,0,100], &#x27;Use&#x27;:[35,0,100],
+          &#x27;Injected&#x27;:[2.43,0,100], &#x27;Caught&#x27;:[0,0,100],
+          &#x27;Latent&#x27;:[0,0,100], &#x27;Prod&#x27;:[0,0,100],
+          &#x27;tst&#x27;:[2.5,0,10], &#x27;intro_c&#x27;:[0.3,0,1], &#x27;intro_d&#x27;:[0.2,0,1],
+          &#x27;detect_coef&#x27;:[0.4,0,1], &#x27;fail_coef&#x27;:[0.15,0,1]}
+
+  def step(dt, t, u, v):
+    intro  = u.Cmplx * u.intro_c - u.Dsn * u.intro_d
+    detect = u.tst * u.Injected * u.detect_coef
+    leak   = u.Injected * (1 - u.tst * u.detect_coef)
+    fail   = u.Latent * u.Use * u.fail_coef
+    v.Injected = u.Injected + dt * intro
+    v.Caught   = u.Caught   + dt * detect
+    v.Latent   = u.Latent   + dt * (leak - fail)
+    v.Prod     = u.Prod     + dt * fail
+    for p in (&#x27;Cmplx&#x27;,&#x27;Dsn&#x27;,&#x27;Use&#x27;,&#x27;tst&#x27;,&#x27;intro_c&#x27;,&#x27;intro_d&#x27;,
+              &#x27;detect_coef&#x27;,&#x27;fail_coef&#x27;):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    return -end.Prod - 0.5 * end.Latent
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;tst=0.5 increases operational defects&quot;,
+                   y(run({**bi, &#x27;tst&#x27;:[2.5,0,10]}, step)),
+                   y(run({**bi, &#x27;tst&#x27;:[0.5,0,10]}, step)), &#x27;down&#x27;)
+
+  return Model(init, step, y, rq, &#x27;tst&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>The lift is documented end-to-end in <code>lifts/lift_defmap.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_scale</code></td><td class="num"><span class="dim">SKIP</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -100.00</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 147/200 CONFIRM, params 163/200)</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Lifted via SZZ phase-partition. tst_proxy = caught-within-phase / injected-within-phase. Helix 0.375, junit5 0.15, Ambari 0.098, tomcat 0.085. All projects operate in the LOW-tst (predicted-bad) regime, with Helix the least-bad.</p>
+    <h3>Per-project lifted value</h3>
+<p>Key metric: <code>tst_median</code>. Bounds: <code>[-, -]</code>.</p>
+<table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
+<tr><td>airflow</td><td class="num mono">0</td><td><span class="dim">-</span></td></tr>
+<tr><td>ambari</td><td class="num mono">0.0983606557377049</td><td><span class="dim">-</span></td></tr>
+<tr><td>camel</td><td class="num mono">0.987368421052632</td><td><span class="dim">-</span></td></tr>
+<tr><td>helix</td><td class="num mono">0.375</td><td><span class="dim">-</span></td></tr>
+<tr><td>junit5</td><td class="num mono">0.15</td><td><span class="dim">-</span></td></tr>
+<tr><td>kaiaulu</td><td class="num mono">0</td><td><span class="dim">-</span></td></tr>
+<tr><td>openssl</td><td class="num mono">0</td><td><span class="dim">-</span></td></tr>
+<tr><td>tomcat</td><td class="num mono">0.0851449275362319</td><td><span class="dim">-</span></td></tr>
+</tbody></table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

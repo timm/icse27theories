@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>brooks — SD-Theses</title>
+<title>brooksq — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ brooks</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ brooksq</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -24,8 +24,8 @@
 
 <main>
 
-<h1>brooks<span class="tag">universal cell</span></h1>
-<p class="sub-title">Brooks, F. P. (1975). The Mythical Man-Month.</p>
+<h1>brooksq<span class="tag">fragile cell</span></h1>
+<p class="sub-title">Brooks (1975) + Madachy, R. (2008). Software Process Dynamics.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,44 +46,52 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Adding people to a late software project makes it later. Two stocks — Vet (veterans) and New (new hires) — with a productivity tax that falls on veterans when newcomers join (training cost + n·(n−1)/2 communication-pair overhead).</p>
+    <p>Brooks&#x27;s quality side: late hires don&#x27;t just slow veterans, they also inject more bugs that leak into the field. Five stocks (Vet, New, Done, Bugs, Esc) + inj_rate (injection per Vet-prod) + leak_rate (fraction of bugs not caught quickly).</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Net work delivered: end.Done − end.Todo.</p>
+    <p>Done − 5·Esc — escaped bugs penalise heavily.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>boost=10 newcomers at t=10 hurts y compared to boost=0.</p>
+    <p>boost=10 newcomers at t=10 hurts y = Done − 5·Esc.</p>
     <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_brooks.Rmd</code></p>
+    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_brooksq.Rmd</code></p>
   </div>
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
     <p>From <code>models/sd.py</code>:</p>
-    <pre><code class="language-python">def brooks():
-  &quot;&quot;&quot;Brooks [1]: late hires hurt.  RQ: boost=10 newcomers @t=10 hurt y.&quot;&quot;&quot;
+    <pre><code class="language-python">def brooksq():
+  &quot;&quot;&quot;Brooks [1] + Madachy [7]: late hires hurt quality-adjusted progress.
+  RQ: boost=10 hurts y = Done - 5*Esc.&quot;&quot;&quot;
   init = {&#x27;Vet&#x27;:[10,0,100], &#x27;New&#x27;:[0,0,100], &#x27;Done&#x27;:[0,0,500],
-          &#x27;Todo&#x27;:[500,0,500], &#x27;boost&#x27;:[0,0,100],
+          &#x27;Todo&#x27;:[500,0,500], &#x27;Bugs&#x27;:[0,0,100], &#x27;Esc&#x27;:[0,0,100],
+          &#x27;boost&#x27;:[0,0,100],
           &#x27;comm_coef&#x27;:[0.005,0,0.05], &#x27;train_coef&#x27;:[0.2,0,1],
-          &#x27;prod_rate&#x27;:[5,0.1,20], &#x27;mature_rate&#x27;:[0.1,0,1]}
+          &#x27;prod_rate&#x27;:[5,0.1,20], &#x27;inj_rate&#x27;:[0.05,0,0.5],
+          &#x27;leak_rate&#x27;:[0.10,0,0.5], &#x27;mature_rate&#x27;:[0.1,0,1]}
 
   def step(dt, t, u, v):
     comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef
     train = u.New * u.train_coef
     prod  = u.Vet * (1 - comm - train) * u.prod_rate
+    inj   = max(0, prod) * u.inj_rate
+    leak  = u.Bugs * u.leak_rate
     v.Todo = u.Todo - dt * max(0, prod)
     v.Done = u.Done + dt * max(0, prod)
     v.New  = u.New - dt * u.mature_rate * u.New + (u.boost if t == 10 else 0)
     v.Vet  = u.Vet + dt * u.mature_rate * u.New
-    for p in (&#x27;boost&#x27;,&#x27;comm_coef&#x27;,&#x27;train_coef&#x27;,&#x27;prod_rate&#x27;,&#x27;mature_rate&#x27;):
+    v.Bugs = u.Bugs + dt * (inj - leak)
+    v.Esc  = u.Esc  + dt * leak
+    for p in (&#x27;boost&#x27;,&#x27;comm_coef&#x27;,&#x27;train_coef&#x27;,&#x27;prod_rate&#x27;,&#x27;inj_rate&#x27;,
+              &#x27;leak_rate&#x27;,&#x27;mature_rate&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
-    return end.Done - end.Todo
+    return end.Done - 5 * end.Esc
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;boost=10 hurts net progress&quot;,
-                   y(run({**bi, &#x27;boost&#x27;:[0,0,100]}, step)),
+    return verdict(&quot;boost=10 hurts quality-adjusted progress&quot;,
+                   y(run({**bi, &#x27;boost&#x27;:[ 0,0,100]}, step)),
                    y(run({**bi, &#x27;boost&#x27;:[10,0,100]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;boost&#x27;)
@@ -92,7 +100,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_brooks.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>The lift is documented end-to-end in <code>lifts/lift_brooksq.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
   </div>
 
   <div id="panel-4" class="tab-content">
@@ -104,32 +112,32 @@
     <h2>V&amp;V scorecard</h2>
     <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>boundary_adq</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
 <tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -147.50</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">fragile <span class="dim">(inputs 5/200 CONFIRM, params 37/200)</span></td></tr>
+<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -45.91</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">fragile <span class="dim">(inputs 4/200 CONFIRM, params 39/200)</span></td></tr>
     </tbody></table>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on 8 OSS projects. Among the 5 with n_hires ≥ 50, all five show positive Brooks tax (newcomers do slow veterans) but the magnitude varies 11x — Ambari 3% to airflow 31%. The 3 noisy small-sample projects gave negative signs. See finding F3.</p>
+    <p>Lifted on 7 projects via SZZ. brooksq&#x27;s leak_rate exceeds model.hi=0.5 on 7 of 7 with lift (only kaiaulu 0.42 in-range — smallest sample). Monotonic 0.42→0.93 across 5 languages — structural model-bound failure (F1). On inj_rate_increase, verdict is SPLIT: Ambari +0.094 supports, Helix 0 neutral, junit5 -0.011 mildly refutes (F4).</p>
     <h3>Per-project lifted value</h3>
-<p>Key metric: <code>brooks_tax_median</code>. Bounds: <code>[-, -]</code>.</p>
+<p>Key metric: <code>leak_rate</code>. Bounds: <code>[0, 0.5]</code>.</p>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
-<tr><td>airflow</td><td class="num mono">0.310991957104558</td><td><span class="dim">-</span></td></tr>
-<tr><td>ambari</td><td class="num mono">0.0294384057971015</td><td><span class="dim">-</span></td></tr>
-<tr><td>camel</td><td class="num mono">-0.144230769230769</td><td><span class="dim">-</span></td></tr>
-<tr><td>helix</td><td class="num mono">0.112676056338028</td><td><span class="dim">-</span></td></tr>
-<tr><td>junit5</td><td class="num mono">0.222222222222222</td><td><span class="dim">-</span></td></tr>
-<tr><td>kaiaulu</td><td class="num mono">-1.13392857142857</td><td><span class="dim">-</span></td></tr>
-<tr><td>openssl</td><td class="num mono">0.146464646464647</td><td><span class="dim">-</span></td></tr>
-<tr><td>tomcat</td><td class="num mono">0.0551530533764037</td><td><span class="dim">-</span></td></tr>
+<tr><td>airflow</td><td class="num mono">0.825335720680394</td><td><span class="bad">OUT</span></td></tr>
+<tr><td>ambari</td><td class="num mono">0.697098549274637</td><td><span class="bad">OUT</span></td></tr>
+<tr><td>camel</td><td class="num mono">0.712137486573577</td><td><span class="bad">OUT</span></td></tr>
+<tr><td>helix</td><td class="num mono">0.571318427139553</td><td><span class="bad">OUT</span></td></tr>
+<tr><td>junit5</td><td class="num mono">0.604449313221539</td><td><span class="bad">OUT</span></td></tr>
+<tr><td>kaiaulu</td><td class="num mono">0.417808219178082</td><td><span class="ok">in</span></td></tr>
+<tr><td>openssl</td><td class="num mono">0.930678466076696</td><td><span class="bad">OUT</span></td></tr>
+<tr><td>tomcat</td><td class="num mono">0.876115189158668</td><td><span class="bad">OUT</span></td></tr>
 </tbody></table>
   </div>
 </div>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>burnout — SD-Theses</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ burnout</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>burnout<span class="tag">process-cond. cell</span></h1>
+<p class="sub-title">DORA wellbeing report (2024) + Maslach inventory.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Long hours and emotional exhaustion degrade output. Stocks: Energy, Exhaustion, Output. Recovery rate competes with depletion rate.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p>Cumulative output minus exhaustion penalty.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p>Sustained high hours collapse output via exhaustion.</p>
+    <h2>Status</h2>
+    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>:</p>
+    <pre><code class="language-python">def burnout():
+  &quot;&quot;&quot;DORA wellbeing [15]: chronic overload erodes capacity.
+  RQ: workload 60 (vs 40) erodes net delivery.&quot;&quot;&quot;
+  init = {&#x27;Capacity&#x27;:[40,10,50], &#x27;Stress&#x27;:[0,0,100], &#x27;Delivered&#x27;:[0,0,2000],
+          &#x27;workload&#x27;:[40,0,100], &#x27;stress_coef&#x27;:[1.0,0,5],
+          &#x27;recover_coef&#x27;:[0.05,0,1], &#x27;erode_coef&#x27;:[0.05,0,1]}
+
+  def step(dt, t, u, v):
+    actual  = min(u.workload, u.Capacity)
+    excess  = max(0, u.workload - u.Capacity)
+    d_stress = excess * u.stress_coef - u.Stress * u.recover_coef
+    d_cap    = -u.Stress * u.erode_coef + max(0, 40 - u.Capacity) * 0.1
+    v.Capacity  = u.Capacity + dt * d_cap
+    v.Stress    = u.Stress + dt * d_stress
+    v.Delivered = u.Delivered + dt * actual
+    for p in (&#x27;workload&#x27;,&#x27;stress_coef&#x27;,&#x27;recover_coef&#x27;,&#x27;erode_coef&#x27;):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    return out[-1][1].Delivered
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;workload=60 erodes net delivery&quot;,
+                   y(run({**bi, &#x27;workload&#x27;:[40,0,100]}, step)),
+                   y(run({**bi, &#x27;workload&#x27;:[60,0,100]}, step)), &#x27;down&#x27;)
+
+  return Model(init, step, y, rq, &#x27;workload&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>HR/wellbeing surveys are private and ethics-gated. Commit-timing proxies (off-hours commits) are weak and don&#x27;t capture the construct.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -384.38</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 41/200 CONFIRM, params 197/200)</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Structurally unlifted. Methodological case alongside aiwork and aidebt.</p>
+    
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>
