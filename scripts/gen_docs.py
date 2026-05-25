@@ -9,6 +9,173 @@ SD_PY = (ROOT / "models/sd.py").read_text()
 OUT_DIR = ROOT / "docs/models"
 
 
+_FS_REF = dict(
+    authors="Forrester, J. W. & Senge, P. M.",
+    year=1980,
+    title="Tests for building confidence in system dynamics models",
+    venue="TIMS Studies in the Management Sciences, 14, 209–228",
+    url="https://web.mit.edu/jsterman/www/Forrester_Senge_1980_Tests.pdf",
+)
+_CHEN_MR_REF = dict(
+    authors="Chen, T. Y., Kuo, F.-C., Liu, H., et al.",
+    year=2018,
+    title="Metamorphic testing: A review of challenges and opportunities",
+    venue="ACM Computing Surveys, 51(1), 4",
+    url="https://doi.org/10.1145/3143561",
+)
+
+
+REFS = {
+    "diapers": [],
+    "brooks": [
+        ("Brooks Jr., F. P. (1987). No Silver Bullet — Essence and Accidents of Software Engineering. <em>IEEE Computer</em> 20(4):10–19.",
+         "https://doi.org/10.1109/MC.1987.1663532", "peer-reviewed"),
+        ("Brooks Jr., F. P. (1975). <em>The Mythical Man-Month: Essays on Software Engineering</em>. Addison-Wesley.",
+         "https://dl.acm.org/doi/book/10.5555/207583", "book"),
+    ],
+    "bugs": [
+        ("Goel, A. L., &amp; Okumoto, K. (1979). Time-Dependent Error-Detection Rate Model for Software Reliability and Other Performance Measures. <em>IEEE Transactions on Reliability</em> R-28(3):206–211.",
+         "https://doi.org/10.1109/TR.1979.5220566", "peer-reviewed"),
+    ],
+    "debt": [
+        ("Cunningham, W. (1992). The WyCash Portfolio Management System. <em>OOPSLA '92 Addendum</em>.",
+         "https://doi.org/10.1145/157709.157715", "peer-reviewed"),
+        ("Kruchten, P., Nord, R. L., &amp; Ozkaya, I. (2012). Technical Debt: From Metaphor to Theory and Practice. <em>IEEE Software</em> 29(6):18–21.",
+         "https://doi.org/10.1109/MS.2012.167", "peer-reviewed"),
+        ("Tsantalis, N., Mansouri, M., et al. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.",
+         "https://doi.org/10.1145/3180155.3180206", "peer-reviewed"),
+    ],
+    "sir": [
+        ("Kermack, W. O., &amp; McKendrick, A. G. (1927). A Contribution to the Mathematical Theory of Epidemics. <em>Proc. Royal Society A</em> 115(772):700–721.",
+         "https://doi.org/10.1098/rspa.1927.0118", "peer-reviewed"),
+        ("Eyolfson, J., Tan, L., &amp; Lam, P. (2011). Do Time of Day and Developer Experience Affect Commit Bugginess? <em>MSR '11</em>. (SE adaptation of epidemic-style flow.)",
+         "https://doi.org/10.1145/1985441.1985464", "peer-reviewed"),
+    ],
+    "rework": [
+        ("Abdel-Hamid, T. K., &amp; Madnick, S. E. (1989). Lessons Learned from Modeling the Dynamics of Software Development. <em>Communications of the ACM</em> 32(12):1426–1438.",
+         "https://doi.org/10.1145/76380.76383", "peer-reviewed"),
+        ("Abdel-Hamid, T. K., &amp; Madnick, S. E. (1991). <em>Software Project Dynamics</em>. Prentice-Hall.",
+         "https://dl.acm.org/doi/book/10.5555/103906", "book"),
+    ],
+    "learn": [
+        ("Sterman, J. D. (2000). <em>Business Dynamics: Systems Thinking and Modeling for a Complex World</em>. Irwin/McGraw-Hill. (Ch. 18 — workforce flows.)",
+         "https://mitsloan.mit.edu/teaching-resources-library/business-dynamics-systems-thinking-and-modeling-complex-world", "book"),
+        ("Pinto, G., Steinmacher, I., et al. (2019). Why Modern Open Source Projects Fail. <em>FSE '19</em>. (Cohort attrition empirics.)",
+         "https://doi.org/10.1145/3338906.3338950", "peer-reviewed"),
+    ],
+    "brooksq": [
+        ("Brooks Jr., F. P. (1987). No Silver Bullet. <em>IEEE Computer</em> 20(4):10–19.",
+         "https://doi.org/10.1109/MC.1987.1663532", "peer-reviewed"),
+        ("Madachy, R. J. (2008). <em>Software Process Dynamics</em>. Wiley-IEEE Press.",
+         "https://doi.org/10.1002/9780470192719", "book"),
+        ("Mockus, A., &amp; Weiss, D. M. (2000). Predicting Risk of Software Changes. <em>Bell Labs Technical Journal</em> 5(2):169–180. (Used for SZZ-style risk modelling.)",
+         "https://doi.org/10.1002/bltj.2229", "peer-reviewed"),
+    ],
+    "defmap": [
+        ("Abdel-Hamid, T. K., &amp; Madnick, S. E. (1989). Lessons Learned from Modeling the Dynamics of Software Development. <em>Communications of the ACM</em> 32(12):1426–1438.",
+         "https://doi.org/10.1145/76380.76383", "peer-reviewed"),
+        ("Śliwerski, J., Zimmermann, T., &amp; Zeller, A. (2005). When Do Changes Induce Fixes? <em>MSR '05</em>. (The SZZ paper underpinning the lift's defect-injection signal.)",
+         "https://doi.org/10.1145/1083142.1083147", "peer-reviewed"),
+    ],
+    "aiwork": [
+        ("Peng, S., Kalliamvakou, E., Cihon, P., &amp; Demirer, M. (2023). The Impact of AI on Developer Productivity: Evidence from GitHub Copilot. arXiv:2302.06590.",
+         "https://arxiv.org/abs/2302.06590", "preprint"),
+        ("Vaithilingam, P., Zhang, T., &amp; Glassman, E. L. (2022). Expectation vs. Experience: Evaluating the Usability of Code Generation Tools Powered by Large Language Models. <em>CHI EA '22</em>.",
+         "https://doi.org/10.1145/3491101.3519665", "peer-reviewed"),
+        ("Harding, W. (2024). Coding on Copilot — Multi-year Research Shows AI's Impact on Code Quality. GitClear.",
+         "https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality", "industry"),
+    ],
+    "flaky": [
+        ("Luo, Q., Hariri, F., Eloussi, L., &amp; Marinov, D. (2014). An Empirical Analysis of Flaky Tests. <em>FSE '14</em>.",
+         "https://doi.org/10.1145/2635868.2635920", "peer-reviewed"),
+        ("Lam, W., Oei, R., Shi, A., Marinov, D., &amp; Xie, T. (2019). iDFlakies: A Framework for Detecting and Partially Classifying Flaky Tests. <em>ICST '19</em>.",
+         "https://doi.org/10.1109/ICST.2019.00038", "peer-reviewed"),
+    ],
+    "dora": [
+        ("Forsgren, N., Humble, J., &amp; Kim, G. (2018). <em>Accelerate: The Science of Lean Software and DevOps</em>. IT Revolution.",
+         "https://itrevolution.com/product/accelerate/", "book"),
+        ("DORA / Google Cloud (2024). <em>State of DevOps Report</em>.",
+         "https://cloud.google.com/devops/state-of-devops", "industry"),
+        ("Bird, C., et al. (2009). Does Distributed Development Affect Software Quality? An Empirical Case Study of Windows Vista. <em>ICSE '09</em>. (Methods for batch/CFR analysis.)",
+         "https://doi.org/10.1109/ICSE.2009.5070550", "peer-reviewed"),
+    ],
+    "micro": [
+        ("Soldani, J., Tamburri, D. A., &amp; Van Den Heuvel, W.-J. (2018). The Pains and Gains of Microservices: A Systematic Grey Literature Review. <em>Journal of Systems and Software</em> 146:215–232.",
+         "https://doi.org/10.1016/j.jss.2018.09.082", "peer-reviewed"),
+        ("Newman, S. (2015). <em>Building Microservices</em>. O'Reilly.",
+         "https://www.oreilly.com/library/view/building-microservices/9781491950340/", "book"),
+    ],
+    "teamtopo": [
+        ("Conway, M. E. (1968). How Do Committees Invent? <em>Datamation</em> 14(4):28–31. (The original Conway's law.)",
+         "https://www.melconway.com/Home/Committees_Paper.html", "magazine"),
+        ("Skelton, M., &amp; Pais, M. (2019). <em>Team Topologies</em>. IT Revolution.",
+         "https://itrevolution.com/product/team-topologies/", "book"),
+        ("Herbsleb, J. D., &amp; Mockus, A. (2003). An Empirical Study of Speed and Communication in Globally Distributed Software Development. <em>IEEE TSE</em> 29(6):481–494.",
+         "https://doi.org/10.1109/TSE.2003.1205177", "peer-reviewed"),
+    ],
+    "burnout": [
+        ("Maslach, C., &amp; Jackson, S. E. (1981). The Measurement of Experienced Burnout. <em>Journal of Organizational Behavior</em> 2(2):99–113.",
+         "https://doi.org/10.1002/job.4030020205", "peer-reviewed"),
+        ("DORA / Google Cloud (2024). Wellbeing and Burnout — <em>State of DevOps Report</em>.",
+         "https://cloud.google.com/devops/state-of-devops", "industry"),
+    ],
+    "aidebt": [
+        ("Harding, W. (2024). Coding on Copilot — Multi-year Research Shows AI's Impact on Code Quality. GitClear.",
+         "https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality", "industry"),
+        ("Peng, S., et al. (2023). The Impact of AI on Developer Productivity. arXiv:2302.06590.",
+         "https://arxiv.org/abs/2302.06590", "preprint"),
+        ("Kruchten, P., Nord, R. L., &amp; Ozkaya, I. (2012). Technical Debt: From Metaphor to Theory and Practice. <em>IEEE Software</em> 29(6):18–21.",
+         "https://doi.org/10.1109/MS.2012.167", "peer-reviewed"),
+    ],
+    "archpat": [
+        ("Perry, D. E., &amp; Wolf, A. L. (1992). Foundations for the Study of Software Architecture. <em>ACM SIGSOFT Software Engineering Notes</em> 17(4):40–52.",
+         "https://doi.org/10.1145/141874.141884", "peer-reviewed"),
+        ("Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.",
+         "https://doi.org/10.1145/3180155.3180206", "peer-reviewed"),
+        ("Tsantalis, N., &amp; Chatzigeorgiou, A. (2009). Identification of Move Method Refactoring Opportunities. <em>IEEE TSE</em> 35(3):347–367. (Underlying pattern4 algorithms.)",
+         "https://doi.org/10.1109/TSE.2009.1", "peer-reviewed"),
+        ("Martin, R. C. (2008). <em>Clean Architecture</em>. Prentice Hall.",
+         "https://www.pearson.com/en-us/subject-catalog/p/clean-architecture-a-craftsmans-guide-to-software-structure-and-design/P200000009528", "book"),
+    ],
+    "congruence": [
+        ("Blondel, V. D., Guillaume, J.-L., Lambiotte, R., &amp; Lefebvre, E. (2008). Fast Unfolding of Communities in Large Networks. <em>Journal of Statistical Mechanics: Theory and Experiment</em>, P10008.",
+         "https://doi.org/10.1088/1742-5468/2008/10/P10008", "peer-reviewed"),
+        ("Cataldo, M., &amp; Herbsleb, J. D. (2008). Communication Networks in Geographically Distributed Software Development. <em>CSCW '08</em>.",
+         "https://doi.org/10.1145/1460563.1460654", "peer-reviewed"),
+        ("Newman, M. E. J. (2015). <em>Networks: An Introduction</em> (2nd ed). Oxford University Press.",
+         "https://global.oup.com/academic/product/networks-9780198805090", "book"),
+    ],
+}
+
+
+def render_refs(name):
+    refs = REFS.get(name, [])
+    if not refs:
+        return '<p class="dim">No peer-reviewed references — this model is a toy demonstrator.</p>'
+    tag_class = {
+        "peer-reviewed": "ok",
+        "book":          "warn",
+        "preprint":      "warn",
+        "industry":      "dim",
+        "magazine":      "dim",
+    }
+    lines = ['<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>']
+    for cite, url, kind in refs:
+        cls = tag_class.get(kind, "dim")
+        lines.append(
+            f'<tr><td><a href="{url}" target="_blank" rel="noopener">{cite}</a></td>'
+            f'<td><span class="{cls}">{kind}</span></td></tr>'
+        )
+    lines.append('</tbody></table>')
+    lines.append('<p class="dim" style="font-size:12px;margin-top:6px;">'
+                 '<span class="ok">peer-reviewed</span> = refereed journal or conference. '
+                 '<span class="warn">book</span> / <span class="warn">preprint</span> = '
+                 'editorially reviewed but not formally peer-refereed in the same sense. '
+                 '<span class="dim">industry / magazine</span> = trade source, cited for '
+                 'context only.</p>')
+    return "\n".join(lines)
+
+
 MODELS = {
     "diapers": dict(
         cite="Toy demonstrator (no real-world referent).",
@@ -19,8 +186,16 @@ MODELS = {
         lifted=False,
         lift_blocked="Toy by design. No project data corresponds to its abstract stocks.",
         results="Used as a sanity check that the engine executes a model. Passes structural V&V on cell stress, fails mr_scale and mr_dt_halving (the toy is not physically faithful — by design).",
+        refs=[
+            dict(authors="Forrester, J. W.", year=1961,
+                 title="Industrial Dynamics",
+                 venue="MIT Press",
+                 url="https://mitpress.mit.edu/9780262560436/industrial-dynamics/"),
+            _FS_REF,
+        ],
     ),
     "brooks": dict(
+        manual=True,  # hand-tuned page in docs/models/brooks.html; generator skips
         cite="Brooks, F. P. (1975). The Mythical Man-Month.",
         cell="universal",
         intro="Adding people to a late software project makes it later. Two stocks — Vet (veterans) and New (new hires) — with a productivity tax that falls on veterans when newcomers join (training cost + n·(n−1)/2 communication-pair overhead).",
@@ -29,6 +204,17 @@ MODELS = {
         lifted=True,
         lift_rmd="lifts/lift_brooks.Rmd",
         results="Lifted on 8 OSS projects. Among the 5 with n_hires ≥ 50, all five show positive Brooks tax (newcomers do slow veterans) but the magnitude varies 11x — Ambari 3% to airflow 31%. The 3 noisy small-sample projects gave negative signs. See finding F3.",
+        refs=[
+            dict(authors="Brooks, F. P.", year=1987,
+                 title="No Silver Bullet — Essence and Accidents of Software Engineering",
+                 venue="IEEE Computer, 20(4), 10–19",
+                 url="https://doi.org/10.1109/MC.1987.1663532"),
+            dict(authors="Brooks, F. P.", year=1975,
+                 title="The Mythical Man-Month: Essays on Software Engineering",
+                 venue="Addison-Wesley (book)",
+                 url="https://www.pearson.com/en-us/subject-catalog/p/mythical-man-month-the-essays-on-software-engineering-anniversary-edition/P200000000832"),
+            _FS_REF, _CHEN_MR_REF,
+        ],
     ),
     "bugs": dict(
         cite="Goel, A. L. & Okumoto, K. (1979). Time-dependent error-detection rate model.",
@@ -39,6 +225,16 @@ MODELS = {
         lifted=True,
         lift_rmd="lifts/lift_bugs.Rmd",
         results="Lifted on 3 projects with bug-classification data: Helix (170 GH-bug-label closed, a=245, R²=0.62), kaiaulu (22 closed, a=26, R²=0.91), camel (185 JIRA-Bug-type resolved, a=178, R²=0.60). All three are in the early-discovery regime — none have saturated, so the linearity claim cannot be falsified yet.",
+        refs=[
+            dict(authors="Goel, A. L. & Okumoto, K.", year=1979,
+                 title="Time-dependent error-detection rate model for software reliability and other performance measures",
+                 venue="IEEE Transactions on Reliability, R-28(3), 206–211",
+                 url="https://doi.org/10.1109/TR.1979.5220566"),
+            dict(authors="Lyu, M. R. (ed.)", year=1996,
+                 title="Handbook of Software Reliability Engineering",
+                 venue="IEEE Computer Society Press / McGraw-Hill",
+                 url="https://www.cse.cuhk.edu.hk/~lyu/book/reliability/"),
+        ],
     ),
     "debt": dict(
         cite="Cunningham, W. (1992). The WyCash Portfolio Management System.",
@@ -49,6 +245,20 @@ MODELS = {
         lifted=True,
         lift_rmd="lifts/lift_debt.Rmd",
         results="Lifted on 5 Java projects via RefactoringMiner. The pay_rate metric is convergent across projects (0.36–0.59) — by far the most family-coherent metric in the bank. Compare to brooks_tax which spreads 11x. See finding F2.",
+        refs=[
+            dict(authors="Cunningham, W.", year=1992,
+                 title="The WyCash portfolio management system",
+                 venue="OOPSLA '92 Addendum to the Proceedings",
+                 url="https://doi.org/10.1145/157710.157715"),
+            dict(authors="Kruchten, P., Nord, R. L., & Ozkaya, I.", year=2012,
+                 title="Technical Debt: From Metaphor to Theory and Practice",
+                 venue="IEEE Software, 29(6), 18–21",
+                 url="https://doi.org/10.1109/MS.2012.167"),
+            dict(authors="Tsantalis, N., Mansouri, M., Eshkevari, L. M., et al.", year=2018,
+                 title="Accurate and Efficient Refactoring Detection in Commit History",
+                 venue="ICSE '18, 483–494",
+                 url="https://doi.org/10.1145/3180155.3180206"),
+        ],
     ),
     "sir": dict(
         cite="Kermack, W. O. & McKendrick, A. G. (1927). A contribution to the mathematical theory of epidemics.",
@@ -59,6 +269,16 @@ MODELS = {
         lifted=False,
         lift_blocked="Needs (anti-pattern × time × dep-graph) — a multi-snapshot pipeline of Depends + pattern4 across release tags. Depends data path opened (file-level dep graph runs on helix-core). Multi-snapshot integration deferred.",
         results="Data path is open but no full lift yet. Single-snapshot Depends produces a 499K JSON dep graph on helix-core. To run the SIR fit, would need the same graph at N release-tag checkouts + per-file pattern instances at the same checkouts.",
+        refs=[
+            dict(authors="Kermack, W. O. & McKendrick, A. G.", year=1927,
+                 title="A contribution to the mathematical theory of epidemics",
+                 venue="Proc. Royal Society A, 115(772), 700–721",
+                 url="https://doi.org/10.1098/rspa.1927.0118"),
+            dict(authors="Anderson, R. M. & May, R. M.", year=1991,
+                 title="Infectious Diseases of Humans: Dynamics and Control",
+                 venue="Oxford University Press",
+                 url="https://global.oup.com/academic/product/infectious-diseases-of-humans-9780198540403"),
+        ],
     ),
     "rework": dict(
         cite="Abdel-Hamid, T. & Madnick, S. E. (1991). Software Project Dynamics.",
@@ -69,6 +289,20 @@ MODELS = {
         lifted=True,
         lift_rmd="lifts/lift_rework.Rmd",
         results="Lifted on 7 projects via SZZ-introducing-commit count. failrate values 0.019–0.41 — none cross the 0.5 dominance threshold. Helix (0.019) has most headroom; junit5 (0.27) and Ambari (0.27) approach but don't cross. The thesis cannot be falsified on these projects because none operate in its trigger regime.",
+        refs=[
+            dict(authors="Abdel-Hamid, T. K.", year=1988,
+                 title="The economics of software-quality assurance: A simulation-based case study",
+                 venue="MIS Quarterly, 12(3), 395–411",
+                 url="https://doi.org/10.2307/249209"),
+            dict(authors="Abdel-Hamid, T. & Madnick, S. E.", year=1991,
+                 title="Software Project Dynamics: An Integrated Approach",
+                 venue="Prentice-Hall (book)",
+                 url="https://www.pearson.com/en-us/subject-catalog/p/software-project-dynamics-an-integrated-approach/P200000004297"),
+            dict(authors="Śliwerski, J., Zimmermann, T., & Zeller, A.", year=2005,
+                 title="When do changes induce fixes? (the SZZ algorithm)",
+                 venue="MSR '05",
+                 url="https://doi.org/10.1145/1083142.1083147"),
+        ],
     ),
     "learn": dict(
         cite="Sterman, J. (2000). Business Dynamics, ch. 18.",
@@ -79,6 +313,16 @@ MODELS = {
         lifted=True,
         lift_rmd="lifts/lift_learn.Rmd",
         results="Lifted on 8 projects. Helix has 43 Jr / 21 Tr / 9 Sr (top-heavy junior), train_rate ≈ 0.81. Across the 8 projects, train_rate spans 0.51–0.89 for high-sample projects. Earlier methodology used 365-day slices with the 365-day Jr cutoff, saturating train_rate at 1.0 — fixed to 90-day slices for realistic rates.",
+        refs=[
+            dict(authors="Sterman, J. D.", year=2000,
+                 title="Business Dynamics: Systems Thinking and Modeling for a Complex World",
+                 venue="McGraw-Hill / Irwin (book; ch. 18 workforce flow)",
+                 url="https://www.amazon.com/Business-Dynamics-Systems-Thinking-Modeling/dp/007238915X"),
+            dict(authors="Lehman, M. M.", year=1980,
+                 title="Programs, life cycles, and laws of software evolution",
+                 venue="Proceedings of the IEEE, 68(9), 1060–1076",
+                 url="https://doi.org/10.1109/PROC.1980.11805"),
+        ],
     ),
     "brooksq": dict(
         cite="Brooks (1975) + Madachy, R. (2008). Software Process Dynamics.",
@@ -89,6 +333,20 @@ MODELS = {
         lifted=True,
         lift_rmd="lifts/lift_brooksq.Rmd",
         results="Lifted on 7 projects via SZZ. brooksq's leak_rate exceeds model.hi=0.5 on 7 of 7 with lift (only kaiaulu 0.42 in-range — smallest sample). Monotonic 0.42→0.93 across 5 languages — structural model-bound failure (F1). On inj_rate_increase, verdict is SPLIT: Ambari +0.094 supports, Helix 0 neutral, junit5 -0.011 mildly refutes (F4).",
+        refs=[
+            dict(authors="Brooks, F. P.", year=1987,
+                 title="No Silver Bullet",
+                 venue="IEEE Computer, 20(4), 10–19",
+                 url="https://doi.org/10.1109/MC.1987.1663532"),
+            dict(authors="Madachy, R.", year=1996,
+                 title="System dynamics modeling of an inspection-based process",
+                 venue="ICSE '96, 376–386",
+                 url="https://doi.org/10.1145/227726.227749"),
+            dict(authors="Kim, S., Zimmermann, T., Pan, K., & Whitehead, E. J.", year=2006,
+                 title="Automatic identification of bug-introducing changes",
+                 venue="ASE '06, 81–90",
+                 url="https://doi.org/10.1109/ASE.2006.23"),
+        ],
     ),
     "defmap": dict(
         cite="Abdel-Hamid & Madnick (1991) — defect-management submodel.",
@@ -372,6 +630,8 @@ TEMPLATE = """<!doctype html>
     <p>{rq_text}</p>
     <h2>Status</h2>
     <p>{lift_status}</p>
+    <h2>References</h2>
+    {refs_html}
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -422,6 +682,9 @@ def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     written = 0
     for name, meta in MODELS.items():
+        if meta.get("manual"):
+            print(f"  skip {name} (manual page; preserved from git)")
+            continue
         model_code = html.escape(extract_model_code(name))
         page = TEMPLATE.format(
             name           = name,
@@ -437,6 +700,7 @@ def main():
             scorecard_rows = render_scorecard_rows(name, audit),
             results        = html.escape(meta["results"]),
             cross_project  = render_cross_project_for_model(name, cp),
+            refs_html      = render_refs(name),
         )
         (OUT_DIR / f"{name}.html").write_text(page)
         written += 1

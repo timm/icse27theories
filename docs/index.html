@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>icse27theories — SE compartmental models</title>
+<title>SD-Theses — SE compartmental models</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,121 +25,138 @@
 <p class="sub-title">
   Each card below is one theory: a compartmental model + a falsifiable
   thesis. Click for the model code, the data-lift recipe, the V&amp;V
-  scorecard, and the multi-project empirical results.
+  scorecard, the per-project empirical results, and peer-reviewed references.
 </p>
 
 <div class="callout">
   <span class="label">scope</span>
-  All 18 model pages are built. Click any card for the model code,
-  data-lift recipe, V&amp;V scorecard, and per-project empirical
-  results. Dim cards are <em>structurally dark</em> — the model is
-  defined but no open dataset can calibrate it.
+  All 18 model pages are built. Click any card. Dim cards are
+  <em>structurally dark</em> — the model is defined but no open
+  dataset can calibrate it (the gap itself is a paper finding).
 </div>
 
 <h2 id="models">Models</h2>
 <div class="grid">
+
+  <a class="card process" href="models/diapers.html">
+    <div class="name">diapers</div>
+    <div class="desc">Toy demonstrator. The simplest possible model — start here.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>toy, n/a</span></div>
+  </a>
+
   <a class="card universal" href="models/brooks.html">
     <div class="name">brooks</div>
     <div class="desc">Mythical Man-Month: late hires hurt veteran velocity.</div>
     <div class="meta"><span class="badge">universal</span><span>lifted 8/8</span></div>
   </a>
-  <a class="card fragile" href="models/brooksq.html">
-    <div class="name">brooksq</div>
-    <div class="desc">Brooks + quality: late hires inject more bugs (split verdict).</div>
-    <div class="meta"><span class="badge">fragile</span><span>lifted 7/8</span></div>
-  </a>
+
   <a class="card process" href="models/bugs.html">
     <div class="name">bugs</div>
     <div class="desc">Goel-Okumoto exponential reliability growth.</div>
     <div class="meta"><span class="badge">process-cond.</span><span>lifted 3/8</span></div>
   </a>
+
   <a class="card universal" href="models/debt.html">
     <div class="name">debt</div>
     <div class="desc">Cunningham technical debt slows shipping.</div>
     <div class="meta"><span class="badge">universal</span><span>lifted 5/8</span></div>
   </a>
+
   <a class="card universal" href="models/sir.html">
     <div class="name">sir</div>
-    <div class="desc">Kermack-McKendrick: bad-pattern spread (data path now open via Depends).</div>
+    <div class="desc">Kermack-McKendrick: bad-pattern spread (data path open via Depends).</div>
     <div class="meta"><span class="badge">universal</span><span>lifted 0/8</span></div>
   </a>
+
   <a class="card universal" href="models/rework.html">
     <div class="name">rework</div>
     <div class="desc">Abdel-Hamid &amp; Madnick: hidden rework cycle.</div>
     <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
   </a>
+
   <a class="card process" href="models/learn.html">
     <div class="name">learn</div>
     <div class="desc">Sterman: Jr → Tr → Sr workforce flow.</div>
     <div class="meta"><span class="badge">process-cond.</span><span>lifted 8/8</span></div>
   </a>
+
+  <a class="card fragile" href="models/brooksq.html">
+    <div class="name">brooksq</div>
+    <div class="desc">Brooks + quality: late hires inject more bugs (split verdict).</div>
+    <div class="meta"><span class="badge">fragile</span><span>lifted 7/8</span></div>
+  </a>
+
   <a class="card universal" href="models/defmap.html">
     <div class="name">defmap</div>
     <div class="desc">Abdel-Hamid defect submodel: low test rate inflates Latent.</div>
     <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
   </a>
+
+  <a class="card universal dark" href="models/aiwork.html">
+    <div class="name">aiwork</div>
+    <div class="desc">AI churn vs gen tradeoff.</div>
+    <div class="meta"><span class="badge">dark</span><span>no AI attribution data</span></div>
+  </a>
+
+  <a class="card universal dark" href="models/flaky.html">
+    <div class="name">flaky</div>
+    <div class="desc">CI flake rates over time.</div>
+    <div class="meta"><span class="badge">dark</span><span>no CI flake logs parsed</span></div>
+  </a>
+
   <a class="card universal" href="models/dora.html">
     <div class="name">dora</div>
     <div class="desc">Forsgren/Humble/Kim: large batches drive CFR up.</div>
     <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
   </a>
-  <a class="card fragile" href="models/archpat.html">
-    <div class="name">archpat</div>
-    <div class="desc">Design patterns repair already-bad codebases (architectural-repair thesis).</div>
-    <div class="meta"><span class="badge">fragile</span><span>lifted 2/8</span></div>
-  </a>
-  <a class="card universal" href="models/congruence.html">
-    <div class="name">congruence</div>
-    <div class="desc">Newman/radio-silence: brokers hold fragmented projects together.</div>
-    <div class="meta"><span class="badge">universal</span><span>lifted 3/8</span></div>
-  </a>
 
-  <a class="card dark" href="models/diapers.html">
-    <div class="name">diapers</div>
-    <div class="desc">Toy demonstrator (no real-world correspondence).</div>
-    <div class="meta"><span class="badge">dark</span><span>n/a</span></div>
-  </a>
-  <a class="card dark" href="models/aiwork.html">
-    <div class="name">aiwork</div>
-    <div class="desc">AI churn vs gen tradeoff.</div>
-    <div class="meta"><span class="badge">dark</span><span>no AI attribution data</span></div>
-  </a>
-  <a class="card dark" href="models/aidebt.html">
-    <div class="name">aidebt</div>
-    <div class="desc">AI-introduced technical debt.</div>
-    <div class="meta"><span class="badge">dark</span><span>no AI attribution data</span></div>
-  </a>
-  <a class="card dark" href="models/flaky.html">
-    <div class="name">flaky</div>
-    <div class="desc">CI flake rates over time.</div>
-    <div class="meta"><span class="badge">dark</span><span>no CI flake logs parsed</span></div>
-  </a>
-  <a class="card dark" href="models/micro.html">
+  <a class="card process dark" href="models/micro.html">
     <div class="name">micro</div>
     <div class="desc">Service architecture deploy / failure.</div>
     <div class="meta"><span class="badge">dark</span><span>no service-arch data</span></div>
   </a>
-  <a class="card dark" href="models/teamtopo.html">
+
+  <a class="card universal dark" href="models/teamtopo.html">
     <div class="name">teamtopo</div>
     <div class="desc">Skelton-Pais team-topology dynamics.</div>
     <div class="meta"><span class="badge">dark</span><span>no org-chart data</span></div>
   </a>
-  <a class="card dark" href="models/burnout.html">
+
+  <a class="card process dark" href="models/burnout.html">
     <div class="name">burnout</div>
     <div class="desc">DORA wellbeing: long hours degrade output.</div>
     <div class="meta"><span class="badge">dark</span><span>no HR/wellbeing data</span></div>
   </a>
+
+  <a class="card world dark" href="models/aidebt.html">
+    <div class="name">aidebt</div>
+    <div class="desc">AI-introduced technical debt (regime crossover at t≈26).</div>
+    <div class="meta"><span class="badge">world-cond.</span><span>no AI attribution data</span></div>
+  </a>
+
+  <a class="card fragile" href="models/archpat.html">
+    <div class="name">archpat</div>
+    <div class="desc">Design patterns repair already-bad codebases.</div>
+    <div class="meta"><span class="badge">fragile</span><span>lifted 2/8</span></div>
+  </a>
+
+  <a class="card universal" href="models/congruence.html">
+    <div class="name">congruence</div>
+    <div class="desc">Newman / radio-silence: brokers hold fragmented projects together.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 3/8</span></div>
+  </a>
+
 </div>
 
 <h2 id="typology">Typology (stress-matrix 2&times;2 cell)</h2>
 <table>
   <thead>
-    <tr><th>cell</th><th>meaning</th><th>count</th><th>members</th></tr>
+    <tr><th>cell</th><th>meaning</th><th class="num">count</th><th>members</th></tr>
   </thead>
   <tbody>
-    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">10</td><td class="mono dim">debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence, brooks</td></tr>
+    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">10</td><td class="mono dim">brooks, debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence</td></tr>
     <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">5</td><td class="mono dim">diapers, bugs, learn, micro, burnout</td></tr>
-    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">3</td><td class="mono dim">brooksq, archpat</td></tr>
+    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">2</td><td class="mono dim">brooksq, archpat</td></tr>
     <tr><td><span class="dim">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">1</td><td class="mono dim">aidebt (regime crossover at t&asymp;26)</td></tr>
   </tbody>
 </table>
