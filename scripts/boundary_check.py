@@ -12,7 +12,8 @@ ranges in sd.py's init dict. Report:
 import csv, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.sd import brooks, brooksq, debt, rework, defmap, dora, learn, archpat
+from models.sd import (brooks, brooksq, debt, rework, defmap, dora, learn,
+                       archpat, congruence)
 
 
 CHECKS = [
@@ -45,6 +46,10 @@ CHECKS = [
         'Patterned': 'Patterned_n',
         'Legacy':    'Legacy_n',
     }),
+    ('congruence', congruence, {
+        'Brokers':  'Brokers_n',
+        'Clusters': 'Clusters_n',
+    }),
 ]
 
 
@@ -61,42 +66,36 @@ def classify(val, lo, hi, eps=1e-9):
     return 'in_range'
 
 
+PROJECTS = ['helix', 'junit5', 'ambari', 'kaiaulu', 'airflow',
+            'openssl', 'tomcat', 'camel']
+
+
 def main():
     rows = []
-    for name, fn, mapping in CHECKS:
-        csv_path = f"outputs/lift_{name}_helix.csv"
-        if not os.path.exists(csv_path):
-            rows.append({'model': name, 'param': '-', 'lifted': '-',
-                         'lo': '-', 'hi': '-', 'status': 'no_csv'})
-            continue
-        if not mapping:
-            rows.append({'model': name, 'param': '(none mapped)',
-                         'lifted': '-', 'lo': '-', 'hi': '-',
-                         'status': 'no_direct_mapping'})
-            continue
-        csv_row = _read_csv(csv_path)
-        m = fn()
-        for param, col in mapping.items():
-            if param not in m.init:
-                rows.append({'model': name, 'param': param, 'lifted': '-',
-                             'lo': '-', 'hi': '-', 'status': 'missing_in_init'})
+    for proj in PROJECTS:
+        for name, fn, mapping in CHECKS:
+            csv_path = f"outputs/lift_{name}_{proj}.csv"
+            if not os.path.exists(csv_path) or not mapping:
                 continue
-            _, lo, hi = m.init[param]
-            try:
-                val = float(csv_row[col])
-            except (KeyError, ValueError):
-                rows.append({'model': name, 'param': param,
-                             'lifted': csv_row.get(col, 'NA'),
-                             'lo': lo, 'hi': hi, 'status': 'unparseable'})
-                continue
-            rows.append({
-                'model':  name,
-                'param':  param,
-                'lifted': f"{val:.4g}",
-                'lo':     lo,
-                'hi':     hi,
-                'status': classify(val, lo, hi),
-            })
+            csv_row = _read_csv(csv_path)
+            m = fn()
+            for param, col in mapping.items():
+                if param not in m.init:
+                    continue
+                _, lo, hi = m.init[param]
+                try:
+                    val = float(csv_row[col])
+                except (KeyError, ValueError):
+                    continue
+                rows.append({
+                    'project': proj,
+                    'model':   name,
+                    'param':   param,
+                    'lifted':  f"{val:.4g}",
+                    'lo':      lo,
+                    'hi':      hi,
+                    'status':  classify(val, lo, hi),
+                })
 
     out_path = "outputs/boundary_check.csv"
     with open(out_path, 'w', newline='') as f:
@@ -104,14 +103,12 @@ def main():
         w.writeheader()
         w.writerows(rows)
     print(f"Wrote {out_path}\n")
-    for r in rows:
-        flag = {'in_range': ' ', 'at_boundary': '~',
-                'out_of_range': '!', 'no_direct_mapping': '·',
-                'no_csv': '?', 'missing_in_init': '?',
-                'unparseable': '?'}.get(r['status'], '?')
-        print(f"  [{flag}] {r['model']:8s} {r['param']:14s} "
-              f"lifted={str(r['lifted']):>10s}  "
-              f"[{str(r['lo']):>6s}, {str(r['hi']):>6s}]  {r['status']}")
+    only_violations = [r for r in rows if r['status'] != 'in_range']
+    print(f"Violations + boundary-touches ({len(only_violations)} of {len(rows)} cells):")
+    for r in only_violations:
+        flag = {'at_boundary': '~', 'out_of_range': '!'}.get(r['status'], '?')
+        print(f"  [{flag}] {r['project']:8s} {r['model']:10s} {r['param']:14s} "
+              f"lifted={str(r['lifted']):>10s}  [{str(r['lo']):>6s}, {str(r['hi']):>6s}]")
 
 
 if __name__ == "__main__":

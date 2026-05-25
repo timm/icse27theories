@@ -29,23 +29,44 @@ Skipped per language/build mismatch:
 
 ## Headline findings
 
-### F0. **Three model-bound violations replicate across projects**
+### F0. **Five model parameters fail boundary adequacy across projects**
 
-| param                  | model.hi | violated by                               |
-|------------------------|---------:|-------------------------------------------|
-| brooksq.leak_rate      | 0.5      | 6 of 7 lifted projects (only kaiaulu IN)  |
-| archpat.Legacy         | 200      | 2 of 2 testable projects (Helix, Ambari)  |
-| congruence.Brokers     | 20       | 1 of 3 mbox projects (tomcat: 39)         |
+Running `boundary_check.py` across all 8 projects × applicable
+models produced 103 (project, param) cells. **25 cells flagged**
+(17 out_of_range + 8 at_boundary):
+
+| param                  | model.hi | OUT count | projects                  |
+|------------------------|---------:|----------:|---------------------------|
+| brooksq.leak_rate      | 0.5      | 7         | all except kaiaulu        |
+| brooksq.inj_rate       | 0.5      | 3         | Ambari, airflow, camel    |
+| archpat.Legacy         | 200      | 2         | Helix, Ambari             |
+| archpat.Patterned      | 200      | 1         | Ambari                    |
+| learn.Jr               | 100      | 3         | junit5, airflow, openssl  |
+| congruence.Brokers     | 20       | 1         | tomcat (39)               |
+| congruence.Clusters    | 20       | 1         | tomcat (33)               |
 
 **Pattern**: sd.py model bounds were specified at "small project"
-scale; mature OSS exceeds them. Recommend widening:
-- `leak_rate hi`     0.5  →  0.9
-- `Legacy     hi`    200  →  2000
-- `Brokers    hi`    20   →  50
-- `Clusters   hi`    20   →  50
+scale; mature OSS exceeds them. Recommend widening (in `models/sd.py`):
 
-Until the bounds widen, `boundary_check.py` will keep flagging real
-projects as OUT_OF_RANGE.
+| param              | current  | proposed |
+|--------------------|---------:|---------:|
+| brooksq.leak_rate  | [0, 0.5] | [0, 1.0] |
+| brooksq.inj_rate   | [0, 0.5] | [0, 5.0] |
+| archpat.Patterned  | [0, 200] | [0, 1000]|
+| archpat.Legacy     | [0, 200] | [0, 3000]|
+| learn.Jr           | [0, 100] | [0, 2000]|
+| congruence.Brokers | [0, 20]  | [0, 100] |
+| congruence.Clusters| [1, 20]  | [1, 100] |
+
+Until widened, `boundary_check.py` keeps flagging real projects as
+OUT_OF_RANGE. This is the *single biggest methodology finding* of
+the session — the model bounds are systematically wrong for the
+scale of mature OSS projects.
+
+**Paper framing**: this is not a falsification of the *theses* (the
+theses still hold in their qualitative direction); it's a
+falsification of the **parameter-range assumptions** in the model
+formalism. The 17 reviewers will care about this distinction.
 
 ### F1. **Replicated boundary-adequacy failure: brooksq.leak_rate**
 
