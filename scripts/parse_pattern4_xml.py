@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
 """Parse pattern4.jar XML output(s) into a patterned-files CSV.
 
-Scans data/helix/derived/pattern4/*.xml and produces an aggregated
-CSV. The module name comes from the XML filename stem; the source
-prefix is `<module>/src/main/java/`.
+Usage:
+  python3 scripts/parse_pattern4_xml.py <pattern4-dir>
 
-Output: data/helix/derived/pattern4/patterned_files.csv
-  columns: file_pathname, pattern_type, role, module
+Scans <pattern4-dir>/*.xml and writes patterned_files.csv next to
+them. The module name comes from the XML filename stem; the source
+prefix is `<module>/src/main/java/`.
 """
 
 import csv, glob, os, sys, xml.etree.ElementTree as ET
-
-XML_GLOB = "data/helix/derived/pattern4/*.xml"
-OUT_CSV  = "data/helix/derived/pattern4/patterned_files.csv"
 
 
 def class_to_path(cls, module):
@@ -41,10 +38,14 @@ def parse_xml(path):
     return rows
 
 
-def main():
-    paths = sorted(glob.glob(XML_GLOB))
+def main(argv):
+    if len(argv) != 2:
+        print(__doc__, file=sys.stderr)
+        return 1
+    pat_dir = argv[1].rstrip("/")
+    paths = sorted(glob.glob(os.path.join(pat_dir, "*.xml")))
     if not paths:
-        print(f"no XMLs found at {XML_GLOB}", file=sys.stderr)
+        print(f"no XMLs found at {pat_dir}/*.xml", file=sys.stderr)
         return 1
 
     all_rows = []
@@ -53,21 +54,21 @@ def main():
         print(f"  {os.path.basename(p):40s} {len(rows)} role-rows")
         all_rows.extend(rows)
 
-    # Dedupe on (file, pattern_type, role)
     seen = {}
     for r in all_rows:
         key = (r["file_pathname"], r["pattern_type"], r["role"])
         seen[key] = r
     deduped = list(seen.values())
 
-    with open(OUT_CSV, "w", newline="") as f:
+    out_csv = os.path.join(pat_dir, "patterned_files.csv")
+    with open(out_csv, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["file_pathname", "pattern_type",
                                           "role", "module"])
         w.writeheader()
         w.writerows(deduped)
     unique_files = len(set(r["file_pathname"] for r in deduped))
-    print(f"Wrote {OUT_CSV} ({len(deduped)} rows, {unique_files} unique files)")
+    print(f"Wrote {out_csv} ({len(deduped)} rows, {unique_files} unique files)")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv))

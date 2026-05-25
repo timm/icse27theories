@@ -1,5 +1,5 @@
 model,key_metric,ambari,helix,junit5,lo,hi,boundary_status
-archpat,Legacy_n,—,384,—,0,200,ambari:- helix:OUT junit5:-
+archpat,Legacy_n,1890,384,—,0,200,ambari:OUT helix:OUT junit5:-
 brooks,brooks_tax_median,0.0294384057971015,0.112676056338028,0.222222222222222,-,-,n/a
 brooksq,leak_rate,0.697098549274637,0.571318427139553,0.604449313221539,0,0.5,ambari:OUT helix:OUT junit5:OUT
 debt,pay_rate_median,—,0.588235294117647,0.589595375722543,0,1,ambari:- helix:in junit5:in
