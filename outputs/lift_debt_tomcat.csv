@@ -1,0 +1,2 @@
+project,pay_rate_median,pay_rate_mean,born_rate_median,born_rate_mean,n_refactor_events,n_commits,window_days,seed
+tomcat,0.365,0.371842606242641,0.1,0.104431420937987,45814,15158,90,1
