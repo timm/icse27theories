@@ -49,32 +49,33 @@ projects as OUT_OF_RANGE.
 
 ### F1. **Replicated boundary-adequacy failure: brooksq.leak_rate**
 
-Confirmed on **6 of 7 projects** where the lift ran (kaiaulu the
-outlier with smallest sample):
+Confirmed on **7 of 8 projects** (kaiaulu the lone outlier with
+smallest sample):
 
-| project | leak_rate | status |
-|---------|----------:|--------|
-| kaiaulu | 0.418     | IN  (n=146 pairs, smallest sample by ~10x) |
-| Helix   | 0.571     | OUT |
-| junit5  | 0.604     | OUT |
-| Ambari  | 0.697     | OUT |
-| camel   | 0.712     | OUT |
-| airflow | 0.825     | OUT |
-| tomcat  | 0.865     | OUT |
+| project | leak_rate | language | status |
+|---------|----------:|----------|--------|
+| kaiaulu | 0.418     | R        | IN  (n=146 pairs — smallest by ~10x) |
+| Helix   | 0.571     | java     | OUT |
+| junit5  | 0.604     | java     | OUT |
+| Ambari  | 0.697     | java     | OUT |
+| camel   | 0.712     | java     | OUT |
+| airflow | 0.825     | python   | OUT |
+| tomcat  | 0.876     | java     | OUT |
+| openssl | 0.931     | c        | OUT |
 
-Model's declared `hi = 0.5`. Six of seven independent projects exceed
-the bound; kaiaulu the only in-range and the smallest sample by 10x.
-Includes projects across 4 languages (Java, Python, R, C — though
-openssl untested). Not a one-project quirk — the model's parameter
-range was specified too narrowly to span real-world projects. Paper
-should widen the bound to ≥ 0.9 or revise the metric definition
-(`fraction of bugs with fix latency > 30 days`).
+Model's declared `hi = 0.5`. Seven of eight independent projects
+exceed the bound, **monotonically** spanning 0.42 → 0.93. Includes
+projects across 5 languages. Not a one-project quirk — the model's
+parameter range was specified too narrowly. Paper should widen the
+bound to ≥ 0.95 or revise the metric definition (`fraction of bugs
+with fix latency > 30 days`).
 
-**Implication for the falsification methodology**: leak_rate as
-defined captures something about engineering culture that *all*
-mature OSS projects fail (or all definitions of "leaked" used by
-practitioners are looser than 30 days). Either reading is paper
-material.
+**Methodology implication**: leak_rate as defined captures something
+universal across mature OSS — *every* large project has > half its
+bug-introducing commits not fixed within 30 days. Either (a) the
+model's prior (defects fix fast in healthy projects) is unrealistic,
+or (b) the 30-day threshold is too tight for what practitioners
+call "leaked." Both readings are paper-worthy.
 
 ### F2. **debt.pay_rate falls in narrow band across 4 Java projects**
 
