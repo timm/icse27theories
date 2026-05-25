@@ -1,0 +1,42 @@
+[
+  {
+    "id": 2487873843,
+    "node_id": "PRR_kwDOD0xXC86USfEz",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/328#pullrequestreview-2487873843",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/328",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/328#pullrequestreview-2487873843"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/328"
+      }
+    },
+    "submitted_at": "2024-12-09T06:42:25Z",
+    "commit_id": "279e0a984d12f1fff054510c6ac1c42ee4322e23"
+  }
+]

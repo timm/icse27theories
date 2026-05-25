@@ -1,0 +1,242 @@
+[
+  {
+    "id": 1651650444,
+    "node_id": "PRR_kwDOD0xXC85ici-M",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "I am a bit confused on some of the code refactored here. Is there some difficulty understanding the command line commands and how they translate to R?",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1651650444",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1651650444"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233"
+      }
+    },
+    "submitted_at": "2023-09-30T07:06:09Z",
+    "commit_id": "97778f1d7ecbeba5e382e21f901f2088a7fa7ea4"
+  },
+  {
+    "id": 1714053962,
+    "node_id": "PRR_kwDOD0xXC85mKmNK",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "The XML error (https://github.com/sailuh/kaiaulu/pull/233#issuecomment-1793338706) is addressed, however this still needs a lot of work to get closer to a merge state. \r\n\r\nTwo functions, I imagine from @waylonho are also needed for your unit tests to work, and they are also missing here. \r\n\r\n",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1714053962",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1714053962"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233"
+      }
+    },
+    "submitted_at": "2023-11-05T20:52:45Z",
+    "commit_id": "a5a2a34d132175c5f2093e6a86011a618ad4dd07"
+  },
+  {
+    "id": 1716328518,
+    "node_id": "PRR_kwDOD0xXC85mTRhG",
+    "user": {
+      "login": "Rubegen",
+      "id": 96926588,
+      "node_id": "U_kgDOBcb7fA",
+      "avatar_url": "https://avatars.githubusercontent.com/u/96926588?u=e93813b76e7cc1c6f9090f3bd208dea05f4e3f7a&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Rubegen",
+      "html_url": "https://github.com/Rubegen",
+      "followers_url": "https://api.github.com/users/Rubegen/followers",
+      "following_url": "https://api.github.com/users/Rubegen/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Rubegen/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Rubegen/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Rubegen/subscriptions",
+      "organizations_url": "https://api.github.com/users/Rubegen/orgs",
+      "repos_url": "https://api.github.com/users/Rubegen/repos",
+      "events_url": "https://api.github.com/users/Rubegen/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Rubegen/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716328518",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716328518"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233"
+      }
+    },
+    "submitted_at": "2023-11-06T21:45:55Z",
+    "commit_id": "a5a2a34d132175c5f2093e6a86011a618ad4dd07"
+  },
+  {
+    "id": 1716331281,
+    "node_id": "PRR_kwDOD0xXC85mTSMR",
+    "user": {
+      "login": "Rubegen",
+      "id": 96926588,
+      "node_id": "U_kgDOBcb7fA",
+      "avatar_url": "https://avatars.githubusercontent.com/u/96926588?u=e93813b76e7cc1c6f9090f3bd208dea05f4e3f7a&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Rubegen",
+      "html_url": "https://github.com/Rubegen",
+      "followers_url": "https://api.github.com/users/Rubegen/followers",
+      "following_url": "https://api.github.com/users/Rubegen/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Rubegen/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Rubegen/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Rubegen/subscriptions",
+      "organizations_url": "https://api.github.com/users/Rubegen/orgs",
+      "repos_url": "https://api.github.com/users/Rubegen/repos",
+      "events_url": "https://api.github.com/users/Rubegen/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Rubegen/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716331281",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716331281"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233"
+      }
+    },
+    "submitted_at": "2023-11-06T21:46:51Z",
+    "commit_id": "a5a2a34d132175c5f2093e6a86011a618ad4dd07"
+  },
+  {
+    "id": 1716344659,
+    "node_id": "PRR_kwDOD0xXC85mTVdT",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716344659",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716344659"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233"
+      }
+    },
+    "submitted_at": "2023-11-06T21:52:00Z",
+    "commit_id": "a5a2a34d132175c5f2093e6a86011a618ad4dd07"
+  },
+  {
+    "id": 1716349825,
+    "node_id": "PRR_kwDOD0xXC85mTWuB",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716349825",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/233#pullrequestreview-1716349825"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/233"
+      }
+    },
+    "submitted_at": "2023-11-06T21:54:52Z",
+    "commit_id": "a5a2a34d132175c5f2093e6a86011a618ad4dd07"
+  }
+]

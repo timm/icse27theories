@@ -1,0 +1,33 @@
+commit_hash,issue_keys,author,date,files_touched,msg_first_line
+c0b45bc43eab32a1cfcedf01343fd92583ef21b3,44494,rjung@apache.org,2008-08-25T20:08:05+00:00,1,Remove recycle of B2CConverter when used for URI conversion.
+242ccbe7d44f182787fd9d4afacb5fe92ca0c7bc,19444;45794,rjung@apache.org,2008-11-07T01:59:04+00:00,1,Allow binding as user to directory instead
+cab7c49a8e06defd61a0248602374c6ac90ba58a,41564,mturk@apache.org,2009-05-27T08:19:13+00:00,1,Fix bz41564 by adding /user option to service.bat which respawns the service.bat
+de0e6e1e1df5106a514f9d1c1df672b9d63c2bd5,48668,kkolinko@apache.org,2010-03-07T02:43:12+00:00,7,Fix https://issues.apache.org/bugzilla/show_bug.cgi?id=48668
+7f62e151ed188d0f398171e3eb9e598f508f24d7,49343,kfujino@apache.org,2010-05-26T11:58:55+00:00,1,Fix for BZ49343.
+732112e1eedb6b268c66b53125349c45d12f1338,49883,markt@apache.org,2010-09-06T09:55:44+00:00,2,Extend fix for bz49883
+63c51140db3f652749185489333d095766039ac5,49884,markt@apache.org,2010-09-12T08:05:35+00:00,3,Fix Eclipse warnings prior to working on bz49884 refactoring
+dac9f5c854d402b8c57a693a9906a1a7466863f1,50219,rjung@apache.org,2010-11-05T12:27:49+00:00,1,BZ50219: Fix typo in jndi-resources-howto.xml.
+89cb3a289ea3ee27f0fb2657684f5ebfb57f3fc9,51786,kfujino@apache.org,2011-09-14T08:53:58+00:00,1,Fix BZ51786.
+7446259923e31c0b79271c589873df551ba4a73c,52015,kfujino@apache.org,2011-10-20T09:19:37+00:00,1,Fix BZ52015.
+76be6d086b425fe8f4b345522df040362e0db84d,52405,markt@apache.org,2012-01-02T20:14:52+00:00,11,Add Eclipse generated equals() and hashCode() methods
+57f58161073c57aca1dadd19a19398ed79e4581d,52750,markt@apache.org,2012-02-23T18:44:02+00:00,1,Fix BZ52750. Correctly parse command options
+0cc4cf493b3ae792e82b863e8a5155462a00ae75,53677,markt@apache.org,2012-08-31T11:10:56+00:00,1,Remove commented out code from a previous attempt to fix BZ53677
+fa55dfe37c6ed20b4b95df470e4380f15773317d,54585,markt@apache.org,2013-02-28T00:25:01+00:00,1,Refactor to make the fix for BZ54585 cleaner
+5ef80d8ec4dd65c892b5e1ebae4aa9052237f604,54890,mturk@apache.org,2013-04-25T12:50:42+00:00,1,Fix BZ54890. Update daemon to latest release
+47f2c7f07ed0cf0945b5644ce93f42ddcf5c594d,55383,markt@apache.org,2013-09-19T20:46:54+00:00,2,BZ55383
+1bae5463e6d6cf95cb50bca66440391a4bb86b54,55198;55735,markt@apache.org,2013-11-05T22:13:37+00:00,2,Fix various bugs in Jasper's simplified EL parser and add the test case that found them.
+f841034e4ba70ac74a5ec7ddc24904d30a209bff,56029,markt@apache.org,2014-01-19T18:55:19+00:00,1,Second attempt at fixing
+ea3c5e571c0bdd346940ba56d16c2149bc313cda,55996,markt@apache.org,2014-01-29T20:37:31+00:00,2,Fix regression in fix for BZ55996
+fa3eefece1b5b3ecf2622a35a16651576350023d,56199,markt@apache.org,2014-03-06T07:40:12+00:00,3,Better fix for BZ56199
+835f697c4fe343c0ae60dcc9f908cfe421bbe86c,56663,remm@apache.org,2014-06-27T15:52:03+00:00,4,Fix https://issues.apache.org/bugzilla/show_bug.cgi?id=56663
+4d7e4af31dd1b4b6c6cb41a7945ec76089a6bf58,56840,remm@apache.org,2014-08-12T13:31:17+00:00,2,Fix https://issues.apache.org/bugzilla/show_bug.cgi?id=56840
+dca6e30fe20e3bafe5228dff0040ebd382fd502a,57309,markt@apache.org,2014-12-05T22:43:48+00:00,1,Follow up to r1643365/r1643366. BZ57309.
+8b431868b06095777dbd360d9af21e27b6832d92,57528,remm@apache.org,2015-02-06T09:25:46+00:00,1,Related to BZ57528: improve the algorithm to handle an exception or null return value in getContent and avoid NPE or ret
+f3b909db5f279c54708d0a86c24cb1ab9ccefde7,57938,markt@apache.org,2015-06-16T11:50:43+00:00,1,Fix test broken by fix for BZ57938
+38a30fdc05a5f27f12bf5052932a9bdbd6f994af,58624,markt@apache.org,2015-11-25T11:30:17+00:00,1,Additional fix for BZ58624 based on analysis of 8.0.x failure mode
+9cf7ed57f9dde90d29e7cb490b514b20d917ac1b,60035,remm@apache.org,2016-08-26T13:58:33+00:00,2,Looking at things after reading the comment in BZ60035. The status should be ERROR  it was probably a cut and paste erro
+e2f4fcbada9661fc2ab93daa450aa8f2f72ed2a9,60043,kfujino@apache.org,2016-08-31T07:50:06+00:00,2,Additional fix for BZ60043.
+1cbb2ed755118650b60a7e0292f9384dde8340f5,63765,remm@apache.org,2019-09-24T18:07:03+02:00,2,BZ63765: Try to unwrap first after handshake
+f5f2b62670f972fc6a857788084e4352f2d4cd87,63949,remm@apache.org,2019-11-22T17:04:03+01:00,2,BZ63949: Restore write loop which was present in the selector code
+9c6563bf6ac723cda4e78d0e8c1a996fa1b8ce56,64247,remm@apache.org,2020-03-20T14:46:01+01:00,2,BZ64247: Fix jarsToSkip wildcard use
+3a1824fe286232ada14ac95fda541e7744e31ab4,64644,markt@apache.org,2020-09-01T13:54:08+01:00,8,Manually apply PR #346 - fix BZ64644 add write/read idle session timeout

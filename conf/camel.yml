@@ -1,0 +1,17 @@
+project:
+  website: https://github.com/apache/camel
+
+version_control:
+  log: /Users/timm/gits/timm/icse27theories/data/camel/git_repo/.git
+  log_url: https://github.com/apache/camel
+  branch:
+    - HEAD
+
+commit_message_id_regex:
+  issue_id: "CAMEL-[0-9]+"
+
+filter:
+  keep_filepaths_ending_with:
+    - java
+  remove_filepaths_containing:
+    - test

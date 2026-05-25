@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1342880169,
+    "node_id": "PRR_kwDOD0xXC85QCrmp",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "This looks fine. Thank you for adding the mention to _pkgdown here. Could you git squash the \"getting updates from kaiaulu\" into one commit?\r\n\r\nAlso, please update the new commit message to be more specific. I.e. rather than \"documentation improvements\", mention instead \"i #158 adds mention to _pkgdown.yml\" instead or something of the sort. \r\n\r\nBut otherwise 👍 ",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/158#pullrequestreview-1342880169",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/158",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/158#pullrequestreview-1342880169"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/158"
+      }
+    },
+    "submitted_at": "2023-03-16T04:27:35Z",
+    "commit_id": "9928bb599e6f823ff27dcd820ff5d8b0099f9458"
+  },
+  {
+    "id": 1343495223,
+    "node_id": "PRR_kwDOD0xXC85QFBw3",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "APPROVED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/158#pullrequestreview-1343495223",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/158",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/158#pullrequestreview-1343495223"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/158"
+      }
+    },
+    "submitted_at": "2023-03-16T11:15:22Z",
+    "commit_id": "b1d71749040dd21c12995c49bdc276b5744a04cc"
+  }
+]

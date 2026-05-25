@@ -1,0 +1,32 @@
+commit_hash,issue_keys,author,date,files_touched,msg_first_line
+3cb1fe2cc87c55d3d86823588f8bf6a110320072,4,carlosviansi@gmail.com,2020-05-23T16:47:52-10:00,3,i #4 Add communication network parser and viz
+e1ab8e1482b9d4c262c30979caf72a4f689efab3,25,carlosviansi@gmail.com,2020-05-28T04:42:46-10:00,1,i #25 fix leaking parameter
+7ee45d3861714e4fa93a2e17af203d7570b55031,6,carlosviansi@gmail.com,2020-05-28T05:03:54-10:00,1,i #6 minor fix on unecessary step
+c537af9b0b63908f8d48a9e9640d61ee6efae940,41,carlosviansi@gmail.com,2020-06-05T01:32:03-10:00,7,i #41 Creates conf file format
+6c62c97eeb5668515f14495019117662184ebd15,30;46,carlosviansi@gmail.com,2020-06-08T21:28:08-10:00,8,i #46 adds commit message parser
+6c2d2aa33f4a35c84f4cf0aae3d85bfdf2f29bd6,46,carlosviansi@gmail.com,2020-06-08T22:57:23-10:00,13,i #46 add commit message id coverage metric
+2e82dc417c038a43e04558cc919885d5def84b7e,53,carlosviansi@gmail.com,2020-06-16T00:01:18-10:00,25,i #53 fix RMD Check Notes and Warnings
+252a43b45f93593d8b75d61da4c14e48056d7ea4,84,carlosviansi@gmail.com,2020-08-10T20:59:01-10:00,12,i #84 add dependency graph for R
+71dae8b29851453d58d85cdf331f42f79d9145e3,75,carlosviansi@gmail.com,2021-05-06T00:48:27-10:00,2,i #75 Fixes tools.yml OSLOM paths
+257723dd33a1e765f9a0997b4e54ee55dde4a10f,104,carlosviansi@gmail.com,2021-05-29T20:34:04-10:00,1,i #104 fixes note warning side-effect
+509036449aed50389cd2949c3904b694ef284dab,107;109,33750620+tuejari@users.noreply.github.com,2021-07-15T13:06:08-10:00,1,i #107 Bugfix download_mod_mbox missing leading zeros (PR #109)
+b983da4633377931853ae03d6806668c2bae0d96,102;107,carlosviansi@gmail.com,2021-07-15T16:40:19-10:00,3,i #107 #102 Update contribution docs
+2ef0aefdb9e2c46670bb29aa1da24ea94b06251e,110,carlosviansi@gmail.com,2021-07-16T05:45:31-10:00,7,i #110 Adds Jira Downloader and Bug Count Metric
+15f7b19e4dea00de9d687d23d1a51157694c6c98,113,carlosviansi@gmail.com,2021-07-17T04:58:59-10:00,23,i #113 update communication notebook with jira
+9b76bf83c820a7554e929aafac9e2c6404529ecf,120,carlosviansi@gmail.com,2021-07-19T20:29:37-10:00,15,i #120 fix jira issue downloader
+5a003899207fd55980a9d9df1c5584e339854508,130,carlosviansi@gmail.com,2021-09-20T04:13:58-07:00,16,i #130 Add Downloader for GitHub Comments
+e17a54141d4d367cb61684b3d58a1afe2884d4a1,132;133,carlosviansi@gmail.com,2021-09-26T00:14:33-07:00,12,i #132 #133 integrate github and jira as replies
+f66bc0f964861b8c928cda01c6b4b493414bf13a,144,carlosviansi@gmail.com,2022-11-14T14:34:57-08:00,3,i #144 Adds Issue Commit Fllow
+851097eed2462c437535379fd82d71a101ecf771,172,carlosviansi@gmail.com,2023-04-13T03:43:40-07:00,3,i #172 fixes truncated Depends file paths
+6d407d629a2646b3bd00d45e483447b1db7b7c01,184,carlosviansi@gmail.com,2023-04-14T14:11:21-07:00,2,i #184 fixes no changes file renaming
+a4725c5f152d9c6444c9650afed02611a7a44bb6,189,carlosviansi@gmail.com,2023-04-14T17:38:42-07:00,5,i #189 fixes parse_depencencies variables
+174c435cafaf2ecb1f6a7bab3cbab72f582120ae,181;182;186;190,carlosviansi@gmail.com,2023-04-18T06:52:47-07:00,33,i #186 #182 #181 DV8 API improvements
+1cb941580916897cc912ae9e07c26952e606b7f0,166;179,76604944+malialiu@users.noreply.github.com,2023-04-30T14:15:11-10:00,16,i #166 Adds Bugzilla Parsers (#179)
+391427a06a9e8e11e2305d3f36c0775fb3fe9342,202;203,carlosviansi@gmail.com,2023-05-02T01:57:54-07:00,11,i #202 #203 Update DV8 Notebook and Bugzilla API
+5a10abec6003a10ffcf90d2e219868513713e3ed,214;215,carlosviansi@gmail.com,2023-06-02T18:43:12-10:00,13,i #214 add effort outcome metrics (#215)
+5ed6a11f29ff326ccc555214b8fc509b3ddc9221,216;217,carlosviansi@gmail.com,2023-06-08T23:29:01-10:00,4,i #216 Add tags for GitHub Issues and PRs (#217)
+34070da623b3cabb11733ca387b3c86c9badf48b,218;219,carlosviansi@gmail.com,2023-06-12T02:43:30-07:00,20,i #218 #219 TSE Dataset and Filepath Mismatch
+3c19a8beeba960e3b53ae9874062b52450a80905,221,carlosviansi@gmail.com,2023-08-31T21:57:28-07:00,2,i #221 Includes additional closed label
+81f57f875a61606ef66c2aa77deb18972dabe18c,244,carlosviansi@gmail.com,2023-11-05T04:09:07-08:00,9,i #244 add issue fake example and metric tests
+1048efcb7d2f50e9abc1916b870de56cb5d702e5,244,carlosviansi@gmail.com,2023-11-05T04:55:44-08:00,2,i #244 fixes jira log duplicated issues
+67ff85fbc13728c635fb8b143488fa0ec4f5b444,108;227,84744515+waylonho@users.noreply.github.com,2023-11-13T07:56:00-08:00,12,i #227 #108 more fake git data and fixes

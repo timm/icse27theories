@@ -1,0 +1,3829 @@
+From tomas at openssl.org  Fri Mar  1 09:34:01 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Fri, 01 Mar 2024 10:34:01 +0100
+Subject: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+In-Reply-To: <MN2PR19MB4029E888D39D2B4A9173FF729A5F2@MN2PR19MB4029.namprd19.prod.outlook.com>
+References: <MN2PR19MB4029264820390ABCA0E649529A552@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MN2PR19MB4029A1FF36E7E78C67A2220C9A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB928404060DD52DFBBCAE3AB9EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <MN2PR19MB402911DC064E81AB5DD2B5209A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB9284C878BB9E70DF441738B3EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <6a6f6ab4575d6cd07d48adcc8cce9f9cc25674cf.camel@openssl.org>
+ <MW4PR09MB92847B96356916DCAA45AE8AEE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <40226ac3e06585117de22fab821359ad53de624f.camel@openssl.org>
+ <MN2PR19MB40296593B867011C6DD054389A592@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <5e865783815cfabac0ffdf72fad09dd63bd7c3d4.camel@openssl.org>
+ <MN2PR19MB4029E888D39D2B4A9173FF729A5F2@MN2PR19MB4029.namprd19.prod.outlook.com>
+Message-ID: <9dc3c4cbfa9f3d5678cf604b294b548db7ffad6f.camel@openssl.org>
+
+Hi,
+the 3.2 version should be fully API and ABI compatible with 3.0
+version. I would not anticipate any changes would be required for the
+migration. For more details on the changes please refer to the
+CHANGES.md and NEWS.md files in the 3.2 version releases.
+
+Tomas Mraz, OpenSSL
+
+On Thu, 2024-02-29 at 14:52 +0000, Prasad, PCRaghavendra wrote:
+> 
+> Hi Tomas,
+> 
+> If we migrate from 3.0.x to 3.2.x directly do we need to take care of
+> any use cases, we are carrying OpenSSL (libcrypto and libssl) in our
+> python application and use them during the encryption/decryption,
+> handshake etc.
+> 
+> So should we take care of any specific things as part of the
+> migration as it is a major change from 3.0.x to 3.2.x. ( will there
+> be any specific code changes or config changes we as an application
+> need to consider)
+> 
+> Thanks
+> 
+> 
+> 
+> Internal Use - Confidential
+> -----Original Message-----
+> From: Tomas Mraz <tomas at openssl.org>
+> Sent: Tuesday, February 27, 2024 1:14 PM
+> To: Prasad, PCRaghavendra; Wall, Stephen; openssl-users at openssl.org
+> Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> 3.2.x version
+> 
+> 
+> [EXTERNAL EMAIL]
+> 
+> For FIPS compliance you definitely need to use the validated version
+> of a FIPS provider. Please see the instructions here [1] on how to
+> combine the latest release with a validated FIPS provider version.
+> 
+> [1]
+> https://urldefense.com/v3/__https://github.com/openssl/openssl/blob/master/README-FIPS.md__;!!LpKI!jLMp7kblHEfwy_-l1pml2BUrIGyDrS0buy7NkQJ9AnH48CNuu5pkshNIHT4nJ8wBN0wuiDin47HZyuaShgEZPQ$
+> ?[github[.]com]
+> 
+> Tomas Mraz, OpenSSL
+> 
+> On Tue, 2024-02-27 at 05:55 +0000, Prasad, PCRaghavendra wrote:
+> > Thanks, Tomas,
+> > 
+> > So we can use OpenSSL 3.2.0 and enable fips during the build step
+> > and
+> > get the fips.so
+> > 
+> > OR
+> > 
+> > we should take the OpenSSL 3.2.0 code and then take the FIPS
+> > provider
+> > from the OpenSSL 3.0.8 or 3.0.9 and build, then get the fips.so,
+> > fipsmodule.cnf and combine with OpenSSL 3.2.0
+> > 
+> > Thanks,
+> > Raghu
+> > 
+> > -----Original Message-----
+> > From: openssl-users <openssl-users-bounces at openssl.org> On Behalf
+> > Of
+> > Tomas Mraz
+> > Sent: Tuesday, February 27, 2024 9:05 AM
+> > To: Wall, Stephen; openssl-users at openssl.org
+> > Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> > 3.2.x version
+> > 
+> > 
+> > [EXTERNAL EMAIL]
+> > 
+> > On Mon, 2024-02-26 at 22:38 +0000, Wall, Stephen wrote:
+> > > > Please note that we actually test running the 3.0.8 and 3.0.9
+> > > > validated versions of the FIPS provider with the 3.2 OpenSSL in
+> > > > the CI and it works. We are not aware of any problems with
+> > > > running
+> > > > the validated versions of the FIPS provider with the current
+> > > > OpenSSL versions.
+> > > 
+> > > OK, so
+> > > https://urldefense.com/v3/__https://github.com/openssl/openssl/issues/
+> > > 23400__;!!LpKI!m4FTaZF0-kz3NQm8Y9WvC4n233dgbq01QmEc_C-
+> > > 2XrCWwWFFRtkaMjD
+> > > i6t8tcws2hmT529ayVVlzqPunWH8qZw$ [github[.]com] doesn't actually
+> > > prevent OpenSSL from working, it's just an issue with `openssl
+> > > fipsinstall`.? I hadn't followed it closely enough, just briefly
+> > > saw some some messages go past.
+> > 
+> > Yeah, that issue is not really preventing the 3.0.x FIPS provider
+> > working with subsequent OpenSSL releases. It's just a matter of a
+> > minor FIPS compliance issue. (Depending on different views it might
+> > matter for the FIPS compliance or not.)
+> > 
+> > > Good to know.? Will the same apply to the 140-3 module and
+> > > OpenSSL
+> > > 3.2?
+> > 
+> > Yes, that is and always was the intention. The FIPS provider is
+> > built
+> > in a way that it can be used with any other version and the same
+> > applies to third party providers.
+> > 
+> > --
+> > Tom?? Mr?z, OpenSSL
+> > 
+> 
+> --
+> Tom?? Mr?z, OpenSSL
+> 
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From posting-openssl-users at box.cr.yp.to  Fri Mar  1 15:32:55 2024
+From: posting-openssl-users at box.cr.yp.to (D. J. Bernstein)
+Date: Fri, 1 Mar 2024 16:32:55 +0100
+Subject: decoder memory-management question
+Message-ID: <20240301153255.1514020.qmail@cr.yp.to>
+
+It seems that an OSSL_FUNC_DECODER_DECODE function dynamically allocates
+space for a key, sets up an OSSL_OBJECT_PARAM_REFERENCE with the address
+of a pointer to the key, and passes that to data_cb(), which (typically)
+calls an OSSL_FUNC_KEYMGMT_LOAD function to copy that pointer into a
+previously allocated key-management object.
+
+After data_cb() returns, the OSSL_FUNC_DECODER_DECODE function passes
+the pointer to *_free(), so (to avoid use-after-free, double-free, and
+memory leaks) it's critical for the OSSL_FUNC_KEYMGMT_LOAD function to
+have set the pointer to 0 (via the supplied address) if and only if it
+in fact copied the pointer.
+
+Did I get the memory-management responsibilities straight here? This is
+extrapolating from code; I wasn't able to find documentation on point.
+
+---D. J. Bernstein
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240301/ab32c649/attachment.sig>
+
+From posting-openssl-users at box.cr.yp.to  Sat Mar  2 11:42:07 2024
+From: posting-openssl-users at box.cr.yp.to (D. J. Bernstein)
+Date: Sat, 2 Mar 2024 12:42:07 +0100
+Subject: decoder memory-management question
+References: <20240301153255.1514020.qmail@cr.yp.to>
+Message-ID: <20240302114207.1575574.qmail@cr.yp.to>
+
+To give a bit more context: The attached beta openssl_ed25519_lib25519.c
+is an OpenSSL provider that uses lib25519 to speed up Ed25519. On, e.g.,
+a 3.5GHz Haswell core, openssl speed with OpenSSL's built-in provider
+says 21239.0 sign/s and 8272.0 verify/s, while openssl speed with this
+provider says 73708.1 sign/s and 22853.0 verify/s. I used a different
+secret-key format (and maybe cheated a bit on the OIDs for that) but the
+public keys are compatible.
+
+I'm planning similar X25519 integration. For an idea of the speedups on
+various Intel/AMD platforms, see https://lib25519.cr.yp.to/speed.html.
+There's also ARM code coming soon. An important caveat is that the code
+isn't formally verified yet; but there's some fully verified code from
+s2n-bignum that drops straightforwardly into lib25519, and reusing that
+code helps security even for applications that don't care about speed.
+
+I haven't dug this deeply into OpenSSL before. I could easily be doing
+major things wrong in this provider, maybe security-relevant things,
+perhaps most importantly regarding memory management. The documentation
+that I looked at had occasional comments on who was responsible for each
+piece of memory at each moment, but most of the time I found myself
+running tests and studying code samples (in the OpenSSL core, OpenSSL's
+default provider, and a few providers I found online) to try to figure
+out the expectations.
+
+Some memory-management issues that I bumped into were easily avoidable.
+For example, bad memory management in the OpenSSL core, specifically a
+bad free() for openssl req, occurs if a provider returns bad _bytes_
+inside an OSSL_SIGNATURE_PARAM_ALGORITHM_ID octet string. Well, okay,
+obviously I should get the ID right. (The core should be fixed too:
+string contents should never be able to corrupt pointer structures.)
+
+As another example, I think I understand the layering that's expected to
+be used inside encoders and decoders, but the layers for public-key
+decoding were turning into such a data-structure mess that I ended up
+just tossing that code and doing a trivial parse of the known DER prefix
+followed by the Ed25519 byte string. It's tempting to simplify the other
+encoding/decoding steps in the same way.
+
+But obviously a provider can't avoid some issues. In particular, there's
+a three-way dance between decode() and its callback and load(), and I
+want to make sure that I'm handling memory in the expected way for all
+possible failure cases. It would be nice if OpenSSL included a test
+harness for providers---not just basic functionality tests as in the
+attached test.sh but also testing how various types of internal failures
+are handled.
+
+---D. J. Bernstein
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: openssl_ed25519_lib25519.c
+Type: text/x-csrc
+Size: 24574 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240302/c60d705d/attachment-0001.c>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: test.sh
+Type: application/x-sh
+Size: 5967 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240302/c60d705d/attachment-0001.sh>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240302/c60d705d/attachment-0001.sig>
+
+From posting-openssl-users at box.cr.yp.to  Sat Mar  2 17:31:54 2024
+From: posting-openssl-users at box.cr.yp.to (D. J. Bernstein)
+Date: Sat, 2 Mar 2024 18:31:54 +0100
+Subject: decoder memory-management question
+References: <20240301153255.1514020.qmail@cr.yp.to>
+ <20240302114207.1575574.qmail@cr.yp.to>
+Message-ID: <20240302173154.1593443.qmail@cr.yp.to>
+
+I wrote:
+> I'm planning similar X25519 integration.
+
+That turned out to not take long (see attached) as a fork of the Ed25519
+provider. Merging the providers would have taken slightly more work. I
+don't know how well OpenSSL scales with the number of providers.
+
+On Haswell, this bumps `openssl speed ecdhx25519` up from 21123.0 op/s
+to 29652.0 op/s, and produces even bigger speedups in key generation
+(not shown by `openssl speed`). This could also be tweaked to support
+batch key generation as in engntru and eng25519. Batch DH could be done
+with a separate thread.
+
+Caveats from my previous message apply. These providers could easily
+have serious problems. Some OpenSSL features that would help build
+confidence would include a much simpler provider API, positive and
+negative tests for the API, and a clear memory-management discipline.
+
+---D. J. Bernstein
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: openssl_x25519_lib25519.c
+Type: text/x-csrc
+Size: 22571 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240302/a7fdb33d/attachment-0001.c>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: test2.sh
+Type: application/x-sh
+Size: 2778 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240302/a7fdb33d/attachment-0001.sh>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240302/a7fdb33d/attachment-0001.sig>
+
+From halmurray+openssl at sonic.net  Tue Mar  5 06:22:36 2024
+From: halmurray+openssl at sonic.net (Hal Murray)
+Date: Mon, 04 Mar 2024 22:22:36 -0800
+Subject: API for Certificate checking without date checks
+Message-ID: <20240305062236.181D028C065@107-137-68-211.lightspeed.sntcca.sbcglobal.net>
+
+
+Context is the chicken and egg problem of using TLS before a system knows the 
+time.
+
+I work on NTP software.  NTP uses NTS (Network Time Security) which uses TLS 
+to make sure it is talking to the right servers.
+
+I'm trying to figure out how to get started on a system that doesn't know the 
+time yet.  (Many low cost systems like the Raspberry Pi don't have a battery 
+backed clock.)
+
+I think I want to try something like:
+  Do everything except check the time on certificates
+  Get the time, assuming those certificates are valid.
+  Now check to see if those certificates were valid.
+
+The command line tools have -no_check_time
+
+Is there something similar in the API?  I've looked, but maybe not in the 
+right place.
+
+If not, any suggestions for good code to copy?
+
+
+
+
+
+
+-- 
+These are my opinions.  I hate spam.
+
+
+
+
+From openssl-users at dukhovni.org  Tue Mar  5 08:24:37 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Tue, 5 Mar 2024 03:24:37 -0500
+Subject: API for Certificate checking without date checks
+In-Reply-To: <20240305062236.181D028C065@107-137-68-211.lightspeed.sntcca.sbcglobal.net>
+References: <20240305062236.181D028C065@107-137-68-211.lightspeed.sntcca.sbcglobal.net>
+Message-ID: <ZebWxa12g7vLhy8I@chardros.imrryr.org>
+
+On Mon, Mar 04, 2024 at 10:22:36PM -0800, Hal Murray wrote:
+> 
+> Context is the chicken and egg problem of using TLS before a system knows the 
+> time.
+> 
+> I work on NTP software.  NTP uses NTS (Network Time Security) which uses TLS 
+> to make sure it is talking to the right servers.
+> 
+> I'm trying to figure out how to get started on a system that doesn't know the 
+> time yet.  (Many low cost systems like the Raspberry Pi don't have a battery 
+> backed clock.)
+> 
+> I think I want to try something like:
+>   Do everything except check the time on certificates
+>   Get the time, assuming those certificates are valid.
+>   Now check to see if those certificates were valid.
+> 
+> The command line tools have -no_check_time
+> 
+> Is there something similar in the API?  I've looked, but maybe not in the 
+> right place.
+
+You can override specific error conditions in a verification callback,
+registered via SSL_set_verify(3) or SSL_CTX_set_verify(3).
+
+In the callback, you can use:
+
+    int verify_callback(int preverify, X509_STORE_CTX* ctx)
+    {
+        switch (X509_STORE_CTX_get_error(ctx)) {
+        default: return preverify;
+        case X509_V_ERR_CERT_NOT_YET_VALID:
+        case X509_V_ERR_CERT_HAS_EXPIRED:
+            return 1;
+        }
+    }
+
+Advanced fine-tuning: You might not want to cache the session that was
+used to seed the clock, perhaps only subsequent sessions should be
+cached for resumption?  Perhaps you don't do resumption at all, or
+don't care...
+
+You can inspect the certificate validity after the completion of the
+handshake and choose to not cache the session (or session ticket), the
+SSL_get_verify_result(3) function will return the last error condition
+reported even for resumed sessions (the error in question is stored as
+part of the session).
+
+You'd need to implement the new session callbacks, and then save the
+session for resumption only conditionally.  OpenSSL, for rather weak
+reasons, has an internal cache even for client connections, which is
+only used to trigger session "remove" callbacks when the internal
+session count is too high, or some sessions are too old, but it is much
+better to do that in your own cache, and disable OpenSSL's internal
+cache:
+
+    SSL_CTX_set_session_cache_mode(ctx,
+                                   SSL_SESS_CACHE_CLIENT |
+                                   SSL_SESS_CACHE_NO_INTERNAL_STORE |
+                                   SSL_SESS_CACHE_NO_AUTO_CLEAR);
+
+-- 
+    Viktor.
+
+From sashan at openssl.org  Tue Mar  5 08:43:36 2024
+From: sashan at openssl.org (Alexandr Nedvedicky)
+Date: Tue, 5 Mar 2024 09:43:36 +0100
+Subject: API for Certificate checking without date checks
+In-Reply-To: <20240305062236.181D028C065@107-137-68-211.lightspeed.sntcca.sbcglobal.net>
+References: <20240305062236.181D028C065@107-137-68-211.lightspeed.sntcca.sbcglobal.net>
+Message-ID: <ZebbOKoGp5DEAJc4@lifty.flatnet.local>
+
+Hello,
+
+there seems to be way to get what you want see openssl-verify(1)
+manual page.  there are options which control how openssl treats
+time fields when validates certificates:
+
+       -attime timestamp
+           Perform validation checks using time specified by timestamp and not
+           current system time. timestamp is the number of seconds since
+           January 1, 1970 (i.e., the Unix Epoch).
+
+       -no_check_time
+           This option suppresses checking the validity period of certificates
+           and CRLs against the current time. If option -attime is used to
+           specify a verification time, the check is not suppressed.
+
+I think something like
+    openssl verify -no_check_time ... 
+is the option you need to add to you 'verify' subcommand.
+
+to do it in code just get idea from apps/verify.c
+in openssl. It looks like you need to do something like:
+
+    X509_STORE_set1_param *store;
+    X509_VERIFY_PARAM *vpm = NULL;
+
+    vpm = X509_VERIFY_PARAM_new();
+    X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_NO_CHECK_TIME);
+
+    store = X509_STORE_new();
+    ...
+    X509_STORE_set1_param(store, vpm);
+
+
+more details can be found in verify_main() at apps/verify.c.
+
+hope it helps
+regards
+sashan
+
+On Mon, Mar 04, 2024 at 10:22:36PM -0800, Hal Murray wrote:
+> 
+> Context is the chicken and egg problem of using TLS before a system knows the 
+> time.
+> 
+> I work on NTP software.  NTP uses NTS (Network Time Security) which uses TLS 
+> to make sure it is talking to the right servers.
+> 
+> I'm trying to figure out how to get started on a system that doesn't know the 
+> time yet.  (Many low cost systems like the Raspberry Pi don't have a battery 
+> backed clock.)
+> 
+> I think I want to try something like:
+>   Do everything except check the time on certificates
+>   Get the time, assuming those certificates are valid.
+>   Now check to see if those certificates were valid.
+> 
+> The command line tools have -no_check_time
+> 
+> Is there something similar in the API?  I've looked, but maybe not in the 
+> right place.
+> 
+> If not, any suggestions for good code to copy?
+> 
+> 
+> 
+> 
+> 
+> 
+> -- 
+> These are my opinions.  I hate spam.
+> 
+> 
+> 
+
+From Pcraghavendra.Prasad at dell.com  Tue Mar  5 12:37:02 2024
+From: Pcraghavendra.Prasad at dell.com (Prasad, PCRaghavendra)
+Date: Tue, 5 Mar 2024 12:37:02 +0000
+Subject: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+In-Reply-To: <MN2PR19MB4029E888D39D2B4A9173FF729A5F2@MN2PR19MB4029.namprd19.prod.outlook.com>
+References: <MN2PR19MB4029264820390ABCA0E649529A552@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MN2PR19MB4029A1FF36E7E78C67A2220C9A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB928404060DD52DFBBCAE3AB9EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <MN2PR19MB402911DC064E81AB5DD2B5209A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB9284C878BB9E70DF441738B3EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <6a6f6ab4575d6cd07d48adcc8cce9f9cc25674cf.camel@openssl.org>
+ <MW4PR09MB92847B96356916DCAA45AE8AEE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <40226ac3e06585117de22fab821359ad53de624f.camel@openssl.org>
+ <MN2PR19MB40296593B867011C6DD054389A592@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <5e865783815cfabac0ffdf72fad09dd63bd7c3d4.camel@openssl.org>
+ <MN2PR19MB4029E888D39D2B4A9173FF729A5F2@MN2PR19MB4029.namprd19.prod.outlook.com>
+Message-ID: <MN2PR19MB4029196A349CBA5EC72A35D49A222@MN2PR19MB4029.namprd19.prod.outlook.com>
+
+Hi Tomas,
+
+If we are using OpenSSL 3.2.x and during the build, if we use the command enable-fips and install OpenSSL, then we can't claim for fips compliance.
+Is this understanding right?
+
+OpenSSL FIPS provider module 3.0 (#4282) is tested only in 3.0.8 and 3.0.9 and that is the reason we should pick from these OpenSSL versions.
+What is the OpenSSL FIPS provider module in the OpenSSL 3.2.x version?
+
+Thanks,
+Raghu
+
+
+Internal Use - Confidential
+-----Original Message-----
+From: Prasad, PCRaghavendra
+Sent: Thursday, February 29, 2024 8:23 PM
+To: Tomas Mraz; Wall, Stephen; openssl-users at openssl.org
+Subject: RE: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+
+Hi Tomas,
+
+If we migrate from 3.0.x to 3.2.x directly do we need to take care of any use cases, we are carrying OpenSSL (libcrypto and libssl) in our python application and use them during the encryption/decryption, handshake etc.
+
+So should we take care of any specific things as part of the migration as it is a major change from 3.0.x to 3.2.x. ( will there be any specific code changes or config changes we as an application need to consider)
+
+Thanks
+
+
+-----Original Message-----
+From: Tomas Mraz <tomas at openssl.org>
+Sent: Tuesday, February 27, 2024 1:14 PM
+To: Prasad, PCRaghavendra; Wall, Stephen; openssl-users at openssl.org
+Subject: Re: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+
+
+[EXTERNAL EMAIL]
+
+For FIPS compliance you definitely need to use the validated version of a FIPS provider. Please see the instructions here [1] on how to combine the latest release with a validated FIPS provider version.
+
+[1] https://urldefense.com/v3/__https://github.com/openssl/openssl/blob/master/README-FIPS.md__;!!LpKI!jLMp7kblHEfwy_-l1pml2BUrIGyDrS0buy7NkQJ9AnH48CNuu5pkshNIHT4nJ8wBN0wuiDin47HZyuaShgEZPQ$ [github[.]com]
+
+Tomas Mraz, OpenSSL
+
+On Tue, 2024-02-27 at 05:55 +0000, Prasad, PCRaghavendra wrote:
+> Thanks, Tomas,
+>
+> So we can use OpenSSL 3.2.0 and enable fips during the build step and
+> get the fips.so
+>
+> OR
+>
+> we should take the OpenSSL 3.2.0 code and then take the FIPS provider
+> from the OpenSSL 3.0.8 or 3.0.9 and build, then get the fips.so,
+> fipsmodule.cnf and combine with OpenSSL 3.2.0
+>
+> Thanks,
+> Raghu
+>
+> -----Original Message-----
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Tomas Mraz
+> Sent: Tuesday, February 27, 2024 9:05 AM
+> To: Wall, Stephen; openssl-users at openssl.org
+> Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> 3.2.x version
+>
+>
+> [EXTERNAL EMAIL]
+>
+> On Mon, 2024-02-26 at 22:38 +0000, Wall, Stephen wrote:
+> > > Please note that we actually test running the 3.0.8 and 3.0.9
+> > > validated versions of the FIPS provider with the 3.2 OpenSSL in
+> > > the CI and it works. We are not aware of any problems with running
+> > > the validated versions of the FIPS provider with the current
+> > > OpenSSL versions.
+> >
+> > OK, so
+> > https://urldefense.com/v3/__https://github.com/openssl/openssl/issues/
+> > 23400__;!!LpKI!m4FTaZF0-kz3NQm8Y9WvC4n233dgbq01QmEc_C-
+> > 2XrCWwWFFRtkaMjD
+> > i6t8tcws2hmT529ayVVlzqPunWH8qZw$ [github[.]com] doesn't actually
+> > prevent OpenSSL from working, it's just an issue with `openssl
+> > fipsinstall`.  I hadn't followed it closely enough, just briefly
+> > saw some some messages go past.
+>
+> Yeah, that issue is not really preventing the 3.0.x FIPS provider
+> working with subsequent OpenSSL releases. It's just a matter of a
+> minor FIPS compliance issue. (Depending on different views it might
+> matter for the FIPS compliance or not.)
+>
+> > Good to know.  Will the same apply to the 140-3 module and OpenSSL
+> > 3.2?
+>
+> Yes, that is and always was the intention. The FIPS provider is built
+> in a way that it can be used with any other version and the same
+> applies to third party providers.
+>
+> --
+> Tom?? Mr?z, OpenSSL
+>
+
+--
+Tom?? Mr?z, OpenSSL
+
+
+From Jochen.Bern at binect.de  Tue Mar  5 13:27:37 2024
+From: Jochen.Bern at binect.de (Jochen Bern)
+Date: Tue, 5 Mar 2024 14:27:37 +0100
+Subject: API for Certificate checking without date checks
+In-Reply-To: <mailman.1.1709640001.279055.openssl-users@openssl.org>
+References: <mailman.1.1709640001.279055.openssl-users@openssl.org>
+Message-ID: <b2b4a5cf-721a-4bad-9412-23905a93f1b6@binect.de>
+
+On 05.03.24 13:00, openssl-users-request at openssl.org digested:
+> Date: Mon, 04 Mar 2024 22:22:36 -0800
+> From: Hal Murray <halmurray+openssl at sonic.net>
+> 
+> Context is the chicken and egg problem of using TLS before a system knows the
+> time.
+> 
+> I work on NTP software.  NTP uses NTS (Network Time Security) which uses TLS
+> to make sure it is talking to the right servers.
+> 
+> I'm trying to figure out how to get started on a system that doesn't know the
+> time yet.  (Many low cost systems like the Raspberry Pi don't have a battery
+> backed clock.)
+
+Someone please correct me if I'm getting something wrong, but my memory 
+of this topic's history is as follows:
+
+1. NTP implements "v3" crypto (symmetric keys), which works OK to this 
+day *if* you can handle the roll-out of (<64k different) shared keys.
+
+2. NTP releases "v4" crypto (autokey? Not sure anymore), which gets 
+broken on short notice.
+
+3. NTP releases "v5" crypto (I remember a crypto scheme "inspired by 
+cable TV encryption systems" promising to have clients set themselves up 
+automagically being one of its operation modes, never saw a HowTo that'd 
+have permitted me to actually set up such a beast), which also gets 
+broken a while later.
+
+4. NTP announces that it'll wait and adopt/adapt the crypto standard now 
+being developed for PTP (rather than making another attempt of its own), 
+presumably getting the chicken and the egg slain for good.
+
+5. PTP, *meant* to be communicating between switch port and server NIC 
+(can you say "physical security"?), drags its feet on the crypto topic.
+
+6. NTP adopts NTS, which uses TLS, and thus X.509 certificates with a 
+validity period ... and doesn't address the well-known chicken-and-egg 
+problem at all.
+
+... all this to say that truly solving this problem is *very* hard, if 
+not theoretically impossible. For practical purposes, I guess that 
+shipping installation images / devices / ... with a rather *short*-lived 
+CA cert (to bootstrap stuff, not only NTS but also an update mechanism 
+having the CA cert replaced frequently) and hoping that No Key Material 
+Will Ever Get Leaked? (and thoroughly wiped from your servers at its end 
+of validity) is about the best you can do.
+
+Kind regards,
+-- 
+Jochen Bern
+Systemingenieur
+
+Binect GmbH
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: smime.p7s
+Type: application/pkcs7-signature
+Size: 3449 bytes
+Desc: S/MIME Cryptographic Signature
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240305/9d957f7e/attachment-0001.p7s>
+
+From openssl-users at dukhovni.org  Tue Mar  5 18:42:50 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Tue, 5 Mar 2024 13:42:50 -0500
+Subject: API for Certificate checking without date checks
+In-Reply-To: <ZebbOKoGp5DEAJc4@lifty.flatnet.local>
+References: <20240305062236.181D028C065@107-137-68-211.lightspeed.sntcca.sbcglobal.net>
+ <ZebbOKoGp5DEAJc4@lifty.flatnet.local>
+Message-ID: <Zednqv9bhMEmsXS8@chardros.imrryr.org>
+
+On Tue, Mar 05, 2024 at 09:43:36AM +0100, Alexandr Nedvedicky wrote:
+
+> To do it in code just get idea from apps/verify.c
+> in openssl. It looks like you need to do something like:
+> 
+>     X509_STORE_set1_param *store;
+>     X509_VERIFY_PARAM *vpm = NULL;
+> 
+>     vpm = X509_VERIFY_PARAM_new();
+>     X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_NO_CHECK_TIME);
+> 
+>     store = X509_STORE_new();
+>     ...
+>     X509_STORE_set1_param(store, vpm);
+> 
+> 
+> more details can be found in verify_main() at apps/verify.c.
+> 
+
+Indeed this is simpler than a custom verify callback, which is not
+needed for this specific (ignoring dates) exception.  Thanks!
+
+-- 
+    Viktor.
+
+From wladd at akamai.com  Tue Mar  5 19:10:05 2024
+From: wladd at akamai.com (Ladd, Watson)
+Date: Tue, 5 Mar 2024 19:10:05 +0000
+Subject: API for Certificate checking without date checks
+In-Reply-To: <b2b4a5cf-721a-4bad-9412-23905a93f1b6@binect.de>
+References: <mailman.1.1709640001.279055.openssl-users@openssl.org>,
+ <b2b4a5cf-721a-4bad-9412-23905a93f1b6@binect.de>
+Message-ID: <670f5991ca614f78ac0658ed7a7e1a4f@akamai.com>
+
+
+Consider roughtime, arriving Real Soon Now (tm) from the NTP WG
+
+________________________________
+From: openssl-users <openssl-users-bounces at openssl.org> on behalf of Jochen Bern <Jochen.Bern at binect.de>
+Sent: Tuesday, March 5, 2024 5:27 AM
+To: openssl-users at openssl.org
+Subject: Re: API for Certificate checking without date checks
+
+On 05.03.24 13:00, openssl-users-request at openssl.org digested:
+> Date: Mon, 04 Mar 2024 22:22:36 -0800
+> From: Hal Murray <halmurray+openssl at sonic.net>
+>
+> Context is the chicken and egg problem of using TLS before a system knows the
+> time.
+>
+> I work on NTP software.  NTP uses NTS (Network Time Security) which uses TLS
+> to make sure it is talking to the right servers.
+>
+> I'm trying to figure out how to get started on a system that doesn't know the
+> time yet.  (Many low cost systems like the Raspberry Pi don't have a battery
+> backed clock.)
+
+Someone please correct me if I'm getting something wrong, but my memory
+of this topic's history is as follows:
+
+1. NTP implements "v3" crypto (symmetric keys), which works OK to this
+day *if* you can handle the roll-out of (<64k different) shared keys.
+
+2. NTP releases "v4" crypto (autokey? Not sure anymore), which gets
+broken on short notice.
+
+3. NTP releases "v5" crypto (I remember a crypto scheme "inspired by
+cable TV encryption systems" promising to have clients set themselves up
+automagically being one of its operation modes, never saw a HowTo that'd
+have permitted me to actually set up such a beast), which also gets
+broken a while later.
+
+4. NTP announces that it'll wait and adopt/adapt the crypto standard now
+being developed for PTP (rather than making another attempt of its own),
+presumably getting the chicken and the egg slain for good.
+
+5. PTP, *meant* to be communicating between switch port and server NIC
+(can you say "physical security"?), drags its feet on the crypto topic.
+
+6. NTP adopts NTS, which uses TLS, and thus X.509 certificates with a
+validity period ... and doesn't address the well-known chicken-and-egg
+problem at all.
+
+... all this to say that truly solving this problem is *very* hard, if
+not theoretically impossible. For practical purposes, I guess that
+shipping installation images / devices / ... with a rather *short*-lived
+CA cert (to bootstrap stuff, not only NTS but also an update mechanism
+having the CA cert replaced frequently) and hoping that No Key Material
+Will Ever Get Leaked? (and thoroughly wiped from your servers at its end
+of validity) is about the best you can do.
+
+Kind regards,
+--
+Jochen Bern
+Systemingenieur
+
+Binect GmbH
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240305/7758bd38/attachment.htm>
+
+From tomas at openssl.org  Wed Mar  6 11:38:45 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Wed, 06 Mar 2024 12:38:45 +0100
+Subject: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+In-Reply-To: <MN2PR19MB4029196A349CBA5EC72A35D49A222@MN2PR19MB4029.namprd19.prod.outlook.com>
+References: <MN2PR19MB4029264820390ABCA0E649529A552@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MN2PR19MB4029A1FF36E7E78C67A2220C9A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB928404060DD52DFBBCAE3AB9EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <MN2PR19MB402911DC064E81AB5DD2B5209A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB9284C878BB9E70DF441738B3EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <6a6f6ab4575d6cd07d48adcc8cce9f9cc25674cf.camel@openssl.org>
+ <MW4PR09MB92847B96356916DCAA45AE8AEE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <40226ac3e06585117de22fab821359ad53de624f.camel@openssl.org>
+ <MN2PR19MB40296593B867011C6DD054389A592@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <5e865783815cfabac0ffdf72fad09dd63bd7c3d4.camel@openssl.org>
+ <MN2PR19MB4029E888D39D2B4A9173FF729A5F2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MN2PR19MB4029196A349CBA5EC72A35D49A222@MN2PR19MB4029.namprd19.prod.outlook.com>
+Message-ID: <f48ca9054837c4d842d50887b84328fd001a2e54.camel@openssl.org>
+
+Yes, exactly. If you use the FIPS module that is part of the 3.2.x
+version, it will not be FIPS compliant as that version is not FIPS
+validated. It is still present there and can be built with enable-fips
+but not validated.
+
+You can combine the OpenSSL library (libcrypto+libssl shared or
+statically linked libraries) from the 3.2.x version with the FIPS
+module (fips.so/fips.dll) built from the validated version of the
+OpenSSL tarball.
+
+Regards,
+
+Tomas Mraz
+
+On Tue, 2024-03-05 at 12:37 +0000, Prasad, PCRaghavendra wrote:
+> Hi Tomas,
+> 
+> If we are using OpenSSL 3.2.x and during the build, if we use the
+> command enable-fips and install OpenSSL, then we can't claim for fips
+> compliance.
+> Is this understanding right?
+> 
+> OpenSSL FIPS provider module 3.0 (#4282) is tested only in 3.0.8 and
+> 3.0.9 and that is the reason we should pick from these OpenSSL
+> versions.
+> What is the OpenSSL FIPS provider module in the OpenSSL 3.2.x
+> version?
+> 
+> Thanks,
+> Raghu
+> 
+> 
+> Internal Use - Confidential
+> -----Original Message-----
+> From: Prasad, PCRaghavendra
+> Sent: Thursday, February 29, 2024 8:23 PM
+> To: Tomas Mraz; Wall, Stephen; openssl-users at openssl.org
+> Subject: RE: Need help - upgrading openssl version from 3.0.12 to
+> 3.2.x version
+> 
+> Hi Tomas,
+> 
+> If we migrate from 3.0.x to 3.2.x directly do we need to take care of
+> any use cases, we are carrying OpenSSL (libcrypto and libssl) in our
+> python application and use them during the encryption/decryption,
+> handshake etc.
+> 
+> So should we take care of any specific things as part of the
+> migration as it is a major change from 3.0.x to 3.2.x. ( will there
+> be any specific code changes or config changes we as an application
+> need to consider)
+> 
+> Thanks
+> 
+> 
+> -----Original Message-----
+> From: Tomas Mraz <tomas at openssl.org>
+> Sent: Tuesday, February 27, 2024 1:14 PM
+> To: Prasad, PCRaghavendra; Wall, Stephen; openssl-users at openssl.org
+> Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> 3.2.x version
+> 
+> 
+> [EXTERNAL EMAIL]
+> 
+> For FIPS compliance you definitely need to use the validated version
+> of a FIPS provider. Please see the instructions here [1] on how to
+> combine the latest release with a validated FIPS provider version.
+> 
+> [1]
+> https://urldefense.com/v3/__https://github.com/openssl/openssl/blob/master/README-FIPS.md__;!!LpKI!jLMp7kblHEfwy_-l1pml2BUrIGyDrS0buy7NkQJ9AnH48CNuu5pkshNIHT4nJ8wBN0wuiDin47HZyuaShgEZPQ$
+> ?[github[.]com]
+> 
+> Tomas Mraz, OpenSSL
+> 
+> On Tue, 2024-02-27 at 05:55 +0000, Prasad, PCRaghavendra wrote:
+> > Thanks, Tomas,
+> > 
+> > So we can use OpenSSL 3.2.0 and enable fips during the build step
+> > and
+> > get the fips.so
+> > 
+> > OR
+> > 
+> > we should take the OpenSSL 3.2.0 code and then take the FIPS
+> > provider
+> > from the OpenSSL 3.0.8 or 3.0.9 and build, then get the fips.so,
+> > fipsmodule.cnf and combine with OpenSSL 3.2.0
+> > 
+> > Thanks,
+> > Raghu
+> > 
+> > -----Original Message-----
+> > From: openssl-users <openssl-users-bounces at openssl.org> On Behalf
+> > Of
+> > Tomas Mraz
+> > Sent: Tuesday, February 27, 2024 9:05 AM
+> > To: Wall, Stephen; openssl-users at openssl.org
+> > Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> > 3.2.x version
+> > 
+> > 
+> > [EXTERNAL EMAIL]
+> > 
+> > On Mon, 2024-02-26 at 22:38 +0000, Wall, Stephen wrote:
+> > > > Please note that we actually test running the 3.0.8 and 3.0.9
+> > > > validated versions of the FIPS provider with the 3.2 OpenSSL in
+> > > > the CI and it works. We are not aware of any problems with
+> > > > running
+> > > > the validated versions of the FIPS provider with the current
+> > > > OpenSSL versions.
+> > > 
+> > > OK, so
+> > > https://urldefense.com/v3/__https://github.com/openssl/openssl/issues/
+> > > 23400__;!!LpKI!m4FTaZF0-kz3NQm8Y9WvC4n233dgbq01QmEc_C-
+> > > 2XrCWwWFFRtkaMjD
+> > > i6t8tcws2hmT529ayVVlzqPunWH8qZw$ [github[.]com] doesn't actually
+> > > prevent OpenSSL from working, it's just an issue with `openssl
+> > > fipsinstall`.? I hadn't followed it closely enough, just briefly
+> > > saw some some messages go past.
+> > 
+> > Yeah, that issue is not really preventing the 3.0.x FIPS provider
+> > working with subsequent OpenSSL releases. It's just a matter of a
+> > minor FIPS compliance issue. (Depending on different views it might
+> > matter for the FIPS compliance or not.)
+> > 
+> > > Good to know.? Will the same apply to the 140-3 module and
+> > > OpenSSL
+> > > 3.2?
+> > 
+> > Yes, that is and always was the intention. The FIPS provider is
+> > built
+> > in a way that it can be used with any other version and the same
+> > applies to third party providers.
+> > 
+> > --
+> > Tom?? Mr?z, OpenSSL
+> > 
+> 
+> --
+> Tom?? Mr?z, OpenSSL
+> 
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From Pcraghavendra.Prasad at dell.com  Wed Mar  6 11:43:54 2024
+From: Pcraghavendra.Prasad at dell.com (Prasad, PCRaghavendra)
+Date: Wed, 6 Mar 2024 11:43:54 +0000
+Subject: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+In-Reply-To: <f48ca9054837c4d842d50887b84328fd001a2e54.camel@openssl.org>
+References: <MN2PR19MB4029264820390ABCA0E649529A552@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MN2PR19MB4029A1FF36E7E78C67A2220C9A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB928404060DD52DFBBCAE3AB9EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <MN2PR19MB402911DC064E81AB5DD2B5209A5A2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MW4PR09MB9284C878BB9E70DF441738B3EE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <6a6f6ab4575d6cd07d48adcc8cce9f9cc25674cf.camel@openssl.org>
+ <MW4PR09MB92847B96356916DCAA45AE8AEE5A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <40226ac3e06585117de22fab821359ad53de624f.camel@openssl.org>
+ <MN2PR19MB40296593B867011C6DD054389A592@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <5e865783815cfabac0ffdf72fad09dd63bd7c3d4.camel@openssl.org>
+ <MN2PR19MB4029E888D39D2B4A9173FF729A5F2@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <MN2PR19MB4029196A349CBA5EC72A35D49A222@MN2PR19MB4029.namprd19.prod.outlook.com>
+ <f48ca9054837c4d842d50887b84328fd001a2e54.camel@openssl.org>
+Message-ID: <MN2PR19MB4029EFE3AAFED6FB21FD387C9A212@MN2PR19MB4029.namprd19.prod.outlook.com>
+
+Ok Tomas for the clarification, it is clear now ?
+
+
+Internal Use - Confidential
+-----Original Message-----
+From: Tomas Mraz <tomas at openssl.org>
+Sent: Wednesday, March 6, 2024 5:09 PM
+To: Prasad, PCRaghavendra; Wall, Stephen; openssl-users at openssl.org
+Cc: Ds, Pradeep Kumar; Chandramouli, Basavaraj - Dell Team
+Subject: Re: Need help - upgrading openssl version from 3.0.12 to 3.2.x version
+
+
+[EXTERNAL EMAIL]
+
+Yes, exactly. If you use the FIPS module that is part of the 3.2.x version, it will not be FIPS compliant as that version is not FIPS validated. It is still present there and can be built with enable-fips but not validated.
+
+You can combine the OpenSSL library (libcrypto+libssl shared or statically linked libraries) from the 3.2.x version with the FIPS module (fips.so/fips.dll) built from the validated version of the OpenSSL tarball.
+
+Regards,
+
+Tomas Mraz
+
+On Tue, 2024-03-05 at 12:37 +0000, Prasad, PCRaghavendra wrote:
+> Hi Tomas,
+>
+> If we are using OpenSSL 3.2.x and during the build, if we use the
+> command enable-fips and install OpenSSL, then we can't claim for fips
+> compliance.
+> Is this understanding right?
+>
+> OpenSSL FIPS provider module 3.0 (#4282) is tested only in 3.0.8 and
+> 3.0.9 and that is the reason we should pick from these OpenSSL
+> versions.
+> What is the OpenSSL FIPS provider module in the OpenSSL 3.2.x version?
+>
+> Thanks,
+> Raghu
+>
+>
+> Internal Use - Confidential
+> -----Original Message-----
+> From: Prasad, PCRaghavendra
+> Sent: Thursday, February 29, 2024 8:23 PM
+> To: Tomas Mraz; Wall, Stephen; openssl-users at openssl.org
+> Subject: RE: Need help - upgrading openssl version from 3.0.12 to
+> 3.2.x version
+>
+> Hi Tomas,
+>
+> If we migrate from 3.0.x to 3.2.x directly do we need to take care of
+> any use cases, we are carrying OpenSSL (libcrypto and libssl) in our
+> python application and use them during the encryption/decryption,
+> handshake etc.
+>
+> So should we take care of any specific things as part of the migration
+> as it is a major change from 3.0.x to 3.2.x. ( will there be any
+> specific code changes or config changes we as an application need to
+> consider)
+>
+> Thanks
+>
+>
+> -----Original Message-----
+> From: Tomas Mraz <tomas at openssl.org>
+> Sent: Tuesday, February 27, 2024 1:14 PM
+> To: Prasad, PCRaghavendra; Wall, Stephen; openssl-users at openssl.org
+> Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> 3.2.x version
+>
+>
+> [EXTERNAL EMAIL]
+>
+> For FIPS compliance you definitely need to use the validated version
+> of a FIPS provider. Please see the instructions here [1] on how to
+> combine the latest release with a validated FIPS provider version.
+>
+> [1]
+> https://urldefense.com/v3/__https://github.com/openssl/openssl/blob/ma
+> ster/README-FIPS.md__;!!LpKI!jLMp7kblHEfwy_-l1pml2BUrIGyDrS0buy7NkQJ9A
+> nH48CNuu5pkshNIHT4nJ8wBN0wuiDin47HZyuaShgEZPQ$
+>  [github[.]com]
+>
+> Tomas Mraz, OpenSSL
+>
+> On Tue, 2024-02-27 at 05:55 +0000, Prasad, PCRaghavendra wrote:
+> > Thanks, Tomas,
+> >
+> > So we can use OpenSSL 3.2.0 and enable fips during the build step
+> > and get the fips.so
+> >
+> > OR
+> >
+> > we should take the OpenSSL 3.2.0 code and then take the FIPS
+> > provider from the OpenSSL 3.0.8 or 3.0.9 and build, then get the
+> > fips.so, fipsmodule.cnf and combine with OpenSSL 3.2.0
+> >
+> > Thanks,
+> > Raghu
+> >
+> > -----Original Message-----
+> > From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> > Tomas Mraz
+> > Sent: Tuesday, February 27, 2024 9:05 AM
+> > To: Wall, Stephen; openssl-users at openssl.org
+> > Subject: Re: Need help - upgrading openssl version from 3.0.12 to
+> > 3.2.x version
+> >
+> >
+> > [EXTERNAL EMAIL]
+> >
+> > On Mon, 2024-02-26 at 22:38 +0000, Wall, Stephen wrote:
+> > > > Please note that we actually test running the 3.0.8 and 3.0.9
+> > > > validated versions of the FIPS provider with the 3.2 OpenSSL in
+> > > > the CI and it works. We are not aware of any problems with
+> > > > running the validated versions of the FIPS provider with the
+> > > > current OpenSSL versions.
+> > >
+> > > OK, so
+> > > https://urldefense.com/v3/__https://github.com/openssl/openssl/iss
+> > > ues/
+> > > 23400__;!!LpKI!m4FTaZF0-kz3NQm8Y9WvC4n233dgbq01QmEc_C-
+> > > 2XrCWwWFFRtkaMjD
+> > > i6t8tcws2hmT529ayVVlzqPunWH8qZw$ [github[.]com] doesn't actually
+> > > prevent OpenSSL from working, it's just an issue with `openssl
+> > > fipsinstall`.  I hadn't followed it closely enough, just briefly
+> > > saw some some messages go past.
+> >
+> > Yeah, that issue is not really preventing the 3.0.x FIPS provider
+> > working with subsequent OpenSSL releases. It's just a matter of a
+> > minor FIPS compliance issue. (Depending on different views it might
+> > matter for the FIPS compliance or not.)
+> >
+> > > Good to know.  Will the same apply to the 140-3 module and OpenSSL
+> > > 3.2?
+> >
+> > Yes, that is and always was the intention. The FIPS provider is
+> > built in a way that it can be used with any other version and the
+> > same applies to third party providers.
+> >
+> > --
+> > Tom?? Mr?z, OpenSSL
+> >
+>
+> --
+> Tom?? Mr?z, OpenSSL
+>
+
+--
+Tom?? Mr?z, OpenSSL
+
+
+From levitte at openssl.org  Wed Mar  6 14:55:42 2024
+From: levitte at openssl.org (Richard Levitte)
+Date: Wed, 06 Mar 2024 15:55:42 +0100
+Subject: decoder memory-management question
+In-Reply-To: <20240301153255.1514020.qmail@cr.yp.to> (D. J. Bernstein's
+ message of "Fri, 1 Mar 2024 16:32:55 +0100")
+References: <20240301153255.1514020.qmail@cr.yp.to>
+Message-ID: <87wmqfl89d.fsf@lapdog.home.levitte.org>
+
+"D. J. Bernstein" <posting-openssl-users at box.cr.yp.to> writes:
+
+> It seems that an OSSL_FUNC_DECODER_DECODE function dynamically allocates
+> space for a key, sets up an OSSL_OBJECT_PARAM_REFERENCE with the address
+> of a pointer to the key, and passes that to data_cb(), which (typically)
+> calls an OSSL_FUNC_KEYMGMT_LOAD function to copy that pointer into a
+> previously allocated key-management object.
+>
+> After data_cb() returns, the OSSL_FUNC_DECODER_DECODE function passes
+> the pointer to *_free(), so (to avoid use-after-free, double-free, and
+> memory leaks) it's critical for the OSSL_FUNC_KEYMGMT_LOAD function to
+> have set the pointer to 0 (via the supplied address) if and only if it
+> in fact copied the pointer.
+>
+> Did I get the memory-management responsibilities straight here? This is
+> extrapolating from code; I wasn't able to find documentation on point.
+
+For this model of interaction between decoder and keymgmt ('cause that's
+essentially what this is), that's the same "hand-over" that we do.
+
+The documentation for this is lacking, because at least at the time, we
+figured it's up to each provider author to figure out how to do the
+"hand-over", and there may be other ideas out there.
+For all I know, a provider could just as well choose to place the key in
+an internal cache and pass the cache index in an "data" OSSL_PARAM
+(OSSL_OBJECT_PARAM_DATA), and have the keymgmt "load" function pick up
+that cache index through the reference argument.
+
+There is some concrete documentation for the OSSL_OBJECT_PARAM macros:
+provider-object(7).  Does that help?
+
+All things considered, it may be time for us to write some encoder /
+decoder guidelines...  ossl-guide-encoder(7) and ossl-guide-decoder(7),
+perhaps?
+
+Cheers,
+Richard
+
+-- 
+Richard Levitte         levitte at openssl.org
+OpenSSL Project         http://www.openssl.org/~levitte/
+
+From mark at markwbutt.com  Wed Mar  6 15:23:15 2024
+From: mark at markwbutt.com (Mark Butt)
+Date: Wed, 6 Mar 2024 11:53:15 -0330
+Subject: Openssl-3.2.1 - Building for Tru64
+Message-ID: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com>
+
+Good Day!
+
+I am trying to build openssl-3.2.1 for an AlphaServer 4100 running Tru64 5.1b-6 as part of a side project that I am working on.  I noticed that Tru64 is still in the list of build combos.
+I issued the following command:
+./config tru64-alpha-cc
+No errors, everything went fine.
+
+Next I issued make.  After a while, an error is encountered [section A] noted below.  I think the interesting part is -> ar: Error: crypto/bn/libcrypto-lib-alpha-mont.o cannot open <-  I can confirm that this is file is not present anywhere on the server, but the .S is.
+
+Out of curiosity, I tried openssl-1.1.1w, it fails for the same reason, but the path and error are slightly different.  
+
+My second attempt was including the no-asm flag.  While I couldn?t find any direct results for the problem I was having, my Google searches kept return results that mentioned this as a workaround for similar-ish problem.  After running make, it eventually died complaining about a .so :  see below [section B].
+
+Third attempt was with both the -no-asm and -no-shared flags, this too was not successful : [section C].
+
+After a bit more reading and web-searching? I also tried ./config -shared -thread tru64-alpha-cc before issuing make. [section D].
+
+Alpha is a dead architecture, but I thought I would at least reach out to see if someone with more knowledge than myself might be able to see the problem and know if it?s something relatively easy to fix or work around. 
+
+I have gcc 4.4.7 and 4.7.4 available if you think that would have better luck.  I can live with the performance penalty of gcc compiled code on Alpha but would prefer to avoid it.  I am using GNU make. I completely removed the source tree and re-extracted between each attempt.
+
+I did see the line in the notes about setting -rpath but I am unsure if this is my problem and if it is, what I should set. 
+
+Thanks for whatever help you can provide.
+-M
+
+**** output from make [section A] ****
+
+ar: Error: crypto/bn/libcrypto-lib-alpha-mont.o cannot open
+Makefile:7351: recipe for target 'libcrypto.a' failed
+make[1]: *** [libcrypto.a] Error 1
+make[1]: Leaving directory '/u01/software/source/openssl/openssl-3.2.1'
+Makefile:1642: recipe for target 'build_sw' failed
+make: *** [build_sw] Error 2
+
+**** End [section A] ****
+
+**** output from make [section B] ****
+
+Makefile:10125: recipe for target 'providers/legacy.so' failed
+make[1]: *** [providers/legacy.so] Error 1
+make[1]: Leaving directory '/u01/software/source/openssl/openssl-3.2.1'
+Makefile:1640: recipe for target 'build_sw' failed
+make: *** [build_sw] Error 2
+
+**** End [section B] ****
+
+**** output from make [section C] ****
+
+Makefile:6650: recipe for target 'providers/legacy.so' failed
+make[1]: *** [providers/legacy.so] Error 1
+make[1]: Leaving directory '/u01/software/source/openssl/openssl-3.2.1'
+Makefile:1638: recipe for target 'build_sw' failed
+make: *** [build_sw] Error 2
+
+**** End [section C] ****
+
+**** output from make [section D] ****
+
+Makefile:3323: recipe for target 'apps/lib/libapps-lib-app_libctx.o' failed
+make[1]: *** [apps/lib/libapps-lib-app_libctx.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+Makefile:3325: recipe for target 'apps/lib/libapps-lib-app_params.o' failed
+make[1]: *** [apps/lib/libapps-lib-app_params.o] Error 1
+make[1]: Leaving directory '/u01/software/source/openssl/openssl-3.2.1'
+Makefile:1642: recipe for target 'build_sw' failed
+make: *** [build_sw] Error 2
+
+**** End [section D] ****
+-- 
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
+
+
+From mwojcik at opentext.com  Wed Mar  6 21:21:14 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Wed, 6 Mar 2024 21:21:14 +0000
+Subject: [EXTERNAL] - Openssl-3.2.1 - Building for Tru64
+In-Reply-To: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com>
+References: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com>
+Message-ID: <YQBPR01MB10705537B7B51645B6ED3E243C2212@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Mark Butt
+> Sent: Wednesday, 6 March, 2024 08:23
+> 
+> I am trying to build openssl-3.2.1 for an AlphaServer 4100 running Tru64
+> 5.1b-6 as part of a side project that I am working on.  ...
+> 
+> Next I issued make.  After a while, an error is encountered [section A] noted
+> below.  I think the interesting part is -> ar: Error: crypto/bn/libcrypto-lib-alpha-
+> mont.o cannot open <-  I can confirm that this is file is not present anywhere
+> on the server, but the .S is.
+
+Is as, the assembler, installed and on PATH?
+
+> My second attempt was including the no-asm flag.  While I couldn?t find any
+> direct results for the problem I was having, my Google searches kept return
+> results that mentioned this as a workaround for similar-ish problem. 
+
+Well, sort of, in the sense of "this will confirm if your problem is in fact assembling the assembly source".
+
+ After
+> running make, it eventually died complaining about a .so :  see below [section
+> B].
+
+> Makefile:10125: recipe for target 'providers/legacy.so' failed
+> make[1]: *** [providers/legacy.so] Error 1
+
+Not enough information. You need to capture *all* the build output. "make 2>&1 | tee make.out" is your friend.
+
+> Third attempt was with both the -no-asm and -no-shared flags, this too was
+> not successful : [section C].
+
+As above.
+
+> After a bit more reading and web-searching? I also tried ./config -shared -
+> thread tru64-alpha-cc before issuing make. [section D].
+
+As above.
+
+> Alpha is a dead architecture, but I thought I would at least reach out to see if
+> someone with more knowledge than myself might be able to see the problem
+> and know if it?s something relatively easy to fix or work around.
+
+Sure. I'm all in favor of trying to build software for archaic platforms, and while Tru64 is not my favorite UNIX variant, Alpha was a nice CPU line. But we don't have enough to go on here.
+
+-- 
+Michael Wojcik
+
+From doctor at doctor.nl2k.ab.ca  Thu Mar  7 04:03:00 2024
+From: doctor at doctor.nl2k.ab.ca (The Doctor)
+Date: Wed, 6 Mar 2024 21:03:00 -0700
+Subject: 2 existing openssls conflicting in FreeBSD 14
+Message-ID: <Zek8dCv86joJjvJJ@doctor.nl2k.ab.ca>
+
+The first I have seen this
+
+/usr/local/bin/openssl version -a
+ld-elf.so.1: /usr/lib/libssl.so.3: version OPENSSL_3.2.0 required by /usr/local/bin/openssl not found
+root at doctor:/usr/source/openssh-SNAP-20240306 # /usr/bin/openssl version -a
+OpenSSL 3.0.14-dev  (Library: OpenSSL 3.0.14-dev )
+built on: Thu Mar  7 01:12:56 2024 UTC
+platform: BSD-x86_64
+options:  bn(64,64)
+compiler: /usr/local/bin/clang17 -fPIC -pthread -Wa,--noexecstack -Qunused-arguments -Wall -O3 -DL_ENDIAN -DOPENSSL_PIC -D_THREAD_SAFE -D_REENTRANT -DOPENSSL_BUILDING_OPENSSL -DZLIB -DZLIB_SHARED -DNDEBUG
+OPENSSLDIR: "/usr/ssl"
+ENGINESDIR: "/usr//lib/engines-3"
+MODULESDIR: "/usr//lib/ossl-modules"
+Seeding source: os-specific
+CPUINFO: OPENSSL_ia32cap=0x7ffef3ffffebffff:0x21cbfbb
+
+So why is openssl v3.2 referring to /usr/lib/libssl.so.3 which is
+an openssl 3.0 library?
+
+-- 
+Member - Liberal International This is doctor at nk.ca Ici doctor at nk.ca
+Yahweh, King & country!Never Satan President Republic!Beware AntiChrist rising!
+Look at Psalms 14 and 53 on Atheism ; unsubscribe from Google Groups to be seen
+What worth the power of law that won't stop lawlessness?  -unknown 
+
+From levitte at openssl.org  Thu Mar  7 05:16:21 2024
+From: levitte at openssl.org (Richard Levitte)
+Date: Thu, 07 Mar 2024 06:16:21 +0100
+Subject: decoder memory-management question
+In-Reply-To: <87wmqfl89d.fsf@lapdog.home.levitte.org> (Richard Levitte's
+ message of "Wed, 06 Mar 2024 15:55:42 +0100")
+References: <20240301153255.1514020.qmail@cr.yp.to>
+ <87wmqfl89d.fsf@lapdog.home.levitte.org>
+Message-ID: <87ttlik4ey.fsf@lapdog.home.levitte.org>
+
+Richard Levitte <levitte at openssl.org> writes:
+
+> For all I know, a provider could just as well choose to place the key in
+> an internal cache and pass the cache index in an "data" OSSL_PARAM
+> (OSSL_OBJECT_PARAM_DATA), and have the keymgmt "load" function pick up
+> that cache index through the reference argument.
+
+Small detail, a cache index like that would still passed with
+OSSL_OBJECT_PARAM_REFERENCE, as it's still, well, a reference, just not
+a direct address to the key data.
+
+Cheers,
+Richard
+
+-- 
+Richard Levitte         levitte at openssl.org
+OpenSSL Project         http://www.openssl.org/~levitte/
+
+From mwojcik at opentext.com  Thu Mar  7 14:57:45 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Thu, 7 Mar 2024 14:57:45 +0000
+Subject: [EXTERNAL] - Openssl-3.2.1 - Building for Tru64
+In-Reply-To: <1B9BBBE7-B66C-4550-9009-4BF105FCECC6@markwbutt.com>
+References: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com>
+ <YQBPR01MB10705537B7B51645B6ED3E243C2212@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+ <1B9BBBE7-B66C-4550-9009-4BF105FCECC6@markwbutt.com>
+Message-ID: <YQBPR01MB107051131D0880896652AD51EC2202@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: Mark Butt <mark at markwbutt.com>
+> Sent: Thursday, 7 March, 2024 04:37
+> To: Michael Wojcik <mwojcik at opentext.com>
+> Cc: openssl-users at openssl.org
+> Subject: Re: [EXTERNAL] - Openssl-3.2.1 - Building for Tru64
+
+Urgh. Please don't send replies directly to me - send them to the list. And because your reply was signed S/MIME HTML, and it was signed using a certificate issued by your own personal CA (the root for which I obviously don't have in my trust colleciton), and I am unfortunately forced to use Outlook for my work email, I can't easily read your message, much less quote from and respond to it.
+
+Plain text is *much* better for messages to the email list.
+
+That said, I can with some effort get to the message text and the attachment, and I'll take a look when I have a chance.
+
+-- 
+Michael Wojcik
+
+From levitte at openssl.org  Thu Mar  7 15:57:03 2024
+From: levitte at openssl.org (Richard Levitte)
+Date: Thu, 07 Mar 2024 16:57:03 +0100
+Subject: Openssl-3.2.1 - Building for Tru64
+In-Reply-To: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com> (Mark Butt's
+ message of "Wed, 6 Mar 2024 11:53:15 -0330")
+References: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com>
+Message-ID: <87h6hif31s.fsf@lapdog.home.levitte.org>
+
+Mark Butt <mark at markwbutt.com> writes:
+
+> Good Day!
+>
+> I am trying to build openssl-3.2.1 for an AlphaServer 4100 running
+> Tru64 5.1b-6 as part of a side project that I am working on.  I
+> noticed that Tru64 is still in the list of build combos.
+> I issued the following command:
+> ./config tru64-alpha-cc
+> No errors, everything went fine.
+
+Your output snippets for the 'make' attempts are unfortunately not
+enough.  Most of them only tell us that make detected that an error has
+occured, but the actual error details are not present.  Also, some of
+your output shows you used parallel make (-j), which is great for rapid
+builds, but not very good at all for finding the sequence of errors.
+
+Michael Wojcik proposed this command:
+
+    make 2>&1 | tee make.out
+
+Then you can figure out what's going on by reading (and quoting from)
+make.out.
+
+> Next I issued make.  After a while, an error is encountered [section
+> A] noted below.  I think the interesting part is -> ar: Error:
+> crypto/bn/libcrypto-lib-alpha-mont.o cannot open <- I can confirm that
+> this is file is not present anywhere on the server, but the .S is.
+
+Okie.
+crypto/bn/alpha-mont.S is generated with crypto/bn/asn/alpha-mon.pl, so
+at least that part of the build seems to have worked.  The question is
+why crypto/bn/alpha-mont.S wasn't compiled.  You might be able to find
+out what's happening with it from make.out (mentioned above).
+
+> Out of curiosity, I tried openssl-1.1.1w, it fails for the same
+> reason, but the path and error are slightly different.
+
+Okie, so probably the same problem, crypto/bn/alpha-mont.S isn't
+compiled for an unknown reason.
+
+As a matter of fact, albeit your outputs don't show them, I suspect
+all build errors are compilation issues, in various files.  Again, run
+the command given above, study make.out, and give us quotes from it that
+should the actual compilation issues.
+
+Cheers,
+Richard
+
+-- 
+Richard Levitte         levitte at openssl.org
+OpenSSL Project         http://www.openssl.org/~levitte/
+
+From carson at taltos.org  Thu Mar  7 17:07:34 2024
+From: carson at taltos.org (Carson Gaspar)
+Date: Thu, 7 Mar 2024 09:07:34 -0800
+Subject: 2 existing openssls conflicting in FreeBSD 14
+In-Reply-To: <Zek8dCv86joJjvJJ@doctor.nl2k.ab.ca>
+References: <Zek8dCv86joJjvJJ@doctor.nl2k.ab.ca>
+Message-ID: <a46cad00-bad8-49dc-9d69-94519e69cd86@taltos.org>
+
+On 3/6/2024 8:03 PM, The Doctor via openssl-users wrote:
+> The first I have seen this
+>
+> /usr/local/bin/openssl version -a
+> ld-elf.so.1: /usr/lib/libssl.so.3: version OPENSSL_3.2.0 required by /usr/local/bin/openssl not found
+> root at doctor:/usr/source/openssh-SNAP-20240306 # /usr/bin/openssl version -a
+> OpenSSL 3.0.14-dev  (Library: OpenSSL 3.0.14-dev )
+> built on: Thu Mar  7 01:12:56 2024 UTC
+> platform: BSD-x86_64
+> options:  bn(64,64)
+> compiler: /usr/local/bin/clang17 -fPIC -pthread -Wa,--noexecstack -Qunused-arguments -Wall -O3 -DL_ENDIAN -DOPENSSL_PIC -D_THREAD_SAFE -D_REENTRANT -DOPENSSL_BUILDING_OPENSSL -DZLIB -DZLIB_SHARED -DNDEBUG
+> OPENSSLDIR: "/usr/ssl"
+> ENGINESDIR: "/usr//lib/engines-3"
+> MODULESDIR: "/usr//lib/ossl-modules"
+> Seeding source: os-specific
+> CPUINFO: OPENSSL_ia32cap=0x7ffef3ffffebffff:0x21cbfbb
+>
+> So why is openssl v3.2 referring to /usr/lib/libssl.so.3 which is
+> an openssl 3.0 library?
+
+Because you built it incorrectly and didn't set RPATH when you installed 
+it into a non-standard location.
+
+PEBKAC
+
+You were also rather amazingly rude when you complained previously on 
+the OpenSSH mailing list.
+
+-- 
+
+Carson
+
+
+From mark at markwbutt.com  Thu Mar  7 21:57:27 2024
+From: mark at markwbutt.com (Mark Butt)
+Date: Thu, 7 Mar 2024 18:27:27 -0330
+Subject: Openssl-3.2.1 - Building for Tru64
+In-Reply-To: <87h6hif31s.fsf@lapdog.home.levitte.org>
+References: <9FA448FC-F38B-4370-8327-03632CA5974C@markwbutt.com>
+ <87h6hif31s.fsf@lapdog.home.levitte.org>
+Message-ID: <19CF63F2-B8E6-4FD8-AC7C-3CB6BA51ED4B@markwbutt.com>
+
+Thanks for the reply Richard,
+
+I am waiting for the make to re-run using gcc?. I am starting to suspect my build environment.
+It seems to be making it much further in the process using gcc.
+
+I haven?t had much trouble with using the Compaq C compiler when building other things but I would lean towards my build environment being the problem. 
+
+I have never used Tru64 in any capacity professionally.  My experience is mostly AIX, Linux and a bit of Solaris. 
+
+-M
+
+> On Mar 7, 2024, at 12:27?PM, Richard Levitte <levitte at openssl.org> wrote:
+> 
+> Mark Butt <mark at markwbutt.com> writes:
+> 
+>> Good Day!
+>> 
+>> I am trying to build openssl-3.2.1 for an AlphaServer 4100 running
+>> Tru64 5.1b-6 as part of a side project that I am working on.  I
+>> noticed that Tru64 is still in the list of build combos.
+>> I issued the following command:
+>> ./config tru64-alpha-cc
+>> No errors, everything went fine.
+> 
+> Your output snippets for the 'make' attempts are unfortunately not
+> enough.  Most of them only tell us that make detected that an error has
+> occured, but the actual error details are not present.  Also, some of
+> your output shows you used parallel make (-j), which is great for rapid
+> builds, but not very good at all for finding the sequence of errors.
+> 
+> Michael Wojcik proposed this command:
+> 
+>    make 2>&1 | tee make.out
+> 
+> Then you can figure out what's going on by reading (and quoting from)
+> make.out.
+> 
+>> Next I issued make.  After a while, an error is encountered [section
+>> A] noted below.  I think the interesting part is -> ar: Error:
+>> crypto/bn/libcrypto-lib-alpha-mont.o cannot open <- I can confirm that
+>> this is file is not present anywhere on the server, but the .S is.
+> 
+> Okie.
+> crypto/bn/alpha-mont.S is generated with crypto/bn/asn/alpha-mon.pl, so
+> at least that part of the build seems to have worked.  The question is
+> why crypto/bn/alpha-mont.S wasn't compiled.  You might be able to find
+> out what's happening with it from make.out (mentioned above).
+> 
+>> Out of curiosity, I tried openssl-1.1.1w, it fails for the same
+>> reason, but the path and error are slightly different.
+> 
+> Okie, so probably the same problem, crypto/bn/alpha-mont.S isn't
+> compiled for an unknown reason.
+> 
+> As a matter of fact, albeit your outputs don't show them, I suspect
+> all build errors are compilation issues, in various files.  Again, run
+> the command given above, study make.out, and give us quotes from it that
+> should the actual compilation issues.
+> 
+> Cheers,
+> Richard
+> 
+> -- 
+> Richard Levitte         levitte at openssl.org
+> OpenSSL Project         http://www.openssl.org/~levitte/
+
+
+From openssl-users at dukhovni.org  Thu Mar  7 22:37:45 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Thu, 7 Mar 2024 17:37:45 -0500
+Subject: 2 existing openssls conflicting in FreeBSD 14
+In-Reply-To: <Zek8dCv86joJjvJJ@doctor.nl2k.ab.ca>
+References: <Zek8dCv86joJjvJJ@doctor.nl2k.ab.ca>
+Message-ID: <ZepBuVtewVcvBOaS@chardros.imrryr.org>
+
+On Wed, Mar 06, 2024 at 09:03:00PM -0700, The Doctor via openssl-users wrote:
+
+> The first I have seen this
+> 
+> /usr/local/bin/openssl version -a
+> ld-elf.so.1: /usr/lib/libssl.so.3: version OPENSSL_3.2.0 required by /usr/local/bin/openssl not found
+
+It seems that you're trying to build your own custom OpenSSL on a
+FreeBSD system.  The most robust way to do that is to use the
+"shlib_variant" feature of the OpenSSL build.  For example, I have
+added a custom build configuration file:
+
+    $ cat Configurations/99-viktor.conf
+    my %targets = (
+        "linux-x86_64-rpk" => {
+            inherit_from     => [ "linux-x86_64" ],
+            shlib_variant    => "rpk",
+        },
+        "BSD-x86_64-rpk" => {
+            inherit_from     => [ "BSD-x86_64" ],
+            shlib_variant    => "rpk",
+        },
+    );
+
+which I then use to build OpenSSL in a sibling directory of the source
+tree as follows:
+
+    ../openssl/Configure --prefix=/usr/local/siteexec -Wl,-R,/usr/local/siteexec/lib BSD-x86_64-rpk
+
+[ Choose a "shlib_variant" tag that more accurately reflects your needs. ]
+
+Which, after "make; make test; make install" results in:
+
+    $ ldd /usr/local/siteexec/bin/openssl
+    /usr/local/siteexec/bin/openssl:
+            libsslrpk.so.3 => /usr/local/siteexec/lib/libsslrpk.so.3 (0x325a52fb2000)
+            libcryptorpk.so.3 => /usr/local/siteexec/lib/libcryptorpk.so.3 (0x325a537a0000)
+            libthr.so.3 => /lib/libthr.so.3 (0x325a546ad000)
+            libc.so.7 => /lib/libc.so.7 (0x325a5525a000)
+            [vdso] (0x7ffffffff5d0)
+
+    $ readelf -d /usr/local/siteexec/bin/openssl | grep -E 'RUNPATH|NEEDED'
+     0x000000000000001d RUNPATH              Library runpath: [/usr/local/siteexec/lib]
+     0x0000000000000001 NEEDED               Shared library: [libsslrpk.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libcryptorpk.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libthr.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libc.so.7]
+
+    $ readelf -d /usr/local/siteexec/lib/libssl.so | grep -E 'RUNPATH|NEEDED|SONAME'
+     0x000000000000001d RUNPATH              Library runpath: [/usr/local/siteexec/lib]
+     0x0000000000000001 NEEDED               Shared library: [libcryptorpk.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libthr.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libc.so.7]
+     0x000000000000000e SONAME               Library soname: [libsslrpk.so.3]
+
+    $ readelf -d /usr/local/siteexec/lib/libsslrpk.so.3 | grep -E 'RUNPATH|NEEDED|SONAME'
+     0x000000000000001d RUNPATH              Library runpath: [/usr/local/siteexec/lib]
+     0x0000000000000001 NEEDED               Shared library: [libcryptorpk.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libthr.so.3]
+     0x0000000000000001 NEEDED               Shared library: [libc.so.7]
+     0x000000000000000e SONAME               Library soname: [libsslrpk.so.3]
+
+    ... similar results for libcrypto / libcryptorpk ...
+
+    $ /usr/local/siteexec/bin/openssl version -a
+    OpenSSL 3.2.2-dev  (Library: OpenSSL 3.2.2-dev )
+    built on: Thu Feb  1 22:06:50 2024 UTC
+    platform: BSD-x86_64-rpk
+    options:  bn(64,64)
+    compiler: cc -fPIC -pthread -Wa,--noexecstack -Qunused-arguments -Wall -O3 -DL_ENDIAN -DOPENSSL_PIC -D_THREAD_SAFE -D_REENTRANT -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+    OPENSSLDIR: "/usr/local/siteexec/ssl"
+    ENGINESDIR: "/usr/local/siteexec/lib/engines-3"
+    MODULESDIR: "/usr/local/siteexec/lib/ossl-modules"
+    Seeding source: os-specific
+    CPUINFO: OPENSSL_ia32cap=0x7ffaf3ffffebffff:0x29c6fbf
+
+Then, for example, when I build Postfix against this libssl, I use:
+
+    OSSL=/usr/local/siteexec
+    OSSL_LDFLAGS="-Wl,-R,$OSSL/lib -L$OSSL/lib -lssl -lcrypto"
+    OSSL_CFLAGS="-I$OSSL/include"
+
+    make -f Makefile.init openssl_path=/usr/local/sitexec/bin/openssl \
+        "CCARGS=$OSSL_CFLAGS "'-DUSE_TLS ...' \
+        "AUXLIBS=$OSSL_LDFLAGS "'...' \
+        ...
+
+making sure to use:
+
+    - The relevant custom include directory,
+    - The relevant custom lib directory
+    - The relevant RUNPATH (-Wl,-R,...)
+
+-- 
+    Viktor.
+
+From aaspose at gmail.com  Fri Mar  8 12:47:32 2024
+From: aaspose at gmail.com (Aspose Aspose)
+Date: Fri, 8 Mar 2024 18:17:32 +0530
+Subject: M_ASN1_D2I errors
+Message-ID: <CAGi0DbdA0foccjC9Ov0rvs5EHxyMb0bBF6dHXPe6xYwMULhURA@mail.gmail.com>
+
+I am migrating OpenSSL to 1.1.1, I am getting error for below macros:
+
+X509_CRL* IT_SSLeay_X509_CRL_Info::DER2i( const char** pData0){
+
+    long length = 0;
+    unsigned char** pp = ((unsigned char**)(pData));
+    X509_CRL** a = &m_pCRL;
+
+    M_ASN1_D2I_vars(a, X509_CRL *, X509_CRL_new)
+    M_ASN1_D2I_Init()
+    M_ASN1_D2I_start_sequence()
+    M_ASN1_D2I_get(ret->crl, d2i_X509_CRL_INFO)
+    M_ASN1_D2I_get(ret->sig_alg, d2i_X509_ALGOR)
+    M_ASN1_D2I_get(ret->signature, d2i_ASN1_BIT_STRING)
+    M_ASN1_D2I_Finish(a, X509_CRL_free, ASN1_F_X509_CRL_ADD0_REVOKED);
+
+   return *a
+
+}
+
+Can anyone help me to identify alternative macros/functions in openssl1.1.1
+for this one?
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240308/fd429023/attachment.htm>
+
+From jason.qian at cloud.com  Fri Mar  8 15:38:53 2024
+From: jason.qian at cloud.com (Jason Qian)
+Date: Fri, 8 Mar 2024 10:38:53 -0500
+Subject: Need help - Client Authentication
+Message-ID: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+
+Hi,
+
+I am working on a TLS server that requires client autiendaction.
+SSL version: *OpenSSL 1.1.1n *
+
+I have following calls(Server) :
+
+const SSL_METHOD* method = TLSv1_2_server_method();
+SSL_CTX * _ctx = SSL_CTX_new(method);
+
+...
+
+SSL_CTX_use_certificate_file(_ctx, CertificateFile.c_str(),
+SSL_FILETYPE_PEM);
+*SSL_CTX_set_default_passwd_cb_userdata*(_ctx, (void*)TLS_KEY_PASSWD);
+SSL_CTX_use_PrivateKey_file(_ctx, PrivateKeyFile.c_str(), SSL_FILETYPE_PEM);
+SSL_CTX_set_verify(_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
+NULL);
+SSL_CTX_load_verify_locations(_ctx, TLS_CA_FILE, NULL);
+SSL_CTX_set_client_CA_list(_ctx, SSL_load_client_CA_file(TLS_CA_FILE));
+....
+SSL * _ssl = SSL_new(_ctx);
+SSL_set_fd(_ssl, conn);
+SSL_accept(_ssl);
+
+The server seems to work fine.  My question is  regarding "
+*SSL_CTX_set_default_passwd_cb_userdata".*
+Do I need to set the password? I tried with/without the call and all seemed
+to work fine.
+
+
+Thanks for your help,
+Jason
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240308/95d86067/attachment.htm>
+
+From posting-openssl-users at box.cr.yp.to  Fri Mar  8 15:44:22 2024
+From: posting-openssl-users at box.cr.yp.to (D. J. Bernstein)
+Date: Fri, 8 Mar 2024 16:44:22 +0100
+Subject: decoder memory-management question
+Message-ID: <20240308154422.2026753.qmail@cr.yp.to>
+
+Richard Levitte writes:
+> For all I know, a provider could just as well choose to place the key in
+> an internal cache and pass the cache index in an "data" OSSL_PARAM
+> (OSSL_OBJECT_PARAM_DATA), and have the keymgmt "load" function pick up
+> that cache index through the reference argument.
+
+Aha, got it. I now understand that the "same provider" comment in
+provider-object(7) is also guaranteeing that the meaning of reference
+bytes is entirely up to the provider, and that the "can be called" part
+of provider-decoder(7) is talking about what the core is doing (inside
+decoder_construct_pkey()) in the case where a provider is decoding keys
+for another provider, rather than what the decoder is doing.
+
+> All things considered, it may be time for us to write some encoder /
+> decoder guidelines...  ossl-guide-encoder(7) and ossl-guide-decoder(7),
+> perhaps?
+
+Sounds useful. I'm curious what I should be doing instead of calling the
+private asn1_d2i_read_bio() function, for example. There are probably a
+bunch of other things that I'm doing suboptimally.
+
+---Dan
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240308/c62ca950/attachment.sig>
+
+From stephen.wall at redcom.com  Fri Mar  8 15:50:31 2024
+From: stephen.wall at redcom.com (Wall, Stephen)
+Date: Fri, 8 Mar 2024 15:50:31 +0000
+Subject: Need help - Client Authentication
+In-Reply-To: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+References: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+Message-ID: <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Jason Qian via openssl-users
+> Subject: Need help - Client Authentication
+>
+> My question is? regarding "SSL_CTX_set_default_passwd_cb_userdata".
+> Do I need to set the password? I tried with/without the call and all seemed to work fine.
+
+"SSL_CTX_set_default_passwd_cb_userdata()" is only useful is you are also calling "SSL_CTX_set_default_passwd_cb()" to set your own callback function, which I don't see in your posted code.  So, no.
+The callback would be used when the client certificate is encrypted and needs a password.
+
+-spw
+
+From stephen.wall at redcom.com  Fri Mar  8 15:53:54 2024
+From: stephen.wall at redcom.com (Wall, Stephen)
+Date: Fri, 8 Mar 2024 15:53:54 +0000
+Subject: Need help - Client Authentication
+In-Reply-To: <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+References: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+ <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+Message-ID: <MW4PR09MB928467A11E7671E1AD1E1D05EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+
+> The callback would be used when the client certificate is encrypted and needs
+> a password.
+I said that assuming it was the client calling it the function.  That also applies to a server which is using an encrypted PEM file for its certificate.
+
+From doctor at doctor.nl2k.ab.ca  Fri Mar  8 16:23:20 2024
+From: doctor at doctor.nl2k.ab.ca (The Doctor)
+Date: Fri, 8 Mar 2024 09:23:20 -0700
+Subject: Some failures in openssl 3.0.14-dev test
+Message-ID: <Zes7eBUUIC_oGIpQ@doctor.nl2k.ab.ca>
+
+>From openssl-3.2-SNAP-20240308 
+I get
+
+Test Summary Report
+-------------------
+20-test_enc_more.t                    (Wstat: 1024 (exited 4) Tests: 92 Failed: 4)
+  Failed tests:  89-92
+    Non-zero exit status: 4
+    80-test_ssl_new.t                     (Wstat: 1536 (exited 6) Tests: 31 Failed: 6)
+      Failed tests:  4, 7, 11, 16, 18, 29
+	Non-zero exit status: 6
+	Files=298, Tests=3561, 1072 wallclock secs (51.76 usr  1.02 sys + 909.33 cusr 131.91 csys = 1094.02 CPU)
+	Result: FAIL
+	*** Error code 1
+
+	Stop.
+
+
+What further information is needed on the failures?
+-- 
+Member - Liberal International This is doctor at nk.ca Ici doctor at nk.ca
+Yahweh, King & country!Never Satan President Republic!Beware AntiChrist rising!
+Look at Psalms 14 and 53 on Atheism ; unsubscribe from Google Groups to be seen
+What worth the power of law that won't stop lawlessness?  -unknown 
+
+From matt at openssl.org  Fri Mar  8 16:31:25 2024
+From: matt at openssl.org (Matt Caswell)
+Date: Fri, 8 Mar 2024 16:31:25 +0000
+Subject: Some failures in openssl 3.0.14-dev test
+In-Reply-To: <Zes7eBUUIC_oGIpQ@doctor.nl2k.ab.ca>
+References: <Zes7eBUUIC_oGIpQ@doctor.nl2k.ab.ca>
+Message-ID: <ca948e14-43f4-402a-9cdd-f33d5b9be309@openssl.org>
+
+The output from this would be helpful:
+
+make TESTS=test_enc_more V=1 test
+
+On 08/03/2024 16:23, The Doctor via openssl-users wrote:
+>  From openssl-3.2-SNAP-20240308
+> I get
+> 
+> Test Summary Report
+> -------------------
+> 20-test_enc_more.t                    (Wstat: 1024 (exited 4) Tests: 92 Failed: 4)
+>    Failed tests:  89-92
+>      Non-zero exit status: 4
+>      80-test_ssl_new.t                     (Wstat: 1536 (exited 6) Tests: 31 Failed: 6)
+>        Failed tests:  4, 7, 11, 16, 18, 29
+> 	Non-zero exit status: 6
+> 	Files=298, Tests=3561, 1072 wallclock secs (51.76 usr  1.02 sys + 909.33 cusr 131.91 csys = 1094.02 CPU)
+> 	Result: FAIL
+> 	*** Error code 1
+> 
+> 	Stop.
+> 
+> 
+> What further information is needed on the failures?
+
+From doctor at doctor.nl2k.ab.ca  Fri Mar  8 16:45:31 2024
+From: doctor at doctor.nl2k.ab.ca (The Doctor)
+Date: Fri, 8 Mar 2024 09:45:31 -0700
+Subject: Some failures in openssl 3.0.14-dev test
+In-Reply-To: <Zes7eBUUIC_oGIpQ@doctor.nl2k.ab.ca>
+References: <Zes7eBUUIC_oGIpQ@doctor.nl2k.ab.ca>
+Message-ID: <ZetAqx12FzTSZete@doctor.nl2k.ab.ca>
+
+On Fri, Mar 08, 2024 at 09:23:20AM -0700, The Doctor via openssl-users wrote:
+> >From openssl-3.2-SNAP-20240308 
+> I get
+> 
+> Test Summary Report
+> -------------------
+> 20-test_enc_more.t                    (Wstat: 1024 (exited 4) Tests: 92 Failed: 4)
+>   Failed tests:  89-92
+>     Non-zero exit status: 4
+>     80-test_ssl_new.t                     (Wstat: 1536 (exited 6) Tests: 31 Failed: 6)
+>       Failed tests:  4, 7, 11, 16, 18, 29
+> 	Non-zero exit status: 6
+> 	Files=298, Tests=3561, 1072 wallclock secs (51.76 usr  1.02 sys + 909.33 cusr 131.91 csys = 1094.02 CPU)
+> 	Result: FAIL
+> 	*** Error code 1
+> 
+> 	Stop.
+>
+
+Sorry this is 3.0.14-dev
+
+est Summary Report
+-------------------
+80-test_ssl_new.t                (Wstat: 1536 (exited 6) Tests: 30 Failed: 6)
+  Failed tests:  4, 7, 11, 16, 18, 29
+    Non-zero exit status: 6
+    Files=253, Tests=3401, 1071 wallclock secs (48.77 usr  0.75 sys + 904.69 cusr 122.78 csys = 1076.99 CPU)
+    Result: FAIL
+    *** Error code 1
+
+    Stop.
+
+In both cases what is needed to examine the failures?
+
+> 
+> What further information is needed on the failures?
+> -- 
+> Member - Liberal International This is doctor at nk.ca Ici doctor at nk.ca
+> Yahweh, King & country!Never Satan President Republic!Beware AntiChrist rising!
+> Look at Psalms 14 and 53 on Atheism ; unsubscribe from Google Groups to be seen
+> What worth the power of law that won't stop lawlessness?  -unknown 
+
+-- 
+Member - Liberal International This is doctor at nk.ca Ici doctor at nk.ca
+Yahweh, King & country!Never Satan President Republic!Beware AntiChrist rising!
+Look at Psalms 14 and 53 on Atheism ; unsubscribe from Google Groups to be seen
+What worth the power of law that won't stop lawlessness?  -unknown 
+
+From openssl-users at dukhovni.org  Fri Mar  8 17:43:12 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Fri, 8 Mar 2024 12:43:12 -0500
+Subject: Need help - Client Authentication
+In-Reply-To: <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+References: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+ <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+Message-ID: <ZetOMLgyhbkNKIDZ@chardros.imrryr.org>
+
+On Fri, Mar 08, 2024 at 03:50:31PM +0000, Wall, Stephen wrote:
+> > From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Jason Qian via openssl-users
+> > Subject: Need help - Client Authentication
+> >
+> > My question is? regarding "SSL_CTX_set_default_passwd_cb_userdata".
+> > Do I need to set the password? I tried with/without the call and all seemed to work fine.
+> 
+> "SSL_CTX_set_default_passwd_cb_userdata()" is only useful is you are
+> also calling "SSL_CTX_set_default_passwd_cb()" to set your own
+> callback function, which I don't see in your posted code.
+
+Correct.
+
+> So, no.  The callback would be used when the client certificate is
+> encrypted and needs a password.
+
+No.  The client certificate (received from the remote client as part of
+the TLS handshake) is never encrypted with a password (in TLS 1.3 the
+enclosing TLS record will be encrypted with a key derived from the
+exchanged key share messages).
+
+In the OP's case, the password callbck is only needed if the server's
+private key is password-protected, which is pointless in unattended
+server applications, because the password will be stored along with the
+private key.
+
+-- 
+    Viktor.
+
+From stephen.wall at redcom.com  Fri Mar  8 18:28:10 2024
+From: stephen.wall at redcom.com (Wall, Stephen)
+Date: Fri, 8 Mar 2024 18:28:10 +0000
+Subject: Need help - Client Authentication
+In-Reply-To: <ZetOMLgyhbkNKIDZ@chardros.imrryr.org>
+References: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+ <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <ZetOMLgyhbkNKIDZ@chardros.imrryr.org>
+Message-ID: <MW4PR09MB9284CF06542FE26CF03B322DEE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Viktor Dukhovni
+> 
+> On Fri, Mar 08, 2024 at 03:50:31PM +0000, Wall, Stephen wrote:
+> > So, no.  The callback would be used when the client certificate is
+> > encrypted and needs a password.
+> 
+> No.  The client certificate (received from the remote client as part of the TLS
+> handshake) is never encrypted with a password (in TLS 1.3 the enclosing TLS
+> record will be encrypted with a key derived from the exchanged key share
+> messages).
+
+Thanks for the correction.  My statement above should have read "when the client certificate's private key is encrypted", and is referring to the client end of the connection.  I keep my certificates and private keys in the same file, so typically only need to specify the certificate in configuration files.
+Note that I was not referring to the certificate sent over the wire, rather the cert/key file on the filesystem.  If a program needs to provide a certificate from the filesystem as part of the TLS handshake, then it also needs to access the private key for that certificate.  If that private key is encrypted, then a password is needed.  That applies to both clients and servers.  These functions allow you to provide an alternate way for the client/server software to get the password (default is typically to prompt for it), for example, query a database, return a fixed or calculated string, open a GUI dialog.
+I'll also note that per their man pages, the "PEM_read_*()" functions will interpret their callback data parameter as a null-terminated string containing the password *if* the callback function parameter is NULL (new info to me), so using only "SSL_CTX_set_default_passwd_cb_userdata()" to set a static password string might be viable.  I have not tested that or seen code that does this.
+
+-spw
+
+From jason.qian at cloud.com  Fri Mar  8 21:12:48 2024
+From: jason.qian at cloud.com (Jason Qian)
+Date: Fri, 8 Mar 2024 16:12:48 -0500
+Subject: Need help - Client Authentication
+In-Reply-To: <MW4PR09MB9284CF06542FE26CF03B322DEE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+References: <CAGxzrjZvWvoHfMQ1daoj8WcXuw+KX54wB3_wRCb21Ftaowrb9Q@mail.gmail.com>
+ <MW4PR09MB92849015E6CD2873B48DB241EE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+ <ZetOMLgyhbkNKIDZ@chardros.imrryr.org>
+ <MW4PR09MB9284CF06542FE26CF03B322DEE272@MW4PR09MB9284.namprd09.prod.outlook.com>
+Message-ID: <CAGxzrjaiSd8Ry+f4Br_WJwH=1MzLDaH1GDYTQ4H9D1jvJGxyow@mail.gmail.com>
+
+Hi Stephen,
+
+   Thank you very much for the help.
+
+Thanks
+Jason
+
+On Fri, Mar 8, 2024 at 1:28?PM Wall, Stephen <stephen.wall at redcom.com>
+wrote:
+
+> > From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> > Viktor Dukhovni
+> >
+> > On Fri, Mar 08, 2024 at 03:50:31PM +0000, Wall, Stephen wrote:
+> > > So, no.  The callback would be used when the client certificate is
+> > > encrypted and needs a password.
+> >
+> > No.  The client certificate (received from the remote client as part of
+> the TLS
+> > handshake) is never encrypted with a password (in TLS 1.3 the enclosing
+> TLS
+> > record will be encrypted with a key derived from the exchanged key share
+> > messages).
+>
+> Thanks for the correction.  My statement above should have read "when the
+> client certificate's private key is encrypted", and is referring to the
+> client end of the connection.  I keep my certificates and private keys in
+> the same file, so typically only need to specify the certificate in
+> configuration files.
+> Note that I was not referring to the certificate sent over the wire,
+> rather the cert/key file on the filesystem.  If a program needs to provide
+> a certificate from the filesystem as part of the TLS handshake, then it
+> also needs to access the private key for that certificate.  If that private
+> key is encrypted, then a password is needed.  That applies to both clients
+> and servers.  These functions allow you to provide an alternate way for the
+> client/server software to get the password (default is typically to prompt
+> for it), for example, query a database, return a fixed or calculated
+> string, open a GUI dialog.
+> I'll also note that per their man pages, the "PEM_read_*()" functions will
+> interpret their callback data parameter as a null-terminated string
+> containing the password *if* the callback function parameter is NULL (new
+> info to me), so using only "SSL_CTX_set_default_passwd_cb_userdata()" to
+> set a static password string might be viable.  I have not tested that or
+> seen code that does this.
+>
+> -spw
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240308/daa59844/attachment.htm>
+
+From teo.en.ming at protonmail.com  Sat Mar  9 13:58:43 2024
+From: teo.en.ming at protonmail.com (Turritopsis Dohrnii Teo En Ming)
+Date: Sat, 09 Mar 2024 13:58:43 +0000
+Subject: 32-bit OpenSSL binary found in Suprema BioStar 2 door access system
+Message-ID: <UhY0_dLeKhC083tig4XIyUimrwm57Ecc9tocHvJC2V7NE6pQCPgztL3eyl00fgmRJwAPgi0QhIyUt_P526MysBsq704oW3S2DE8Lp6_u2-4=@protonmail.com>
+
+Subject: 32-bit OpenSSL binary found in Suprema BioStar 2 door access system
+
+Good day from Singapore,
+
+On 7 March 2024 Thursday, when I was installing new self-signed SSL certificate for the door access system for a law firm in Singapore, I notice that Suprema BioStar 2 also has 32-bit OpenSSL binary.
+
+The path is:
+
+C:\Program Files\BioStar 2(x64)\ta\OpenSSL-Win32\bin
+
+I am wondering if I can install 64-bit OpenSSL binary from another packager. Will there be any conflict?
+
+Thank you.
+
+Regards,
+
+Mr. Turritopsis Dohrnii Teo En Ming
+Targeted Individual in Singapore
+Blogs:
+https://tdtemcerts.blogspot.com
+https://tdtemcerts.wordpress.com
+GIMP also stands for Government-Induced Medical Problems.
+
+
+
+
+
+
+From mwojcik at opentext.com  Sat Mar  9 17:42:31 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Sat, 9 Mar 2024 17:42:31 +0000
+Subject: [EXTERNAL] - 32-bit OpenSSL binary found in Suprema BioStar 2
+ door access system
+In-Reply-To: <UhY0_dLeKhC083tig4XIyUimrwm57Ecc9tocHvJC2V7NE6pQCPgztL3eyl00fgmRJwAPgi0QhIyUt_P526MysBsq704oW3S2DE8Lp6_u2-4=@protonmail.com>
+References: <UhY0_dLeKhC083tig4XIyUimrwm57Ecc9tocHvJC2V7NE6pQCPgztL3eyl00fgmRJwAPgi0QhIyUt_P526MysBsq704oW3S2DE8Lp6_u2-4=@protonmail.com>
+Message-ID: <YQBPR01MB10705563F1717217F8DB31C97C2262@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Turritopsis Dohrnii Teo En Ming via openssl-users
+> Sent: Saturday, 9 March, 2024 06:59
+> To: openssl-users at openssl.org
+> 
+> On 7 March 2024 Thursday, when I was installing new self-signed SSL
+> certificate for the door access system for a law firm in Singapore, I notice that
+> Suprema BioStar 2 also has 32-bit OpenSSL binary.
+> 
+> The path is:
+> 
+> C:\Program Files\BioStar 2(x64)\ta\OpenSSL-Win32\bin
+> 
+> I am wondering if I can install 64-bit OpenSSL binary from another packager.
+> Will there be any conflict?
+
+That would depend on:
+
+1) What exactly you mean by "OpenSSL binary". Just the openssl.exe utility program? The OpenSSL libraries, built as DLLs?
+
+2) What software currently running on the system uses the OpenSSL binary or binaries in question, and if it uses the OpenSSL libraries, whether they're linked statically or dynamically.
+
+3) If that software uses the openssl.exe program or OpenSSL DLLs, what its PATH environment-variable setting is, and whether your "packager" puts the new binaries in a directory included in that PATH value, and where in the value that is, relative to the existing OpenSSL binaries.
+
+4) For the openssl.exe executable, whether the version you want to install is a different version than the existing one, and whether any software that currently depends on it is sensitive to any changes between those versions.
+
+In most cases, it won't be a problem, but no one can say for certain without knowing precisely how OpenSSL is currently used on the system.
+
+-- 
+Michael Wojcik
+
+From levitte at openssl.org  Mon Mar 11 09:21:30 2024
+From: levitte at openssl.org (Richard Levitte)
+Date: Mon, 11 Mar 2024 10:21:30 +0100
+Subject: decoder memory-management question
+In-Reply-To: <20240308154422.2026753.qmail@cr.yp.to> (D. J. Bernstein's
+ message of "Fri, 8 Mar 2024 16:44:22 +0100")
+References: <20240308154422.2026753.qmail@cr.yp.to>
+Message-ID: <87zfv5yvhh.fsf@lapdog.home.levitte.org>
+
+"D. J. Bernstein" <posting-openssl-users at box.cr.yp.to> writes:
+
+> Richard Levitte writes:
+>> All things considered, it may be time for us to write some encoder /
+>> decoder guidelines...  ossl-guide-encoder(7) and ossl-guide-decoder(7),
+>> perhaps?
+>
+> Sounds useful. I'm curious what I should be doing instead of calling the
+> private asn1_d2i_read_bio() function, for example. There are probably a
+> bunch of other things that I'm doing suboptimally.
+
+The way we (or at least I) imagined it, most decoders would be made to
+decode specific keys, i.e. that our generic DER decoder would be fairly
+unusual, because it tries to cover a multitude of ASN.1 structures in
+one go.
+
+So for more specific decoders that only care about a specific key type,
+we imagined that the ASN.1 structure would be defined by the provider in
+question for whatever they need, and a d2i function would be used to try
+to decode the blob...  or if the provider authors prefers, a completely
+different DER decoder could also be used.  After all, we've tried very
+hard not to lock providers to depend on OpenSSL libraries for that sort
+of thing.
+
+Cheers,
+Richard
+
+-- 
+Richard Levitte         levitte at openssl.org
+OpenSSL Project         http://www.openssl.org/~levitte/
+
+From sanumesh at in.ibm.com  Mon Mar 11 18:11:53 2024
+From: sanumesh at in.ibm.com (Sandeep Umesh)
+Date: Mon, 11 Mar 2024 18:11:53 +0000
+Subject: optimizations and fips provider
+Message-ID: <CY5PR15MB5463B6A5A919980178668BBAE0242@CY5PR15MB5463.namprd15.prod.outlook.com>
+
+Hello
+
+When we configure fips provider alone(without default), then we see that hardware optimized code is not used. Speed performance numbers are poor when compared with default provider enabled.
+Is it expected or am I doing anything wrong?
+I am verifying this on Power platform.
+
+Thanks
+
+Regards
+Sandeep
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240311/3d91d280/attachment.htm>
+
+From stephen.wall at redcom.com  Wed Mar 13 13:00:24 2024
+From: stephen.wall at redcom.com (Wall, Stephen)
+Date: Wed, 13 Mar 2024 13:00:24 +0000
+Subject: FIPS with static linking
+Message-ID: <MW4PR09MB92845FF59C2EA35528A4FFDFEE2A2@MW4PR09MB9284.namprd09.prod.outlook.com>
+
+Has anyone used FIPS mode with an application that was statically linked with openssl?  I?m having a problem doing this.  (RAND_status() returns 0).  Could there some initialization that get skipped when libcrypto is not dynamically loaded?
+
+(Should I post this to openssl-dev instead?)
+
+Thanks
+-Steve
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240313/d6bfbb28/attachment.htm>
+
+From bc979 at lafn.org  Thu Mar 14 03:50:17 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Wed, 13 Mar 2024 20:50:17 -0700
+Subject: Validating Client Certificates
+Message-ID: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+
+I am developing an application that clients will access.  I don't want to use passwords as the users have shown a propensity to use easily guessed passwords etc.  I am trying to use client certificates.  I have setup a local CA that is used to generate the client certificates.  The user's identity is entered into the subject CN.
+
+My client certificates are properly accepted.  However, I am unable to tell just what SSL_accept validates.  I have not been able to find any documentation on what it actually checks.  My testing shows that the client certificate must be signed by a known root certificate, but does SSL_accept verify that the signing certificate is the one indicated in the client certificate, and how does it check that?  In my server, I am checking the certificate serial number.  Is that necessary and sufficient to ensure that the certificate is the one I generated and not a fake?
+
+ It seems that it might be possible to create a CA that is certified by one of the known root certificates and use it to generate a client certificate with the identical issuer information.  Obtaining the proper issuer serial number would take some work, but I suspect it is possible.  The rest of that information is trivial.  Thanks,
+
+-- Doug
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240313/16a492fa/attachment.htm>
+
+From openssl-users at dukhovni.org  Thu Mar 14 07:04:58 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Thu, 14 Mar 2024 03:04:58 -0400
+Subject: Validating Client Certificates
+In-Reply-To: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+References: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+Message-ID: <ZfKhmjJV4dhI9Ojo@chardros.imrryr.org>
+
+On Wed, Mar 13, 2024 at 08:50:17PM -0700, Doug Hardie wrote:
+
+> My client certificates are properly accepted.  However, I am unable to
+> tell just what SSL_accept validates.
+
+Just the trust path, i.e. that the certificate was issued by *some*
+(transitively) trusted CA.  In particular, you really want to trust
+just your internal CA, and none others.
+
+> I have not been able to find any documentation on what it actually
+> checks.  My testing shows that the client certificate must be signed
+> by a known root certificate, but does SSL_accept verify that the
+> signing certificate is the one indicated in the client certificate,
+> and how does it check that?
+
+By constructing a *chain* of certificates from the one presented by the
+client to a "trust-anchor" that you've configured, where each
+certificate in the chain has a valid signature from its successor.
+
+
+> In my server, I am checking the certificate serial number.  Is that
+> necessary and sufficient to ensure that the certificate is the one I
+> generated and not a fake?
+
+No.  That largerly irrelevant, unless you also have a list of revoked
+certificate serial numbers, or better yet, a definitive list of the
+unrevoked ones, but this is only after the chain validation succeeds, to
+weed out stale certificates that were lost or those that belonged to
+terminated users.
+
+In other words the certificate validation just shows that the client
+knows some secret associated with some user and not marked at the time
+for expiration prior to now.  Meanwhile, the user may have moved on, the
+private key may have been lost, ... so you still need to maintain a
+table of which certs are not lost and still correspond to real users.
+
+>  It seems that it might be possible to create a CA that is certified
+>  by one of the known root certificates and use it to generate a client
+>  certificate with the identical issuer information.
+
+Correct, a server what wants to consume client certs needs to not trust
+the usual WebPKI roots.  Instead, you'll need to trust *only* your own CA.
+Set up the trust store for the server's SSL_CTX accordingly.
+
+
+>  Obtaining the
+>  proper issuer serial number would take some work, but I suspect it is
+>  possible.  The rest of that information is trivial.  Thanks,
+
+Serial numbers are not an authentication mechanism, they are however
+a way of purging stable authenticators.
+
+-- 
+    Viktor.
+
+From bc979 at lafn.org  Thu Mar 14 07:47:41 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Thu, 14 Mar 2024 00:47:41 -0700
+Subject: Validating Client Certificates
+In-Reply-To: <ZfKhmjJV4dhI9Ojo@chardros.imrryr.org>
+References: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+ <ZfKhmjJV4dhI9Ojo@chardros.imrryr.org>
+Message-ID: <D8EA56D3-AF16-467F-B276-77CE9EB3C194@sermon-archive.info>
+
+> On Mar 14, 2024, at 00:04, Viktor Dukhovni <openssl-users at dukhovni.org> wrote:
+> 
+> On Wed, Mar 13, 2024 at 08:50:17PM -0700, Doug Hardie wrote:
+> 
+>> My client certificates are properly accepted.  However, I am unable to
+>> tell just what SSL_accept validates.
+> 
+> Just the trust path, i.e. that the certificate was issued by *some*
+> (transitively) trusted CA.  In particular, you really want to trust
+> just your internal CA, and none others.
+> 
+>> I have not been able to find any documentation on what it actually
+>> checks.  My testing shows that the client certificate must be signed
+>> by a known root certificate, but does SSL_accept verify that the
+>> signing certificate is the one indicated in the client certificate,
+>> and how does it check that?
+> 
+> By constructing a *chain* of certificates from the one presented by the
+> client to a "trust-anchor" that you've configured, where each
+> certificate in the chain has a valid signature from its successor.
+
+That I have done.  There is only the root certificate and the client certificate.
+
+> 
+> 
+>> In my server, I am checking the certificate serial number.  Is that
+>> necessary and sufficient to ensure that the certificate is the one I
+>> generated and not a fake?
+> 
+> No.  That largerly irrelevant, unless you also have a list of revoked
+> certificate serial numbers, or better yet, a definitive list of the
+> unrevoked ones, but this is only after the chain validation succeeds, to
+> weed out stale certificates that were lost or those that belonged to
+> terminated users.
+
+i am planning to use the serial number to handle revoked certificates.  I don't have that setup completely yet, but it is the next item on the agenda.
+
+> 
+> In other words the certificate validation just shows that the client
+> knows some secret associated with some user and not marked at the time
+> for expiration prior to now.  Meanwhile, the user may have moved on, the
+> private key may have been lost, ... so you still need to maintain a
+> table of which certs are not lost and still correspond to real users.
+> 
+>> It seems that it might be possible to create a CA that is certified
+>> by one of the known root certificates and use it to generate a client
+>> certificate with the identical issuer information.
+> 
+> Correct, a server what wants to consume client certs needs to not trust
+> the usual WebPKI roots.  Instead, you'll need to trust *only* your own CA.
+> Set up the trust store for the server's SSL_CTX accordingly.
+
+Now that I hadn't thought about.  it makes sense.  I'll have to see about how to do that.  i recall seeing some examples so it shouldn't be that difficult.  I have to make sure that the server will present it's public certificate that is derived from Lets Encrypt while validating on just my root certificate.
+
+> 
+> 
+>> Obtaining the
+>> proper issuer serial number would take some work, but I suspect it is
+>> possible.  The rest of that information is trivial.  Thanks,
+> 
+> Serial numbers are not an authentication mechanism, they are however
+> a way of purging stable authenticators.
+
+Thanks so much Viktor.  This has been a real help, and eye opener.
+
+-- Doug
+
+
+From mwojcik at opentext.com  Thu Mar 14 13:30:13 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Thu, 14 Mar 2024 13:30:13 +0000
+Subject: [EXTERNAL] - Validating Client Certificates
+In-Reply-To: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+References: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+Message-ID: <YQBPR01MB10705400A49AA456CBAE60684C2292@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Doug Hardie
+> Sent: Wednesday, 13 March, 2024 21:50
+
+> I am developing an application that clients will access. ?I don't want to use passwords as the users
+> have shown a propensity to use easily guessed passwords etc. ?I am trying to use client certificates. 
+
+Client certificates and TLS mutual authentication (sometimes called "mTLS") do not in themselves fix
+the weak-passwords problem. The end user needs access to the private key associated with the client
+certificate. How that happens depends on the client software, but private keys are often protected
+with passwords, those passwords are often selected by the end user, and often nothing ensures *they*
+aren't weak.
+
+Using client certificates might be a step in improving the strength of the authentication mechanism,
+but they don't do so inherently.
+
+> I have setup a local CA that is used to generate the client certificates. ?The user's identity is entered into
+> the subject CN.
+
+It's not clear what you mean by "the user's identity". If a certificate identifies a person, then (more or less
+by definition) the Subject *DN* should be a sufficient description of that person. Since it's rarely the case
+that a person's name is unique across a sufficiently large set - the world population, or even in many
+cases within an organization, for common names - the X.500 Common Name RDN (attribute), if its value
+is a person's name, is often not sufficient to identify an individual non-ambiguously.
+
+If the CN uses a value that *is* guaranteed to map to a unique individual in some domain, such as an OS
+username (properly administered), then that's not an issue, of course. But then the certificate really
+identifies an OS account, not a person. Whether it identifies a "user" depends on your definition of that
+term.
+
+> My client certificates are properly accepted. ?However, I am unable to tell just what SSL_accept validates. 
+
+A definitive description of everything that happens in peer certificate validation would require analyzing
+the OpenSSL source to make sure I'm not missing anything. From a high-level perspective:
+
+- OpenSSL must be able to build one or more chains from the entity certificate presented by the client to
+one of the roots in the trust collection supplied to OpenSSL by the caller, possibly using intermediate
+certificates from the collection sent by the client (if any) and from the trust collection (if there are any).
+
+- Each certificate in the chain must be valid: It must be well-formed, its signature must be valid (which
+means it has to be checked against the public key of the certificate that signed it), the current time must
+be within the validity times of the certificate, and so on.
+
+- Each certificate in the chain must be appropriate: Fields and extensions such as Basic Constraints, Key
+Usage, Extended Key Usage, and so forth must meet certain requirements. I don't recall offhand quite
+what requirements OpenSSL imposes, and it depends to some extent on version (you didn't say) and 
+perhaps on options set by the program (I don't recall offhand what might be available in the API for
+validating client certificates). Generally my advice to customers using client certificates is to use a
+commercial CA or ensure their organizational CA follows both PKIX and the CA/Browser Forum Basic
+Requirements. The CA/BF BR isn't strictly necessary in most cases, but it's a superset of what various
+peers might want to see.
+	Key strength and use of appropriate algorithms will also be checked; you'll have trouble if you
+use a signing algorithm that uses MD5, for example.
+
+If the program has a certificate-validation callback, it could alter or suppress any of these checks, or
+impose others of its own.
+
+> I have not been able to find any documentation on what it actually checks. ?My testing shows that the
+> client certificate must be signed by a known root certificate,
+
+That's not an accurate description. It must be signed by a root or intermediate that can be chained back to
+a root in the trust collection.
+
+> but does SSL_accept verify that the signing certificate is the one indicated in the client certificate,
+
+All certificates must be signed using the private key that corresponds to the public key in the certificate
+that's listed as the signer. That's how the signature is verified. (Identifying the signing certificate is a bit
+complicated, involving the optional AKID extension as well as the Issuer DN, but the short answer is that
+OpenSSL has to find the signing certificate in order to verify the signature.)
+
+> and how does it check that? ?In my server, I am checking the certificate serial number. 
+
+That's only necessary if your server includes roots in its trust collection that you don't actually want to trust
+for this purpose. While there are use cases for that, they're unusual. If you only put roots you want to trust
+into your trust collection, you don't need to do any further checks of the signing chain.
+
+>?It seems that it might be possible to create a CA that is certified by one of the known root certificates
+
+It's not entirely clear what you mean by this. "known root certificates" is not a technical description. Known
+to whom? If you're referring to commercial CAs, then note that, by definition, you can't have a root signed
+by a different root -- root certificates are self-signed. It's possible to have a root that's cross-signed by
+another root, so you can have a CA that's endorsed by another CA in that sense. You can also have a
+trusted CA (note that "trusted" always means only that the peer you're communicating with has decided
+to trust it!) issue an intermediate certificate which is then used to sign other intermediates or entity
+certificates.
+
+Good luck getting a commercial CA to cross-sign your root or sell you an intermediate. Won't be cheap.
+That's their business, after all.
+
+> and use it to generate a client certificate with the identical issuer information. 
+
+"identical" to what? It's really not clear what situation you're contemplating here.
+
+In general, my advice is that PKI is very complex, difficult to get right, and full of pitfalls and unfortunate
+failure modes in general, and PKIX (i.e. certificates) is particularly bad. Using TLS mutual authentication is
+sometimes an improvement over other authentication mechanisms, but it needs careful and vigilant
+administration. If the user base is of significant size, geographically distributed, or otherwise difficult to
+deal with, user certificates are likely to become a large source of problems. And they may not actually
+offer any improvement in security because there still has to be some mechanism by which the user gains
+access to the certificate (by getting access to the private key). Some operating systems offer private-key
+storage, but that just defers the problem: how does the user get access to private-key storage? By logging
+in, possibly with a weak password?
+
+The fact is that the IT industry is a long way from having any good solution to user authentication. The
+current hotness is Passkey, and Passkey is loaded with undesirable properties like poor device portability
+and often being tied to biometrics (the worst sort of authentication). Delegated authentication with OIDC
+is similarly a horrible mess, for different reasons. Passwords are terrible (passphrases are slightly better)
+and weak multifactor authentication hasn't helped much. There's no silver bullet for authentication. There
+isn't even a lead bullet.
+
+-- 
+Michael Wojcik
+
+From paulsheer at gmail.com  Thu Mar 14 20:45:27 2024
+From: paulsheer at gmail.com (Paul Sheer)
+Date: Thu, 14 Mar 2024 15:45:27 -0500
+Subject: Chinese Guomi (SM2/SM3/SM4) Algorithms for end-to-end sockets
+Message-ID: <CABxOuY8r=7hePs4SnrkjfJF7t9bJ2==R76CtVc17bJAho-wueg@mail.gmail.com>
+
+I would like to make an end-to-end secure-socket connection using
+openssl 3.2 (or later) on both ends (SSL_connect + SSL_accept) and
+force both the client and server to pick a cipher like
+"SM2-ECDHE/ECC-SM4-CBC/GSM-SM3". Normally I can force a cipher with
+SSL_CTX_set_ciphersuites()
+
+I was reading through the git commit logs for "SM2" and this seems to
+have been coded. However I am having difficulty working out if this is
+intended to work end-to-end right now or whether the support is
+"preliminary".
+
+I am aware that GmSSL has a dedicated standalone repository for Guomi,
+but I would prefer to use vanilla OpenSSL even if this is a developer
+version.
+
+Many thanks
+
+Paul
+
+From bc979 at lafn.org  Thu Mar 14 21:09:30 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Thu, 14 Mar 2024 14:09:30 -0700
+Subject: [EXTERNAL] - Validating Client Certificates
+In-Reply-To: <YQBPR01MB10705400A49AA456CBAE60684C2292@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+References: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+ <YQBPR01MB10705400A49AA456CBAE60684C2292@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+Message-ID: <1041B1A0-1B32-48A3-A321-DCAE3D8F019B@sermon-archive.info>
+
+> On Mar 14, 2024, at 06:30, Michael Wojcik via openssl-users <openssl-users at openssl.org> wrote:
+> 
+>> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Doug Hardie
+>> Sent: Wednesday, 13 March, 2024 21:50
+> 
+>> I am developing an application that clients will access.  I don't want to use passwords as the users
+>> have shown a propensity to use easily guessed passwords etc.  I am trying to use client certificates. 
+> 
+> Client certificates and TLS mutual authentication (sometimes called "mTLS") do not in themselves fix
+> the weak-passwords problem. The end user needs access to the private key associated with the client
+> certificate. How that happens depends on the client software, but private keys are often protected
+> with passwords, those passwords are often selected by the end user, and often nothing ensures *they*
+> aren't weak.
+
+I am well aware of those issues.  I have been involved with computer security since the 60's.  Key (or certificate) distribution is the bane of all cryptographic systems.  At one point, NSA lobbied me to take over as the head of the organization that creates all the cryptographic material.  That was a very toxic environment as there is no room for failure.  It's a no-win situation and I didn't want to be the next victim.
+
+Passwords are always an issue.  User selected passwords are nothing but problems.  I have two clients that currently need certificate authentication.  The approaches are going to have to be very different.  One of them is a small group of users who do not understand about passwords.  I suspect that client will want certificates where the key has no password.  My testing shows that may not be possible.  For example, the current MacOS and iOS will not install a client certificate if the key does not have a password.  I have no way presently to test Windows systems.  I suspect that client will want the same password for all users, probably something like "password".  However, in this situation the information they are "protecting" is already publicly available.  
+
+My other client is technically savy, but just too busy to get involved with creating CSRs.  While I have not been able to get them to think about these issues yet, I believe they will go with having me create the user ids, and certificates.  Hence, the ids will be unique.  I don't know if they will want key passwords or not.  They all use Windows machines so I don't know if that is even an option.
+
+> 
+> Using client certificates might be a step in improving the strength of the authentication mechanism,
+> but they don't do so inherently.
+> 
+>> I have setup a local CA that is used to generate the client certificates.  The user's identity is entered into
+>> the subject CN.
+> 
+> It's not clear what you mean by "the user's identity". If a certificate identifies a person, then (more or less
+> by definition) the Subject *DN* should be a sufficient description of that person. Since it's rarely the case
+> that a person's name is unique across a sufficiently large set - the world population, or even in many
+> cases within an organization, for common names - the X.500 Common Name RDN (attribute), if its value
+> is a person's name, is often not sufficient to identify an individual non-ambiguously.
+> 
+> If the CN uses a value that *is* guaranteed to map to a unique individual in some domain, such as an OS
+> username (properly administered), then that's not an issue, of course. But then the certificate really
+> identifies an OS account, not a person. Whether it identifies a "user" depends on your definition of that
+> term.
+
+In case you haven't noticed, I have not been able to keep up with the terminology.  These things change too often.  I am assigning the CN values and they will be unique.  The user will never need to know the CN value.  I don't think it will even be visible to them.  None of them will be OS accounts.  I never give those out to anyone.  There are too many ways to gain access to privileged information in these complex systems.
+
+>> My client certificates are properly accepted.  However, I am unable to tell just what SSL_accept validates. 
+> 
+> A definitive description of everything that happens in peer certificate validation would require analyzing
+> the OpenSSL source to make sure I'm not missing anything. From a high-level perspective:
+> 
+> - OpenSSL must be able to build one or more chains from the entity certificate presented by the client to
+> one of the roots in the trust collection supplied to OpenSSL by the caller, possibly using intermediate
+> certificates from the collection sent by the client (if any) and from the trust collection (if there are any).
+> 
+> - Each certificate in the chain must be valid: It must be well-formed, its signature must be valid (which
+> means it has to be checked against the public key of the certificate that signed it), the current time must
+> be within the validity times of the certificate, and so on.
+> 
+> - Each certificate in the chain must be appropriate: Fields and extensions such as Basic Constraints, Key
+> Usage, Extended Key Usage, and so forth must meet certain requirements. I don't recall offhand quite
+> what requirements OpenSSL imposes, and it depends to some extent on version (you didn't say) and 
+> perhaps on options set by the program (I don't recall offhand what might be available in the API for
+> validating client certificates). Generally my advice to customers using client certificates is to use a
+> commercial CA or ensure their organizational CA follows both PKIX and the CA/Browser Forum Basic
+> Requirements. The CA/BF BR isn't strictly necessary in most cases, but it's a superset of what various
+> peers might want to see.
+> 	Key strength and use of appropriate algorithms will also be checked; you'll have trouble if you
+> use a signing algorithm that uses MD5, for example.
+> 
+> If the program has a certificate-validation callback, it could alter or suppress any of these checks, or
+> impose others of its own.
+
+Thanks for this. I hope that will be sufficient to convince one of my clients that this is an adequate way to protect their information.  That client is protecting information that has a very high financial value.  The other client, as far as I can tell, is only protecting the snide comments they make about each other.
+
+> 
+>> I have not been able to find any documentation on what it actually checks.  My testing shows that the
+>> client certificate must be signed by a known root certificate,
+> 
+> That's not an accurate description. It must be signed by a root or intermediate that can be chained back to
+> a root in the trust collection.
+
+That is what I meant, I just didn't use the current 
+.
+> 
+>> but does SSL_accept verify that the signing certificate is the one indicated in the client certificate,
+> 
+> All certificates must be signed using the private key that corresponds to the public key in the certificate
+> that's listed as the signer. That's how the signature is verified. (Identifying the signing certificate is a bit
+> complicated, involving the optional AKID extension as well as the Issuer DN, but the short answer is that
+> OpenSSL has to find the signing certificate in order to verify the signature.)
+> 
+>> and how does it check that?  In my server, I am checking the certificate serial number. 
+> 
+> That's only necessary if your server includes roots in its trust collection that you don't actually want to trust
+> for this purpose. While there are use cases for that, they're unusual. If you only put roots you want to trust
+> into your trust collection, you don't need to do any further checks of the signing chain.
+
+That was they key concept I didn't quite understand.  Viktor pointed that out and now I see how that solves the authentication issue.  I think I know how to implement that.
+
+> 
+>>  It seems that it might be possible to create a CA that is certified by one of the known root certificates
+> 
+> It's not entirely clear what you mean by this. "known root certificates" is not a technical description. Known
+> to whom? If you're referring to commercial CAs, then note that, by definition, you can't have a root signed
+> by a different root -- root certificates are self-signed. It's possible to have a root that's cross-signed by
+> another root, so you can have a CA that's endorsed by another CA in that sense. You can also have a
+> trusted CA (note that "trusted" always means only that the peer you're communicating with has decided
+> to trust it!) issue an intermediate certificate which is then used to sign other intermediates or entity
+> certificates.
+> 
+> Good luck getting a commercial CA to cross-sign your root or sell you an intermediate. Won't be cheap.
+> That's their business, after all.
+
+Several people have figured out how to do that without the CA knowing what they did (think the Microsoft certificates that were incorrectly generated).  When I was still in highschool, the night before the Stanford-Berkeley football game, A young "lady" from Berkeley took the guard at the Stanford library out into the field for a couple hours.  During that time, other Berkeley guys hung a large "Beat Stanford" banner from the top of the library tower.  There are always ways.
+
+> 
+>> and use it to generate a client certificate with the identical issuer information. 
+> 
+> "identical" to what? It's really not clear what situation you're contemplating here.
+
+If the client certificate being presented validates to some trusted root certificate (not my root certificate), it can be created such that the critical fields (e.g, CN) are the same as the certificate I gave the user.  In that case I couldn't distinguish between the fake and real certificates.  However, as you and Viktor point out, only using my root CA in the verification string eliminates that problem.
+
+> 
+> In general, my advice is that PKI is very complex, difficult to get right, and full of pitfalls and unfortunate
+> failure modes in general, and PKIX (i.e. certificates) is particularly bad. Using TLS mutual authentication is
+> sometimes an improvement over other authentication mechanisms, but it needs careful and vigilant
+> administration. If the user base is of significant size, geographically distributed, or otherwise difficult to
+> deal with, user certificates are likely to become a large source of problems. And they may not actually
+> offer any improvement in security because there still has to be some mechanism by which the user gains
+> access to the certificate (by getting access to the private key). Some operating systems offer private-key
+> storage, but that just defers the problem: how does the user get access to private-key storage? By logging
+> in, possibly with a weak password?
+
+In my situations, one client has 13-14 users.  The other has 6.  These are small environments so it becomes easier to manage.  There are no user accounts on the server other than mine.  As for the client's computers, that becomes a bit more difficult.  The one client won't really care.  They just want some form of "security" without any passwords.  The other one is a much more controlled environment.  Because they keep all the sensitive information on their laptops anyway, they just want this as a way to easily share.  The server takes the information and does a lot of computations to save them having to remember how to do them by hand.  They already are very concerned about protecting those laptops as they stand to lose a lot of money if they are obtained by their competitors.
+
+In both cases, I still have a lot of negotiations to conduct to establish the protection mechanisms that will be eventually used.
+
+> 
+> The fact is that the IT industry is a long way from having any good solution to user authentication. The
+> current hotness is Passkey, and Passkey is loaded with undesirable properties like poor device portability
+> and often being tied to biometrics (the worst sort of authentication). Delegated authentication with OIDC
+> is similarly a horrible mess, for different reasons. Passwords are terrible (passphrases are slightly better)
+> and weak multifactor authentication hasn't helped much. There's no silver bullet for authentication. There
+> isn't even a lead bullet.
+
+There are a couple of really neat solutions to this problem.  However, they will never see the light of day.  One of my bosses developed them for the USAF.  We still have no idea if they were ever used, but suspect they are.  The documentation behind them all "vanished".
+
+> 
+> -- 
+> Michael Wojcik
+
+-- Doug
+
+
+From openssl-users at dukhovni.org  Thu Mar 14 21:58:14 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Thu, 14 Mar 2024 17:58:14 -0400
+Subject: [EXTERNAL] - Validating Client Certificates
+In-Reply-To: <1041B1A0-1B32-48A3-A321-DCAE3D8F019B@sermon-archive.info>
+References: <AC46F95E-366A-4060-8D3C-E5075404A31A@sermon-archive.info>
+ <YQBPR01MB10705400A49AA456CBAE60684C2292@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+ <1041B1A0-1B32-48A3-A321-DCAE3D8F019B@sermon-archive.info>
+Message-ID: <ZfNy9tS-JQBy03Qi@chardros.imrryr.org>
+
+On Thu, Mar 14, 2024 at 02:09:30PM -0700, Doug Hardie wrote:
+
+> My other client is technically savy, but just too busy to get involved
+> with creating CSRs.  While I have not been able to get them to think
+> about these issues yet, I believe they will go with having me create
+> the user ids, and certificates.  Hence, the ids will be unique.  I
+> don't know if they will want key passwords or not.  They all use
+> Windows machines so I don't know if that is even an option.
+
+You can create a PKCS#12 file with a password-protected key and matching
+certificate.  The user can then import it into whatever software they
+choose.  You can share the password that encrypted the key out-of-band.
+
+The same with the users who want a shared credential.
+
+-- 
+    Viktor.
+
+From matt at openssl.org  Fri Mar 15 11:31:16 2024
+From: matt at openssl.org (Matt Caswell)
+Date: Fri, 15 Mar 2024 11:31:16 +0000
+Subject: Chinese Guomi (SM2/SM3/SM4) Algorithms for end-to-end sockets
+In-Reply-To: <CABxOuY8r=7hePs4SnrkjfJF7t9bJ2==R76CtVc17bJAho-wueg@mail.gmail.com>
+References: <CABxOuY8r=7hePs4SnrkjfJF7t9bJ2==R76CtVc17bJAho-wueg@mail.gmail.com>
+Message-ID: <2e7e63c4-2c40-45e1-9506-4b87f18d8976@openssl.org>
+
+On 14/03/2024 20:45, Paul Sheer wrote:
+> I would like to make an end-to-end secure-socket connection using
+> openssl 3.2 (or later) on both ends (SSL_connect + SSL_accept) and
+> force both the client and server to pick a cipher like
+> "SM2-ECDHE/ECC-SM4-CBC/GSM-SM3". Normally I can force a cipher with
+> SSL_CTX_set_ciphersuites()
+> 
+> I was reading through the git commit logs for "SM2" and this seems to
+> have been coded. However I am having difficulty working out if this is
+> intended to work end-to-end right now or whether the support is
+> "preliminary".
+
+SM2/SM3/SM4 support exists in libcrypto only. There is no support in 
+libssl. So you can use the underlying crypto primitives, but you cannot 
+create TLS connections using them.
+
+PRs for adding this would be considered.
+
+Matt
+
+From paulsheer at gmail.com  Mon Mar 18 21:30:56 2024
+From: paulsheer at gmail.com (Paul Sheer)
+Date: Mon, 18 Mar 2024 16:30:56 -0500
+Subject: Chinese Guomi (SM2/SM3/SM4) Algorithms for end-to-end sockets
+In-Reply-To: <2e7e63c4-2c40-45e1-9506-4b87f18d8976@openssl.org>
+References: <CABxOuY8r=7hePs4SnrkjfJF7t9bJ2==R76CtVc17bJAho-wueg@mail.gmail.com>
+ <2e7e63c4-2c40-45e1-9506-4b87f18d8976@openssl.org>
+Message-ID: <CABxOuY8K_0-AkKCxp2_6Shu3RF9LvHb+MNiEq=ZFjMb42yfL3w@mail.gmail.com>
+
+Thanks Matt, that has cleared up my confusion.
+
+Kind regards
+
+Paul
+
+
+
+On Fri, Mar 15, 2024 at 6:31?AM Matt Caswell <matt at openssl.org> wrote:
+>
+> On 14/03/2024 20:45, Paul Sheer wrote:
+> > I would like to make an end-to-end secure-socket connection using
+> > openssl 3.2 (or later) on both ends (SSL_connect + SSL_accept) and
+> > force both the client and server to pick a cipher like
+> > "SM2-ECDHE/ECC-SM4-CBC/GSM-SM3". Normally I can force a cipher with
+> > SSL_CTX_set_ciphersuites()
+> >
+> > I was reading through the git commit logs for "SM2" and this seems to
+> > have been coded. However I am having difficulty working out if this is
+> > intended to work end-to-end right now or whether the support is
+> > "preliminary".
+>
+> SM2/SM3/SM4 support exists in libcrypto only. There is no support in
+> libssl. So you can use the underlying crypto primitives, but you cannot
+> create TLS connections using them.
+>
+> PRs for adding this would be considered.
+>
+> Matt
+
+From kajal at openssl.org  Tue Mar 19 07:45:20 2024
+From: kajal at openssl.org (Kajal Sapkota)
+Date: Tue, 19 Mar 2024 00:45:20 -0700
+Subject: Upcoming Webinar: Writing Your First OpenSSL Application
+Message-ID: <5cb3fb8b-eded-4b3f-8a78-f1b66213e29a@openssl.org>
+
+We are thrilled to announce our upcoming webinar, Writing Your First 
+OpenSSL Application.
+
+This webinar is designed to take you from an understanding of basic 
+cryptography concepts to writing your first secure application using 
+OpenSSL. It's the perfect starting point for anyone looking to dive into 
+the world of secure application development. Here's what we'll cover:
+
+  * Define a use case for an application in which openssl can be used
+  * Locate documentation to help understand how we can leverage openssl
+    for this application
+  * Write the application
+  * Test it, and confirm that it works
+  * Identify and fix a bug in the application
+  * Q&A Session: Have your questions answered by our OpenSSL experts.
+    This is a great opportunity to clear up any doubts and gain
+    additional insights.
+
+By the end of this presentation, the audience should be able to match 
+their application needs to Openssl library features, find documentation 
+to explain how to leverage those features, create the application, and 
+learn how to detect and understand errors that may arise.
+
+*Event Details*
+
+  * *Date:* Mar 28, 2024
+  * *Time:* 09:00 AM Pacific Time (US and Canada)
+  * *Location:* Online (Zoom)
+    https://zoom.us/webinar/register/WN_i9tbkUgDRTKNoBVNhsJRXw
+
+*How to Register*
+
+Registering for the webinar is simple. Just click here: 
+https://zoom.us/webinar/register/WN_i9tbkUgDRTKNoBVNhsJRXw , fill in 
+your details, and you'll receive a confirmation email with all the 
+information you'll need to join us on the day of the event. You will 
+need to register in order to be able to attend the webinar.
+
+*Why You Can't Miss This Webinar*
+
+With cyber threats evolving every day, the importance of secure software 
+cannot be overstated. This webinar is not just a learning opportunity; 
+it's a step toward making the digital world a safer place. Whether 
+you're looking to start a career in cybersecurity, aiming to enhance 
+your current skills, or simply curious about secure application 
+development, this webinar will provide valuable insights and practical 
+skills.
+
+Don't miss this opportunity to embark on your journey with OpenSSL and 
+secure application development. Register today and take the first step 
+toward mastering the art of writing secure software. See you at the webinar!
+
+If you have any questions or comments please contact us.
+
+Thanks
+
+Kajal Sapkota
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240319/7b541bd0/attachment.htm>
+
+From Martin.Bonner at entrust.com  Tue Mar 19 08:20:34 2024
+From: Martin.Bonner at entrust.com (Martin Bonner)
+Date: Tue, 19 Mar 2024 08:20:34 +0000
+Subject: Validating Client Certificates
+In-Reply-To: <mailman.2258.1710450584.310099.openssl-users@openssl.org>
+References: <mailman.2258.1710450584.310099.openssl-users@openssl.org>
+Message-ID: <PH7PR11MB5863AE711268019DDD74A5A9F32C2@PH7PR11MB5863.namprd11.prod.outlook.com>
+
+
+
+Martin Bonner
+
+> Date: Thu, 14 Mar 2024 13:30:13 +0000
+> From: Michael Wojcik <mailto:mwojcik at opentext.com>
+> To: "mailto:openssl-users at openssl.org" <mailto:openssl-users at openssl.org>
+> Subject:
+> Message-ID:
+>       <mailto:YQBPR01MB10705400A49AA456CBAE60684C2292 at YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> > I am developing an application that clients will access. ?I don't want to use passwords as the users
+> > have shown a propensity to use easily guessed passwords etc. ?I am trying to use client certificates.
+
+> Client certificates and TLS mutual authentication (sometimes called "mTLS") do not in themselves
+> fix the weak-passwords problem. The end user needs access to the private key associated with the
+> client certificate. How that happens depends on the client software, but private keys are often
+> protected with passwords, those passwords are often selected by the end user, and often nothing
+> ensures *they* aren't weak.
+
+> Using client certificates might be a step in improving the strength of the authentication
+> mechanism, but they don't do so inherently.
+
+But depending on the application, it may be a very a very significant improvement.  If the server is
+remote from the client and uses passwords, an attacker can try to login by guessing usernames and
+passwords.  If the server uses client certificates and the client private key is stored local to the
+client, the attacker has to get hold of that private key file - which is not impossible, but is a
+useful enhancement.
+Any email and files/attachments transmitted with it are intended solely for the use of the individual or entity to whom they are addressed. If this message has been sent to you in error, you must not copy, distribute or disclose of the information it contains. Please notify Entrust immediately and delete the message from your system.
+
+From mwojcik at opentext.com  Tue Mar 19 13:12:57 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Tue, 19 Mar 2024 13:12:57 +0000
+Subject: Validating Client Certificates
+In-Reply-To: <PH7PR11MB5863AE711268019DDD74A5A9F32C2@PH7PR11MB5863.namprd11.prod.outlook.com>
+References: <mailman.2258.1710450584.310099.openssl-users@openssl.org>
+ <PH7PR11MB5863AE711268019DDD74A5A9F32C2@PH7PR11MB5863.namprd11.prod.outlook.com>
+Message-ID: <YQBPR01MB1070546B80039D3BB4ADDDF22C22C2@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Martin Bonner via openssl-users
+> Sent: Tuesday, 19 March, 2024 02:21
+> 
+> > Date: Thu, 14 Mar 2024 13:30:13 +0000
+> > From: Michael Wojcik <mailto:mwojcik at opentext.com>
+> 
+> > Using client certificates might be a step in improving the strength of the authentication
+> > mechanism, but they don't do so inherently.
+> 
+> But depending on the application, it may be a very a very significant improvement. 
+
+Sure, it *might* be. It depends on your threat model.
+
+> If the server is remote from the client and uses passwords, an attacker can try to login by
+> guessing usernames and passwords.
+
+Most of my customers are running on private networks, where even an attacker with network access to the server generally has better attacks available against client credentials and impersonation (e.g. SMB pass-the-hash opportunities via shared-resource confusion, phishing, etc) than credential-forcing or -stuffing against a server, particularly when measures such as throttling and behavioral detection are enabled (to say nothing of MFA). That's one example of a case where a threat model likely doesn't show much improvement overall from using TLS mutual authentication.
+
+Client certificates introduce PKI and usability issues. Sometimes those costs are worth paying.
+
+Passwords are lousy authenticators. So are all the others. In a given use case, some will be less lousy; but none are universally a better choice.
+
+In any case, this is at best only tangentially related to OpenSSL now.
+
+-- 
+Michael Wojcik
+
+From openssl at openssl.org  Wed Mar 20 13:35:23 2024
+From: openssl at openssl.org (OpenSSL)
+Date: Wed, 20 Mar 2024 13:35:23 +0000
+Subject: OpenSSL version 3.3.0-alpha1 published
+Message-ID: <ZfrmGwIjAgCUy+nT@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+
+   OpenSSL version 3.3 alpha 1 released
+   ====================================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://www.openssl.org/
+
+   OpenSSL 3.3 is currently in alpha.
+
+   OpenSSL 3.3 alpha 1 has now been made available.
+
+   Note: This OpenSSL pre-release has been provided for testing ONLY.
+   It should NOT be used for security critical purposes.
+
+   Specific notes on upgrading to OpenSSL 3.3 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://www.openssl.org/docs/manmaster/man7/migration_guide.html
+
+   The alpha release is available for download via HTTPS and FTP from the
+   following master locations (you can find the various FTP mirrors under
+   https://www.openssl.org/source/mirror.html):
+
+     * https://www.openssl.org/source/
+     * ftp://ftp.openssl.org/source/
+
+   The distribution file name is:
+
+    o openssl-3.3.0-alpha1.tar.gz
+      Size: 18034597
+      SHA1 checksum:  a0afa369e07f66c67db7f815e129e9fd1fb62072
+      SHA256 checksum:  f74e03087a48828b64b627039ccd50bcecc5c331692de612fba3d505e2a6d22c
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.3.0-alpha1.tar.gz
+    openssl sha256 openssl-3.3.0-alpha1.tar.gz
+
+   Please download and check this alpha release as soon as possible.
+   To report a bug, open an issue on GitHub:
+
+    https://github.com/openssl/openssl/issues
+
+   Please check the release notes and mailing lists to avoid duplicate
+   reports of known issues. (Of course, the source is also available
+   on GitHub.)
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmX60hkACgkQ2JTizos9
+efUPyg/+L1jgRC6vfSUXqXMRn7YrXzQP4MHFcdJK9Xiy05HneywzVH7bUg9IKxwc
+MzWRNlaAQzzo0JNLgkqqyVP6qvErbASFDIgfbLcAvdmPeIbYc+RzhVg38w3k1QsQ
+tPdGwn3YmVX05uM+Q3roVN8K+e8Yzc8jKobD4DKBRQeI31HQVJ9/hQldyX7UiRuJ
+CtDlNbR3PrsVNRp+uZQkBsCjWHRF8nw0ZVdR6/+7/MQSezc880Rya41qPm38qSNY
+oeDi82IpbAq4JuzKnVR1dJbCINTbs3a8TgJM5XGNV/mLZjYi+SBB+QG3BxVWrcjg
+oPmDl9aHoCs08WaysU9QVd21EcGT0crzhitB/CXCNYIfgrZGXTlTuOEhnpkHxkBb
+wBtLyQFDUsUR0gsFNvs3lHDdnxnh+5Vj+bn/eGS60HmhO7otSAV8iGJWfvca5zuY
+baNyF3B80acX6IwCMkmLlHyp+pBVqTiQgOHLHPe2Hc05tI6sC95Rgtlm5jhw+iG8
+KtY7NpRHNS8akccqqB5CT6d0jwm0ASJx5/KyHdnk5Snq3dBLlLzfsUnXuTP/nT9z
+ZuJJWSdJZVD0gvTa6kvYhNGl5GVyE1fvZP9LjY3OjY+Ffj1SwGgyneivhcKvroc0
+llgzLIqXd2zIsv7KLuD2/f954biNs4cD2wLtACAp4/Z2l69HAeI=
+=8CsJ
+-----END PGP SIGNATURE-----
+
+From Jochen.Kreissl at vector.com  Tue Mar 26 17:38:30 2024
+From: Jochen.Kreissl at vector.com (Kreissl, Jochen)
+Date: Tue, 26 Mar 2024 17:38:30 +0000
+Subject: Openssl seems to inspects application data?
+Message-ID: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+
+Hi,
+
+I am using openssl (3.2) in an application.
+Handshake works just fine but I get a very weird behavior when I receive a big certificate chain inside application data (TLS 1.3 but NOT using Post-Handshake Auth, this is some level-7 auth protocol on top of tls).
+The openssl error I get is error:0308010C:digital envelope routines::unsupported
+Which ... seems to indicate that openssl is trying (and failing) to interpret the certificate chain...?
+
+I really don't understand what is going on.
+I thought openssl would treat any application data sent using SSL_write following a completed handshake would be opaque for openssl - because why would it look inside and try to parse something?
+
+Does anyone have an explanation or have encountered something similar?
+
+
+Regards
+Jochen
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240326/0652ea2a/attachment.htm>
+
+From nhorman at openssl.org  Tue Mar 26 17:55:25 2024
+From: nhorman at openssl.org (Neil Horman)
+Date: Tue, 26 Mar 2024 13:55:25 -0400
+Subject: Openssl seems to inspects application data?
+In-Reply-To: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+References: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+Message-ID: <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+
+What library call are you getting that error in response to?  If you
+believe that this is coming from some attempt to interpret application data
+(which you are correct, it shouldn't be, unless the application auth
+protocol is somehow getting aliased as a tls control message of some sort),
+then I would, after the handshake, clear the error stack, and check it
+after a call from SSL_read returns.
+
+On Tue, Mar 26, 2024 at 1:38?PM Kreissl, Jochen <Jochen.Kreissl at vector.com>
+wrote:
+
+> Hi,
+>
+>
+>
+> I am using openssl (3.2) in an application.
+>
+> Handshake works just fine but I get a very weird behavior when I receive a
+> big certificate chain inside application data (TLS 1.3 but NOT using
+> Post-Handshake Auth, this is some level-7 auth protocol on top of tls).
+>
+> The openssl error I get is error:0308010C:digital envelope
+> routines::unsupported
+>
+> Which ? seems to indicate that openssl is trying (and failing) to
+> interpret the certificate chain??
+>
+>
+>
+> I really don?t understand what is going on.
+>
+> I thought openssl would treat any application data sent using SSL_write following
+> a completed handshake would be opaque for openssl ? because why would it
+> look inside and try to parse something?
+>
+>
+>
+> Does anyone have an explanation or have encountered something similar?
+>
+>
+>
+>
+>
+> Regards
+>
+> Jochen
+>
+>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240326/f757b79e/attachment.htm>
+
+From openssl-users at dukhovni.org  Tue Mar 26 19:05:43 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Tue, 26 Mar 2024 15:05:43 -0400
+Subject: Openssl seems to inspects application data?
+In-Reply-To: <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+References: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+ <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+Message-ID: <ZgMch2B9_IEOxqpd@chardros.imrryr.org>
+
+On Tue, Mar 26, 2024 at 01:55:25PM -0400, Neil Horman wrote:
+
+> What library call are you getting that error in response to?  If you
+> believe that this is coming from some attempt to interpret application data
+> (which you are correct, it shouldn't be, unless the application auth
+> protocol is somehow getting aliased as a tls control message of some sort),
+> then I would, after the handshake, clear the error stack, and check it
+> after a call from SSL_read returns.
+
+I strongly support Neil's conjecture that is likely a "left-over"
+element on the error stack, rather than an error condition in
+SSL_read(3).  We can be absolutely certain that SSL_read(3) is not, in
+fact, interpreting application data.
+
+Also, errors on the stack are generally augemented with additional
+detail text that was not reported.  It would be betst to include the
+detailed reason in the error logging.
+
+The error in question (EVR_LIB_EVP, ERR_R_UNSUPPORTED) appears be
+largely confined to the low-level parameter parsing code:
+
+    https://github.com/openssl/openssl/blob/1967539e212c17139dc810096da987c8100b1ba2/crypto/evp/ctrl_params_translate.c#L413-L414
+    https://github.com/openssl/openssl/blob/1967539e212c17139dc810096da987c8100b1ba2/crypto/evp/ctrl_params_translate.c#L479-L482
+    https://github.com/openssl/openssl/blob/1967539e212c17139dc810096da987c8100b1ba2/crypto/evp/ctrl_params_translate.c#L643-L647
+    https://github.com/openssl/openssl/blob/1967539e212c17139dc810096da987c8100b1ba2/crypto/evp/ctrl_params_translate.c#L689-L693
+
+All in the same default_fixup_args() function.  Call to this would not
+normally be expected in the middle of application data reads, as all the
+relevant ciphers, ... should already be in hand.  But the application
+code parsing the user-level auth messages could well end up pushing such
+errors onto the application error stack, which should be reset prior to
+each SSL_read() to avoid logging spurious diagnostic messages.
+
+-- 
+    Viktor.
+
+From Jochen.Kreissl at vector.com  Wed Mar 27 06:41:44 2024
+From: Jochen.Kreissl at vector.com (Kreissl, Jochen)
+Date: Wed, 27 Mar 2024 06:41:44 +0000
+Subject: Openssl seems to inspects application data?
+In-Reply-To: <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+References: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+ <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+Message-ID: <VI1PR01MB3759E8BAA3B5A892D0739844FE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+
+I am getting it on ssl_read.
+
+Still debugging. Right now, it seems that our custom BIO is called three times.
+- First ssl reads 5 bytes (header).
+- Second: we fetch some 1600-ish bytes. Still not enough for the entire record (the chain is roughly 7 kb long)
+- Last: our BIO is running out of data (network packages not available yet) and returns a 0 and sets the BIO flag to retry_send.  We have this retry_send behavior in other places too and it works (e.g. during handshake with the certificate message).
+
+But in this instance, somewhere in the internal of ssl_read, an error occurs following the return code 0.
+We get a -1 from ssl_read and then call SSL_get_error ? which gives us a fatal SSL_ERROR_SSL.
+We then call ERR_get_error and get the beforementioned, weird error code.
+I?m still trying to find the exact spot where the internals of ssl_read fail.
+
+________________________________
+From: Neil Horman <nhorman at openssl.org>
+Sent: Tuesday, March 26, 2024 6:55:25 PM
+To: Kreissl, Jochen <Jochen.Kreissl at vector.com>
+Cc: openssl-users at openssl.org <openssl-users at openssl.org>
+Subject: Re: Openssl seems to inspects application data?
+
+Sie erhalten nicht oft eine E-Mail von nhorman at openssl.org. Erfahren Sie, warum dies wichtig ist<https://aka.ms/LearnAboutSenderIdentification>
+What library call are you getting that error in response to?  If you believe that this is coming from some attempt to interpret application data (which you are correct, it shouldn't be, unless the application auth protocol is somehow getting aliased as a tls control message of some sort), then I would, after the handshake, clear the error stack, and check it after a call from SSL_read returns.
+
+On Tue, Mar 26, 2024 at 1:38?PM Kreissl, Jochen <Jochen.Kreissl at vector.com<mailto:Jochen.Kreissl at vector.com>> wrote:
+
+Hi,
+
+
+
+I am using openssl (3.2) in an application.
+
+Handshake works just fine but I get a very weird behavior when I receive a big certificate chain inside application data (TLS 1.3 but NOT using Post-Handshake Auth, this is some level-7 auth protocol on top of tls).
+
+The openssl error I get is error:0308010C:digital envelope routines::unsupported
+
+Which ? seems to indicate that openssl is trying (and failing) to interpret the certificate chain??
+
+
+
+I really don?t understand what is going on.
+
+I thought openssl would treat any application data sent using SSL_write following a completed handshake would be opaque for openssl ? because why would it look inside and try to parse something?
+
+
+
+Does anyone have an explanation or have encountered something similar?
+
+
+
+
+
+Regards
+
+Jochen
+
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240327/d1bec1d9/attachment.htm>
+
+From Jochen.Kreissl at vector.com  Wed Mar 27 07:28:50 2024
+From: Jochen.Kreissl at vector.com (Kreissl, Jochen)
+Date: Wed, 27 Mar 2024 07:28:50 +0000
+Subject: Openssl seems to inspects application data?
+In-Reply-To: <VI1PR01MB3759E8BAA3B5A892D0739844FE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+References: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+ <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+ <VI1PR01MB3759E8BAA3B5A892D0739844FE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+Message-ID: <VI1PR01MB375989AF9C526BFED3E8BB3BFE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+
+Okay, I added a err_clear_all before calling ssl_read and now it seems to work.
+I am quite baffled.
+Is there anywhere in the docs I can read up on this (when to reset the err queue)?
+________________________________
+From: Kreissl, Jochen <Jochen.Kreissl at vector.com>
+Sent: Wednesday, March 27, 2024 7:41:44 AM
+To: Neil Horman <nhorman at openssl.org>
+Cc: openssl-users at openssl.org <openssl-users at openssl.org>
+Subject: Re: Openssl seems to inspects application data?
+
+
+I am getting it on ssl_read.
+
+
+
+Still debugging. Right now, it seems that our custom BIO is called three times.
+
+- First ssl reads 5 bytes (header).
+
+- Second: we fetch some 1600-ish bytes. Still not enough for the entire record (the chain is roughly 7 kb long)
+
+- Last: our BIO is running out of data (network packages not available yet) and returns a 0 and sets the BIO flag to retry_send.  We have this retry_send behavior in other places too and it works (e.g. during handshake with the certificate message).
+
+
+
+But in this instance, somewhere in the internal of ssl_read, an error occurs following the return code 0.
+
+We get a -1 from ssl_read and then call SSL_get_error ? which gives us a fatal SSL_ERROR_SSL.
+
+We then call ERR_get_error and get the beforementioned, weird error code.
+
+I?m still trying to find the exact spot where the internals of ssl_read fail.
+
+
+
+________________________________
+
+From: Neil Horman <nhorman at openssl.org>
+Sent: Tuesday, March 26, 2024 6:55:25 PM
+To: Kreissl, Jochen <Jochen.Kreissl at vector.com>
+Cc: openssl-users at openssl.org <openssl-users at openssl.org>
+Subject: Re: Openssl seems to inspects application data?
+
+
+
+Sie erhalten nicht oft eine E-Mail von nhorman at openssl.org. Erfahren Sie, warum dies wichtig ist<https://aka.ms/LearnAboutSenderIdentification>
+
+What library call are you getting that error in response to?  If you believe that this is coming from some attempt to interpret application data (which you are correct, it shouldn't be, unless the application auth protocol is somehow getting aliased as a tls control message of some sort), then I would, after the handshake, clear the error stack, and check it after a call from SSL_read returns.
+
+
+
+On Tue, Mar 26, 2024 at 1:38?PM Kreissl, Jochen <Jochen.Kreissl at vector.com<mailto:Jochen.Kreissl at vector.com>> wrote:
+
+Hi,
+
+
+
+I am using openssl (3.2) in an application.
+
+Handshake works just fine but I get a very weird behavior when I receive a big certificate chain inside application data (TLS 1.3 but NOT using Post-Handshake Auth, this is some level-7 auth protocol on top of tls).
+
+The openssl error I get is error:0308010C:digital envelope routines::unsupported
+
+Which ? seems to indicate that openssl is trying (and failing) to interpret the certificate chain??
+
+
+
+I really don?t understand what is going on.
+
+I thought openssl would treat any application data sent using SSL_write following a completed handshake would be opaque for openssl ? because why would it look inside and try to parse something?
+
+
+
+Does anyone have an explanation or have encountered something similar?
+
+
+
+
+
+Regards
+
+Jochen
+
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240327/fc2a5f95/attachment-0001.htm>
+
+From tomas at openssl.org  Wed Mar 27 08:25:44 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Wed, 27 Mar 2024 09:25:44 +0100
+Subject: Openssl seems to inspects application data?
+In-Reply-To: <VI1PR01MB375989AF9C526BFED3E8BB3BFE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+References: <VI1PR01MB37593126C50D49C160B87985FE352@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+ <CAJbOq173tSWTRK7S3LC4V65UuaTq8opnO4FstwM0x_4-ByU9=w@mail.gmail.com>
+ <VI1PR01MB3759E8BAA3B5A892D0739844FE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+ <VI1PR01MB375989AF9C526BFED3E8BB3BFE342@VI1PR01MB3759.eurprd01.prod.exchangelabs.com>
+Message-ID: <f072c6af167caffdcbd808d57e53f20889baf8a1.camel@openssl.org>
+
+It is mentioned here:
+https://www.openssl.org/docs/manmaster/man3/SSL_get_error.html
+
+In addition to ssl and ret, SSL_get_error() inspects the current
+thread's OpenSSL error queue. Thus, SSL_get_error() must be used in the
+same thread that performed the TLS/SSL I/O operation, and no other
+OpenSSL function calls should appear in between. The current thread's
+error queue must be empty before the TLS/SSL I/O operation is
+attempted, or SSL_get_error() will not work reliably.
+
+Yeah, it should be probably mentioned also on the SSL_read() and
+SSL_write() manpages.
+
+Tomas Mraz, OpenSSL
+
+
+On Wed, 2024-03-27 at 07:28 +0000, Kreissl, Jochen wrote:
+> 
+> Okay, I added a err_clear_all before calling ssl_read and now it
+> seems to work.
+> I am quite baffled.
+> Is there anywhere in the docs I can read up on this (when to reset
+> the err queue)?
+> From: Kreissl, Jochen <Jochen.Kreissl at vector.com>
+> Sent: Wednesday, March 27, 2024 7:41:44 AM
+> To: Neil Horman <nhorman at openssl.org>
+> Cc: openssl-users at openssl.org <openssl-users at openssl.org>
+> Subject: Re: Openssl seems to inspects application data?
+> 
+> ?
+> 
+> 
+> 
+> 
+> 
+> 
+> I am getting it on ssl_read.
+> 
+> 
+> ?
+> 
+> 
+> Still debugging. Right now, it seems that our custom BIO is called
+> three times.
+> 
+> 
+> - First ssl reads 5 bytes (header).
+> 
+> 
+> - Second: we fetch some 1600-ish bytes. Still not enough for the
+> entire record (the chain is roughly 7 kb long)
+> 
+> 
+> - Last: our BIO is running out of data (network packages not
+> available yet) and returns a 0 and sets the BIO flag to retry_send.?
+> We have this retry_send behavior in other places too and it works
+> (e.g. during handshake with the certificate message). 
+> 
+> 
+> ?
+> But in this instance, somewhere in the internal of ssl_read, an error
+> occurs following the return code 0.
+> 
+> 
+> We get a -1 from ssl_read and then callSSL_get_error ? which gives us
+> a fatal SSL_ERROR_SSL.
+> 
+> 
+> We then call?ERR_get_error and get the beforementioned, weird error
+> code.
+> I?m still trying to find the exact spot where the internals of
+> ssl_read fail.
+> ?
+> 
+> 
+> 
+> 
+> 
+> From: Neil Horman <nhorman at openssl.org>
+> Sent: Tuesday, March 26, 2024 6:55:25 PM
+> To: Kreissl, Jochen <Jochen.Kreissl at vector.com>
+> Cc: openssl-users at openssl.org <openssl-users at openssl.org>
+> Subject: Re: Openssl seems to inspects application data?
+> 
+> 
+> ?
+> 
+> 
+> ?
+> Sie erhalten nicht oft eine E-Mail von nhorman at openssl.org.Erfahren
+> Sie, warum dies wichtig ist
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> What library call are you getting that error in response to?? If you
+> believe that this is coming?from some attempt to interpret
+> application data (which you are correct, it shouldn't be, unless the
+> application auth protocol is somehow getting aliased as a tls control
+> message of some sort), then I would, after the handshake, clear the
+> error stack, and check it after a call from SSL_read returns.
+> ?
+> 
+> 
+> 
+> 
+> On Tue, Mar 26, 2024 at 1:38?PM Kreissl, Jochen
+> <Jochen.Kreissl at vector.com> wrote:
+> > 
+> > 
+> > 
+> > 
+> > 
+> > 
+> > Hi,
+> > ?
+> > I am using openssl (3.2) in an application.
+> > Handshake works just fine but I get a very weird behavior when I
+> > receive a big certificate chain inside application data (TLS 1.3
+> > but NOT using Post-Handshake Auth, this is some level-7 auth
+> > protocol on top of tls).
+> > The openssl error I get is error:0308010C:digital envelope
+> > routines::unsupported
+> > Which ? seems to indicate that openssl is trying (and failing) to
+> > interpret the certificate chain??
+> > ?
+> > I really don?t understand what is going on.
+> > I thought openssl would treat any application data sent
+> > usingSSL_writefollowing a completed handshake would be opaque for
+> > openssl ? because why would it look inside and try to parse
+> > something?
+> > ?
+> > Does anyone have an explanation or have encountered something
+> > similar?
+> > ?
+> > ?
+> > Regards
+> > 
+> > 
+> > Jochen
+> > ?
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From jason.qian at cloud.com  Thu Mar 28 13:54:06 2024
+From: jason.qian at cloud.com (Jason Qian)
+Date: Thu, 28 Mar 2024 09:54:06 -0400
+Subject: Help: Authorization information along with application data
+Message-ID: <CAGxzrjaqYuHiBfVjAXygcNaH6V9vi0ELha+NWht_8-gmC+szGg@mail.gmail.com>
+
+Hi
+
+We are running C++ server(with TLS 1.2 OpenSSL 1.1.1n).  The clients are in
+C#, Java and C++;
+All clients work fine, but when using C++ client, the server receives a
+large amount of Authorization information along with application data.
+(C#, Java client are not sending those information)
+
+GET /data//somehost-1/ddt//ds-1117482431063112572/2.out HTTP/1.1
+Host:  somehost  .dev.xx.com:27159
+*Authorization: Negotiate
+YIIMmQYGKwYBBQUCoIIMjTCCDImgMDAuBgkqhkiC9xIBAg......*
+
+The C++ client is using  CURL [7.83.0] with OpenSSL 1.1.1n.
+
+Thanks
+Jason
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240328/1d115ddd/attachment.htm>
+
+From mwojcik at opentext.com  Thu Mar 28 15:27:56 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Thu, 28 Mar 2024 15:27:56 +0000
+Subject: [EXTERNAL] - Help: Authorization information along with
+ application data
+In-Reply-To: <CAGxzrjaqYuHiBfVjAXygcNaH6V9vi0ELha+NWht_8-gmC+szGg@mail.gmail.com>
+References: <CAGxzrjaqYuHiBfVjAXygcNaH6V9vi0ELha+NWht_8-gmC+szGg@mail.gmail.com>
+Message-ID: <YQBPR01MB107054497F53FD4E887AA7624C23B2@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Jason Qian via openssl-users
+> Sent: Thursday, 28 March, 2024 07:54
+
+> All clients work?fine, but when using C++ client, the server receives a large amount of
+> Authorization information along with application data.
+
+> GET /data//somehost-1/ddt//ds-1117482431063112572/2.out HTTP/1.1
+> Host:? ...
+> Authorization: Negotiate YIIMmQYGKwYBBQUCoIIMjTCCDImgMDAuBgkqhkiC9xIBAg......
+
+That's not "a large amount of Authorization information". It's a standard HTTP Authorization header. See RFC9110 11.6.2.
+
+> The C++ client is using? CURL [7.83.0] with OpenSSL 1.1.1n.
+
+This has nothing to do with OpenSSL. OpenSSL does not generate HTTP messages. Curl does. Your problem is with your client and how you're using curl. Consult the curl documentation and/or a curl forum.
+
+-- 
+Michael Wojcik
+
+
+
+
+
+
+From openssl-users at dukhovni.org  Thu Mar 28 17:57:43 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Thu, 28 Mar 2024 13:57:43 -0400
+Subject: Help: Authorization information along with application data
+In-Reply-To: <CAGxzrjaqYuHiBfVjAXygcNaH6V9vi0ELha+NWht_8-gmC+szGg@mail.gmail.com>
+References: <CAGxzrjaqYuHiBfVjAXygcNaH6V9vi0ELha+NWht_8-gmC+szGg@mail.gmail.com>
+Message-ID: <ZgWvl7DXDEb8NXtO@chardros.imrryr.org>
+
+On Thu, Mar 28, 2024 at 09:54:06AM -0400, Jason Qian via openssl-users wrote:
+
+> We are running C++ server(with TLS 1.2 OpenSSL 1.1.1n).  The clients are in
+> C#, Java and C++;
+> All clients work fine, but when using C++ client, the server receives a
+> large amount of Authorization information along with application data.
+> (C#, Java client are not sending those information)
+> 
+> GET /data//somehost-1/ddt//ds-1117482431063112572/2.out HTTP/1.1
+> Host:  somehost  .dev.xx.com:27159
+> *Authorization: Negotiate
+> YIIMmQYGKwYBBQUCoIIMjTCCDImgMDAuBgkqhkiC9xIBAg......*
+> 
+> The C++ client is using  CURL [7.83.0] with OpenSSL 1.1.1n.
+
+It looks like CURL supports SPENEGO (GSSAPI) authentication, and 
+presents a suitable token to the server.  The other clients might
+not include SPENEGO support.  Per the previous reply, this is
+an HTTP not an OpenSSL issue.
+
+-- 
+    Viktor.
+
+From jason.qian at cloud.com  Thu Mar 28 18:20:32 2024
+From: jason.qian at cloud.com (Jason Qian)
+Date: Thu, 28 Mar 2024 14:20:32 -0400
+Subject: Help: Authorization information along with application data
+In-Reply-To: <ZgWvl7DXDEb8NXtO@chardros.imrryr.org>
+References: <CAGxzrjaqYuHiBfVjAXygcNaH6V9vi0ELha+NWht_8-gmC+szGg@mail.gmail.com>
+ <ZgWvl7DXDEb8NXtO@chardros.imrryr.org>
+Message-ID: <CAGxzrjacvWQorR0tGVwW13odcTmG0csoDLDAvO52C7J3RXENwA@mail.gmail.com>
+
+Thanks for your help,
+
+On Thu, Mar 28, 2024 at 1:57?PM Viktor Dukhovni <openssl-users at dukhovni.org>
+wrote:
+
+> On Thu, Mar 28, 2024 at 09:54:06AM -0400, Jason Qian via openssl-users
+> wrote:
+>
+> > We are running C++ server(with TLS 1.2 OpenSSL 1.1.1n).  The clients are
+> in
+> > C#, Java and C++;
+> > All clients work fine, but when using C++ client, the server receives a
+> > large amount of Authorization information along with application data.
+> > (C#, Java client are not sending those information)
+> >
+> > GET /data//somehost-1/ddt//ds-1117482431063112572/2.out HTTP/1.1
+> > Host:  somehost  .dev.xx.com:27159
+> > *Authorization: Negotiate
+> > YIIMmQYGKwYBBQUCoIIMjTCCDImgMDAuBgkqhkiC9xIBAg......*
+> >
+> > The C++ client is using  CURL [7.83.0] with OpenSSL 1.1.1n.
+>
+> It looks like CURL supports SPENEGO (GSSAPI) authentication, and
+> presents a suitable token to the server.  The other clients might
+> not include SPENEGO support.  Per the previous reply, this is
+> an HTTP not an OpenSSL issue.
+>
+> --
+>     Viktor.
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240328/6cece7ec/attachment-0001.htm>
+
+From 787012293john at gmail.com  Fri Mar 29 06:24:09 2024
+From: 787012293john at gmail.com (Warsier)
+Date: Thu, 28 Mar 2024 23:24:09 -0700
+Subject: Obtain module MAC for the FIPS module without using "openssl
+ fipsinstall"
+Message-ID: <42A6AA83-1576-4E94-AFE1-59A56D24C83C@gmail.com>
+
+?Hi all,
+
+I am recently working on a C/C++ project that involves loading the
+FIPS provider, and it seems that loading the cnf file with
+OSSL_LIB_CTX_load_config() is required.
+
+For a new fips.so, I need to run:
+openssl fipsinstall -module ./fips.so -out fips.cnf -provider_name fips
+to generate the fips.cnf, or more specifically, the module-mac before
+I can use it.
+Does OpenSSL3 provide any API that can generate the module-mac so that
+I don't have to execute "openssl fipsinstall" from within a C++
+program? Or is there a way to totally avoid using the cnf file, since
+all I need is just the default configuration?
+
+I am pretty new to the OpenSSL3 repo so any help would really be appreciated.
+
+Warsier
+
+From openssl at openssl.org  Fri Mar 29 14:58:40 2024
+From: openssl at openssl.org (OpenSSL)
+Date: Fri, 29 Mar 2024 14:58:40 +0000
+Subject: OpenSSL version 3.3.0-beta1 published
+Message-ID: <ZgbXIPL9zTc3dDpT@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+
+   OpenSSL version 3.3 beta 1 released
+   ===================================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://www.openssl.org/
+
+   OpenSSL 3.3 is currently in beta.
+
+   OpenSSL 3.3 beta 1 has now been made available.
+
+   Note: This OpenSSL pre-release has been provided for testing ONLY.
+   It should NOT be used for security critical purposes.
+
+   Specific notes on upgrading to OpenSSL 3.3 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://www.openssl.org/docs/manmaster/man7/migration_guide.html
+
+   The beta release is available for download via HTTPS and FTP from the
+   following master locations (you can find the various FTP mirrors under
+   https://www.openssl.org/source/mirror.html):
+
+     * https://www.openssl.org/source/
+     * ftp://ftp.openssl.org/source/
+
+   The distribution file name is:
+
+    o openssl-3.3.0-beta1.tar.gz
+      Size: 18036408
+      SHA1 checksum:  4a4bcb0c1fabf4c9d451a3c750608a1a1f247579
+      SHA256 checksum:  b6e8f5e90780f0b1718b71110fb5d21ae517c116dc42c2ac6ec4563838f5619d
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.3.0-beta1.tar.gz
+    openssl sha256 openssl-3.3.0-beta1.tar.gz
+
+   Please download and check this beta release as soon as possible.
+   To report a bug, open an issue on GitHub:
+
+    https://github.com/openssl/openssl/issues
+
+   Please check the release notes and mailing lists to avoid duplicate
+   reports of known issues. (Of course, the source is also available
+   on GitHub.)
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmYGyygACgkQ2JTizos9
+efX3Eg//c2tpr1WMbTwgyjG7rEzvZXVNQXtV6oau9uPfNKe3o2R5sd+git+bNThc
+5ukBIg9jLGk66CeCUwNvZCKSMJ6QQP1VfmYkIYdqZD7/gctBMWKfEMzHmCk33lFU
+OZ34CmqKQeX824fVVK14YkXsWRpQ7G8Ln/Js6jt6g4cdwa4aaA+eOAGxvxZ4+vdq
+hwSjyh8sQu1hIpKvl+php1RSZmzSD9i2XuwbuNuprFpvjjECqFYOVPsU/reAyqpC
+y0XtHH2BZGdLHNIO/DBQBU3UG3jA2kC93KyVMP7ReDubWWHB6AZZgHGb//45TaSc
+hmx+y4GEjBoNVaf5i+4c7fDNzekFDUg100FKXPAOwPtpiI3FW3ob9XxbRsntT/Eg
+RCtIclC+jw07nU2KiOTNpNZ0eeF0tN/ZIkYPwXv0sPh2KSqLldGWM4PawKuyx2Mo
+NLvhRJnztGMXjztImUM0Qc0nkDGKqrBassqNd7POdi/Ezzg0TlBuygM4WxNAQblS
+jn3YOE4cpLm7y8orOMMXF2H8LgFwGdhKJKMZ6E+wMiLnXVBai9vdl550UYqFVGkO
+GyS1pyjc0VF3GBjbuWOxy2q8ikSClB5a5Dy17WODb1L9jgcpsbXKSbBZgLzcoc5W
+wv3AxcvvnIHgXPfl3a7KWotNc+LNgPpxJYyJuZ/WlI0R+TW0a6Y=
+=Y1g2
+-----END PGP SIGNATURE-----
+
+From dclarke at blastwave.org  Sat Mar 30 00:51:51 2024
+From: dclarke at blastwave.org (Dennis Clarke)
+Date: Fri, 29 Mar 2024 20:51:51 -0400
+Subject: OpenSSL version 3.3.0-beta1 published
+In-Reply-To: <ZgbXIPL9zTc3dDpT@openssl.org>
+References: <ZgbXIPL9zTc3dDpT@openssl.org>
+Message-ID: <237202e8-268d-44c9-902f-ea890f9b74c9@blastwave.org>
+
+On 3/29/24 10:58, OpenSSL wrote:
+> 
+>     OpenSSL version 3.3 beta 1 released
+>     ===================================
+> 
+
+Strange. The alpha1 release was flawless and the beta1 claims :
+
+65-test_cmp_asn.t ....................... ok
+
+     # ERROR: (ptr) 'res != NULL' failed @ test/cmp_client_test.c:138
+     # 0x0
+     # CMP info: received IP
+     # CMP info: received 'waiting' PKIStatus, starting to poll for response
+     # CMP info: received POLLREP
+     # CMP info: received polling response; checkAfter = 1 seconds
+     # CMP info: received IP
+     # CMP info: received final response after polling
+     # CMP info: received ERROR (waiting)
+     # CMP info: received 'waiting' PKIStatus, starting to poll for response
+     # CMP info: received POLLREP
+     # CMP info: received polling response; checkAfter = 1 seconds
+     # CMP error: total timeout
+     # CMP error: polling failed
+     # OPENSSL_TEST_RAND_SEED=1711756120
+     not ok 8 - test_exec_IR_ses_poll_no_timeout
+# 
+------------------------------------------------------------------------------
+../../util/wrap.pl ../../test/cmp_client_test 
+../../test/recipes/65-test_cmp_client_data/server.key 
+../../test/recipes/65-test_cmp_client_data/server.crt 
+../../test/recipes/65-test_cmp_client_data/client.key 
+../../test/recipes/65-test_cmp_client_data/client.crt 
+../../test/recipes/65-test_cmp_client_data/client.csr none => 1
+not ok 1
+# 
+------------------------------------------------------------------------------
+# Looks like you failed 1 test of 2.65-test_cmp_client.t 
+....................
+Dubious, test returned 1 (wstat 256, 0x100)
+Failed 1/2 subtests
+
+
+This is on a Gentoo Linux server. Actually it is Itanium IA64 hardware.
+The real thing.
+
+In any case the testsuite is running but thus far the above has failed
+strangely whereas the alpha1 stuff was flawless. Very strange.
+
+
+
+
+--
+Dennis Clarke
+RISC-V/SPARC/PPC/ARM/CISC
+UNIX and Linux spoken
+
+
+From dclarke at blastwave.org  Sat Mar 30 01:28:42 2024
+From: dclarke at blastwave.org (Dennis Clarke)
+Date: Fri, 29 Mar 2024 21:28:42 -0400
+Subject: OpenSSL version 3.3.0-beta1 published
+In-Reply-To: <237202e8-268d-44c9-902f-ea890f9b74c9@blastwave.org>
+References: <ZgbXIPL9zTc3dDpT@openssl.org>
+ <237202e8-268d-44c9-902f-ea890f9b74c9@blastwave.org>
+Message-ID: <dfdb9d75-d8f4-4cb5-9d8f-1758bc3f8b7f@blastwave.org>
+
+On 3/29/24 20:51, Dennis Clarke via openssl-users wrote:
+> On 3/29/24 10:58, OpenSSL wrote:
+>>
+>> ??? OpenSSL version 3.3 beta 1 released
+>> ??? ===================================
+>>
+> 
+> Strange. The alpha1 release was flawless and the beta1 claims :
+> 
+> 65-test_cmp_asn.t ....................... ok
+> 
+>  ??? # ERROR: (ptr) 'res != NULL' failed @ test/cmp_client_test.c:138
+>  ??? # 0x0
+>  ??? # CMP info: received IP
+>  ??? # CMP info: received 'waiting' PKIStatus, starting to poll for 
+> response
+>  ??? # CMP info: received POLLREP
+>  ??? # CMP info: received polling response; checkAfter = 1 seconds
+>  ??? # CMP info: received IP
+>  ??? # CMP info: received final response after polling
+>  ??? # CMP info: received ERROR (waiting)
+>  ??? # CMP info: received 'waiting' PKIStatus, starting to poll for 
+> response
+>  ??? # CMP info: received POLLREP
+>  ??? # CMP info: received polling response; checkAfter = 1 seconds
+>  ??? # CMP error: total timeout
+>  ??? # CMP error: polling failed
+>  ??? # OPENSSL_TEST_RAND_SEED=1711756120
+>  ??? not ok 8 - test_exec_IR_ses_poll_no_timeout
+> # 
+> ------------------------------------------------------------------------------
+> ../../util/wrap.pl ../../test/cmp_client_test 
+> ../../test/recipes/65-test_cmp_client_data/server.key 
+> ../../test/recipes/65-test_cmp_client_data/server.crt 
+> ../../test/recipes/65-test_cmp_client_data/client.key 
+> ../../test/recipes/65-test_cmp_client_data/client.crt 
+> ../../test/recipes/65-test_cmp_client_data/client.csr none => 1
+> not ok 1
+> # 
+> ------------------------------------------------------------------------------
+> # Looks like you failed 1 test of 2.65-test_cmp_client.t 
+> ....................
+> Dubious, test returned 1 (wstat 256, 0x100)
+> Failed 1/2 subtests
+> 
+> 
+> This is on a Gentoo Linux server. Actually it is Itanium IA64 hardware.
+> The real thing.
+> 
+> In any case the testsuite is running but thus far the above has failed
+> strangely whereas the alpha1 stuff was flawless. Very strange.
+> 
+Sheesh, darn it, never mind, I had IPv6 disabled.
+So please ignore the noise.
+
+
+--
+Dennis Clarke
+RISC-V/SPARC/PPC/ARM/CISC
+UNIX and Linux spoken
+
+

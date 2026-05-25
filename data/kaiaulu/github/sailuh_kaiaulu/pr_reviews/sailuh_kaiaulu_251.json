@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1742889606,
+    "node_id": "PRR_kwDOD0xXC85n4mKG",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "There is still a good bit of work to go through here. You will need to make the corrections so I can do another pass, as there was too much to do in one go. \r\n\r\nIn regards of your mention on expecting the user to define base_info and ext_info, that is a no-go: No one going to be able to do that without knowing just as much as you do about the format of the data. You need a function that encodes that logic. See, for example how @Rubegen was originally focusing on writing a function that just created a single fake e-mail, and then created another that can create a mailing list using it. \r\n\r\nHere, you need one function that specifies an issue passing all the parameters and using your other functions defined here. \r\n\r\nIdeally your various functions should be **inside** said function: No user will need to create a component on its own, they will need to create issues. Instead, the user should be presented with the minimum number of parameters they need to specify, and your create_issue_function uses this information to call your sub-functions. \r\n\r\nI am having you document each individual function for now as a first step, because said documentation still would need to be provided to the user when specifying the parameters anyway. There is also the question of how much you have to keep asking a user of your function to repeat themselves on every smaller function call. Let's discuss this on call today. \r\n\r\nLastly, you will also need a function similar to @Rubegen mailing list, something like `make_issue_tracker` which calls your `make_issue` as a list. \r\n\r\nWhat I am trying to emphasize here is that, in addition to the inline comments, you have to think of your functions on how someone would use and make sense of them. If I tell you that I have a Fake Issue Generator, then I expect to create `issues` and subsequently simulate a `issue_tracker`. So if the user is presented with a sea of functions, they will most likely get lost on how it connects to that idea. Your abstraction has to be closer to how one would reasonably create an issue via the browser, so it follows intuition. \r\n\r\nYou did a lot of good work here on defining the internals, but we need to do one more step to wrap that in a user interface someone can use. Please try to address the inline comments on the meantime, and we can discuss this wrapper function around it on call.\r\n\r\n\r\n\r\n",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/251#pullrequestreview-1742889606",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/251",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/251#pullrequestreview-1742889606"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/251"
+      }
+    },
+    "submitted_at": "2023-11-21T20:30:37Z",
+    "commit_id": "4c7c82404ca0f5faeacaa17f0f15b84eb10043ed"
+  },
+  {
+    "id": 1750024023,
+    "node_id": "PRR_kwDOD0xXC85oTz9X",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/251#pullrequestreview-1750024023",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/251",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/251#pullrequestreview-1750024023"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/251"
+      }
+    },
+    "submitted_at": "2023-11-27T09:44:31Z",
+    "commit_id": "c9ca814bb6e6972c1afc992fb1c767cde12d8c05"
+  },
+  {
+    "id": 1769317812,
+    "node_id": "PRR_kwDOD0xXC85pdaW0",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "All tests pass on my end. Inputs were validated on call.",
+    "state": "APPROVED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/251#pullrequestreview-1769317812",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/251",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/251#pullrequestreview-1769317812"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/251"
+      }
+    },
+    "submitted_at": "2023-12-07T06:35:05Z",
+    "commit_id": "71fe9c472446342e05906ef6c539151d3101553d"
+  }
+]

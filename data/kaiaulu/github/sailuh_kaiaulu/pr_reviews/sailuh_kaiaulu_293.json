@@ -1,0 +1,82 @@
+[
+  {
+    "id": 2012959013,
+    "node_id": "PRR_kwDOD0xXC853-1El",
+    "user": {
+      "login": "anthonyjlau",
+      "id": 98019016,
+      "node_id": "U_kgDOBdemyA",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98019016?u=243753d5edfccaf9413ff814d78d1abf840316ec&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/anthonyjlau",
+      "html_url": "https://github.com/anthonyjlau",
+      "followers_url": "https://api.github.com/users/anthonyjlau/followers",
+      "following_url": "https://api.github.com/users/anthonyjlau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/anthonyjlau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/anthonyjlau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/anthonyjlau/subscriptions",
+      "organizations_url": "https://api.github.com/users/anthonyjlau/orgs",
+      "repos_url": "https://api.github.com/users/anthonyjlau/repos",
+      "events_url": "https://api.github.com/users/anthonyjlau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/anthonyjlau/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/293#pullrequestreview-2012959013",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/293",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/293#pullrequestreview-2012959013"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/293"
+      }
+    },
+    "submitted_at": "2024-04-20T01:36:21Z",
+    "commit_id": "4d93fab605af80914f8bf32aeead334802772880"
+  },
+  {
+    "id": 2012992630,
+    "node_id": "PRR_kwDOD0xXC853-9R2",
+    "user": {
+      "login": "anthonyjlau",
+      "id": 98019016,
+      "node_id": "U_kgDOBdemyA",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98019016?u=243753d5edfccaf9413ff814d78d1abf840316ec&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/anthonyjlau",
+      "html_url": "https://github.com/anthonyjlau",
+      "followers_url": "https://api.github.com/users/anthonyjlau/followers",
+      "following_url": "https://api.github.com/users/anthonyjlau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/anthonyjlau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/anthonyjlau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/anthonyjlau/subscriptions",
+      "organizations_url": "https://api.github.com/users/anthonyjlau/orgs",
+      "repos_url": "https://api.github.com/users/anthonyjlau/repos",
+      "events_url": "https://api.github.com/users/anthonyjlau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/anthonyjlau/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Notes on how to refactor bugzilla functions. Delete the existing download_bugzilla_rest_issues. ",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/293#pullrequestreview-2012992630",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/293",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/293#pullrequestreview-2012992630"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/293"
+      }
+    },
+    "submitted_at": "2024-04-20T02:13:04Z",
+    "commit_id": "4d93fab605af80914f8bf32aeead334802772880"
+  }
+]

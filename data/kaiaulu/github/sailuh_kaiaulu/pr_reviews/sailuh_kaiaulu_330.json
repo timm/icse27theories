@@ -1,0 +1,442 @@
+[
+  {
+    "id": 2480215143,
+    "node_id": "PRR_kwDOD0xXC86T1RRn",
+    "user": {
+      "login": "RavenMarQ",
+      "id": 143663502,
+      "node_id": "U_kgDOCJAhjg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/143663502?u=96d4eecaa238475cf64f3f0b008cdfc8af5c7aa3&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/RavenMarQ",
+      "html_url": "https://github.com/RavenMarQ",
+      "followers_url": "https://api.github.com/users/RavenMarQ/followers",
+      "following_url": "https://api.github.com/users/RavenMarQ/following{/other_user}",
+      "gists_url": "https://api.github.com/users/RavenMarQ/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/RavenMarQ/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/RavenMarQ/subscriptions",
+      "organizations_url": "https://api.github.com/users/RavenMarQ/orgs",
+      "repos_url": "https://api.github.com/users/RavenMarQ/repos",
+      "events_url": "https://api.github.com/users/RavenMarQ/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/RavenMarQ/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "A review of the 12/4/2024 edition of the download_github_comment.Rmd",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2480215143",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2480215143"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2024-12-05T01:32:30Z",
+    "commit_id": "d1da3ffb8da9665b4f4067f3d958a1f47e0e4845"
+  },
+  {
+    "id": 2482551658,
+    "node_id": "PRR_kwDOD0xXC86T-Ltq",
+    "user": {
+      "login": "daomcgill",
+      "id": 77309217,
+      "node_id": "MDQ6VXNlcjc3MzA5MjE3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77309217?u=ae956d6c0d671601a968472d9a9384791be72546&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/daomcgill",
+      "html_url": "https://github.com/daomcgill",
+      "followers_url": "https://api.github.com/users/daomcgill/followers",
+      "following_url": "https://api.github.com/users/daomcgill/following{/other_user}",
+      "gists_url": "https://api.github.com/users/daomcgill/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/daomcgill/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/daomcgill/subscriptions",
+      "organizations_url": "https://api.github.com/users/daomcgill/orgs",
+      "repos_url": "https://api.github.com/users/daomcgill/repos",
+      "events_url": "https://api.github.com/users/daomcgill/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/daomcgill/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "@crepesAlot I was able to run through your notebook. I made some comments, but overall it looks good. I was able to understand what the notebook is about, and how to use it. The biggest issue I ran into was the github token file in the config part.",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2482551658",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2482551658"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2024-12-05T18:54:04Z",
+    "commit_id": "d1da3ffb8da9665b4f4067f3d958a1f47e0e4845"
+  },
+  {
+    "id": 2487299838,
+    "node_id": "PRR_kwDOD0xXC86UQS7-",
+    "user": {
+      "login": "daomcgill",
+      "id": 77309217,
+      "node_id": "MDQ6VXNlcjc3MzA5MjE3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77309217?u=ae956d6c0d671601a968472d9a9384791be72546&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/daomcgill",
+      "html_url": "https://github.com/daomcgill",
+      "followers_url": "https://api.github.com/users/daomcgill/followers",
+      "following_url": "https://api.github.com/users/daomcgill/following{/other_user}",
+      "gists_url": "https://api.github.com/users/daomcgill/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/daomcgill/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/daomcgill/subscriptions",
+      "organizations_url": "https://api.github.com/users/daomcgill/orgs",
+      "repos_url": "https://api.github.com/users/daomcgill/repos",
+      "events_url": "https://api.github.com/users/daomcgill/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/daomcgill/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "see comments posted in line for the PR Discussions",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2487299838",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2487299838"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2024-12-08T22:12:11Z",
+    "commit_id": "d1da3ffb8da9665b4f4067f3d958a1f47e0e4845"
+  },
+  {
+    "id": 2487541901,
+    "node_id": "PRR_kwDOD0xXC86UROCN",
+    "user": {
+      "login": "RavenMarQ",
+      "id": 143663502,
+      "node_id": "U_kgDOCJAhjg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/143663502?u=96d4eecaa238475cf64f3f0b008cdfc8af5c7aa3&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/RavenMarQ",
+      "html_url": "https://github.com/RavenMarQ",
+      "followers_url": "https://api.github.com/users/RavenMarQ/followers",
+      "following_url": "https://api.github.com/users/RavenMarQ/following{/other_user}",
+      "gists_url": "https://api.github.com/users/RavenMarQ/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/RavenMarQ/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/RavenMarQ/subscriptions",
+      "organizations_url": "https://api.github.com/users/RavenMarQ/orgs",
+      "repos_url": "https://api.github.com/users/RavenMarQ/repos",
+      "events_url": "https://api.github.com/users/RavenMarQ/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/RavenMarQ/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2487541901",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2487541901"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2024-12-09T03:01:45Z",
+    "commit_id": "d1da3ffb8da9665b4f4067f3d958a1f47e0e4845"
+  },
+  {
+    "id": 2494209218,
+    "node_id": "PRR_kwDOD0xXC86UqpzC",
+    "user": {
+      "login": "daomcgill",
+      "id": 77309217,
+      "node_id": "MDQ6VXNlcjc3MzA5MjE3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77309217?u=ae956d6c0d671601a968472d9a9384791be72546&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/daomcgill",
+      "html_url": "https://github.com/daomcgill",
+      "followers_url": "https://api.github.com/users/daomcgill/followers",
+      "following_url": "https://api.github.com/users/daomcgill/following{/other_user}",
+      "gists_url": "https://api.github.com/users/daomcgill/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/daomcgill/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/daomcgill/subscriptions",
+      "organizations_url": "https://api.github.com/users/daomcgill/orgs",
+      "repos_url": "https://api.github.com/users/daomcgill/repos",
+      "events_url": "https://api.github.com/users/daomcgill/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/daomcgill/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Changes resolved, though I will note that it looks like my suggestion for adding more info for .ssh folder was not included.",
+    "state": "APPROVED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2494209218",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2494209218"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2024-12-11T03:19:46Z",
+    "commit_id": "05b31b4aa622e64c625d6823bf17e54bdcc8ddff"
+  },
+  {
+    "id": 2780332840,
+    "node_id": "PRR_kwDOD0xXC86luIMo",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Your code does not explain, for each table parsed of the endpoint, the various subsetting that are done: \r\n\r\nE.g. i did not see on issue_or_pr comments, I did not see discussion (or the code block) that you subset the issues out. \r\n\r\nI also did not see discussion that the endpoints expected input change: Some will require one request per PR, some will allow you to get multiple PR per request. Note that too for each table.\r\n\r\nLastly, the conversations tab is not discussed. \r\n\r\nNote there are individual inline comments I added on top of these that are missing. As you make commits addressing them, mark \"resolve conversation\" so I know all were accounted for. Only mark resolved after you commited the changes.",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2780332840",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2780332840"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2025-04-20T21:34:05Z",
+    "commit_id": "873cd59205eff070957578bb9adbbfe974ca0e38"
+  },
+  {
+    "id": 2817980860,
+    "node_id": "PRR_kwDOD0xXC86n9vm8",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Unfortunately there is no easy way for me to review this PR as it mixes the changes prior to your (@ryanseng03) work and the new one, unless I review the entirety of the PR. I am seeing a number of functions tied to issue events being deleted. Is this associated to your changes?",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2817980860",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2817980860"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2025-05-06T12:11:03Z",
+    "commit_id": "fec06a02d392423a8355131e110666c9625daa90"
+  },
+  {
+    "id": 2819794402,
+    "node_id": "PRR_kwDOD0xXC86oEqXi",
+    "user": {
+      "login": "ryanseng03",
+      "id": 24851269,
+      "node_id": "MDQ6VXNlcjI0ODUxMjY5",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24851269?u=acbd4a7c77fb34d32e5da02c108cdf3298fe4b74&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ryanseng03",
+      "html_url": "https://github.com/ryanseng03",
+      "followers_url": "https://api.github.com/users/ryanseng03/followers",
+      "following_url": "https://api.github.com/users/ryanseng03/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ryanseng03/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ryanseng03/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ryanseng03/subscriptions",
+      "organizations_url": "https://api.github.com/users/ryanseng03/orgs",
+      "repos_url": "https://api.github.com/users/ryanseng03/repos",
+      "events_url": "https://api.github.com/users/ryanseng03/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ryanseng03/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2819794402",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2819794402"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2025-05-06T21:55:37Z",
+    "commit_id": "fec06a02d392423a8355131e110666c9625daa90"
+  },
+  {
+    "id": 2819795763,
+    "node_id": "PRR_kwDOD0xXC86oEqsz",
+    "user": {
+      "login": "ryanseng03",
+      "id": 24851269,
+      "node_id": "MDQ6VXNlcjI0ODUxMjY5",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24851269?u=acbd4a7c77fb34d32e5da02c108cdf3298fe4b74&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ryanseng03",
+      "html_url": "https://github.com/ryanseng03",
+      "followers_url": "https://api.github.com/users/ryanseng03/followers",
+      "following_url": "https://api.github.com/users/ryanseng03/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ryanseng03/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ryanseng03/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ryanseng03/subscriptions",
+      "organizations_url": "https://api.github.com/users/ryanseng03/orgs",
+      "repos_url": "https://api.github.com/users/ryanseng03/repos",
+      "events_url": "https://api.github.com/users/ryanseng03/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ryanseng03/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2819795763",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2819795763"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2025-05-06T21:55:57Z",
+    "commit_id": "fec06a02d392423a8355131e110666c9625daa90"
+  },
+  {
+    "id": 2820213075,
+    "node_id": "PRR_kwDOD0xXC86oGQlT",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2820213075",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2820213075"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2025-05-07T03:19:56Z",
+    "commit_id": "2836eed93fe3a5f0f495514c29d5ca034cb51093"
+  },
+  {
+    "id": 2820213991,
+    "node_id": "PRR_kwDOD0xXC86oGQzn",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2820213991",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/330#pullrequestreview-2820213991"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/330"
+      }
+    },
+    "submitted_at": "2025-05-07T03:21:03Z",
+    "commit_id": "2836eed93fe3a5f0f495514c29d5ca034cb51093"
+  }
+]

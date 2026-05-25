@@ -1,0 +1,17 @@
+project:
+  website: https://github.com/apache/tomcat
+
+version_control:
+  log: /Users/timm/gits/timm/icse27theories/data/tomcat/git_repo/.git
+  log_url: https://github.com/apache/tomcat
+  branch:
+    - master
+
+commit_message_id_regex:
+  issue_id: 'BZ[0-9]+|bug[0-9]+'
+
+filter:
+  keep_filepaths_ending_with:
+    - java
+  remove_filepaths_containing:
+    - test

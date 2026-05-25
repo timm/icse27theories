@@ -1,0 +1,402 @@
+[
+  {
+    "id": 1965112658,
+    "node_id": "PRR_kwDOD0xXC851IT1S",
+    "user": {
+      "login": "ian-lastname",
+      "id": 97856957,
+      "node_id": "U_kgDOBdUtvQ",
+      "avatar_url": "https://avatars.githubusercontent.com/u/97856957?u=973782d4792240aa4971ab1ec9299adc6889e3ab&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ian-lastname",
+      "html_url": "https://github.com/ian-lastname",
+      "followers_url": "https://api.github.com/users/ian-lastname/followers",
+      "following_url": "https://api.github.com/users/ian-lastname/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ian-lastname/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ian-lastname/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ian-lastname/subscriptions",
+      "organizations_url": "https://api.github.com/users/ian-lastname/orgs",
+      "repos_url": "https://api.github.com/users/ian-lastname/repos",
+      "events_url": "https://api.github.com/users/ian-lastname/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ian-lastname/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Looks fine to me, documentation seems good enough for what it does.",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-1965112658",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-1965112658"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-03-28T03:44:02Z",
+    "commit_id": "a7b719f555b0db47cd44739dc5c101539e762d08"
+  },
+  {
+    "id": 2326127059,
+    "node_id": "PRR_kwDOD0xXC86KpeHT",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "See inline comments. ",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2326127059",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2326127059"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-09-24T19:08:39Z",
+    "commit_id": "b8d482b6858a4f369b140ad1058775d63675d79c"
+  },
+  {
+    "id": 2326942637,
+    "node_id": "PRR_kwDOD0xXC86KslOt",
+    "user": {
+      "login": "beydlern",
+      "id": 66411207,
+      "node_id": "MDQ6VXNlcjY2NDExMjA3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66411207?u=4c3a25f1b4a63793f09740f44b1000f17d35db5c&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/beydlern",
+      "html_url": "https://github.com/beydlern",
+      "followers_url": "https://api.github.com/users/beydlern/followers",
+      "following_url": "https://api.github.com/users/beydlern/following{/other_user}",
+      "gists_url": "https://api.github.com/users/beydlern/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/beydlern/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/beydlern/subscriptions",
+      "organizations_url": "https://api.github.com/users/beydlern/orgs",
+      "repos_url": "https://api.github.com/users/beydlern/repos",
+      "events_url": "https://api.github.com/users/beydlern/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/beydlern/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2326942637",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2326942637"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-09-25T04:28:55Z",
+    "commit_id": "b8d482b6858a4f369b140ad1058775d63675d79c"
+  },
+  {
+    "id": 2327133169,
+    "node_id": "PRR_kwDOD0xXC86KtTvx",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2327133169",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2327133169"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-09-25T05:48:20Z",
+    "commit_id": "b8d482b6858a4f369b140ad1058775d63675d79c"
+  },
+  {
+    "id": 2332729400,
+    "node_id": "PRR_kwDOD0xXC86LCqA4",
+    "user": {
+      "login": "daomcgill",
+      "id": 77309217,
+      "node_id": "MDQ6VXNlcjc3MzA5MjE3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77309217?u=ae956d6c0d671601a968472d9a9384791be72546&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/daomcgill",
+      "html_url": "https://github.com/daomcgill",
+      "followers_url": "https://api.github.com/users/daomcgill/followers",
+      "following_url": "https://api.github.com/users/daomcgill/following{/other_user}",
+      "gists_url": "https://api.github.com/users/daomcgill/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/daomcgill/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/daomcgill/subscriptions",
+      "organizations_url": "https://api.github.com/users/daomcgill/orgs",
+      "repos_url": "https://api.github.com/users/daomcgill/repos",
+      "events_url": "https://api.github.com/users/daomcgill/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/daomcgill/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "I made some in-line comments for some ideas on how you can make the function signatures and comments clearer. I did not do all of them, but you should retain a consistent level of detail throughout the file. Even though some code already seems simple, it is still easier to read in words.",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2332729400",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2332729400"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-09-27T05:10:50Z",
+    "commit_id": "f9d20ec05d9d830ef881bfc797a7244acc2dc256"
+  },
+  {
+    "id": 2346733631,
+    "node_id": "PRR_kwDOD0xXC86L4FA_",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Did not do an extensive review but there are a few things that needs to be changed, some minor, some will take a reasonable amount of time.",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2346733631",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2346733631"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-10-03T21:51:00Z",
+    "commit_id": "3202887888a3bc0ee92002c0825dd87e09b71fa4"
+  },
+  {
+    "id": 2346765125,
+    "node_id": "PRR_kwDOD0xXC86L4MtF",
+    "user": {
+      "login": "daomcgill",
+      "id": 77309217,
+      "node_id": "MDQ6VXNlcjc3MzA5MjE3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77309217?u=ae956d6c0d671601a968472d9a9384791be72546&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/daomcgill",
+      "html_url": "https://github.com/daomcgill",
+      "followers_url": "https://api.github.com/users/daomcgill/followers",
+      "following_url": "https://api.github.com/users/daomcgill/following{/other_user}",
+      "gists_url": "https://api.github.com/users/daomcgill/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/daomcgill/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/daomcgill/subscriptions",
+      "organizations_url": "https://api.github.com/users/daomcgill/orgs",
+      "repos_url": "https://api.github.com/users/daomcgill/repos",
+      "events_url": "https://api.github.com/users/daomcgill/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/daomcgill/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2346765125",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2346765125"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-10-03T21:59:44Z",
+    "commit_id": "3202887888a3bc0ee92002c0825dd87e09b71fa4"
+  },
+  {
+    "id": 2347158769,
+    "node_id": "PRR_kwDOD0xXC86L5szx",
+    "user": {
+      "login": "beydlern",
+      "id": 66411207,
+      "node_id": "MDQ6VXNlcjY2NDExMjA3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66411207?u=4c3a25f1b4a63793f09740f44b1000f17d35db5c&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/beydlern",
+      "html_url": "https://github.com/beydlern",
+      "followers_url": "https://api.github.com/users/beydlern/followers",
+      "following_url": "https://api.github.com/users/beydlern/following{/other_user}",
+      "gists_url": "https://api.github.com/users/beydlern/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/beydlern/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/beydlern/subscriptions",
+      "organizations_url": "https://api.github.com/users/beydlern/orgs",
+      "repos_url": "https://api.github.com/users/beydlern/repos",
+      "events_url": "https://api.github.com/users/beydlern/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/beydlern/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2347158769",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2347158769"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-10-04T05:21:36Z",
+    "commit_id": "3202887888a3bc0ee92002c0825dd87e09b71fa4"
+  },
+  {
+    "id": 2347187247,
+    "node_id": "PRR_kwDOD0xXC86L5zwv",
+    "user": {
+      "login": "beydlern",
+      "id": 66411207,
+      "node_id": "MDQ6VXNlcjY2NDExMjA3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66411207?u=4c3a25f1b4a63793f09740f44b1000f17d35db5c&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/beydlern",
+      "html_url": "https://github.com/beydlern",
+      "followers_url": "https://api.github.com/users/beydlern/followers",
+      "following_url": "https://api.github.com/users/beydlern/following{/other_user}",
+      "gists_url": "https://api.github.com/users/beydlern/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/beydlern/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/beydlern/subscriptions",
+      "organizations_url": "https://api.github.com/users/beydlern/orgs",
+      "repos_url": "https://api.github.com/users/beydlern/repos",
+      "events_url": "https://api.github.com/users/beydlern/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/beydlern/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2347187247",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2347187247"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-10-04T05:50:22Z",
+    "commit_id": "3202887888a3bc0ee92002c0825dd87e09b71fa4"
+  },
+  {
+    "id": 2347194417,
+    "node_id": "PRR_kwDOD0xXC86L51gx",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2347194417",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/288#pullrequestreview-2347194417"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/288"
+      }
+    },
+    "submitted_at": "2024-10-04T05:57:18Z",
+    "commit_id": "3202887888a3bc0ee92002c0825dd87e09b71fa4"
+  }
+]

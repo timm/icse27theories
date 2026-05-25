@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://api.github.com/repos/sailuh/kaiaulu/issues/comments/3478515335",
+    "html_url": "https://github.com/sailuh/kaiaulu/issues/257#issuecomment-3478515335",
+    "issue_url": "https://api.github.com/repos/sailuh/kaiaulu/issues/257",
+    "id": 3478515335,
+    "node_id": "IC_kwDOD0xXC87PVe6H",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "created_at": "2025-11-03T00:07:35Z",
+    "updated_at": "2025-11-03T00:12:41Z",
+    "body": "Some effort towards this work has been pushed to #323 \n\nHowever, the code is not in an ideal state yet. As this function is not used anywhere else, I will place the code here and branch to another PR in the future as a to-do.\n\nCurrent code limitations:\n\n   1. Does not currently use the get() functions when creating the default folder structure.\n   2. Documentation of the function needs revision.\n   3. Likely, the folder organization may have changed since as some config parameters have been modified, such as the pr_reviews folder. \n   4. Still undecided if a single function that creates it all makes sense or if smaller create folder functions are provided in the R/config.R to be used throughout the codebase when running the notebook or the downloaders api (what is the point of a complicated folder structure for data not being used?). \n\n```r\n\n#' Create default config folder organization (.yml).\n#'\n#' Creates the default folder organization used in Kaiaulu /conf folders. Although\n#' this organization is not required, it allows for immediate use of the versioned\n#' conf files.\n#'\n#' @param conf The parsed config file the function is creating the directory for.\n#' @param verbose A boolean variable that prints operational messages when set to TRUE.\n#' Obtained from `parse_config` function.\n#' @export\ncreate_config_folders <- function(conf, verbose= FALSE) {\n  # Create the git_repo folder\n  create_file_path(conf[[\"version_control\"]][[\"log\"]])\n\n  # Create the mailing_list directory, if needed\n  if (!is.null(conf[[\"mailing_list\"]])) {\n    # Check if there is mod_mbox\n    if (!is.null(conf[[\"mailing_list\"]][[\"mod_mbox\"]])) {\n      # Create for each project key\n      project_keys <- names(conf[[\"mailing_list\"]][[\"mod_mbox\"]])\n      for (key in project_keys) {\n        mailing_list <- conf[[\"mailing_list\"]][[\"mod_mbox\"]][[key]]\n        create_file_path(mailing_list[[\"save_folder_path\"]])\n      }\n    } else {\n      if (verbose) {\n        message(\"No mod_mbox found\")\n      }\n    }\n    # Check if there is pipermail\n    if (!is.null(conf[[\"mailing_list\"]][[\"pipermail\"]])) {\n      # Create for each project key\n      project_keys <- names(conf[[\"mailing_list\"]][[\"pipermail\"]])\n      for (key in project_keys) {\n        mailing_list <- conf[[\"mailing_list\"]][[\"pipermail\"]][[key]]\n        create_file_path(mailing_list[[\"save_folder_path\"]])\n      }\n    } else {\n      if (verbose) {\n        message(\"No pipermail found\")\n      }\n    }\n  } else {\n    if (verbose) {\n      message(\"No mailing_list found\")\n    }\n  }\n\n  # Create the issue_tracker directory, if needed\n  if (!is.null(conf[[\"issue_tracker\"]])) {\n    # Check for jira\n    if (!is.null(conf[[\"issue_tracker\"]][[\"jira\"]])) {\n      # Create for each project key\n      project_keys <- names(conf[[\"issue_tracker\"]][[\"jira\"]])\n      for (key in project_keys) {\n        issue_tracker <- conf[[\"issue_tracker\"]][[\"jira\"]][[key]]\n        create_file_path(issue_tracker[[\"issues\"]])\n        create_file_path(issue_tracker[[\"issue_comments\"]])\n      }\n    } else {\n      if (verbose) {\n        message(\"No jira found\")\n      }\n    }\n    # Check for github\n    if (!is.null(conf[[\"issue_tracker\"]][[\"github\"]])) {\n      # Create for each project key\n      project_keys <- names(conf[[\"issue_tracker\"]][[\"github\"]])\n      for (key in project_keys) {\n        issue_tracker <- conf[[\"issue_tracker\"]][[\"github\"]][[key]]\n        create_file_path(issue_tracker[[\"issue_or_pr_comment\"]])\n        create_file_path(issue_tracker[[\"issue\"]])\n        create_file_path(issue_tracker[[\"issue_search\"]])\n        create_file_path(issue_tracker[[\"issue_event\"]])\n        create_file_path(issue_tracker[[\"pull_request\"]])\n        create_file_path(issue_tracker[[\"pr_comments\"]])\n        create_file_path(issue_tracker[[\"commit\"]])\n        create_file_path(issue_tracker[[\"discussion\"]])\n      }\n    } else {\n      if (verbose) {\n        message(\"No github found\")\n      }\n    }\n    # Check for bugzilla\n    if (!is.null(conf[[\"issue_tracker\"]][[\"bugzilla\"]])) {\n      # Create for each project key\n      project_keys <- names(conf[[\"issue_tracker\"]][[\"bugzilla\"]])\n      for (key in project_keys) {\n        issue_tracker <- conf[[\"issue_tracker\"]][[\"bugzilla\"]][[key]]\n        create_file_path(issue_tracker[[\"issues\"]])\n        create_file_path(issue_tracker[[\"issue_comments\"]])\n      }\n    } else {\n      if (verbose) {\n        message(\"No bugzilla found\")\n      }\n    }\n  } else {\n    if (verbose) {\n      message(\"No issue_tracker found\")\n    }\n  }\n\n  # Create the tools directory, if needed\n  if (!is.null(conf[[\"tool\"]])) {\n    # Check for dv8\n    if (!is.null(conf[[\"tool\"]][[\"dv8\"]])) {\n      create_file_path(conf[[\"tool\"]][[\"dv8\"]][[\"folder_path\"]])\n    } else {\n      if (verbose) {\n        message(\"dv8 is unused\")\n      }\n    }\n    # Check for srcml\n    if (!is.null(conf[[\"tool\"]][[\"srcml\"]])) {\n      create_file_path(conf[[\"tool\"]][[\"srcml\"]][[\"srcml_path\"]])\n    } else {\n      if (verbose) {\n        message(\"srcml is unused\")\n      }\n    }\n    # Check for pattern4\n    if (!is.null(conf[[\"tool\"]][[\"pattern4\"]])) {\n      create_file_path(conf[[\"tool\"]][[\"pattern4\"]][[\"class_folder_path\"]])\n      create_file_path(conf[[\"tool\"]][[\"pattern4\"]][[\"output_filepath\"]])\n    } else {\n      if (verbose) {\n        message(\"pattern4 is unused\")\n      }\n    }\n    # Check for understand\n    if (!is.null(conf[[\"tool\"]][[\"understand\"]])) {\n      create_file_path(conf[[\"tool\"]][[\"understand\"]][[\"project_path\"]])\n      create_file_path(conf[[\"tool\"]][[\"understand\"]][[\"output_path\"]])\n    }\n  } else {\n    if (verbose) {\n      message(\"no tools used\")\n    }\n  }\n}\n\n#' A helper function for `create_file_directory`.\n#'\n#' @description The function checks if a filepath exists on the local device.\n#' If the filepath does not exist, then the function creates it.\n#'\n#' @param filepath The filepath to create.\n#' @param verbose A boolean variable that prints the operational messages when set to TRUE.\n#' @export\ncreate_file_path <- function(filepath, verbose= TRUE) {\n  if (!is.null(filepath)) {\n    # Check if the filepath already exists\n    if (!dir.exists(filepath)) {\n      # Create the filepath\n      dir.create(filepath, recursive= TRUE)\n      if (verbose) {\n        message(\"Created filepath: \", filepath)\n      }\n    }\n  } else {\n    if (verbose) {\n      message(\"Invalid filepath: \", filepath)\n    }\n  }\n}\n```",
+    "author_association": "MEMBER",
+    "reactions": {
+      "url": "https://api.github.com/repos/sailuh/kaiaulu/issues/comments/3478515335/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "performed_via_github_app": {}
+  }
+]

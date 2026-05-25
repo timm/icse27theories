@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://api.github.com/repos/sailuh/kaiaulu/issues/comments/3476295174",
+    "html_url": "https://github.com/sailuh/kaiaulu/issues/351#issuecomment-3476295174",
+    "issue_url": "https://api.github.com/repos/sailuh/kaiaulu/issues/351",
+    "id": 3476295174,
+    "node_id": "IC_kwDOD0xXC87PNA4G",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "created_at": "2025-11-01T11:56:20Z",
+    "updated_at": "2025-11-01T14:39:54Z",
+    "body": "After a lot and trial and error on #295 the following was learned:\n\n * GitHub Actions no longer accept files to be created on /tmp. Instead `$RUNNER_TEMP` should be used. See [this article](https://nesin.io/blog/temp-directory-path-github-actions). Changes were made accordingly.\n * Further, pip no longer can be used on global environment, which is required to install perceval. A venv must be created. Therefore, the github actions workflows were updated to reflect that. Also, Venv was placed above the directory all actions execute (which is `$RUNNER_TEMP`/kaiaulu/kaiaulu). Failing that, the Check will find the .venv folder within Kaiaulu, failing the pass.\n * Perceval restriction to use version 0.12.4 has been lifted, as I can now test on my local machine the more recent version. The workflows were updated to reflect the version that is being tested locally by me (as I do not have the bandwidth to test every possible version). \n * OS X version on GitHub Actions was also updated.\n * Various actions versions were updated since they had since been deprecated. \n\nPerhaps the most substantial change was the addition to the `tmp` variable to `tools.yml`. This is because the way GitHub Actions determine the tmp folder is now different than a local machine (which is just `/tmp`). As such, Kaiaulu needs to know where to place the intermediate files when creating unit tests. In the long run, parameterizing this is beneficial because it accommodates Windows users. \n\nSomething worth noting is the R/examples.R needs some work to diagnose why it keeps throwing warnings. I waste a substantial amount of time looking to solve them on Github Actions just to realize they were already there all along and were not the cause of the errors.\n\nAs I had to prototype this on an actual PR to see it is in working order, the changes will be bundled with #295 . This is not ideal, but the changes are isolated to tests, and .workflow folder, so it should be easy to tell them apart even in one commit. ",
+    "author_association": "MEMBER",
+    "reactions": {
+      "url": "https://api.github.com/repos/sailuh/kaiaulu/issues/comments/3476295174/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "performed_via_github_app": {}
+  }
+]

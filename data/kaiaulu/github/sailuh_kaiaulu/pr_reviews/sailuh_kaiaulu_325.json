@@ -1,0 +1,162 @@
+[
+  {
+    "id": 2488053366,
+    "node_id": "PRR_kwDOD0xXC86UTK52",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Doing a quick review since I won't have any more time to test today. Note the comments are just examples, please check the entire PR for other ocurrences like description and the gt function call.",
+    "state": "CHANGES_REQUESTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488053366",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488053366"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325"
+      }
+    },
+    "submitted_at": "2024-12-09T08:18:47Z",
+    "commit_id": "c51525af716a091c7141888379f027a13d1e6e18"
+  },
+  {
+    "id": 2488097942,
+    "node_id": "PRR_kwDOD0xXC86UTVyW",
+    "user": {
+      "login": "beydlern",
+      "id": 66411207,
+      "node_id": "MDQ6VXNlcjY2NDExMjA3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66411207?u=4c3a25f1b4a63793f09740f44b1000f17d35db5c&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/beydlern",
+      "html_url": "https://github.com/beydlern",
+      "followers_url": "https://api.github.com/users/beydlern/followers",
+      "following_url": "https://api.github.com/users/beydlern/following{/other_user}",
+      "gists_url": "https://api.github.com/users/beydlern/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/beydlern/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/beydlern/subscriptions",
+      "organizations_url": "https://api.github.com/users/beydlern/orgs",
+      "repos_url": "https://api.github.com/users/beydlern/repos",
+      "events_url": "https://api.github.com/users/beydlern/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/beydlern/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488097942",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488097942"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325"
+      }
+    },
+    "submitted_at": "2024-12-09T08:33:00Z",
+    "commit_id": "c51525af716a091c7141888379f027a13d1e6e18"
+  },
+  {
+    "id": 2488100471,
+    "node_id": "PRR_kwDOD0xXC86UTWZ3",
+    "user": {
+      "login": "beydlern",
+      "id": 66411207,
+      "node_id": "MDQ6VXNlcjY2NDExMjA3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66411207?u=4c3a25f1b4a63793f09740f44b1000f17d35db5c&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/beydlern",
+      "html_url": "https://github.com/beydlern",
+      "followers_url": "https://api.github.com/users/beydlern/followers",
+      "following_url": "https://api.github.com/users/beydlern/following{/other_user}",
+      "gists_url": "https://api.github.com/users/beydlern/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/beydlern/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/beydlern/subscriptions",
+      "organizations_url": "https://api.github.com/users/beydlern/orgs",
+      "repos_url": "https://api.github.com/users/beydlern/repos",
+      "events_url": "https://api.github.com/users/beydlern/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/beydlern/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488100471",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488100471"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325"
+      }
+    },
+    "submitted_at": "2024-12-09T08:34:19Z",
+    "commit_id": "c51525af716a091c7141888379f027a13d1e6e18"
+  },
+  {
+    "id": 2488235682,
+    "node_id": "PRR_kwDOD0xXC86UT3ai",
+    "user": {
+      "login": "beydlern",
+      "id": 66411207,
+      "node_id": "MDQ6VXNlcjY2NDExMjA3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66411207?u=4c3a25f1b4a63793f09740f44b1000f17d35db5c&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/beydlern",
+      "html_url": "https://github.com/beydlern",
+      "followers_url": "https://api.github.com/users/beydlern/followers",
+      "following_url": "https://api.github.com/users/beydlern/following{/other_user}",
+      "gists_url": "https://api.github.com/users/beydlern/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/beydlern/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/beydlern/subscriptions",
+      "organizations_url": "https://api.github.com/users/beydlern/orgs",
+      "repos_url": "https://api.github.com/users/beydlern/repos",
+      "events_url": "https://api.github.com/users/beydlern/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/beydlern/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "",
+    "state": "COMMENTED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488235682",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325",
+    "author_association": "COLLABORATOR",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/325#pullrequestreview-2488235682"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/325"
+      }
+    },
+    "submitted_at": "2024-12-09T09:30:55Z",
+    "commit_id": "c51525af716a091c7141888379f027a13d1e6e18"
+  }
+]

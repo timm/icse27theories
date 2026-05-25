@@ -1,0 +1,189 @@
+commit_hash,issue_keys,author,date,files_touched,msg_first_line
+0c8634f8e9f4ce03e403c618a2cba2b3aabdc35a,3,jstrachan@apache.org,2007-06-04T10:15:39+00:00,5,"improvement for CAMEL-3 so that boolean b = in.getHeader(""foo""  boolean.class); does not throw a NPE for a missing heade"
+90f0194d184a435b766508a5a298c3dc12414382,61;62,jstrachan@apache.org,2007-07-02T15:49:56+00:00,18,added FileStrategy plugins so that you can easily lock/unlock and delete/move files when they are processed to fix CAMEL
+e1e5e11fde97a228aa1a84128567de8b90e05aa8,71,jstrachan@apache.org,2007-07-11T00:17:26+00:00,39,initial spike of a conversion of the XML parsing over to using some JAXB2 POJOs rather than the hand-crafted custom Spri
+f20eb49205be6adcb026fcd0389d2dc24abcdaed,76,jlim@apache.org,2007-07-26T09:46:59+00:00,2,fix for https://issues.apache.org/activemq/browse/CAMEL-76;
+e9ab74aef656503df96a179bbaee2608e72c27a8,81,jstrachan@apache.org,2007-07-30T16:47:26+00:00,1,applied patch from Hadrian Zbarcea for CAMEL-81 to fix the lifecycle logic
+2525c9717d753dc5e2765bfe82f1986049fb4071,85,jstrachan@apache.org,2007-08-03T20:19:12+00:00,1,added a fix for CAMEL-85 to avoid using deprecated code
+cfdecc74abb966b246047fd061996367ee6bedc7,83,jstrachan@apache.org,2007-08-04T09:48:15+00:00,1,fix for CAMEL-83
+abba495754aadd5109d7ea7c83565978904182d0,95,jstrachan@apache.org,2007-08-10T07:18:45+00:00,15,added test case and fix for CAMEL-95 - many thanks to Aaron Crickenberger!
+d45649c4857234efb5ed57e3991f94cbe2dbcc98,96,jstrachan@apache.org,2007-08-10T11:57:45+00:00,5,added test case and fix for CAMEL-96 - thanks to DominicTulley for spotting this!
+e9ffd8b238dc46d13dfd1fa0ec4e2096fb89978b,98,jstrachan@apache.org,2007-08-10T16:55:11+00:00,8,added a test case and bug fix for CAMEL-98
+00af684237c753ccba359b5c4aebebaedf26a180,98,jstrachan@apache.org,2007-08-10T16:58:08+00:00,1,added a test case and bug fix for CAMEL-98
+a975a121cfd18207569e910c60c7ee54e9325366,97,jstrachan@apache.org,2007-08-13T14:19:30+00:00,5,added test case and fix for CAMEL-97
+76412a03930dafa0f598b6ea9f1575c5b49876d7,103,jstrachan@apache.org,2007-08-14T18:55:57+00:00,2,attempted fix for CAMEL-103  though we still need a test case to prove it
+802a95c0e9099052211ddd37b8f7dc03741fb041,110,jstrachan@apache.org,2007-08-16T19:22:15+00:00,3,added test case and fix for CAMEL-110
+9c1357e1be4b11e695b7db25289883983c3544db,111,jstrachan@apache.org,2007-08-17T04:21:41+00:00,5,"added a test case and fix for CAMEL-111. Also noticed that methods of the form: cheese(String body  @Header(name=""foo"") "
+a978715221c1e7b4fc74bb6080b631ae2a790145,112,jstrachan@apache.org,2007-08-17T16:11:44+00:00,4,added test case and fix for CAMEL-112
+998f077043ea0e0e1ab2df59f12b4e1af65dd1bb,114,jstrachan@apache.org,2007-08-20T07:13:09+00:00,12,added fix for CAMEL-114 to add removeHeader() / removeOutHeader() / removeProperty() transformations to the DSL
+3c8af974481514f7291ff17d0819765e8680bbfd,127,jstrachan@apache.org,2007-08-28T11:34:23+00:00,3,fix for CAMEL-127 to share the Timer objects across endpoints of the same timerName
+0c36bd21575c3b2ae16dea0166703f7ad9a4f8c7,116,jstrachan@apache.org,2007-08-28T13:13:09+00:00,4,fix for CAMEL-116 to make the timer component work with any endpoint
+183342ba742a42c8b5a02b9aade15c97f3bd2e42,120,chirino@apache.org,2007-08-28T17:52:33+00:00,14,Fix for https://issues.apache.org/activemq/browse/CAMEL-120
+e388d6ef01ec9dcb15f6d22c664254229143f757,100,jstrachan@apache.org,2007-09-04T10:04:33+00:00,3,managed to reproduce and fix CAMEL-100
+b47d226858ebcd6e4f6368a3c7132897456dfdb0,150,gnodet@apache.org,2007-09-18T07:26:13+00:00,1,CAMEL-150: Fix >= predicate
+b4d15c92ab3db2254195f4aeee9f1ba9b2306c39,158,chirino@apache.org,2007-09-26T17:07:18+00:00,5,Fix for https://issues.apache.org/activemq/browse/CAMEL-158
+4ed5f2c4c2ff98e69921010da54717f970436966,140,jstrachan@apache.org,2007-10-01T16:15:09+00:00,5,a fix for CAMEL-140
+ef95c6206e47586b02b3ba052012c68c780545e8,166,chirino@apache.org,2007-10-10T17:30:50+00:00,2,Fix for http://issues.apache.org/activemq/browse/CAMEL-166
+30c5af1aa21221876ead620e3ddaf5d1a4060de3,175,jstrachan@apache.org,2007-10-11T12:27:24+00:00,3,fix for CAMEL-175 to support XmlBeans
+42e05f73ce71d15dd362ecdfba71bf368fe63c0a,176,jstrachan@apache.org,2007-10-11T15:04:32+00:00,4,fix for CAMEL-176
+cf2ec32b18da0396aadd96f5e85ab0a90c857636,176,jstrachan@apache.org,2007-10-11T18:38:25+00:00,8,fix for https://issues.apache.org/activemq/browse/CAMEL-176 to allow marshal/unmarshal to use a referenced data format c
+187d49e34bc1f8d0e7e22b3818764de490ca87a8,170,jstrachan@apache.org,2007-10-11T19:16:28+00:00,1,attempted to add a test case to reproduce CAMEL-170 using JMS queues in the same way but failed to reproduce the bug
+f898db8e189503ccd8adc6008f1502fe260d3e9e,143,jstrachan@apache.org,2007-10-12T08:45:04+00:00,4,fix for https://issues.apache.org/activemq/browse/CAMEL-143 to configure namespaces for XPath expressions
+6ea0febc60e2d33cdae3744ff8125bd32f3d1c0e,143,jstrachan@apache.org,2007-10-12T09:53:41+00:00,8,an improved fix for https://issues.apache.org/activemq/browse/CAMEL-143 to configure namespaces for XPath expressions - 
+b82b9575c3512a70fe451e86e0886148c0952f15,178,jstrachan@apache.org,2007-10-12T19:55:33+00:00,5,fix for https://issues.apache.org/activemq/browse/CAMEL-178 to support the xquery language in XML; also added namespace 
+89e2cb27b2eefc504d3a541c97293071c8886cb8,192,jstrachan@apache.org,2007-10-26T16:11:55+00:00,11,added a fix and a test case for https://issues.apache.org/activemq/browse/CAMEL-192 along with supporting @OutHeaders an
+639d0366d869fffa7b0186f60bf065c6484d11aa,197,jstrachan@apache.org,2007-11-02T16:57:42+00:00,22,added the patch from Hadrian to demonstrate CAMEL-197 along with a fix - which turned out to have a fairly large impact.
+deedc068e61d4c2496001610be57fd5160c350dd,204,jstrachan@apache.org,2007-11-05T12:30:17+00:00,7,added a test case and fix for https://issues.apache.org/activemq/browse/CAMEL-204 to support XML configuration of the Ag
+71e85c5334e2e5c160af56ea39b6cd50b0fe3cd3,206,jstrachan@apache.org,2007-11-05T15:05:16+00:00,2,added a test case and fix for http://issues.apache.org/activemq/browse/CAMEL-206
+026d443a6826d0394fb4e023bf080b3489a1be38,206,jstrachan@apache.org,2007-11-05T15:20:11+00:00,1,added a test case and fix for http://issues.apache.org/activemq/browse/CAMEL-206
+82ca5d9031794e119c8ada3174a564263800604a,210,chirino@apache.org,2007-11-09T14:32:08+00:00,2,Applying patch: https://issues.apache.org/activemq/browse/camel-210
+14db721dbfb517a49d52f12fcd1d0af714f2d855,212,jstrachan@apache.org,2007-11-13T11:40:26+00:00,3,added fix for https://issues.apache.org/activemq/browse/CAMEL-212 along with test case
+33fa2d86d2bfd9ece336e6a3a45887619fae1526,213,jstrachan@apache.org,2007-11-13T11:42:04+00:00,2,added test case and fix for https://issues.apache.org/activemq/browse/CAMEL-213
+5df68494a8b11f94b8bc5f8b5b890e5f0da042cd,189,jstrachan@apache.org,2007-11-14T13:14:44+00:00,1,applied fix for http://issues.apache.org/activemq/browse/CAMEL-189
+3bb9bece388bc5628094aa8306ab716b8bb17633,218,jstrachan@apache.org,2007-11-14T18:16:19+00:00,12,fix for http://issues.apache.org/activemq/browse/CAMEL-218
+9b67ef0b73b8e69255cb5ffb72d7f8edf1d6a6f5,221,jstrachan@apache.org,2007-11-14T18:45:40+00:00,1,fix for http://issues.apache.org/activemq/browse/CAMEL-221
+1f6d3610e222c7c96add94636ae8e8f36ff25ec2,222,jstrachan@apache.org,2007-11-15T11:04:41+00:00,1,fix for https://issues.apache.org/activemq/browse/CAMEL-222
+d706b618f907180785866b559d83887cd76fb7f7,222,jstrachan@apache.org,2007-11-15T11:35:57+00:00,1,small fix for https://issues.apache.org/activemq/browse/CAMEL-222
+ee3e13d95a98de16aae7c2b833f4d77c37dfd025,222,jstrachan@apache.org,2007-11-15T14:38:34+00:00,5,fix for http://issues.apache.org/activemq/browse/CAMEL-222 with a few tests
+ff053fb89f58cc028b9d61e2adf12ebf18b6782f,215,jstrachan@apache.org,2007-11-15T17:44:07+00:00,1,further fix of a typeo for https://issues.apache.org/activemq/browse/CAMEL-215
+4d7c209e8ad39db32bcb566c9b41954a8ed4ccbc,224,jstrachan@apache.org,2007-11-16T18:02:22+00:00,1,minor change to the fix for https://issues.apache.org/activemq/browse/CAMEL-224 - lets copy the headers before we invoke
+5069300e0c29e519be99d581ad1f53a67e7fa40e,230,jstrachan@apache.org,2007-11-17T11:02:20+00:00,5,applied fix and test case for CAMEL-230 to allow SEDA/VM endpoints to be configured via seda:foo?size=2000
+0e2caf25943d782ce939638922b7ff4ac6d78a8d,236,jstrachan@apache.org,2007-11-19T21:16:38+00:00,16,applied fix for https://issues.apache.org/activemq/browse/CAMEL-236 to allow the bean component to create new instances 
+c88df3017b5ae6f5097baa0d1ebf41bb5de6e9c3,240,jstrachan@apache.org,2007-11-20T15:37:32+00:00,1,removed some cruft as part of the fix for CAMEL-240
+20d675f608682579cd68a5ebf34496d548ed4f11,253,jstrachan@apache.org,2007-12-03T17:16:52+00:00,2,fix for https://issues.apache.org/activemq/browse/CAMEL-253
+cd5ee0535102dbb9c834b2ccc61a07328c2e8662,255,jstrachan@apache.org,2007-12-07T11:27:39+00:00,1,fixed the typeos suggested by Claus on this issue https://issues.apache.org/activemq/browse/CAMEL-255
+953bed1772d5b20e0c4c1b284ec5d47c5c8d6a0a,286,ningjiang@apache.org,2008-01-12T07:22:41+00:00,5,camel-286 Fixed the NPE of the cxf router
+79d5693d7d0ceb1ace375bc7b934c9b0695b0620,277,jstrachan@apache.org,2008-01-18T12:49:27+00:00,1,fix for https://issues.apache.org/activemq/browse/CAMEL-277
+e12676fe928c4b35a12d5e66f7834c94a60e8835,278,jstrachan@apache.org,2008-01-18T12:51:39+00:00,1,fix for https://issues.apache.org/activemq/browse/CAMEL-278
+4a37cb0d361c76d056ed5a9fe2ab3e73a902bb4d,295,jstrachan@apache.org,2008-02-05T17:31:54+00:00,12,attempted fix for http://issues.apache.org/activemq/browse/CAMEL-295 but cannot get the test case working...
+4e83352c849cceb3c4960665dc88e839d70ea34b,317,jstrachan@apache.org,2008-02-05T19:27:13+00:00,3,fix for http://issues.apache.org/activemq/browse/CAMEL-317
+6467bc26601052c76b4202ff35087a996d24ffee,334,jstrachan@apache.org,2008-02-13T10:09:51+00:00,2,fix for https://issues.apache.org/activemq/browse/CAMEL-334
+85ec6bc6d7cd0904757b596627fd3666de7738dd,347,jstrachan@apache.org,2008-02-27T06:42:19+00:00,3,added fix for https://issues.apache.org/activemq/browse/CAMEL-347 to enable JUEL to invoke methods in expressions
+d1e8da34d3f05df8d5aa05c96b027b36ec9d0bf2,301,hadrian@apache.org,2008-02-28T03:17:49+00:00,49,Fix for CAMEL-301;
+19a7fae4d96b3441cba16d1778a9ac0bba2b8f07,391,jstrachan@apache.org,2008-03-19T12:11:42+00:00,3,added test case and fix for https://issues.apache.org/activemq/browse/CAMEL-391
+38af10d7a3ec177bfabacbc823cb3d2f62455be9,393,romkal@apache.org,2008-03-20T22:12:23+00:00,1,CAMEL-393 - test showing the problem described in the issue
+eec3534c950c80af56e3fa18445e87ea632985d2,394;395,davsclaus@apache.org,2008-03-26T05:10:04+00:00,14,This is a combined patch for CAMEL-394 and CAMEL-395
+184d76927bc6f60c5c847d481217aea5acfcbb88,406,jstrachan@apache.org,2008-03-28T09:37:31+00:00,4,added a patch to fix https://issues.apache.org/activemq/browse/CAMEL-406 to deal with multiple CamelContext instances wh
+05b38c5436663dbb1a3088cd6097f5d6889b384d,173,davsclaus@apache.org,2008-03-28T11:27:18+00:00,3,CAMEL-173
+9708fc296df9200cc03706cb1a166c4905209b24,214,hadrian@apache.org,2008-03-31T13:26:26+00:00,3,CAMEL-214.  Updated dependencies fix the build order issue.
+e845c27aecc3eedff5592becb77a1cf1aa94051a,214,hadrian@apache.org,2008-03-31T14:36:17+00:00,1,CAMEL-214.  Fix deps.
+b640efdd6c0f0a87895d951e4b36415ab1c15483,410,davsclaus@apache.org,2008-04-05T10:23:36+00:00,11,CAMEL-410
+b01337e5ca5b5c61fa47192748dfe116164fa2d8,482,hadrian@apache.org,2008-04-25T00:55:01+00:00,2,CAMEL-482.  Disble test pending fix.
+6fbb8529deab8321a7d4153eb33cda31ad18126f,84,davsclaus@apache.org,2008-05-06T05:14:33+00:00,1,CAMEL-84: improved error message for exception
+7f37b7adb1d3b322a39be6c71bfc65a1749f2cc0,498,jstrachan@apache.org,2008-05-08T09:29:38+00:00,3,added test case and fix for https://issues.apache.org/activemq/browse/CAMEL-498
+f96038ab5994a37311ccefdc543f19f4718f94ba,498,jstrachan@apache.org,2008-05-08T16:01:02+00:00,2,further fix for http://issues.apache.org/activemq/browse/CAMEL-498 to avoid repeatedly processing the same file with noo
+f7768f83fa7704267ccd8addb90bea307dcb7bdc,499,davsclaus@apache.org,2008-05-09T05:08:48+00:00,1,CAMEL-499 Applied patch with thanks. To fix compiling the source on HP-UX
+0569e520abd39d10cba2443dc479e6ffef95df2d,507,jstrachan@apache.org,2008-05-13T07:05:19+00:00,2,applied test case patch with thanks and added fix for https://issues.apache.org/activemq/browse/CAMEL-507
+d3f8bfd61de2c1b5b24d48e5c7424ab16a6ee173,361,ningjiang@apache.org,2008-05-13T10:04:42+00:00,2,CAMEL-361 added test case to verify the error
+df4bf5b288c3dab5b1b602e80616c43c1a70625d,505,jstrachan@apache.org,2008-05-14T08:40:43+00:00,1,fixed compile error as part of previous test case for  https://issues.apache.org/activemq/browse/CAMEL-505 - DOH! Note t
+dfa9b54b6d722119a1846ba8567a2657dfdebcd2,550,ningjiang@apache.org,2008-05-26T15:41:59+00:00,10,CAMEL-550 fixed the NPE error   also fixed some CS errors
+c6d81ce21899c3a250b8802c1d8f1048fbe87fa1,559;567,davsclaus@apache.org,2008-06-01T09:41:25+00:00,17,CAMEL-559:
+c26d7c76246bc2bfab07f8011f72bef7cd97fed5,527,hadrian@apache.org,2008-06-06T01:25:25+00:00,32,fix CAMEL-527.  Moved CamelTemplate back to o.a.c. but deprecated it.  The preferred way moving forward is to use Produc
+b59affd8c8d75ae9ca40be862f2b003b6eb6035a,605;611,davsclaus@apache.org,2008-06-16T08:02:05+00:00,3,CAMEL-605: Changed to direct queues to fix the spring data set problem. The bug is the with the seda queues and high con
+7ea4486985ea1be2ca7d716b32245e2dc8e97429,605,davsclaus@apache.org,2008-06-16T08:49:45+00:00,2,CAMEL-605: Changed to direct queues to fix the spring data set problem. The bug is the with the seda queues and high con
+42042db3e89a2ff5924df22de4179ef8c20294d9,577,gnodet@apache.org,2008-06-16T16:10:00+00:00,1,CAMEL-577: fix in non-osgi env
+01e322520f9b108578f827783ca7a6320c44f3f1,605,davsclaus@apache.org,2008-06-16T19:49:14+00:00,2,CAMEL-605: Fixed the high concurrency issue with dataset. Must sleep during sending to have more even load on producer/c
+5f3d672667e1559d597d32a6e24cafa326658963,482,hadrian@apache.org,2008-06-19T01:21:13+00:00,4,fix CAMEL-482
+2640c4762a84ba8d75dce4008e7022c2c0c9e173,482,hadrian@apache.org,2008-06-19T01:27:32+00:00,1,fix CAMEL-482.  Reenabled test from pom.xml.
+18356364f0a5fa7152e91db45ebb45348a7af70a,618,hadrian@apache.org,2008-06-19T16:57:19+00:00,1,fix CAMEL-618
+ddddffbf244608b3508b2f29c4f9c4dc5eb4c0b5,624,jstrachan@apache.org,2008-06-20T11:45:17+00:00,1,fix for https://issues.apache.org/activemq/browse/CAMEL-624
+fa0c090db440d931f9387741be904a912db5b3c2,619,jstrachan@apache.org,2008-06-26T15:55:03+00:00,4,final fix for CAMEL-619 - refactored from 'tracing' property to 'trace' and added a spring XML test case
+1e9bdfe3cfaa3eaaf5903330eee002227ca8c7a3,481,hadrian@apache.org,2008-06-26T19:32:21+00:00,9,fix CAMEL-481
+b315e00ae32a5723783a67a168297b3c42930ffd,481,hadrian@apache.org,2008-06-27T01:12:21+00:00,1,CAMEL-481. Fix for compilef failure on AIX.  Patch applied with thanks to Jon for discovering and fixing it at the very 
+8679c091d5451e61c0b5a89711a16e899e01e302,642,ningjiang@apache.org,2008-07-02T09:59:53+00:00,3,CAMEL-642 update camel-example-loan-broker code  since we get the bug fixed
+62bc0b861423b8764f479d9d50d29ff82daf2d8f,657,davsclaus@apache.org,2008-07-02T19:07:19+00:00,1,CAMEL-657: Fixed bug where we were not using CSVConfig from setter
+646e17e7b96c0fdc506d8f93ff8d76608c2a1935,661,jstrachan@apache.org,2008-07-03T22:03:13+00:00,2,applied fix for https://issues.apache.org/activemq/browse/CAMEL-661 to add a <pipeline> tag
+dd7fd81626d986c3c718630c56ae21a694756a6a,662,jstrachan@apache.org,2008-07-03T22:04:23+00:00,18,applied fix for https://issues.apache.org/activemq/browse/CAMEL-662 to allow error handlers to be customized on a <camel
+d7f573dca2c67a5b9ebde72cad02796dc39dfc7d,663,jstrachan@apache.org,2008-07-04T12:55:06+00:00,3,transaction error handler for https://issues.apache.org/activemq/browse/CAMEL-663
+a2d415fdca2aef164489e5cd1e48b3ef6be65f7e,673,ningjiang@apache.org,2008-07-05T13:49:48+00:00,1,CAMEL-673 Fixed the build error of camel-ftp module
+dc1696e89c2a8475f20e52c4e3a5f9c6c977f43a,675;676,davsclaus@apache.org,2008-07-06T09:42:20+00:00,2,CAMEL-675: Avoid NPE for interceptors using predicate and stop(). Added more unit tests  and one of them is still failin
+2e732e629cd1feeb0c65ec120faea82c927c5161,675;676,davsclaus@apache.org,2008-07-06T09:46:18+00:00,1,CAMEL-675: Avoid NPE for interceptors using predicate and stop(). Added more unit tests  and one of them is still failin
+c5ab934d0a59b4aacb1d5b4bc3b115fcbf1e0e3b,688,davsclaus@apache.org,2008-07-10T10:19:57+00:00,2,CAMEL-688: Fixed problem when bean processor did not set invocation value at all. Added unit test to demonstrate the bug
+ac8a4e23ff95e6795598adf0d1e73763978e49b0,707,davsclaus@apache.org,2008-07-12T20:29:44+00:00,1,CAMEL-707: Fixed so nodeid is always given. Remved instance counter as its not needed anymore  now that nodeid is always
+695694b87debd798f6c78d9524b73aa274285159,702,davsclaus@apache.org,2008-07-14T09:21:31+00:00,2,CAMEL-702: A proposed fix for CAMEL-702. Gert will take a look too. Concurrency issue with camel-saon.
+dd33191a13cdf55fff4f4ce62e0f9056fb9888af,702,davsclaus@apache.org,2008-07-14T09:25:00+00:00,1,CAMEL-702: A proposed fix for CAMEL-702. Gert will take a look too. Concurrency issue with camel-saon.
+185b32d97b7ce3cc75b82db2bf336e22327c3492,702,davsclaus@apache.org,2008-07-14T10:17:41+00:00,4,CAMEL-702: A proposed fix for CAMEL-702. Gert will take a look too. Concurrency issue with camel-saon. WORK IN PROGRESS!
+83b170b7550c71cd35e561432ebcfe891e1fabfc,702,davsclaus@apache.org,2008-07-14T11:16:00+00:00,3,CAMEL-702: A proposed fix for CAMEL-702. Gert will take a look too. Concurrency issue with camel-saon. WORK IN PROGRESS!
+877ebe38e3938d63aee0b5794af9015f1fb48303,736,davsclaus@apache.org,2008-07-18T18:58:03+00:00,3,CAMEL-736: Better end-user error message for invalid configuration with duplicated http protocol as this component does 
+ca0ab2d63f12b67499d4fa80920c65013f9c4e69,738,davsclaus@apache.org,2008-07-20T06:52:21+00:00,4,CAMEL-738: Fixed failing unit test on bamboo due to class with port number. Fixed SFTP part as well. However need to imp
+f0f7133a3ae5cff39e4f13643c346fe3b234a8ac,751,ningjiang@apache.org,2008-07-24T12:03:18+00:00,1,CAMEL-751 fixed the spring configuration url error
+beba94af4f006bdb3c16532178fff4e78372c309,763,ningjiang@apache.org,2008-07-28T04:10:48+00:00,8,CAMEL-763 fixed the issue of setting ErrorHandler when the jmsAgent is disabled
+649f484f79815707746aef96d0e9362203c38d87,784,ningjiang@apache.org,2008-08-06T06:14:15+00:00,1,CAMEL-784 Fixed the NPE issue of JmsMessage
+2c4fe51cb22d9fb3efc6e7e6144e8f745051f27e,804,davsclaus@apache.org,2008-08-09T11:00:09+00:00,2,CAMEL-804: Added unit test (bug already fixed)
+81578cb9414993370758381085a7547c30fe2798,806,davsclaus@apache.org,2008-08-11T08:32:12+00:00,8,CAMEL-806: Introduced isLenientProperties() on Endpoint to allow http based components to run in non strict URI paramete
+b9c630dc6ceab8cc271a7ea58ee633b0d3075524,826,hadrian@apache.org,2008-08-15T00:05:48+00:00,11,CAMEL-826.  Added rollback method to FileProcessStrategy.
+abf9b711c9db9ff201f68b447ec43779a4390309,834,davsclaus@apache.org,2008-08-19T04:20:46+00:00,2,CAMEL-834: Added unit test to try to verifty if there is a bug
+b451ac282bf6527913d1886229dd462607a64428,853,hadrian@apache.org,2008-08-27T00:38:59+00:00,7,CAMEL-853. Fix package name.
+03189290c39d67fe2161db8b234739b7b06468e9,794,davsclaus@apache.org,2008-08-28T05:28:39+00:00,1,CAMEL-794: error handler and thread() type
+63580506b73bd4403b6c9a555b2cb037f5018762,794,davsclaus@apache.org,2008-08-31T14:35:23+00:00,1,CAMEL-794: Prepared unit test to demonstrate the bug
+d2f422b9ef71525a117a5708fc91ff812cf03b33,400;873,ningjiang@apache.org,2008-09-01T09:49:33+00:00,3,CAMEL-873 CAMEL-400 cleaned up code and fixed the camel-jms build error
+c2a9db9db712f09efa495da0f8d3854b0f4c2db1,880,ningjiang@apache.org,2008-09-06T03:09:41+00:00,3,CAMEL-880 fixed the ScriptBuilder's always ensuers the outMessage is not Null issue
+e787d32f3caf1883cb29898b2e0ced4a6fbeba31,889,janstey@apache.org,2008-09-10T19:23:18+00:00,3,CAMEL-889 - Get around the maven assembly bug by using a wildcard.
+bee61f50c29b4f8de69f213b1c3364e007359f1e,876,gertv@apache.org,2008-09-15T16:18:40+00:00,2,CAMEL-876: Fixing concurrency issue (hopefully)
+f176de90c52cee60f45a80ee1a8dfadce236db11,927,davsclaus@apache.org,2008-09-22T08:56:50+00:00,2,CAMEL-927: Added unit test to try to reproduce the issue reported. Polished javadoc.
+a4b8403f847f82880f77abdc800b192cff152dee,84;930,davsclaus@apache.org,2008-09-25T07:37:12+00:00,10,CAMEL-930. Partly done: Moved stuff from file language to simple language. Fixed broken unit test in CAMEL-84. Polished 
+4368e707350e2fb204821dbf4e0847ffccaefc41,84,hadrian@apache.org,2008-09-25T08:45:23+00:00,3,CAMEL-84.  Fixed broken components.
+f348b58137b95dd6d45a392bc8fb6f1b891ba057,84,hadrian@apache.org,2008-09-25T15:29:45+00:00,1,CAMEL-84.  Fix javadoc.
+5fff3d3961f60fbef756794b7258f084d4d3fa54,325,hadrian@apache.org,2008-09-25T20:32:13+00:00,1,CAMEL-325.  Fix for documentation consistency.
+c03fd5d511fd21f2b919b92bef40fec7d6dd8df1,325,hadrian@apache.org,2008-09-25T20:45:16+00:00,1,CAMEL-325.  Fix snippet markups for documentation.
+810fc6bf2568cc9e4101c9093c90c89d32898560,938,ningjiang@apache.org,2008-09-26T08:02:56+00:00,3,CAMEL-938 Fixed the issue of current snapshot kit don't include the manual doc
+88b2b478adbd9f27d71b583d5fa5636245e5ff0c,939,janstey@apache.org,2008-09-26T12:15:58+00:00,1,CAMEL-939 - Fix compile error on AIX
+913e8eb4f44a0735abc98f59b712e7f45471982d,939,janstey@apache.org,2008-09-26T12:41:27+00:00,1,CAMEL-939 - Fix another compile error on AIX
+3b4f5d617969bc4d6bda9f0da17a141cb32bd521,939,janstey@apache.org,2008-09-29T20:08:57+00:00,1,CAMEL-939 - Fix csv test that fails on slower machines sometimes.
+e15dd9cdb185c7e31c76bb81d46f94eef4437666,84,janstey@apache.org,2008-09-30T14:07:42+00:00,1,CAMEL-84 - Update ConvertBodyProcessor to use new error handling scheme. This was causing ArtixDS tests to fail.
+e13901283957fdf44adb495f901dbc5a4e7a7884,959,jstrachan@apache.org,2008-10-02T16:33:43+00:00,1,added a fix for CAMEL-959 so that InOut uses non transacted by default unless explicitly enabled via the transactedInOut
+6d7932b2ca6c1e7f87dfb74cb2624c7eb223804e,967,ningjiang@apache.org,2008-10-08T07:15:21+00:00,1,CAMEL-967 fixed the test error of IBatisRouteTest
+71e3439688833c2463953b2d52e63712c9742d68,901;960,davsclaus@apache.org,2008-10-11T10:17:50+00:00,5,CAMEL-960: fixed boolean not used
+54568e25d987aeabca264b387071945ca42794e3,973,gertv@apache.org,2008-10-13T09:56:56+00:00,1,CAMEL-973: Thanks to Claus for noticing the copy/paste error
+1fba0d0ad0dccaa7e557a91266934d1642c1edb6,939,janstey@apache.org,2008-10-20T16:30:04+00:00,2,CAMEL-939 - Fix unit test that fails sometimes on slower machines
+4c3b61f1d355764611f3e8b0dff616ffc3557c65,1010,jstrachan@apache.org,2008-10-21T14:09:52+00:00,1,fix for CAMEL-1010
+31859acf9b350f8d94fe5b2d847c101f81b2db03,1027,ningjiang@apache.org,2008-10-27T08:44:48+00:00,2,CAMEL-1027 Fixed the ConvertBodyType toString issue  and added a convertBodyTo(String) method to the ProcessorType
+f2245425a3e09c2a923cba70d44b6144bbcd57e3,939,janstey@apache.org,2008-10-27T16:21:47+00:00,2,CAMEL-939 - Disable ruby script tests on IBM JDK. See JRUBY-3073 for more details.
+b2c5858035bb85e3c2bd3ae4c6a6592f0b70a18b,939,janstey@apache.org,2008-10-27T23:10:41+00:00,2,CAMEL-939 - Fix cxf codegen plugin error with IBM JDK
+26b45d10a1b5784844f337484e74c3381e7978e9,1;1033;1034;1036;1039;122,janstey@apache.org,2008-11-03T19:14:30+00:00,45,Merged revisions 708553-709447 709449-709612 709614-709634 709636-709849 709851-710013 via svnmerge from 
+0cfe5a9841b2764b37a0c6ed7ff4bd65385ed2b9,1;822,ningjiang@apache.org,2008-11-06T14:47:38+00:00,4,Merged revisions 711859 via svnmerge from 
+c6cb2a458275aa98e644a9a31519c5748aef8df5,1;1058,ningjiang@apache.org,2008-11-07T06:16:44+00:00,1,Merged revisions 712064 via svnmerge from 
+ca1422b3f41e438031af973a378e6835c812cf74,1;1080,ningjiang@apache.org,2008-11-12T08:40:49+00:00,1,Merged revisions 713314 via svnmerge from 
+ee30d98c4ebe69c292bfae8f1846749130f8c5fa,1,janstey@apache.org,2008-11-12T19:26:28+00:00,1,Fix compile error
+a1c99503c7d69098d6bb7a7ac894d21ffc5b5bb5,1;1088,ningjiang@apache.org,2008-11-14T07:25:47+00:00,12,Merged revisions 713944 via svnmerge from 
+d4817c11c1abd572433fb753e5a45251beea90e2,1;1090,ningjiang@apache.org,2008-11-14T15:48:30+00:00,2,Merged revisions 714032 via svnmerge from 
+d1bb06da63377d7bde1fbd86089d4b87e87ddf14,1;1091,janstey@apache.org,2008-11-17T17:47:50+00:00,1,Merged revisions 718279 via svnmerge from 
+1fad61c2e720d82cc127de6cfd07a6a33cf06a71,1;1091,ningjiang@apache.org,2008-11-18T07:41:42+00:00,1,Merged revisions 718312 718326 718329 718513-718514 via svnmerge from 
+012f77a76d7df4b18cc2190c722b7d0f0cb13596,1;959,ningjiang@apache.org,2008-11-20T08:29:08+00:00,7,Merged revisions 719163 719184 via svnmerge from 
+9ae1fe43d79a8d27ba7b351d1cb86b634281d0c7,1;1109;1120,ningjiang@apache.org,2008-11-27T11:15:10+00:00,5,Merged revisions 719851 via svnmerge from 
+37d6355f45bc81f2cae2674483803e40fd61e9ca,1;1109;1120,ningjiang@apache.org,2008-11-27T12:45:11+00:00,8,Merged revisions 719855 via svnmerge from 
+a84d8c0e9e0ef19b958b239b1ea27055259daddd,1;1125,ningjiang@apache.org,2008-11-28T07:22:38+00:00,2,Merged revisions 721360 via svnmerge from 
+785d46b8dcd677ee906ee71b738535380681f397,1;1134,wtam@apache.org,2008-12-01T18:07:19+00:00,1,Fix build error introduced by CAMEL-1134
+7f160ed10e036cbb7b9aba0c4335e34c31f0b97a,1,ningjiang@apache.org,2008-12-03T03:22:57+00:00,1,Merged revisions 722438 via svnmerge from 
+3daaf64e65df6614a5c568cefda8ee10a6645ff4,1;1138,davsclaus@apache.org,2008-12-03T08:30:25+00:00,1,CAMEL-1138: Quick fix for file consumer not freeing memory
+35267b60087b9c6ddc34b7b2d77ac6b0c8f09e3c,1;1145,ningjiang@apache.org,2008-12-04T14:09:27+00:00,5,Merged revisions 723325 723327 via svnmerge from 
+f73fae69ebbb9e8109696570e0bf7b233a6c7ced,1;1171,ningjiang@apache.org,2008-12-11T06:37:24+00:00,6,Merged revisions 725309 725314 725320 via svnmerge from 
+f003dd3f16dcf75e4fe44dcd16c7933b827106ec,1;1171,ningjiang@apache.org,2008-12-11T06:57:14+00:00,10,Merged revisions 725340 725351 via svnmerge from 
+2b8f349d1dc0d0aca07121fd143eccd204fe20d8,1;1182,ningjiang@apache.org,2008-12-11T07:35:12+00:00,1,CAMEL-1182 fixed the cycle dependency error in camel-jms module
+4bfa125abcb10ba50a2ae1c6fa0c4ea21f04f72d,1;1189,janstey@apache.org,2008-12-17T16:56:17+00:00,2,Merged revisions 727435 via svnmerge from 
+d80a462eae2eaa9946f4a3437fea5b13856f7653,1;1163,janstey@apache.org,2008-12-17T20:36:54+00:00,1,Merged revisions 727502 via svnmerge from 
+a204e67628e16243f21925935859c295393a5e9e,1;1184,ningjiang@apache.org,2008-12-18T03:23:16+00:00,5,Merged revisions 725883 726339 via svnmerge from 
+d83066be4f3553ab502c351e67e4cf8000413c30,1,janstey@apache.org,2008-12-18T18:45:47+00:00,1,Merged revisions 727786 via svnmerge from 
+2ed6f46bcea754c8fb4c4590b82baa091495b7db,1;1043,ningjiang@apache.org,2009-01-02T14:28:53+00:00,0,Blocked revisions 730716 730721 via svnmerge
+307e826dcd0add16f2cba55dfc6aac6bf740051b,1;1214,ningjiang@apache.org,2009-01-03T05:56:36+00:00,2,Merged revisions 730903 via svnmerge from 
+80c6e483f3b93510524c0cd9ee541702f13eacfd,1;1199,gertv@apache.org,2009-01-05T08:47:47+00:00,3,Merged revisions 730132 730157 731488 via svnmerge from 
+ebe3e6c89e4566f413001c81e2d211df031b159c,1;1221,ningjiang@apache.org,2009-01-06T04:49:43+00:00,2,Merged revisions 731824 via svnmerge from 
+9039686621f16e286f386dca9ac361f2884f10df,1;1230,janstey@apache.org,2009-01-06T18:32:23+00:00,1,Merged revisions 732035 via svnmerge from 
+f5fdecd6ab3a5a8ded7122595c550983991a46a2,1,ningjiang@apache.org,2009-01-07T06:31:45+00:00,1,Merged revisions 732237 via svnmerge from 
+65798ea002830e824e7c5e212ffcabbe3c02ce35,1;1231,ningjiang@apache.org,2009-01-07T07:35:50+00:00,3,Merged revisions 732246-732247 via svnmerge from 
+d20efe4309c1fd1ce2f7ab91bc95e14a4e196b40,1;1238,ningjiang@apache.org,2009-01-09T06:16:27+00:00,1,Merged revisions 732932-732933 via svnmerge from 
+2c33e0b24f7d8290caa841560f5afc5f56d8cb36,1,ningjiang@apache.org,2009-01-12T13:55:35+00:00,1,Merged revisions 733749 via svnmerge from 
+b3e5a53a7e5ff2ec569be4a2ea730297e7aa7ee3,1,ningjiang@apache.org,2009-01-12T15:51:15+00:00,1,Fixed a cs error in TraceFormatter
+f3a3702a5dc9c476e3fed94dcb65ee8168bb468d,1;1249,davsclaus@apache.org,2009-01-13T07:18:41+00:00,3,Merged revisions 734053 via svnmerge from 
+9f137c69a90a0898ad6063a5143b55b9b9bda460,1,ningjiang@apache.org,2009-01-13T13:56:42+00:00,1,Merged revisions 734130 via svnmerge from 
+65c0395201636091e9af90e1933af1517d01f666,1,ningjiang@apache.org,2009-01-15T04:25:20+00:00,1,Merged revisions 734392 via svnmerge from 
+f5975b7913291d848cf7e962b8964782c89ad399,1,davsclaus@apache.org,2009-01-15T10:18:08+00:00,1,Aligned unit test with camel 2.0 to fix failing in 1.x reported by teamcity
+a9cfdf889306c4fffd3de82cb1a6479ab69e1a28,1;1262,ningjiang@apache.org,2009-01-16T02:03:02+00:00,1,Merged revisions 734727 via svnmerge from 
+e8b1b7894525d9be515a4aeec9ce81ecd5b0bcfb,1,ningjiang@apache.org,2009-01-19T17:45:56+00:00,8,Fixed some unit tests error relate to camel transport
+3ae307c65647734e4382cd329c4e8641f3f932c9,1;1275,ningjiang@apache.org,2009-01-20T07:26:07+00:00,5,CAMEL-1275 Fixed the camel-cxf build error with application context refesh doesn't be called.
+071778ce4026593cc7319755865b8008dc9721de,1;1301,davsclaus@apache.org,2009-01-30T08:07:25+00:00,3,Merged revisions 739199 via svnmerge from 
+133fa63c290eb4e14d509ef373b09efd793c3840,1;1301,davsclaus@apache.org,2009-01-30T08:08:46+00:00,0,Merged revisions 739199 via svnmerge from 
+4fcb25af7a3b0c3f0788ccc4edff4aa4b829f252,1,davsclaus@apache.org,2009-02-03T13:24:34+00:00,1,Fixed potential NPE using file languages for files with no extension
+b33dcb37623eb0b2414d3a0e805a790f8cbc5586,1,hadrian@apache.org,2009-02-09T18:25:06+00:00,2,Fix build failure.
+5e59321347b0f48584d0ede1aabc1c9e39558e80,1;1329,wtam@apache.org,2009-02-10T05:32:34+00:00,1,Merged revisions 742856 via svnmerge from 
+5bbba4209928018959bb89d3d0a1450f31563bb7,1;1330,ningjiang@apache.org,2009-02-11T06:13:10+00:00,4,CAMEL-1330 added a unit test for testing the response code  also fixed this issue in Camel 1.x branch

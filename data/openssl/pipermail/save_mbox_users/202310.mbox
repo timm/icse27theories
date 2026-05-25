@@ -1,0 +1,3231 @@
+From thomas.bailleux at sandboxquantum.com  Mon Oct  2 07:41:57 2023
+From: thomas.bailleux at sandboxquantum.com (Thomas Bailleux)
+Date: Mon, 2 Oct 2023 09:41:57 +0200
+Subject: OpenSSL 3, "reuse" capability in `d2i_TYPE_BIO` and documentation
+Message-ID: <CAHnN3bfgrfE0frt_E4DK2OiQ7rfNQ0fY2w1avcxW0XP-kNUFKA@mail.gmail.com>
+
+Hello OpenSSL,
+
+I'm currently migrating a codebase from OpenSSL 1.1.1 to OpenSSL 3.
+Since I may use OpenSSL providers in the future, I decided to use these new
+`_ex` functions from OpenSSL 3.
+
+While reading the "Old functions that should be changed" from the migration
+guide[1], I came across an oddity: it is claimed that in order to use a
+non-default library context when parsing an `X509` or an `EVP_PKEY`,
+`TYPE_new_ex` must be used (e.g. `X509_new_ex`), and then we have to use
+the "reuse" capability from the various parsing functions
+(`PEM_read_bio_X509`):
+
+Some functions can be passed an object that has already been set up with a
+> library context such as d2i_X509(3), d2i_X509_CRL(3), d2i_X509_REQ(3) and
+> d2i_X509_PUBKEY(3). If NULL is passed instead then the created object will
+> be set up with the default library context. Use X509_new_ex(3),
+> X509_CRL_new_ex(3), X509_REQ_new_ex(3) and X509_PUBKEY_new_ex(3) if a
+> library context is required.
+
+
+So basically we have to do the following:
+
+BIO *bio;
+> OSSL_LIB_CTX* lib_ctx;
+> X509 *x509 = X509_new_ex(lib_ctx, NULL);
+> if (d2i_X509_bio(bio, &x509) != NULL) {
+>   // success
+> } else {
+>   // error
+> }
+>
+
+However, in the `D2I_X509` manpage[2], the following is stated:
+
+On a successful return, if **a* is not NULL then it is assumed that **a*
+> contains a valid *TYPE* structure and an attempt is made to reuse it.
+> This "reuse" capability is present for historical compatibility but its use
+> is *strongly discouraged* (see BUGS below, and the discussion in the
+> RETURN VALUES section).
+> ?
+> BUGS
+> ?
+>
+> As a result of the above issues the "reuse" behaviour is strongly
+> discouraged.
+>
+So if I'm understanding correctly, this "reuse" capability is discouraged,
+still present for historical compatibility, but in OpenSSL 3 we have to use
+it if we want to use a custom library context.
+
+This divergence between these two bits of documentation bothers me.
+Do you have an opinion on this?
+
+Regards,
+
+- thomas
+
+
+[1]:
+https://www.openssl.org/docs/man3.1/man7/migration_guide.html#Using-a-Library-Context---Old-functions-that-should-be-changed
+[2]: https://www.openssl.org/docs/man3.1/man3/d2i_X509.html
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231002/858adccf/attachment.htm>
+
+From liad.dekel at broadcom.com  Mon Oct  2 13:01:42 2023
+From: liad.dekel at broadcom.com (Liad Dekel)
+Date: Mon, 2 Oct 2023 16:01:42 +0300
+Subject: Using OpenSSL with Devcrypto in async mode
+Message-ID: <CAFRq_FA0EE046w53PEORTb78iC8C1sb2OaCHAuRMECj2EAzKwA@mail.gmail.com>
+
+Hi All,
+This is my first time sending mail to a mailing list, thus if the message
+is not in the correct format my apology.
+
+I'm using OpenSSL together with Devcrypto in order to utilize crypto
+hardware acceleration.
+I just found that Devcrypto has an asynch mode in which it's queueing the
+crypto requests received from userspace.
+
+I wonder whether OpenSSL can work with Devcrypto in async mode. From a
+short research of the source code, seems like it's not - Devcrypto requires
+a "special" ioctl commands for async operations (CIOCASYNCCRYPT,
+CIOCASYNCFETCH)which are not exist in e_devcrypto.c
+
+Many thanks, Liad
+
+-- 
+This electronic communication and the information and any files transmitted 
+with it, or attached to it, are confidential and are intended solely for 
+the use of the individual or entity to whom it is addressed and may contain 
+information that is confidential, legally privileged, protected by privacy 
+laws, or otherwise restricted from disclosure to anyone else. If you are 
+not the intended recipient or the person responsible for delivering the 
+e-mail to the intended recipient, you are hereby notified that any use, 
+copying, distributing, dissemination, forwarding, printing, or copying of 
+this e-mail is strictly prohibited. If you received this e-mail in error, 
+please return the e-mail to the sender, delete it from your computer, and 
+destroy any printed copy of it.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231002/096e8f0b/attachment.htm>
+
+From tomas at openssl.org  Tue Oct  3 13:47:41 2023
+From: tomas at openssl.org (Tomas Mraz)
+Date: Tue, 03 Oct 2023 15:47:41 +0200
+Subject: OpenSSL 3, "reuse" capability in `d2i_TYPE_BIO` and documentation
+In-Reply-To: <CAHnN3bfgrfE0frt_E4DK2OiQ7rfNQ0fY2w1avcxW0XP-kNUFKA@mail.gmail.com>
+References: <CAHnN3bfgrfE0frt_E4DK2OiQ7rfNQ0fY2w1avcxW0XP-kNUFKA@mail.gmail.com>
+Message-ID: <3e8f1ab7955b365946c9f50e21084c2bd1f8f655.camel@openssl.org>
+
+Hello Thomas,
+
+I've created a pull request that should clarify the matter:
+
+https://github.com/openssl/openssl/pull/22265
+
+Please look there.
+
+Tomas Mraz, OpenSSL
+
+On Mon, 2023-10-02 at 09:41 +0200, Thomas Bailleux wrote:
+> Hello OpenSSL,
+> 
+> I'm currently migrating a codebase from OpenSSL 1.1.1 to OpenSSL 3.
+> Since I may use OpenSSL providers in the future, I decided to use
+> these new `_ex` functions from OpenSSL 3.
+> 
+> While reading the "Old functions that should be changed" from the
+> migration guide[1], I came across an oddity: it is claimed that in
+> order to use a non-default library context when parsing an `X509` or
+> an `EVP_PKEY`, `TYPE_new_ex` must be used (e.g. `X509_new_ex`), and
+> then we have to use the "reuse" capability from the various parsing
+> functions (`PEM_read_bio_X509`):
+> 
+> > Some functions can be passed an object that has already been set up
+> > with a library context such as d2i_X509(3), d2i_X509_CRL(3),
+> > d2i_X509_REQ(3) and d2i_X509_PUBKEY(3). If NULL is passed instead
+> > then the created object will be set up with the default library
+> > context. Use X509_new_ex(3), X509_CRL_new_ex(3), X509_REQ_new_ex(3)
+> > and X509_PUBKEY_new_ex(3) if a library context is required.
+> 
+> So basically we have to do the following:
+> 
+> > BIO *bio;
+> > OSSL_LIB_CTX* lib_ctx;
+> > X509 *x509 = X509_new_ex(lib_ctx, NULL);
+> > if (d2i_X509_bio(bio, &x509) != NULL) {
+> > ? // success
+> > } else {
+> > ? // error
+> > }
+> > 
+> 
+> 
+> However, in the `D2I_X509` manpage[2], the following is stated:
+> 
+> > On a successful return, if *a is not NULL then it is assumed that
+> > *a contains a valid TYPE structure and an attempt is made to reuse
+> > it. This "reuse" capability is present for historical compatibility
+> > but its use is strongly discouraged (see BUGS below, and the
+> > discussion in the RETURN VALUES section).
+> > ?
+> > BUGS
+> > ?
+> > As a result of the above issues the "reuse" behaviour is strongly
+> > discouraged.
+> > 
+> 
+> So if I'm understanding correctly, this "reuse" capability is
+> discouraged, still present for historical compatibility, but in
+> OpenSSL 3 we have to use it if we want to use a custom library
+> context.
+> 
+> This divergence between these two bits of documentation bothers me.
+> Do you have an opinion on this?
+> 
+> Regards,
+> 
+> - thomas
+> 
+> 
+> [1]:
+> https://www.openssl.org/docs/man3.1/man7/migration_guide.html#Using-a-Library-Context---Old-functions-that-should-be-changed
+> [2]: https://www.openssl.org/docs/man3.1/man3/d2i_X509.html
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From thomas.bailleux at sandboxquantum.com  Wed Oct  4 07:36:50 2023
+From: thomas.bailleux at sandboxquantum.com (Thomas Bailleux)
+Date: Wed, 4 Oct 2023 09:36:50 +0200
+Subject: OpenSSL 3, "reuse" capability in `d2i_TYPE_BIO` and documentation
+In-Reply-To: <3e8f1ab7955b365946c9f50e21084c2bd1f8f655.camel@openssl.org>
+References: <CAHnN3bfgrfE0frt_E4DK2OiQ7rfNQ0fY2w1avcxW0XP-kNUFKA@mail.gmail.com>
+ <3e8f1ab7955b365946c9f50e21084c2bd1f8f655.camel@openssl.org>
+Message-ID: <CAHnN3bddNxRWKktVKfO6VT29k6QDBHP36iEWg23GMK5ppMGykQ@mail.gmail.com>
+
+Hi Tomas,
+
+Thanks for your reply.
+
+I wonder if we shouldn't be providing a new API for X509 instead. We
+already have `PEM_read_bio_PrivateKey_ex` and `d2i_PrivateKey_ex_bio`, what
+about having `PEM_read_bio_X509_ex` and `d2i_X509_ex_bio` too?
+I feel like the documentation can be confusing with all these conditions
+(OK if using OSSL_LIB_CTX, otherwise not OK, and in both cases *x is freed
+even on error etc).
+
+Also, we can move this discussion to the PR you just opened if you prefer.
+
+Regards,
+
+- thomas
+
+On Tue, Oct 3, 2023 at 3:47?PM Tomas Mraz <tomas at openssl.org> wrote:
+
+> Hello Thomas,
+>
+> I've created a pull request that should clarify the matter:
+>
+> https://github.com/openssl/openssl/pull/22265
+>
+> Please look there.
+>
+> Tomas Mraz, OpenSSL
+>
+> On Mon, 2023-10-02 at 09:41 +0200, Thomas Bailleux wrote:
+> > Hello OpenSSL,
+> >
+> > I'm currently migrating a codebase from OpenSSL 1.1.1 to OpenSSL 3.
+> > Since I may use OpenSSL providers in the future, I decided to use
+> > these new `_ex` functions from OpenSSL 3.
+> >
+> > While reading the "Old functions that should be changed" from the
+> > migration guide[1], I came across an oddity: it is claimed that in
+> > order to use a non-default library context when parsing an `X509` or
+> > an `EVP_PKEY`, `TYPE_new_ex` must be used (e.g. `X509_new_ex`), and
+> > then we have to use the "reuse" capability from the various parsing
+> > functions (`PEM_read_bio_X509`):
+> >
+> > > Some functions can be passed an object that has already been set up
+> > > with a library context such as d2i_X509(3), d2i_X509_CRL(3),
+> > > d2i_X509_REQ(3) and d2i_X509_PUBKEY(3). If NULL is passed instead
+> > > then the created object will be set up with the default library
+> > > context. Use X509_new_ex(3), X509_CRL_new_ex(3), X509_REQ_new_ex(3)
+> > > and X509_PUBKEY_new_ex(3) if a library context is required.
+> >
+> > So basically we have to do the following:
+> >
+> > > BIO *bio;
+> > > OSSL_LIB_CTX* lib_ctx;
+> > > X509 *x509 = X509_new_ex(lib_ctx, NULL);
+> > > if (d2i_X509_bio(bio, &x509) != NULL) {
+> > >   // success
+> > > } else {
+> > >   // error
+> > > }
+> > >
+> >
+> >
+> > However, in the `D2I_X509` manpage[2], the following is stated:
+> >
+> > > On a successful return, if *a is not NULL then it is assumed that
+> > > *a contains a valid TYPE structure and an attempt is made to reuse
+> > > it. This "reuse" capability is present for historical compatibility
+> > > but its use is strongly discouraged (see BUGS below, and the
+> > > discussion in the RETURN VALUES section).
+> > > ?
+> > > BUGS
+> > > ?
+> > > As a result of the above issues the "reuse" behaviour is strongly
+> > > discouraged.
+> > >
+> >
+> > So if I'm understanding correctly, this "reuse" capability is
+> > discouraged, still present for historical compatibility, but in
+> > OpenSSL 3 we have to use it if we want to use a custom library
+> > context.
+> >
+> > This divergence between these two bits of documentation bothers me.
+> > Do you have an opinion on this?
+> >
+> > Regards,
+> >
+> > - thomas
+> >
+> >
+> > [1]:
+> >
+> https://www.openssl.org/docs/man3.1/man7/migration_guide.html#Using-a-Library-Context---Old-functions-that-should-be-changed
+> > [2]: https://www.openssl.org/docs/man3.1/man3/d2i_X509.html
+>
+> --
+> Tom?? Mr?z, OpenSSL
+>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231004/02a861c4/attachment.htm>
+
+From tomas at openssl.org  Wed Oct  4 07:39:34 2023
+From: tomas at openssl.org (Tomas Mraz)
+Date: Wed, 04 Oct 2023 09:39:34 +0200
+Subject: OpenSSL 3, "reuse" capability in `d2i_TYPE_BIO` and documentation
+In-Reply-To: <CAHnN3bddNxRWKktVKfO6VT29k6QDBHP36iEWg23GMK5ppMGykQ@mail.gmail.com>
+References: <CAHnN3bfgrfE0frt_E4DK2OiQ7rfNQ0fY2w1avcxW0XP-kNUFKA@mail.gmail.com>
+ <3e8f1ab7955b365946c9f50e21084c2bd1f8f655.camel@openssl.org>
+ <CAHnN3bddNxRWKktVKfO6VT29k6QDBHP36iEWg23GMK5ppMGykQ@mail.gmail.com>
+Message-ID: <d15be4ca9cc5c4ebfcf41b4f56cac04aa0c33b68.camel@openssl.org>
+
+Clearly we need the documentation fix. If there should be a new API or
+not that's a separate discussion. If you want to propose it, please
+open a new GH feature request issue.
+
+Regards,
+Tomas Mraz, OpenSSL
+
+On Wed, 2023-10-04 at 09:36 +0200, Thomas Bailleux wrote:
+> Hi Tomas,
+> 
+> Thanks for your reply.
+> 
+> I wonder if we shouldn't be providing a new API for X509 instead. We
+> already have `PEM_read_bio_PrivateKey_ex` and
+> `d2i_PrivateKey_ex_bio`, what about having `PEM_read_bio_X509_ex` and
+> `d2i_X509_ex_bio` too? 
+> I feel like the documentation can be confusing with all these
+> conditions (OK if using OSSL_LIB_CTX, otherwise not OK, and in both
+> cases *x is freed even on error etc).
+> 
+> Also, we can move this discussion to the PR you just opened if you
+> prefer.
+> 
+> Regards,
+> 
+> - thomas
+> 
+> On Tue, Oct 3, 2023 at 3:47?PM Tomas Mraz <tomas at openssl.org> wrote:
+> > Hello Thomas,
+> > 
+> > I've created a pull request that should clarify the matter:
+> > 
+> > https://github.com/openssl/openssl/pull/22265
+> > 
+> > Please look there.
+> > 
+> > Tomas Mraz, OpenSSL
+> > 
+> > On Mon, 2023-10-02 at 09:41 +0200, Thomas Bailleux wrote:
+> > > Hello OpenSSL,
+> > > 
+> > > I'm currently migrating a codebase from OpenSSL 1.1.1 to OpenSSL
+> > > 3.
+> > > Since I may use OpenSSL providers in the future, I decided to use
+> > > these new `_ex` functions from OpenSSL 3.
+> > > 
+> > > While reading the "Old functions that should be changed" from the
+> > > migration guide[1], I came across an oddity: it is claimed that
+> > > in
+> > > order to use a non-default library context when parsing an `X509`
+> > > or
+> > > an `EVP_PKEY`, `TYPE_new_ex` must be used (e.g. `X509_new_ex`),
+> > > and
+> > > then we have to use the "reuse" capability from the various
+> > > parsing
+> > > functions (`PEM_read_bio_X509`):
+> > > 
+> > > > Some functions can be passed an object that has already been
+> > > > set up
+> > > > with a library context such as d2i_X509(3), d2i_X509_CRL(3),
+> > > > d2i_X509_REQ(3) and d2i_X509_PUBKEY(3). If NULL is passed
+> > > > instead
+> > > > then the created object will be set up with the default library
+> > > > context. Use X509_new_ex(3), X509_CRL_new_ex(3),
+> > > > X509_REQ_new_ex(3)
+> > > > and X509_PUBKEY_new_ex(3) if a library context is required.
+> > > 
+> > > So basically we have to do the following:
+> > > 
+> > > > BIO *bio;
+> > > > OSSL_LIB_CTX* lib_ctx;
+> > > > X509 *x509 = X509_new_ex(lib_ctx, NULL);
+> > > > if (d2i_X509_bio(bio, &x509) != NULL) {
+> > > > ? // success
+> > > > } else {
+> > > > ? // error
+> > > > }
+> > > > 
+> > > 
+> > > 
+> > > However, in the `D2I_X509` manpage[2], the following is stated:
+> > > 
+> > > > On a successful return, if *a is not NULL then it is assumed
+> > > > that
+> > > > *a contains a valid TYPE structure and an attempt is made to
+> > > > reuse
+> > > > it. This "reuse" capability is present for historical
+> > > > compatibility
+> > > > but its use is strongly discouraged (see BUGS below, and the
+> > > > discussion in the RETURN VALUES section).
+> > > > ?
+> > > > BUGS
+> > > > ?
+> > > > As a result of the above issues the "reuse" behaviour is
+> > > > strongly
+> > > > discouraged.
+> > > > 
+> > > 
+> > > So if I'm understanding correctly, this "reuse" capability is
+> > > discouraged, still present for historical compatibility, but in
+> > > OpenSSL 3 we have to use it if we want to use a custom library
+> > > context.
+> > > 
+> > > This divergence between these two bits of documentation bothers
+> > > me.
+> > > Do you have an opinion on this?
+> > > 
+> > > Regards,
+> > > 
+> > > - thomas
+> > > 
+> > > 
+> > > [1]:
+> > > https://www.openssl.org/docs/man3.1/man7/migration_guide.html#Using-a-Library-Context---Old-functions-that-should-be-changed
+> > > [2]: https://www.openssl.org/docs/man3.1/man3/d2i_X509.html
+> > 
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From thomas.bailleux at sandboxaq.com  Thu Oct  5 07:39:22 2023
+From: thomas.bailleux at sandboxaq.com (Thomas Bailleux)
+Date: Thu, 5 Oct 2023 09:39:22 +0200
+Subject: `core_obj_create` and multi-threaded applications
+Message-ID: <CAHnN3bcEUMfCoaYE0pTvRKh2TRSPV75_vbnaiGpXhx4eZqQg1w@mail.gmail.com>
+
+Hello OpenSSL,
+
+I'm currently writing a multi-threaded application using OpenSSL 3.1.
+For some reason, I've decided to instantiate a `OSSL_LIB_CTX` per thread.
+I'm also trying the provider API with oqs-provider, and I ran into an issue
+that is caused
+by the fact that `core_obj_create` is called by `OSSL_PROVIDER_load` which
+itself is called by multiple threads running at the same time.
+
+I described the bug in the following thread:
+https://github.com/open-quantum-safe/oqs-provider/issues/272
+
+Basically, the oqs-provider init function registers some custom OIDs using
+the `core_obj_create` which makes a call to `OBJ_create`.
+
+As described in the BUGS section of the `OBJ_create` man page[1] of *OpenSSL
+3.0*, `OBJ_create` used to be non thread-safe.
+However, in *OpenSSL 3.1*[2], it is thread safe:
+
+These functions were not thread safe in OpenSSL 3.0 and before.
+>
+
+So I think there is a race condition in `core_obj_create`[3] function: the
+function checks if the OID already exists, if so it returns OK (1),
+otherwise it makes a call to `OBJ_create`. The TOCTOU is happening between
+these two statements basically.
+
+What do you suggest to mitigate this issue?
+
+Regards,
+
+- thomas
+
+[1]: https://www.openssl.org/docs/man3.0/man3/OBJ_create.html
+[2]: https://www.openssl.org/docs/man3.1/man3/OBJ_create.html
+[3]:
+https://github.com/openssl/openssl/blob/9c20f5db0feaddc4c9ea4c4b2b07e6d87d6701f1/crypto/provider_core.c#L2127-L2133
+
+-- 
+
+Thomas Bailleux
+
+Cryptography software engineer
+
+thomas at sandboxaq.com
+
++33 6 47 04 61 58 | Paris, FRANCE
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231005/65bbbdfa/attachment.htm>
+
+From matt at openssl.org  Thu Oct  5 09:51:44 2023
+From: matt at openssl.org (Matt Caswell)
+Date: Thu, 5 Oct 2023 10:51:44 +0100
+Subject: `core_obj_create` and multi-threaded applications
+In-Reply-To: <CAHnN3bcEUMfCoaYE0pTvRKh2TRSPV75_vbnaiGpXhx4eZqQg1w@mail.gmail.com>
+References: <CAHnN3bcEUMfCoaYE0pTvRKh2TRSPV75_vbnaiGpXhx4eZqQg1w@mail.gmail.com>
+Message-ID: <521386eb-6b6b-498a-8962-97d68b81eab2@openssl.org>
+
+It mostly seems to cause an inconsistency in that sometimes 
+core_obj_create returns 1 if the OID already exists and sometimes it 
+returns 0.
+
+Really core_obj_create should be a thin wrapper around OBJ_create. It 
+probably shouldn't do the initial check at all and just call OBJ_create 
+- which would make it always consistent, i.e. return 0 if it already exists.
+
+oqsprovider probably needs to be tolerant of this failure condition, 
+i.e. it doesn't care if it already exists - so ignore a 0 return.
+
+Matt
+
+On 05/10/2023 08:39, Thomas Bailleux wrote:
+> Hello OpenSSL,
+> 
+> I'm currently writing a multi-threaded application using OpenSSL 3.1.
+> For some reason, I've decided to instantiate a `OSSL_LIB_CTX` per thread.
+> I'm also trying the provider API with oqs-provider, and I ran into an 
+> issue that is caused
+> by the fact that `core_obj_create` is called by `OSSL_PROVIDER_load` 
+> which itself is called by multiple threads running at the same time.
+> 
+> I described the bug in the following thread: 
+> https://github.com/open-quantum-safe/oqs-provider/issues/272 
+> <https://github.com/open-quantum-safe/oqs-provider/issues/272>
+> 
+> Basically, the oqs-provider init function registers some custom OIDs 
+> using the `core_obj_create` which makes a call to `OBJ_create`.
+> 
+> As described in the BUGS section of the `OBJ_create` man page[1] of 
+> *OpenSSL 3.0*, `OBJ_create` used to be non thread-safe.
+> However, in *OpenSSL 3.1*[2], it is thread safe:
+> 
+>     These functions were not thread safe in OpenSSL 3.0 and before.
+> 
+> 
+> So I think there is a race condition in `core_obj_create`[3] function: 
+> the function checks if the OID already exists, if so it returns OK (1), 
+> otherwise it makes a call to `OBJ_create`. The TOCTOU is happening 
+> between these two statements basically.
+> 
+> What do you suggest to mitigate this issue?
+> 
+> Regards,
+> 
+> - thomas
+> 
+> [1]: https://www.openssl.org/docs/man3.0/man3/OBJ_create.html 
+> <https://www.openssl.org/docs/man3.0/man3/OBJ_create.html>
+> [2]: https://www.openssl.org/docs/man3.1/man3/OBJ_create.html 
+> <https://www.openssl.org/docs/man3.1/man3/OBJ_create.html>
+> [3]: 
+> https://github.com/openssl/openssl/blob/9c20f5db0feaddc4c9ea4c4b2b07e6d87d6701f1/crypto/provider_core.c#L2127-L2133 <https://github.com/openssl/openssl/blob/9c20f5db0feaddc4c9ea4c4b2b07e6d87d6701f1/crypto/provider_core.c#L2127-L2133>
+> 
+> -- 
+> 
+> Thomas Bailleux
+> 
+> Cryptography software engineer
+> 
+> thomas at sandboxaq.com <mailto:thomas at sandboxaq.com>
+> 
+> +33 6 47 04 61 58 | Paris, FRANCE
+> 
+> 
+
+From vesely at tana.it  Fri Oct  6 09:04:31 2023
+From: vesely at tana.it (Alessandro Vesely)
+Date: Fri, 6 Oct 2023 11:04:31 +0200
+Subject: How to use EVP_DigestSignInit[_ex]()?
+Message-ID: <11e418ac-c325-83b2-f283-10d872b9db08@tana.it>
+
+Hi all,
+
+my scarce crypto knowledge notwithstanding, I'm trying to maintain a DKIM 
+signing function.  With the previous openssl version, I added a snippet to sign 
+using ed25519, more or less like so:
+
+     char *digest;              // digest already computed from
+     size_t diglen;             // normalized message header
+
+     EVP_PKEY *crypto_pkey;     // given
+
+     size_t crypto_outlen;      // expected
+     unsigned char *crypto_out;
+
+     EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
+     if (md_ctx == NULL) goto error;
+
+     int status = EVP_DigestSignInit(md_ctx,
+         NULL, NULL, NULL, crypto_pkey);
+     if (status == 1)
+         status = EVP_DigestSign(md_ctx,
+             crypto_out, &crypto_outlen,
+             digest, diglen);
+     EVP_MD_CTX_free(md_ctx);
+     if (status != 1) goto error;
+
+That works.  With the onset of openssl 3 and RSA_sign() deprecation, I thought 
+that snippet could work with RSA as well.  Given an RSA key, that code returns 
+no error but a NULL crypto_out.  I should have specified SHA256 or (deprecated) 
+SHA1, but I don't know how to obtain an EVP_MD *type.  Or is it better to use 
+the _ex version?
+
+Best
+Ale
+-- 
+
+
+
+
+From vesely at tana.it  Fri Oct  6 17:54:10 2023
+From: vesely at tana.it (Alessandro Vesely)
+Date: Fri, 6 Oct 2023 19:54:10 +0200
+Subject: How to use EVP_DigestSignInit[_ex]()?
+In-Reply-To: <11e418ac-c325-83b2-f283-10d872b9db08@tana.it>
+References: <11e418ac-c325-83b2-f283-10d872b9db08@tana.it>
+Message-ID: <4c071c8f-aee6-1f3a-05ec-5044195e8c19@tana.it>
+
+I fixed my code as follows:
+
+
+On Fri 06/Oct/2023 11:04:31 +0200 Alessandro Vesely wrote:
+> 
+> my scarce crypto knowledge notwithstanding, I'm trying to maintain a DKIM 
+> signing function.? With the previous openssl version, I added a snippet to sign 
+> using ed25519, more or less like so:
+> 
+>  ??? char *digest;????????????? // digest already computed from
+>  ??? size_t diglen;???????????? // normalized message header
+> 
+>  ??? EVP_PKEY *crypto_pkey;???? // given
+> 
+>  ??? size_t crypto_outlen;????? // expected
+>  ??? unsigned char *crypto_out;
+> 
+>  ??? EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
+>  ??? if (md_ctx == NULL) goto error;
+
+        int status;
+        if (signalg != ED25519SHA256)
+            status = EVP_DigestSignInit_ex(md_ctx, NULL,
+                signalg == SHA1? "SHA1": "sha256", NULL, NULL,
+                crypto_pkey, NULL);
+        else
+            status = EVP_DigestSignInit(md_ctx, NULL,
+                NULL, NULL, crypto->crypto_pkey);
+
+>  ??? if (status == 1)
+>  ??????? status = EVP_DigestSign(md_ctx,
+>  ??????????? crypto_out, &crypto_outlen,
+>  ??????????? digest, diglen);
+>  ??? EVP_MD_CTX_free(md_ctx);
+>  ??? if (status != 1) goto error;
+
+
+Now, that works well with ED25519.  With RSA keys, all tests fail, delivering a 
+signature different than expected.  Can that be because I still don't have set 
+RSA_PKCS1_PADDING?  How could that be done?
+
+
+Best
+Ale
+
+From brahmaji.k at gmail.com  Mon Oct  9 06:51:25 2023
+From: brahmaji.k at gmail.com (Brahmaji K)
+Date: Mon, 9 Oct 2023 12:21:25 +0530
+Subject: Request for Openssl APIs to be used to sort the certificate chain
+Message-ID: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+
+Hi Team,
+
+Could you please help provide Openssl APIs (or list of APIs) to be used to
+sort the certificates used in the certificate chain?
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231009/c1c38df4/attachment.htm>
+
+From David.von.Oheimb at siemens.com  Mon Oct  9 13:31:45 2023
+From: David.von.Oheimb at siemens.com (David von Oheimb)
+Date: Mon, 9 Oct 2023 15:31:45 +0200
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to sort
+ the certificate chain
+In-Reply-To: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+Message-ID: <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+
+Hi Brahmaji,
+
+what you mean by 'sorting' a cert chain - making sure they are in the 
+order of issuance, starting from a given target cert,
+possibly assuming that the given list/set of certs is already known to 
+be complete w.r.t. the given target cert and some trust anchor?
+
+What likely comes very close to what you asked for is the function 
+X509_build_chain() added in https://github.com/openssl/openssl/pull/14128.
+You can call it, e.g., like this:
+
+chain = X509_build_chain(target_cert, candidate_certs, NULL /* 
+truststore */, 1, NULL, NULL);
+
+See https://www.openssl.org/docs/manmaster/man3/X509_build_chain.html 
+for its man page.
+
+ ??? David
+
+
+On 09.10.23 08:51, Brahmaji K wrote:
+> Hi Team,
+>
+> Could you please help provide Openssl APIs (or list of APIs) to be 
+> used to sort the certificates used in the certificate chain?
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231009/6899dc03/attachment.htm>
+
+From openssl-users at dukhovni.org  Mon Oct  9 14:19:54 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Mon, 9 Oct 2023 10:19:54 -0400
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to
+ sort the certificate chain
+In-Reply-To: <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+ <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+Message-ID: <ZSQMCupshcEm5s23@straasha.imrryr.org>
+
+On Mon, Oct 09, 2023 at 03:31:45PM +0200, David von Oheimb via openssl-users wrote:
+
+> What likely comes very close to what you asked for is the function
+> X509_build_chain() added in https://github.com/openssl/openssl/pull/14128.
+> You can call it, e.g., like this:
+> 
+> chain = X509_build_chain(target_cert, candidate_certs, NULL /* truststore
+> */, 1, NULL, NULL);
+> 
+> See https://www.openssl.org/docs/manmaster/man3/X509_build_chain.html for
+> its man page.
+
+Long-standing Prior practice is to add all the candidate certificates in
+a "store" and/or as a list of candidate "untrusted" chain certificates,
+and then attempt to "verify" the EE (leaf) certificate, as was done, for
+example, the internal to the SSL library function
+ssl_build_cert_chain():
+
+    https://github.com/openssl/openssl/blob/OpenSSL_1_1_1-stable/ssl/ssl_cert.c#L756-L863
+
+That function is quite general, and attends to various details (Suite-B,
+security levels, ...) that most users don't need to bother with.  A much
+shorter version can be specialised from its core elements:
+
+    1. Initialise a verification context:
+
+        https://github.com/openssl/openssl/blob/OpenSSL_1_1_1-stable/ssl/ssl_cert.c#L801-L804
+
+    2. Request chain verification:
+
+        https://github.com/openssl/openssl/blob/OpenSSL_1_1_1-stable/ssl/ssl_cert.c#L809
+
+    3. Optionally clean up the error stack.
+
+        https://github.com/openssl/openssl/blob/OpenSSL_1_1_1-stable/ssl/ssl_cert.c#L810-L812
+
+    4. Request the constructed chain:
+
+        https://github.com/openssl/openssl/blob/OpenSSL_1_1_1-stable/ssl/ssl_cert.c#L816-L817
+
+The new X509_build_chain() is convenient, but not essential.
+Constructing a chain is possible also with earlier releases of OpenSSL.
+
+If you choose to present the candidate chain certificates as a "store",
+you can also mark some of them as "trusted" (if not implicitly "trusted"
+by virtue of being self-signed), by decorating them with one or more
+trusted "purpose" OIDs, and then build a chain "up to" one of the
+trusted certificates, rather than a root CA.
+
+To add a trust OID to a certificate, call X509_add1_trust_object(), for
+a manpage is sorely missing...
+
+-- 
+    Viktor.
+
+From brahmaji.k at gmail.com  Mon Oct  9 16:15:35 2023
+From: brahmaji.k at gmail.com (Brahmaji K)
+Date: Mon, 9 Oct 2023 21:45:35 +0530
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to
+ sort the certificate chain
+In-Reply-To: <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+ <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+Message-ID: <CAO5S7GhKcHSZR=ScGFrf_pDz4zvb7vWzAcTkwtQ7o4KxfaqXJg@mail.gmail.com>
+
+Hi David,
+
+Thanks a lot for your reply,
+
+I'll provide more details of my question:
+Let's assume I have 4 certs called Cert 1, Cert 2, Cert 3 and Cert 4, Cert
+1 is a root cert. Assume the correct cert chain is - Cert 4 || Cert 3 ||
+Cert 2 || Cert 1 (Here Cert 3 signed cert4, Cert 2 signed Cert 3, Cert 2 is
+signed by root cert i.e., cert 1). If I got the certificate chain out of
+order in a single file as - Cert 3 || Cert 2 || Cert 1 || Cert 4, then is
+there a direct way (i.e., with any openssl API(s)), we can create the
+certificates chain in the correct order as - Cert 4 || Cert 3 || Cert 2 ||
+Cert 1?
+
+As you mentioned, I'll try X509_build_chain() and update the result.
+
+*Regards,*
+*Brahmaji K*
+
+
+On Mon, Oct 9, 2023 at 7:02?PM David von Oheimb via openssl-users <
+openssl-users at openssl.org> wrote:
+
+> Hi Brahmaji,
+>
+> what you mean by 'sorting' a cert chain - making sure they are in the
+> order of issuance, starting from a given target cert,
+> possibly assuming that the given list/set of certs is already known to be
+> complete w.r.t. the given target cert and some trust anchor?
+>
+> What likely comes very close to what you asked for is the function X509_build_chain()
+> added in https://github.com/openssl/openssl/pull/14128.
+> You can call it, e.g., like this:
+>
+> chain = X509_build_chain(target_cert, candidate_certs, NULL /* truststore
+> */, 1, NULL, NULL);
+>
+> See https://www.openssl.org/docs/manmaster/man3/X509_build_chain.html for
+> its man page.
+>
+>     David
+>
+>
+> On 09.10.23 08:51, Brahmaji K wrote:
+>
+> Hi Team,
+>
+> Could you please help provide Openssl APIs (or list of APIs) to be used to
+> sort the certificates used in the certificate chain?
+>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231009/18b05855/attachment-0001.htm>
+
+From openssl-users at dukhovni.org  Mon Oct  9 16:38:05 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Mon, 9 Oct 2023 12:38:05 -0400
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to
+ sort the certificate chain
+In-Reply-To: <CAO5S7GhKcHSZR=ScGFrf_pDz4zvb7vWzAcTkwtQ7o4KxfaqXJg@mail.gmail.com>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+ <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+ <CAO5S7GhKcHSZR=ScGFrf_pDz4zvb7vWzAcTkwtQ7o4KxfaqXJg@mail.gmail.com>
+Message-ID: <ZSQsbVD5n6Qc8sfc@straasha.imrryr.org>
+
+On Mon, Oct 09, 2023 at 09:45:35PM +0530, Brahmaji K wrote:
+
+> If I got the certificate chain out of order [...], then is there a
+> direct way (i.e., with[out?] any openssl API(s)), we can create the
+> certificates chain in the correct order as - Cert 4 || Cert 3 || Cert
+> 2 || Cert 1?
+
+It seems, you're looking for a CLI feature, that would not require
+writing code.  That's a missing feature of the openssl-verify(1)
+command.  It has a `-show_certs` option that prints just the
+distinguished names of the certificates in constructed chain,
+but has no `-print_certs` function that would instead just
+output the constructed chain.
+
+This would make a good entry-level contribution to the OpenSSL project.
+
+-- 
+    Viktor.
+
+From steffen at sdaoden.eu  Mon Oct  9 17:06:05 2023
+From: steffen at sdaoden.eu (Steffen Nurpmeso)
+Date: Mon, 09 Oct 2023 19:06:05 +0200
+Subject: S/MIME 4.0 (RFC 8551): PKCS7_ support?
+Message-ID: <20231009170605.EVrR0%steffen@sdaoden.eu>
+
+Hello.
+
+After my CACert-backed S/MIME approach has come to an end
+i thought i switch to some self-signed one with attached
+certificate in signed envelope, as now many PGP people do.
+Alongside this i thought using a much smaller key would be great,
+and so i generated
+
+  openssl req -noenc -newkey ED25519 -keyout key.pem -out csr.pem -x509
+
+which gives wonderful short things.
+Unfortunately i cannot use it
+
+  s-nail: Error setting PKCS#7 signing object signer: error:10800094:PKCS7 routines::signing not supported for this key type
+
+I seem to know that this type does not support streams aka update,
+update, .. final cycles, but wanted to ask whether this is the
+problem here (without doing all the rewrite stuff), or whether the
+OpenSSL PKCS7 codebase simply cannot deal with RFC 8551 yet.
+
+Thank you,
+Ciao from Germany.
+
+--steffen
+|
+|Der Kragenbaer,                The moon bear,
+|der holt sich munter           he cheerfully and one by one
+|einen nach dem anderen runter  wa.ks himself off
+|(By Robert Gernhardt)
+
+From openssl-users at dukhovni.org  Mon Oct  9 17:50:33 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Mon, 9 Oct 2023 13:50:33 -0400
+Subject: S/MIME 4.0 (RFC 8551): PKCS7_ support?
+In-Reply-To: <20231009170605.EVrR0%steffen@sdaoden.eu>
+References: <20231009170605.EVrR0%steffen@sdaoden.eu>
+Message-ID: <ZSQ9aZwh7SpRUzYH@straasha.imrryr.org>
+
+On Mon, Oct 09, 2023 at 07:06:05PM +0200, Steffen Nurpmeso wrote:
+
+> After my CACert-backed S/MIME approach has come to an end
+> i thought i switch to some self-signed one with attached
+> certificate in signed envelope, as now many PGP people do.
+> Alongside this i thought using a much smaller key would be great,
+> and so i generated
+> 
+>   openssl req -noenc -newkey ED25519 -keyout key.pem -out csr.pem -x509
+> 
+> which gives wonderful short things.
+> Unfortunately i cannot use it
+> 
+>   s-nail: Error setting PKCS#7 signing object signer: error:10800094:PKCS7 routines::signing not supported for this key type
+> 
+> I seem to know that this type does not support streams aka update,
+> update, .. final cycles, but wanted to ask whether this is the
+> problem here (without doing all the rewrite stuff), or whether the
+> OpenSSL PKCS7 codebase simply cannot deal with RFC 8551 yet.
+
+Join the queue, :-(
+
+    https://github.com/openssl/openssl/issues/11915
+
+-- 
+    Viktor.
+
+From steffen at sdaoden.eu  Mon Oct  9 19:10:04 2023
+From: steffen at sdaoden.eu (Steffen Nurpmeso)
+Date: Mon, 09 Oct 2023 21:10:04 +0200
+Subject: S/MIME 4.0 (RFC 8551): PKCS7_ support?
+In-Reply-To: <ZSQ9aZwh7SpRUzYH@straasha.imrryr.org>
+References: <20231009170605.EVrR0%steffen@sdaoden.eu>
+ <ZSQ9aZwh7SpRUzYH@straasha.imrryr.org>
+Message-ID: <20231009191004.1OUYx%steffen@sdaoden.eu>
+
+Viktor Dukhovni wrote in
+ <ZSQ9aZwh7SpRUzYH at straasha.imrryr.org>:
+ |On Mon, Oct 09, 2023 at 07:06:05PM +0200, Steffen Nurpmeso wrote:
+ ...
+ |> Alongside this i thought using a much smaller key would be great,
+ |> and so i generated
+ |> 
+ |>   openssl req -noenc -newkey ED25519 -keyout key.pem -out csr.pem -x509
+ |> 
+ |> which gives wonderful short things.
+ |> Unfortunately i cannot use it
+ |> 
+ |>   s-nail: Error setting PKCS#7 signing object signer: error:10800094:PKCS\
+ |>   7 routines::signing not supported for this key type
+ |> 
+ |> I seem to know that this type does not support streams aka update,
+ |> update, .. final cycles, but wanted to ask whether this is the
+ |> problem here (without doing all the rewrite stuff), or whether the
+ |> OpenSSL PKCS7 codebase simply cannot deal with RFC 8551 yet.
+ |
+ |Join the queue, :-(
+ |
+ |    https://github.com/openssl/openssl/issues/11915
+
+I did search only via Google as github is practically unusable if
+your bandwidth is out and you live with 5-8 Kbyte/sec.
+.... :) well ok hm, that gets a bit too involved for me, but the
+cms tool uses the PKCS7_*() itself, so we are brothers in failure.
+
+Thank you, Viktor!
+
+--steffen
+|
+|Der Kragenbaer,                The moon bear,
+|der holt sich munter           he cheerfully and one by one
+|einen nach dem anderen runter  wa.ks himself off
+|(By Robert Gernhardt)
+
+From openssl-users at dukhovni.org  Mon Oct  9 19:37:22 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Mon, 9 Oct 2023 15:37:22 -0400
+Subject: S/MIME 4.0 (RFC 8551): PKCS7_ support?
+In-Reply-To: <20231009191004.1OUYx%steffen@sdaoden.eu>
+References: <20231009170605.EVrR0%steffen@sdaoden.eu>
+ <ZSQ9aZwh7SpRUzYH@straasha.imrryr.org>
+ <20231009191004.1OUYx%steffen@sdaoden.eu>
+Message-ID: <ZSRWclkUPGP2X6w7@straasha.imrryr.org>
+
+On Mon, Oct 09, 2023 at 09:10:04PM +0200, Steffen Nurpmeso wrote:
+
+>  |Join the queue, :-(
+>  |
+>  |    https://github.com/openssl/openssl/issues/11915
+> 
+> I did search only via Google as github is practically unusable if
+> your bandwidth is out and you live with 5-8 Kbyte/sec.
+> .... :) well ok hm, that gets a bit too involved for me, but the
+> cms tool uses the PKCS7_*() itself, so we are brothers in failure.
+
+CMS extends and subsumes S/MIME.  If support for ED25519 is to happen,
+it has to happen in CMS, and the smime(1) command-line should come along
+for the ride, because presumably under the covers support for Ed25519
+and Ed448 would happen in PKCS7 as well as CMS.
+
+Or, you could just use cms(1) instead, if smime(1) is left behind.
+
+-- 
+    Viktor.
+
+From brahmaji.k at gmail.com  Tue Oct 10 04:32:38 2023
+From: brahmaji.k at gmail.com (Brahmaji K)
+Date: Tue, 10 Oct 2023 10:02:38 +0530
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to
+ sort the certificate chain
+In-Reply-To: <ZSQsbVD5n6Qc8sfc@straasha.imrryr.org>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+ <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+ <CAO5S7GhKcHSZR=ScGFrf_pDz4zvb7vWzAcTkwtQ7o4KxfaqXJg@mail.gmail.com>
+ <ZSQsbVD5n6Qc8sfc@straasha.imrryr.org>
+Message-ID: <CAO5S7GgtoQ6N1xx=beqkOLaWYvGNuVENp80PcfCkQUaUOXQP1A@mail.gmail.com>
+
+Thanks a lot Viktor and David for your answers.
+
+On Tue, Oct 10, 2023 at 1:32?AM Viktor Dukhovni <openssl-users at dukhovni.org>
+wrote:
+
+> On Mon, Oct 09, 2023 at 09:45:35PM +0530, Brahmaji K wrote:
+>
+> > If I got the certificate chain out of order [...], then is there a
+> > direct way (i.e., with[out?] any openssl API(s)), we can create the
+> > certificates chain in the correct order as - Cert 4 || Cert 3 || Cert
+> > 2 || Cert 1?
+>
+> It seems, you're looking for a CLI feature, that would not require
+> writing code.  That's a missing feature of the openssl-verify(1)
+> command.  It has a `-show_certs` option that prints just the
+> distinguished names of the certificates in constructed chain,
+> but has no `-print_certs` function that would instead just
+> output the constructed chain.
+>
+> This would make a good entry-level contribution to the OpenSSL project.
+>
+> --
+>     Viktor.
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231010/bd5d6f5e/attachment-0001.htm>
+
+From David.von.Oheimb at siemens.com  Tue Oct 10 06:39:47 2023
+From: David.von.Oheimb at siemens.com (David von Oheimb)
+Date: Tue, 10 Oct 2023 08:39:47 +0200
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to
+ sort the certificate chain
+In-Reply-To: <CAO5S7GgtoQ6N1xx=beqkOLaWYvGNuVENp80PcfCkQUaUOXQP1A@mail.gmail.com>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+ <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+ <CAO5S7GhKcHSZR=ScGFrf_pDz4zvb7vWzAcTkwtQ7o4KxfaqXJg@mail.gmail.com>
+ <ZSQsbVD5n6Qc8sfc@straasha.imrryr.org>
+ <CAO5S7GgtoQ6N1xx=beqkOLaWYvGNuVENp80PcfCkQUaUOXQP1A@mail.gmail.com>
+Message-ID: <1b54a5af-47e0-34db-896b-acc1c96ddc6c@siemens.com>
+
+On 10.10.23 06:32, Brahmaji K wrote:
+> Thanks a?lot Viktor and David for your answers.
+
+you are welcome - hopefully they helped.
+
+Note that both answers assume that you already know which ist the first 
+(i.e., target) cert in the chain - cert 4 in your example.
+If it is the only end-entity cert in the list, it is straightforward to 
+take that.
+If this is not the case (maybe because your target cert is a CA cert or 
+there are multiple EE certs),
+in the worst case one would have try out which target cert results in 
+the longest chain.
+
+
+> On Tue, Oct 10, 2023 at 1:32?AM Viktor Dukhovni 
+> <openssl-users at dukhovni.org> wrote:
+>
+>     On Mon, Oct 09, 2023 at 09:45:35PM +0530, Brahmaji K wrote:
+>
+>     > If I got the certificate chain out of order [...], then is there
+>     a direct way (i.e., with[out?] any openssl API(s)), we can create the
+>     > certificates chain in the correct order as - Cert 4 || Cert 3 ||
+>     Cert 2 || Cert 1?
+>
+>     It seems, you're looking for a CLI feature, that would not require
+>     writing code.? That's a missing feature of the openssl-verify(1)
+>     command.
+>
+Using cert verification (regardless if at API or CLI level) has the 
+drawback that it is less efficient than just building the chain.
+
+>     It has a `-show_certs` option that prints just the
+>     distinguished names of the certificates in constructed chain,
+>     but has no `-print_certs` function that would instead just
+>     output the constructed chain.
+>
+>     This would make a good entry-level contribution to the OpenSSL
+>     project.
+>
+If anyone tackles this, I'd suggest not providing a -print_certs option 
+but an -out_chain <certfile> option.
+
+ ??? David
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231010/a5c84e03/attachment.htm>
+
+From brahmaji.k at gmail.com  Tue Oct 10 07:13:49 2023
+From: brahmaji.k at gmail.com (Brahmaji K)
+Date: Tue, 10 Oct 2023 12:43:49 +0530
+Subject: X509_build_chain() - Re: Request for Openssl APIs to be used to
+ sort the certificate chain
+In-Reply-To: <1b54a5af-47e0-34db-896b-acc1c96ddc6c@siemens.com>
+References: <CAO5S7GhapfihSC6SpN9-mX9xE31feG_UJ0e3QV9m9NPxNpXkbA@mail.gmail.com>
+ <1929bd06-b23e-3b97-18f7-df5b1f301285@siemens.com>
+ <CAO5S7GhKcHSZR=ScGFrf_pDz4zvb7vWzAcTkwtQ7o4KxfaqXJg@mail.gmail.com>
+ <ZSQsbVD5n6Qc8sfc@straasha.imrryr.org>
+ <CAO5S7GgtoQ6N1xx=beqkOLaWYvGNuVENp80PcfCkQUaUOXQP1A@mail.gmail.com>
+ <1b54a5af-47e0-34db-896b-acc1c96ddc6c@siemens.com>
+Message-ID: <CAO5S7Gj+4HSRiHDUq51gLTP7v3VGcf2f_Lx0Zw_c+y=SzrFKGQ@mail.gmail.com>
+
+Hi David,
+
+>> Note that both answers assume that you already know which ist the first
+(i.e., target) cert in the chain - cert 4 in your example.
+In our case we only know the root cert but all other certs are given
+jumbled and target is to extract the leave cert (target cert) among the
+jumbled certs.
+
+On Tue, Oct 10, 2023 at 12:10?PM David von Oheimb via openssl-users <
+openssl-users at openssl.org> wrote:
+
+> On 10.10.23 06:32, Brahmaji K wrote:
+>
+> Thanks a lot Viktor and David for your answers.
+>
+> you are welcome - hopefully they helped.
+>
+> Note that both answers assume that you already know which ist the first
+> (i.e., target) cert in the chain - cert 4 in your example.
+> If it is the only end-entity cert in the list, it is straightforward to
+> take that.
+> If this is not the case (maybe because your target cert is a CA cert or
+> there are multiple EE certs),
+> in the worst case one would have try out which target cert results in the
+> longest chain.
+>
+>
+> On Tue, Oct 10, 2023 at 1:32?AM Viktor Dukhovni <
+> openssl-users at dukhovni.org> wrote:
+>
+>> On Mon, Oct 09, 2023 at 09:45:35PM +0530, Brahmaji K wrote:
+>>
+>> > If I got the certificate chain out of order [...], then is there a
+>> direct way (i.e., with[out?] any openssl API(s)), we can create the
+>> > certificates chain in the correct order as - Cert 4 || Cert 3 || Cert 2
+>> || Cert 1?
+>>
+>> It seems, you're looking for a CLI feature, that would not require
+>> writing code.  That's a missing feature of the openssl-verify(1)
+>> command.
+>>
+> Using cert verification (regardless if at API or CLI level) has the
+> drawback that it is less efficient than just building the chain.
+>
+> It has a `-show_certs` option that prints just the
+>> distinguished names of the certificates in constructed chain,
+>> but has no `-print_certs` function that would instead just
+>> output the constructed chain.
+>>
+>> This would make a good entry-level contribution to the OpenSSL project.
+>>
+> If anyone tackles this, I'd suggest not providing a -print_certs option
+> but an -out_chain <certfile> option.
+>
+>     David
+>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231010/45928493/attachment.htm>
+
+From dbuergin at gluet.ch  Tue Oct 10 10:07:51 2023
+From: dbuergin at gluet.ch (David =?utf-8?Q?B=C3=BCrgin?=)
+Date: Tue, 10 Oct 2023 12:07:51 +0200
+Subject: Why does openssl accept multiple keys after BEGIN PUBLIC KEY?
+Message-ID: <ZSUidzsPWov7XYUa@gluet.ch>
+
+Hello!
+
+When you inspect the following key with ?openssl pkey?, it works fine:
+
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9oaro18Mt4FITtXvhy/v2N0d0
+aQJ285MgstG5QSgvFnXA+7Bww20hnLQZD4vOZbeIhdu4g5s8S6LWczqswDjVyD97
+9j+RcZM+JcnHPEIvkn7YCKYnM3mvSQKmeRtm9kDVL0waKf+iZ5ZDYiLcfXCSIDnT
+2SMxp3D9UNEfEZDMoQIDAQABMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDK
+A5hv8tKZBw3cx+j0NMrbsOY5QfoUtxGeXjmGI89q63iFxBdSgrJW5wpthZfHcVHl
+roPW885ToeSrEdyUIVCokR7L8PP7Up0PGXUDPIFCQB7+jVV8ezLyxHSLGT81u7Be
+el5ybAgsal/GmhpeQXcEpnYpiqVcHL3XTlY8+34EQQIDAQAB
+-----END PUBLIC KEY-----
+
+However, there is something odd about it, openssl seems to be interested
+only in the first half of the key data:
+
+$ openssl pkey -pubin -in thekey.pem -text
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9oaro18Mt4FITtXvhy/v2N0d0
+aQJ285MgstG5QSgvFnXA+7Bww20hnLQZD4vOZbeIhdu4g5s8S6LWczqswDjVyD97
+9j+RcZM+JcnHPEIvkn7YCKYnM3mvSQKmeRtm9kDVL0waKf+iZ5ZDYiLcfXCSIDnT
+2SMxp3D9UNEfEZDMoQIDAQAB
+-----END PUBLIC KEY-----
+Public-Key: (1024 bit)
+Modulus:
+    00:bd:a1:aa:e8:d7:c3:2d:e0:52:13:b5:7b:e1:cb:
+    fb:f6:37:47:74:69:02:76:f3:93:20:b2:d1:b9:41:
+    28:2f:16:75:c0:fb:b0:70:c3:6d:21:9c:b4:19:0f:
+    8b:ce:65:b7:88:85:db:b8:83:9b:3c:4b:a2:d6:73:
+    3a:ac:c0:38:d5:c8:3f:7b:f6:3f:91:71:93:3e:25:
+    c9:c7:3c:42:2f:92:7e:d8:08:a6:27:33:79:af:49:
+    02:a6:79:1b:66:f6:40:d5:2f:4c:1a:29:ff:a2:67:
+    96:43:62:22:dc:7d:70:92:20:39:d3:d9:23:31:a7:
+    70:fd:50:d1:1f:11:90:cc:a1
+Exponent: 65537 (0x10001)
+
+Well, that key actually contains two, concatenated
+SubjectPublicKeyInfos! I noticed this when I first used a different
+library, and processing failed.
+
+? Is openssl right in accepting this key? Why does it use only the first
+  one?
+? Is the other library wrong in rejecting this key?
+? Do relevant RFCs say something about such a ?concatenated? format?
+
+Cheers,
+
+
+-- 
+David
+
+From hkario at redhat.com  Tue Oct 10 16:28:57 2023
+From: hkario at redhat.com (Hubert Kario)
+Date: Tue, 10 Oct 2023 18:28:57 +0200
+Subject: S/MIME 4.0 (RFC 8551): =?iso-8859-1?Q?PKCS7=5F_support=3F?=
+In-Reply-To: <ZSRWclkUPGP2X6w7@straasha.imrryr.org>
+References: <20231009170605.EVrR0%steffen@sdaoden.eu>
+ <ZSQ9aZwh7SpRUzYH@straasha.imrryr.org>
+ <20231009191004.1OUYx%steffen@sdaoden.eu>
+ <ZSRWclkUPGP2X6w7@straasha.imrryr.org>
+Message-ID: <5c0b7e0d-1466-42e3-a8a5-14ca71544c6a@redhat.com>
+
+On Monday, 9 October 2023 21:37:22 CEST, Viktor Dukhovni wrote:
+> On Mon, Oct 09, 2023 at 09:10:04PM +0200, Steffen Nurpmeso wrote:
+>
+>>  |Join the queue, :-(
+>>  |
+>>  |    https://github.com/openssl/openssl/issues/11915
+>> 
+>> I did search only via Google as github is practically unusable if
+>> your bandwidth is out and you live with 5-8 Kbyte/sec.
+>> .... :) well ok hm, that gets a bit too involved for me, but the
+>> cms tool uses the PKCS7_*() itself, so we are brothers in failure.
+>
+> CMS extends and subsumes S/MIME.  If support for ED25519 is to happen,
+> it has to happen in CMS, and the smime(1) command-line should come along
+> for the ride, because presumably under the covers support for Ed25519
+> and Ed448 would happen in PKCS7 as well as CMS.
+>
+> Or, you could just use cms(1) instead, if smime(1) is left behind.
+
+smime(1) doesn't even support RSA-OAEP, it should be just marked as
+abandoned in documentation
+
+-- 
+Regards,
+Hubert Kario
+Principal Quality Engineer, RHEL Crypto team
+Web: www.cz.redhat.com
+Red Hat Czech s.r.o., Purky?ova 99/71, 612 45, Brno, Czech Republic
+
+
+From openssl-users at dukhovni.org  Tue Oct 10 17:02:45 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Tue, 10 Oct 2023 13:02:45 -0400
+Subject: Why does openssl accept multiple keys after BEGIN PUBLIC KEY?
+In-Reply-To: <ZSUidzsPWov7XYUa@gluet.ch>
+References: <ZSUidzsPWov7XYUa@gluet.ch>
+Message-ID: <ZSWDtRkmvpMCrIcO@straasha.imrryr.org>
+
+On Tue, Oct 10, 2023 at 12:07:51PM +0200, David B?rgin wrote:
+
+> When you inspect the following key with ?openssl pkey?, it works fine:
+> 
+> -----BEGIN PUBLIC KEY-----
+> MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9oaro18Mt4FITtXvhy/v2N0d0
+> aQJ285MgstG5QSgvFnXA+7Bww20hnLQZD4vOZbeIhdu4g5s8S6LWczqswDjVyD97
+> 9j+RcZM+JcnHPEIvkn7YCKYnM3mvSQKmeRtm9kDVL0waKf+iZ5ZDYiLcfXCSIDnT
+> 2SMxp3D9UNEfEZDMoQIDAQABMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDK
+> A5hv8tKZBw3cx+j0NMrbsOY5QfoUtxGeXjmGI89q63iFxBdSgrJW5wpthZfHcVHl
+> roPW885ToeSrEdyUIVCokR7L8PP7Up0PGXUDPIFCQB7+jVV8ezLyxHSLGT81u7Be
+> el5ybAgsal/GmhpeQXcEpnYpiqVcHL3XTlY8+34EQQIDAQAB
+> -----END PUBLIC KEY-----
+>
+> However, there is something odd about it, openssl seems to be
+> interested only in the first half of the key data:
+>
+> Well, that key actually contains two, concatenated
+> SubjectPublicKeyInfos! I noticed this when I first used a different
+> library, and processing failed.
+
+The data between the PEM "BEGIN" and "END" markers is supposed to be a
+block of base64 text that contains an ASN.1 DER encoding of the object
+in question.  In this case we see, that indeed there are two
+back-to-back DER SPKI structures:
+
+    $ openssl asn1parse <<EOF
+    -----BEGIN PUBLIC KEY-----
+    MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9oaro18Mt4FITtXvhy/v2N0d0
+    aQJ285MgstG5QSgvFnXA+7Bww20hnLQZD4vOZbeIhdu4g5s8S6LWczqswDjVyD97
+    9j+RcZM+JcnHPEIvkn7YCKYnM3mvSQKmeRtm9kDVL0waKf+iZ5ZDYiLcfXCSIDnT
+    2SMxp3D9UNEfEZDMoQIDAQABMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDK
+    A5hv8tKZBw3cx+j0NMrbsOY5QfoUtxGeXjmGI89q63iFxBdSgrJW5wpthZfHcVHl
+    roPW885ToeSrEdyUIVCokR7L8PP7Up0PGXUDPIFCQB7+jVV8ezLyxHSLGT81u7Be
+    el5ybAgsal/GmhpeQXcEpnYpiqVcHL3XTlY8+34EQQIDAQAB
+    -----END PUBLIC KEY-----
+    EOF
+        0:d=0  hl=3 l= 159 cons: SEQUENCE          
+        3:d=1  hl=2 l=  13 cons: SEQUENCE          
+        5:d=2  hl=2 l=   9 prim: OBJECT            :rsaEncryption
+       16:d=2  hl=2 l=   0 prim: NULL              
+       18:d=1  hl=3 l= 141 prim: BIT STRING        
+      162:d=0  hl=3 l= 159 cons: SEQUENCE          
+      165:d=1  hl=2 l=  13 cons: SEQUENCE          
+      167:d=2  hl=2 l=   9 prim: OBJECT            :rsaEncryption
+      178:d=2  hl=2 l=   0 prim: NULL              
+      180:d=1  hl=3 l= 141 prim: BIT STRING        
+
+Because ASN.1 objects have an explicit length, it is possible to process
+just the first 162 bytes (3 byte header + 159 data), without checking
+that this represents the entire content of the base64-encoded input.
+
+> ? Is openssl right in accepting this key? Why does it use only the
+>   first one?
+
+OpenSSL "pkey" application (and perhaps more generally, the underlying
+PEM_read_bio_PUBKEY(3)) did not check that the entire input buffer was
+consumed, so only the first structure is processed.  The only plausible
+outcomes are to extract the first structure and ignore excess data, or
+to the reject the input due to the excess data.
+
+Note that the PEM layer relies on the "d2i" functions to read the
+DER-encoded data, and the "d2i" functions support reading a portion of
+an input buffer, filling in the decoded structure and returning a
+pointer to the tail of the input stream, this supports reading of arrays
+of DER-encoded objects, or just a single DER encoded object in a larger
+"packet".
+
+So what happens here, is that the PEM layer does not compare the "d2i"
+end pointer with the end of the input buffer and the "trailing data"
+is simply ignored.  The check that's "missing" would be similar to:
+
+    https://github.com/vdukhovni/postfix/blob/master/postfix/src/tls/tls_certkey.c#L208-L214
+
+> ? Is the other library wrong in rejecting this key?
+
+I don't think it is wrong to be strict.
+
+> ? Do relevant RFCs say something about such a ?concatenated? format?
+
+I haven't seen anything that clearly prohibits ignoring excess input,
+but there is certainly no expectation that it would be used.  It can
+either be rejected or ignored.
+
+I don't see any explicit rules about this in:
+
+    https://datatracker.ietf.org/doc/html/rfc7468
+
+Perhaps I did not read it closely enough, or the relevant normative
+rules are in some other document.
+
+-- 
+    Viktor.
+
+From dbuergin at gluet.ch  Tue Oct 10 17:50:46 2023
+From: dbuergin at gluet.ch (=?UTF-8?Q?David_B=C3=BCrgin?=)
+Date: Tue, 10 Oct 2023 19:50:46 +0200
+Subject: Why does openssl accept multiple keys after BEGIN PUBLIC KEY?
+In-Reply-To: <ZSWDtRkmvpMCrIcO@straasha.imrryr.org>
+References: <ZSUidzsPWov7XYUa@gluet.ch> <ZSWDtRkmvpMCrIcO@straasha.imrryr.org>
+Message-ID: <d30262d3-0153-4850-8e2f-8fbab611162a@gluet.ch>
+
+Viktor Dukhovni:
+> ...
+
+Very clear and thorough explanation, thank you very much.
+
+From pheadley at linxco-inc.com  Tue Oct 10 20:16:10 2023
+From: pheadley at linxco-inc.com (Patrick Headley)
+Date: Tue, 10 Oct 2023 14:16:10 -0600
+Subject: Problems with OpenSSL and local database connectivity
+Message-ID: <471561ba-fa1b-4f4e-8942-14e4a38c789e@linxco-inc.com>
+
+This is a description of a problem. I am using OpenSuSE 15.4 with Gnome 
+41.8 and configured a couple OpenSSL connections using the network 
+settings utility provided by Gnome. It used to be that any time the VPN 
+was connected all local network resources were unavailable. That seems 
+to have improved to where everything is available except for local 
+database connections. If the VPN connection is closed and then opened 
+again the local database connections may be available.
+
+I perform database support so it would be nice if I could connect to 
+local databases while connected to a client through their VPN host. 
+Hopeing this is an issue that can be resolved.
+
+-- 
+*/Patrick Headley/*
+Linx Consulting, Inc.
+(303) 916-5522
+pheadley at linxco-inc.com
+www.linxco-inc.com
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231010/b71ed857/attachment-0001.htm>
+
+From dierberg at dresearch-fe.de  Wed Oct 11 08:12:48 2023
+From: dierberg at dresearch-fe.de (Sascha Dierberg)
+Date: Wed, 11 Oct 2023 10:12:48 +0200
+Subject: PEM_read_PUBKEY does memory corruption on malformed input - security
+ issue?
+Message-ID: <CAHDLcBpmv419EvJ1S1_of2ZYimkXog8zf2wXmAA2g-PtB=JEFw@mail.gmail.com>
+
+Hello openssl users,
+
+I amusing PEM_read_PUBKEY to read following PEM from file:
+
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqIBCgKCAQEA17SFrRcnYAjmxioP28zrouMe+CN0oQIDAQAB
+-----END PUBLIC KEY-----
+
+The content is invalid - I know, but after that memory in program code is
+corrupted. Functions they usually work fine does:
+
+(process:12463): libsoup-CRITICAL **: 07:05:00.453:
+soup_connection_get_ever_used: assertion 'SOUP_IS_CONNECTION (conn)' failed
+(process:12463): libsoup-WARNING **: 07:05:06.026:
+(../libsoup-2.74.2/libsoup/soup-session.c:2023):soup_session_process_queue_item:
+runtime check failed: (item->new_api)
+
+Any recommendations? Help would be appreciated.
+
+Thanks in advance - Sascha
+
+-- 
+Mit freundlichen Gr??en ? With best regards - Sascha Dierberg Senior
+Software Engineer
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231011/2e2e65e5/attachment.htm>
+
+From Jochen.Bern at binect.de  Wed Oct 11 08:58:28 2023
+From: Jochen.Bern at binect.de (Jochen Bern)
+Date: Wed, 11 Oct 2023 10:58:28 +0200
+Subject: Problems with OpenSSL and local database connectivity
+In-Reply-To: <mailman.7526.1696968976.2512.openssl-users@openssl.org>
+References: <mailman.7526.1696968976.2512.openssl-users@openssl.org>
+Message-ID: <c00c74ad-6abb-76d6-3c03-9454cb960307@binect.de>
+
+On 10.10.23 22:16, openssl-users-request at openssl.org digested:
+> Date: Tue, 10 Oct 2023 14:16:10 -0600
+> From: Patrick Headley <pheadley at linxco-inc.com>
+> 
+> I [...]  configured a couple OpenSSL connections using the network
+> settings utility provided by Gnome. It used to be that any time the VPN 
+> was connected all local network resources were unavailable. That seems 
+> to have improved to where everything is available except for local 
+> database connections. If the VPN connection is closed and then opened 
+> again the local database connections may be available.
+> 
+> I perform database support so it would be nice if I could connect to 
+> local databases while connected to a client through their VPN host. 
+> Hopeing this is an issue that can be resolved.
+
+(Bare) OpenSSL doesn't *do* VPNs, nor (AFAIK) connections that a host's 
+"network setup" would be interested in. Are you running a) Open*VPN* 
+(the protocol), by chance, or even more specifically b) OpenVPN (the 
+software / client)?
+
+In case of b), the server can insist that the VPN be "captive" (i.e., 
+absorb *all* traffic except the communication with your client's default 
+gateway). You'll have to talk to the server admin, "Client Configuration 
+Directory (CCD)" might be a relevant keyword.
+
+In case of a), client-side settings *might* be able to override the 
+settings the server tries to push. (The OpenVPN plugin of NetworkManager 
+comes to mind.)
+
+Neither would, however, explain why *only* your DBs remain unreachable 
+*unless* the connection to them uses different *IP addresses* than the 
+rest (as opposed to just different ports) ...
+
+Kind regards,
+-- 
+Jochen Bern
+Systemingenieur
+
+Binect GmbH
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: smime.p7s
+Type: application/pkcs7-signature
+Size: 3449 bytes
+Desc: S/MIME Cryptographic Signature
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231011/2ba99872/attachment.p7s>
+
+From openssl-users at dukhovni.org  Wed Oct 11 15:43:11 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Wed, 11 Oct 2023 11:43:11 -0400
+Subject: PEM_read_PUBKEY does memory corruption on malformed input -
+ security issue?
+In-Reply-To: <CAHDLcBpmv419EvJ1S1_of2ZYimkXog8zf2wXmAA2g-PtB=JEFw@mail.gmail.com>
+References: <CAHDLcBpmv419EvJ1S1_of2ZYimkXog8zf2wXmAA2g-PtB=JEFw@mail.gmail.com>
+Message-ID: <ZSbCj-V4U8RRrhxW@straasha.imrryr.org>
+
+On Wed, Oct 11, 2023 at 10:12:48AM +0200, Sascha Dierberg wrote:
+
+> I am using PEM_read_PUBKEY to read following PEM from file:
+> 
+> -----BEGIN PUBLIC KEY-----
+> MIIBIjANBgkqIBCgKCAQEA17SFrRcnYAjmxioP28zrouMe+CN0oQIDAQAB
+> -----END PUBLIC KEY-----
+> 
+> The content is invalid - I know, but after that memory in program code is
+> corrupted. Functions they usually work fine does:
+
+Without posting the concrete code that attempts to read the file, no
+help is possible.
+
+    - What inputs are you passing to the PEM_read_PUBKEY function?
+    - How are the various inputs initialised?
+    - What does your code do on error?
+    - Just in case, though unlikely to matter, what version of OpenSSL
+      are you using?
+
+-- 
+    Viktor.
+
+From dierberg at dresearch-fe.de  Wed Oct 11 17:19:36 2023
+From: dierberg at dresearch-fe.de (Sascha Dierberg)
+Date: Wed, 11 Oct 2023 19:19:36 +0200
+Subject: PEM_read_PUBKEY does memory corruption on malformed input -
+ security issue?
+In-Reply-To: <ZSbCj-V4U8RRrhxW@straasha.imrryr.org>
+References: <CAHDLcBpmv419EvJ1S1_of2ZYimkXog8zf2wXmAA2g-PtB=JEFw@mail.gmail.com>
+ <ZSbCj-V4U8RRrhxW@straasha.imrryr.org>
+Message-ID: <1da04128-15d9-2ab7-0f73-39189015a5d9@dresearch-fe.de>
+
+Thanks for the reply, see 
+https://github.com/openssl/openssl/issues/22349 too.
+
+Am 11.10.2023 um 17:43 schrieb Viktor Dukhovni:
+> On Wed, Oct 11, 2023 at 10:12:48AM +0200, Sascha Dierberg wrote:
+>
+>> I am using PEM_read_PUBKEY to read following PEM from file:
+>>
+>> -----BEGIN PUBLIC KEY-----
+>> MIIBIjANBgkqIBCgKCAQEA17SFrRcnYAjmxioP28zrouMe+CN0oQIDAQAB
+>> -----END PUBLIC KEY-----
+>>
+>> The content is invalid - I know, but after that memory in program code is
+>> corrupted. Functions they usually work fine does:
+> Without posting the concrete code that attempts to read the file, no
+> help is possible.
+>
+>      - What inputs are you passing to the PEM_read_PUBKEY function?
+>      - How are the various inputs initialised?
+>      - What does your code do on error?
+>      - Just in case, though unlikely to matter, what version of OpenSSL
+>        are you using?
+>
+
+From openssl-users at dukhovni.org  Wed Oct 11 17:57:17 2023
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Wed, 11 Oct 2023 13:57:17 -0400
+Subject: PEM_read_PUBKEY does memory corruption on malformed input -
+ security issue?
+In-Reply-To: <1da04128-15d9-2ab7-0f73-39189015a5d9@dresearch-fe.de>
+References: <CAHDLcBpmv419EvJ1S1_of2ZYimkXog8zf2wXmAA2g-PtB=JEFw@mail.gmail.com>
+ <ZSbCj-V4U8RRrhxW@straasha.imrryr.org>
+ <1da04128-15d9-2ab7-0f73-39189015a5d9@dresearch-fe.de>
+Message-ID: <ZSbh_dNoWOfJi4Jt@straasha.imrryr.org>
+
+On Wed, Oct 11, 2023 at 07:19:36PM +0200, Sascha Dierberg wrote:
+
+> Thanks for the reply, see https://github.com/openssl/openssl/issues/22349
+> too.
+
+The reported problem is not reproducible in OpenSSL.  Any memory
+corruption issue is highly likely to be some logic error in the
+application.
+
+It also seems rather likely that reading malformed (e.g., as in this
+case,truncated) PEM objects is not that uncommon, and any issues in the
+error path would have surfaced multiple times before.  Occam's razor, in
+this case, strongly favours the calling code rather than OpenSSL.
+
+-- 
+    Viktor.
+
+From chris.bare at gmail.com  Wed Oct 11 19:51:44 2023
+From: chris.bare at gmail.com (Chris Bare)
+Date: Wed, 11 Oct 2023 15:51:44 -0400
+Subject: X509_STORE_free leaks an X509_LOOKUP_METHOD
+Message-ID: <CAHR5+EE72e6uzWCNw5MoZb_9J-L5ZbjbADP34nhUc=NcxdWYTQ@mail.gmail.com>
+
+Running the attached program under valgrind I get:
+==1836773== 11,979 (9,504 direct, 2,475 indirect) bytes in 99 blocks are
+definitely lost in loss record 23 of 23
+==1836773==    at 0x4848899: malloc (in
+/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==1836773==    by 0x4DBE26D: CRYPTO_zalloc (in
+/usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+==1836773==    by 0x4E31134: X509_LOOKUP_meth_new (in
+/usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+==1836773==    by 0x10930C: make_store (test.c:26)
+==1836773==    by 0x1093B9: main (test.c:50)
+
+If I call X509_LOOKUP_meth_free where I have it commented out then I get:
+==1837066== Invalid read of size 8
+==1837066==    at 0x4E2E74D: X509_LOOKUP_shutdown (in
+/usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+==1837066==    by 0x4E368B7: X509_STORE_free (in
+/usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+==1837066==    by 0x10940E: main (test.c:52)
+
+Am I doing something wrong, or is this a bug in X509_STORE_free?
+-- 
+Chris Bare
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231011/7e5b7afa/attachment.htm>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: test.c
+Type: text/x-csrc
+Size: 1114 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231011/7e5b7afa/attachment.c>
+
+From pheadley at linxco-inc.com  Wed Oct 11 19:55:20 2023
+From: pheadley at linxco-inc.com (Patrick Headley)
+Date: Wed, 11 Oct 2023 13:55:20 -0600
+Subject: Problems with OpenSSL and local database connectivity
+In-Reply-To: <c00c74ad-6abb-76d6-3c03-9454cb960307@binect.de>
+References: <mailman.7526.1696968976.2512.openssl-users@openssl.org>
+ <c00c74ad-6abb-76d6-3c03-9454cb960307@binect.de>
+Message-ID: <b5497d2b-5514-47cb-a927-acf0c3044535@linxco-inc.com>
+
+You are correct. I'm running OpenVPN and confused it with OpenSSL. My 
+apologies.
+
+*/Patrick Headley/*
+Linx Consulting, Inc.
+(303) 916-5522
+pheadley at linxco-inc.com
+www.linxco-inc.com
+
+
+On 10/11/23 2:58 AM, Jochen Bern wrote:
+> On 10.10.23 22:16, openssl-users-request at openssl.org digested:
+>> Date: Tue, 10 Oct 2023 14:16:10 -0600
+>> From: Patrick Headley <pheadley at linxco-inc.com>
+>>
+>> I [...]? configured a couple OpenSSL connections using the network
+>> settings utility provided by Gnome. It used to be that any time the 
+>> VPN was connected all local network resources were unavailable. That 
+>> seems to have improved to where everything is available except for 
+>> local database connections. If the VPN connection is closed and then 
+>> opened again the local database connections may be available.
+>>
+>> I perform database support so it would be nice if I could connect to 
+>> local databases while connected to a client through their VPN host. 
+>> Hopeing this is an issue that can be resolved.
+>
+> (Bare) OpenSSL doesn't *do* VPNs, nor (AFAIK) connections that a 
+> host's "network setup" would be interested in. Are you running a) 
+> Open*VPN* (the protocol), by chance, or even more specifically b) 
+> OpenVPN (the software / client)?
+>
+> In case of b), the server can insist that the VPN be "captive" (i.e., 
+> absorb *all* traffic except the communication with your client's 
+> default gateway). You'll have to talk to the server admin, "Client 
+> Configuration Directory (CCD)" might be a relevant keyword.
+>
+> In case of a), client-side settings *might* be able to override the 
+> settings the server tries to push. (The OpenVPN plugin of 
+> NetworkManager comes to mind.)
+>
+> Neither would, however, explain why *only* your DBs remain unreachable 
+> *unless* the connection to them uses different *IP addresses* than the 
+> rest (as opposed to just different ports) ...
+>
+> Kind regards,
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231011/a08af8ac/attachment-0001.htm>
+
+From matt at openssl.org  Thu Oct 12 07:17:54 2023
+From: matt at openssl.org (Matt Caswell)
+Date: Thu, 12 Oct 2023 08:17:54 +0100
+Subject: X509_STORE_free leaks an X509_LOOKUP_METHOD
+In-Reply-To: <CAHR5+EE72e6uzWCNw5MoZb_9J-L5ZbjbADP34nhUc=NcxdWYTQ@mail.gmail.com>
+References: <CAHR5+EE72e6uzWCNw5MoZb_9J-L5ZbjbADP34nhUc=NcxdWYTQ@mail.gmail.com>
+Message-ID: <9dc8cf42-5e56-49f6-b1ce-499237b4bb3f@openssl.org>
+
+
+
+On 11/10/2023 20:51, Chris Bare wrote:
+> Running the attached program under valgrind I get:
+> ==1836773== 11,979 (9,504 direct, 2,475 indirect) bytes in 99 blocks are 
+> definitely lost in loss record 23 of 23
+> ==1836773== ? ?at 0x4848899: malloc (in 
+> /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+> ==1836773== ? ?by 0x4DBE26D: CRYPTO_zalloc (in 
+> /usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+> ==1836773== ? ?by 0x4E31134: X509_LOOKUP_meth_new (in 
+> /usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+> ==1836773== ? ?by 0x10930C: make_store (test.c:26)
+> ==1836773== ? ?by 0x1093B9: main (test.c:50)
+> 
+> If I call X509_LOOKUP_meth_free where I have it commented out then I get:
+> ==1837066== Invalid read of size 8
+> ==1837066== ? ?at 0x4E2E74D: X509_LOOKUP_shutdown (in 
+> /usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+> ==1837066== ? ?by 0x4E368B7: X509_STORE_free (in 
+> /usr/lib/x86_64-linux-gnu/libcrypto.so.3)
+> ==1837066== ? ?by 0x10940E: main (test.c:52)
+> 
+> Am I doing something wrong, or is this a bug in X509_STORE_free?
+
+The X509_LOOKUP_METHOD must outlive and remain valid for the entire 
+lifetime of the X509_STORE. So you must not call X509_STORE_add_lookup() 
+and then immediately free the method you just added. Instead you should 
+call X509_LOOKUP_meth_free() *after* X509_STORE_free().
+
+Matt
+
+
+From srahul.292919 at gmail.com  Mon Oct 16 13:35:29 2023
+From: srahul.292919 at gmail.com (Rahul Shukla)
+Date: Mon, 16 Oct 2023 19:05:29 +0530
+Subject: Seeing hang in SSL_read() even after disabling SSL_MODE_AUTO_RETRY
+Message-ID: <CAKcoO8RnO+RAXZgVY_7LW+1sWft-pgUnjWnWAzqZS04j=J2iMA@mail.gmail.com>
+
+Hi All,
+
+Recently we added support for TLSv1.3 in our product.
+
+To support TLSv1.3 we did the following changes.
+
+   1. We had to switch off the SSL_MODE_AUTO_RETRY as we were seeing a hang
+   with blocking sockets when SSL_read() was processing the non-application
+   data records, but then try to read an application data record which might
+   not be available.
+   2. We added the SSL_read() call with 0 bytes, just after the handshake
+   is completed, to read the session ticket if it is available.
+   3. We had also changed the read logic to handle *SSL_ERROR_WANT_READ,
+   SSL_ERROR_WANT_WRITE *errors during the read.
+
+
+
+Now, we are observing the following hang for the 2nd step where the
+SSL_read() was called with 0 bytes, just after the handshake is completed,
+to read the session ticket if it is available.
+
+
+
+#0  0x00007fd34a5886e0 in __read_nocancel () at
+../sysdeps/unix/syscall-template.S:81
+
+#1  0x0000561992233735 in sock_read ()
+
+#2  0x000056199223052c in bread_conv ()
+
+#3  0x000056199222f222 in BIO_read ()
+
+#4  0x00005619921cd190 in ssl3_read_n ()
+
+#5  0x00005619921d1996 in ssl3_get_record ()
+
+#6  0x00005619921cf233 in ssl3_read_bytes ()
+
+#7  0x00005619921d5e4a in ssl3_read ()
+
+#8  0x00005619921defed in ssl_read_internal ()
+
+#9  0x00005619921df1d3 in SSL_read ()
+
+ ....
+
+
+Any idea why this hang is coming even after disabling SSL_MODE_AUTO_RETRY.
+
+Let me know if you need any other details. Thanks in advance.
+
+
+
+--Rahul
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231016/b3befb49/attachment.htm>
+
+From matt at openssl.org  Tue Oct 17 17:48:26 2023
+From: matt at openssl.org (Matt Caswell)
+Date: Tue, 17 Oct 2023 18:48:26 +0100
+Subject: New OpenSSL Releases
+Message-ID: <6d5fbdd3-f915-49d5-94df-461749e91473@openssl.org>
+
+The OpenSSL project team would like to announce the upcoming release of
+OpenSSL versions 3.1.4 and 3.0.12.
+
+These releases will be made available on Tuesday 24th October 2023
+between 1300-1700 UTC.
+
+These are security-fix releases. The highest severity issue fixed in
+each of these two releases is Moderate:
+
+https://www.openssl.org/policies/secpolicy.html
+
+Yours
+The OpenSSL Project Team
+
+From Martin.Bonner at entrust.com  Thu Oct 19 09:14:12 2023
+From: Martin.Bonner at entrust.com (Martin Bonner)
+Date: Thu, 19 Oct 2023 09:14:12 +0000
+Subject: Running a script with OpenSSL 3.0
+Message-ID: <DM6PR11MB4188AD28AB12E8BA8B118E3FF3D4A@DM6PR11MB4188.namprd11.prod.outlook.com>
+
+With OpenSSL 1.1.1, I could write something like:
+$ echo version | /path/to/openssl
+
+And it would display
+OpenSSL> OpenSSL 1.1.1g  21 Apr 2020
+OpenSSL> $
+
+(Where the final "$" is my bash prompt again.)  In an ideal world, it wouldn't display the "OpenSSL> " prompt like that, but that's not a big deal.
+
+With OpenSSL 3.0, this no longer appears to work.  The output from the above command is identical to just "$ /path/to/openssl".
+
+Am I doing something wrong, or does this functionality no longer work?
+--
+Martin Bonner (he/him)
+Phone: +49 151 5046 3855
+martin.bonner at entrust.com
+
+
+Any email and files/attachments transmitted with it are intended solely for the use of the individual or entity to whom they are addressed. If this message has been sent to you in error, you must not copy, distribute or disclose of the information it contains. Please notify Entrust immediately and delete the message from your system.
+
+From matt at openssl.org  Thu Oct 19 09:21:25 2023
+From: matt at openssl.org (Matt Caswell)
+Date: Thu, 19 Oct 2023 10:21:25 +0100
+Subject: Running a script with OpenSSL 3.0
+In-Reply-To: <DM6PR11MB4188AD28AB12E8BA8B118E3FF3D4A@DM6PR11MB4188.namprd11.prod.outlook.com>
+References: <DM6PR11MB4188AD28AB12E8BA8B118E3FF3D4A@DM6PR11MB4188.namprd11.prod.outlook.com>
+Message-ID: <bd5c854f-05ed-4233-bc8f-cdb9282105f8@openssl.org>
+
+
+
+On 19/10/2023 10:14, Martin Bonner via openssl-users wrote:
+> With OpenSSL 1.1.1, I could write something like:
+> $ echo version | /path/to/openssl
+
+This runs openssl in "interactive" mode and runs the version command 
+from that mode. That's quite a strange thing to do in a script.
+
+The above is equivalent to the following non-interactive mode command:
+
+openssl version
+
+Interactive mode is no longer supported. Just run it non-interactively. 
+That will also remove the "OpenSSL>" prompt.
+
+Matt
+
+
+> 
+> And it would display
+> OpenSSL> OpenSSL 1.1.1g  21 Apr 2020
+> OpenSSL> $
+> 
+> (Where the final "$" is my bash prompt again.)  In an ideal world, it wouldn't display the "OpenSSL> " prompt like that, but that's not a big deal.
+> 
+> With OpenSSL 3.0, this no longer appears to work.  The output from the above command is identical to just "$ /path/to/openssl".
+> 
+> Am I doing something wrong, or does this functionality no longer work?
+> --
+> Martin Bonner (he/him)
+> Phone: +49 151 5046 3855
+> martin.bonner at entrust.com
+> 
+> 
+> Any email and files/attachments transmitted with it are intended solely for the use of the individual or entity to whom they are addressed. If this message has been sent to you in error, you must not copy, distribute or disclose of the information it contains. Please notify Entrust immediately and delete the message from your system.
+> 
+
+From Martin.Bonner at entrust.com  Thu Oct 19 12:32:34 2023
+From: Martin.Bonner at entrust.com (Martin Bonner)
+Date: Thu, 19 Oct 2023 12:32:34 +0000
+Subject: Running a script with OpenSSL 3.0
+In-Reply-To: <mailman.1.1697716802.2305244.openssl-users@openssl.org>
+References: <mailman.1.1697716802.2305244.openssl-users@openssl.org>
+Message-ID: <DM6PR11MB4188A9BA0C39382C95B6F786F3D4A@DM6PR11MB4188.namprd11.prod.outlook.com>
+
+> This runs openssl in "interactive" mode and runs the version command
+> from that mode. That's quite a strange thing to do in a script.
+
+It was an example.  The actual script is more complicated.
+
+> Interactive mode is no longer supported. Just run it non-interactively.
+Thanks, I thought that might be the case.
+
+> That will also remove the "OpenSSL>" prompt.
+Of course.
+
+--
+Martin Bonner
+Any email and files/attachments transmitted with it are intended solely for the use of the individual or entity to whom they are addressed. If this message has been sent to you in error, you must not copy, distribute or disclose of the information it contains. Please notify Entrust immediately and delete the message from your system.
+
+From xavier.marchal at loria.fr  Thu Oct 19 13:51:34 2023
+From: xavier.marchal at loria.fr (Xavier Marchal)
+Date: Thu, 19 Oct 2023 15:51:34 +0200 (CEST)
+Subject: Need help understanding how the custom extension interacts with the
+ SSL pointer, if at all
+Message-ID: <1944386225.18707872.1697723494050.JavaMail.zimbra@loria.fr>
+
+Hello, 
+
+In the context of a research project I need to add some extensions to the ClientHello during TLS handshake but I don't understand well some concepts of the custom extensions. 
+
+I can successfully send custom extensions between my client and server thanks to the SSL_CTX_add_custom_ext function but I have a hard time to use these values. 
+
+I currently define them like this on both sides: SSL_CTX_add_custom_ext(ssl_ctx, 101, SSL_EXT_CLIENT_HELLO, addScalar, freeScalar, NULL, parseScalar, NULL); 
+
+What I want to do is to store the value of the extension in a structure linked with with each SSL sessions pointer I have but the callbacks are set at the context level so I don't think I can give pointers to my structures easily as they do no exist yet when the custom extension is defined. 
+
+I think it may be possible to keep a global map with SSL session pointers as keys but I am not sure it is the way to do. 
+
+Or maybe I can do a 1:1 with only a session per context but it looks suboptimal. 
+
+In the same way, is it possible for a SSL client to set a specific value for a custom extension if it only has access to a SSL pointer? (in my case it would be better if I have only one SSL_CTX for all SSL clients) 
+
+Is what I'm trying to do feasible? 
+
+Regards, 
+
+Xavier Marchal 
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231019/41da38e5/attachment.htm>
+
+From matt at openssl.org  Thu Oct 19 14:08:37 2023
+From: matt at openssl.org (Matt Caswell)
+Date: Thu, 19 Oct 2023 15:08:37 +0100
+Subject: Need help understanding how the custom extension interacts with
+ the SSL pointer, if at all
+In-Reply-To: <1944386225.18707872.1697723494050.JavaMail.zimbra@loria.fr>
+References: <1944386225.18707872.1697723494050.JavaMail.zimbra@loria.fr>
+Message-ID: <3f8c97b2-67d7-4168-94e1-3003d4682a1b@openssl.org>
+
+
+
+On 19/10/2023 14:51, Xavier Marchal wrote:
+> Hello,
+> 
+> In the context of a research project I need to add some extensions to 
+> the ClientHello during TLS handshake but I don't understand well some 
+> concepts of the custom extensions.
+> 
+> I can successfully send custom extensions between my client and server 
+> thanks to the SSL_CTX_add_custom_ext function but I have a hard time to 
+> use these values.
+> 
+> I currently define them like this on both sides: 
+> SSL_CTX_add_custom_ext(ssl_ctx, 101, SSL_EXT_CLIENT_HELLO, addScalar, 
+> freeScalar, NULL, parseScalar, NULL);
+> 
+> What I want to do is to store the value of the extension in a structure 
+> linked with with each SSL sessions pointer I have but the callbacks are 
+> set at the context level so I don't think I can give pointers to my 
+> structures easily as they do no exist yet when the custom extension is 
+> defined.
+
+It's a bit unclear from your description exactly what you are trying to 
+do. But IIUC you want to associate custom data with the SSL object. Many 
+OpenSSL objects (including the SSL object) support the "ex_data" 
+interface which enables you to store and retrieve custom data associated 
+with the object.
+
+See in particular:
+
+https://www.openssl.org/docs/man3.1/man3/CRYPTO_get_ex_new_index.html
+
+The SSL_get_app_data() and SSL_set_app_data() convenience macros wrap 
+"ex_data" to give a simplified interface:
+
+https://www.openssl.org/docs/man3.1/man3/SSL_get_app_data.html
+
+E.g. call SSL_set_app_data() to associate a custom pointer with an SSL, 
+and SSL_get_app_data() to retrieve it again later.
+
+Matt
+
+
+> 
+> I think it may be possible to keep a global map with SSL session 
+> pointers as keys but I am not sure it is the way to do.
+> 
+> Or maybe I can do a 1:1 with only a session per context but it looks 
+> suboptimal.
+> 
+> In the same way, is it possible for a SSL client to set a specific value 
+> for a custom extension if it only has access to a SSL pointer? (in my 
+> case it would be better if I have only one SSL_CTX for all SSL clients)
+> 
+> Is what I'm trying to do feasible?
+> 
+> Regards,
+> 
+> Xavier Marchal
+
+From xavier.marchal at loria.fr  Thu Oct 19 14:51:08 2023
+From: xavier.marchal at loria.fr (Xavier Marchal)
+Date: Thu, 19 Oct 2023 16:51:08 +0200 (CEST)
+Subject: Need help understanding how the custom extension interacts with
+ the SSL pointer, if at all
+In-Reply-To: <3f8c97b2-67d7-4168-94e1-3003d4682a1b@openssl.org>
+References: <1944386225.18707872.1697723494050.JavaMail.zimbra@loria.fr>
+ <3f8c97b2-67d7-4168-94e1-3003d4682a1b@openssl.org>
+Message-ID: <122620860.18783788.1697727067999.JavaMail.zimbra@loria.fr>
+
+Many thanks for your fast answer,
+
+I'll take a look at the resources you've indicated.
+
+I'll also try to elaborate what I am trying to do:
+
+I make a local SSL proxy to add some extensions to the ClientHello of the TLS session. It create a new SSL session for each incoming ones.
+
+Since the process is always the same, I think I can use a single SSL_CTX for all client side SSL connexions the same way I did for the server part.
+
+My interrogation is since I have to add the new extensions to the SSL_CTX object, it looks hard to customize or retrieve them by only knowing a SSL pointer.
+
+But since you say we can attach data to SSL pointer I will check it since it can solve my problem this way.
+
+In my use case, the client randomize a value and use it as a 1st custom extension to share it with the server, both will use it for some processing so that why I need to set/get them for each new handshake.
+It also set another value in a 2nd extension to check some stuff related to the 1st one, but outside the fact both are related I think the way to handle it is the same.
+
+I tried to find a way to "extract" these values from the extension fields so I can use them after the handshake, but I don't really know how to do it as it is define at a higher level (SSL_CTX instead of SSL).
+I also didn't know we can store arbitrary data in OpenSSL object until you mention it.
+
+Regards,
+
+Xavier Marchal
+
+----- Mail original -----
+> De: "Matt Caswell" <matt at openssl.org>
+> ?: "Xavier Marchal" <xavier.marchal at loria.fr>, "openssl-users" <openssl-users at openssl.org>
+> Envoy?: Jeudi 19 Octobre 2023 14:08:37
+> Objet: Re: Need help understanding how the custom extension interacts with the SSL pointer, if at all
+
+> On 19/10/2023 14:51, Xavier Marchal wrote:
+>> Hello,
+>> 
+>> In the context of a research project I need to add some extensions to
+>> the ClientHello during TLS handshake but I don't understand well some
+>> concepts of the custom extensions.
+>> 
+>> I can successfully send custom extensions between my client and server
+>> thanks to the SSL_CTX_add_custom_ext function but I have a hard time to
+>> use these values.
+>> 
+>> I currently define them like this on both sides:
+>> SSL_CTX_add_custom_ext(ssl_ctx, 101, SSL_EXT_CLIENT_HELLO, addScalar,
+>> freeScalar, NULL, parseScalar, NULL);
+>> 
+>> What I want to do is to store the value of the extension in a structure
+>> linked with with each SSL sessions pointer I have but the callbacks are
+>> set at the context level so I don't think I can give pointers to my
+>> structures easily as they do no exist yet when the custom extension is
+>> defined.
+> 
+> It's a bit unclear from your description exactly what you are trying to
+> do. But IIUC you want to associate custom data with the SSL object. Many
+> OpenSSL objects (including the SSL object) support the "ex_data"
+> interface which enables you to store and retrieve custom data associated
+> with the object.
+> 
+> See in particular:
+> 
+> https://www.openssl.org/docs/man3.1/man3/CRYPTO_get_ex_new_index.html
+> 
+> The SSL_get_app_data() and SSL_set_app_data() convenience macros wrap
+> "ex_data" to give a simplified interface:
+> 
+> https://www.openssl.org/docs/man3.1/man3/SSL_get_app_data.html
+> 
+> E.g. call SSL_set_app_data() to associate a custom pointer with an SSL,
+> and SSL_get_app_data() to retrieve it again later.
+> 
+> Matt
+> 
+> 
+>> 
+>> I think it may be possible to keep a global map with SSL session
+>> pointers as keys but I am not sure it is the way to do.
+>> 
+>> Or maybe I can do a 1:1 with only a session per context but it looks
+>> suboptimal.
+>> 
+>> In the same way, is it possible for a SSL client to set a specific value
+>> for a custom extension if it only has access to a SSL pointer? (in my
+>> case it would be better if I have only one SSL_CTX for all SSL clients)
+>> 
+>> Is what I'm trying to do feasible?
+>> 
+>> Regards,
+>> 
+> > Xavier Marchal
+
+From tmp4login at gmail.com  Thu Oct 19 22:39:03 2023
+From: tmp4login at gmail.com (Dmitriy Shumaev)
+Date: Fri, 20 Oct 2023 01:39:03 +0300
+Subject: AES GCM. EVP_EncryptInit_ex2() if iv == NULL should clear
+ PROV_GCM_CTX::iv_state to IV_STATE_UNINITIALISED
+Message-ID: <CA+ZPe6sRarBb2jY=cYc1KuwvRBG2PM33AtJVQcmLch6CbSNSSA@mail.gmail.com>
+
+Hi there.
+I'm new to openssl. I wrote a simple test application based on a demo.
+I use AES in GCM mode with IV generated internally.
+And I'm trying to reuse EVP_CIPHER_CTX - I call EVP_CIPHER_CTX_new() only
+twice for encoder and decoder operations on the same key.
+Each encode operation starts with EVP_EncryptInit_ex2(ctx_enc_, 0, 0, 0, 0);
+The first encode|decode operations work well.
+But second encode fails on EVP_EncryptUpdate(ctx_enc_, 0, ...) (set AAD)
+with error:  "AC360000:error:1C800066:Provider
+routines:ossl_gcm_stream_update:cipher operation
+failed:providers\implementations\ciphers\ciphercommon_gcm.c:320:"
+
+I think it is all because of EVP_EncryptInit_ex2(ctx_enc_, 0, 0, 0, 0);
+does NOT clear PROV_GCM_CTX::iv_state to IV_STATE_UNINITIALISED. It stays
+IV_STATE_FINISHED (just a thought, not checked as I use openssl as a lib).
+
+So the questions are:
+- Is it an error that EVP_EncryptInit_ex2(ctx_enc_, 0, 0, 0, 0) does NOT
+clear PROV_GCM_CTX::iv_state?
+- How can I clear PROV_GCM_CTX::iv_state manually?
+
+Thanks in advance.
+Shumaev D.A.
+
+
+<https://www.avast.com/sig-email?utm_medium=email&utm_source=link&utm_campaign=sig-email&utm_content=webmail>
+???????
+???????.www.avast.com
+<https://www.avast.com/sig-email?utm_medium=email&utm_source=link&utm_campaign=sig-email&utm_content=webmail>
+<#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231020/96abd98c/attachment.htm>
+-------------- next part --------------
+?/*
+ * This project is based on openssl example [openssl-3.1.3\demos\cipher\aesgcm.c]
+ */
+
+
+
+#include "TestOpenSSL.h"
+#include <openssl/core_names.h>
+#include <openssl/err.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/aes.h>
+#include <openssl/applink.c>			// BIO_dump_fp(3)
+#include <stdio.h>
+
+
+
+// select cipher mode
+#define CIPHER_MODE_GCM
+#if defined(CIPHER_MODE_CBC)
+#define CIPHER_MODE		"AES-256-CBC"
+#define IV_SIZE			sizeof(iv_)
+#define IV					iv_
+#define AAD_SIZE			0
+#define AAD					nullptr
+#define AAD2_SIZE			0
+#define AAD2				nullptr
+#define TAG					nullptr
+#elif defined(CIPHER_MODE_GCM)
+#define CIPHER_MODE		"AES-256-GCM"
+#define IV_SIZE			0
+#define IV					iv_get_gen
+#define AAD_SIZE			sizeof(aad_)
+#define AAD					aad_
+#define AAD2_SIZE			sizeof(aad2_)
+#define AAD2				aad2_
+#define TAG					tag
+#else
+#error "Wrong cipher mode in #define CIPHER_MODE_XXX"
+#endif
+
+
+
+/* AES key */
+static const unsigned char key_[] = {
+	0xee, 0xbc, 0x1f, 0x57, 0x48, 0x7f, 0x51, 0x92, 0x1c, 0x04, 0x65, 0x66,
+	0x5f, 0x8a, 0xe6, 0xd1, 0x65, 0x8b, 0xb2, 0x6d, 0xe6, 0xf8, 0xa0, 0x69,
+	0xa3, 0x52, 0x02, 0x93, 0xa5, 0x72, 0x07, 0x8f
+};
+
+/* Unique initialisation vector */
+static unsigned char iv_[EVP_MAX_IV_LENGTH] = {
+	0x99, 0xaa, 0x3e, 0x68, 0xed, 0x81, 0x73, 0xa0, 0xee, 0xd0, 0x66, 0x84
+};
+
+/* Example plaintext to encrypt */
+static const unsigned char pt_[] = {
+	0xf5, 0x6e, 0x87, 0x05, 0x5b, 0xc3, 0x2d, 0x0e, 0xeb, 0x31, 0xb2, 0xea,
+	0xcc, 0x2b, 0xf2, 0xa5, 0xcb, 0xae, 0x35, 0x17, 0x00
+};
+// pt2_ = pt_ except for LS bit in 8th byte
+static const unsigned char pt2_[] = {
+	0xf5, 0x6e, 0x87, 0x05, 0x5b, 0xc3, 0x2d, 0x0e, 0xe8, 0x31, 0xb2, 0xea,
+	0xcc, 0x2b, 0xf2, 0xa5, 0xcb, 0xae, 0x35, 0x17, 0x00
+};
+
+#ifdef CIPHER_MODE_CBC
+// Expected ciphertext value
+static const unsigned char ct_cbc[] = {
+	0xf7, 0x26, 0x44, 0x13, 0xa8, 0x4c, 0x0e, 0x7c, 0xd5, 0x36, 0x86, 0x7e,
+	0xb9, 0xf2, 0x17, 0x36
+};
+#endif
+
+#ifdef CIPHER_MODE_GCM
+// Expected ciphertext value
+static const unsigned char ct_gcm[] = {
+	0xf7, 0x26, 0x44, 0x13, 0xa8, 0x4c, 0x0e, 0x7c, 0xd5, 0x36, 0x86, 0x7e,
+	0xb9, 0xf2, 0x17, 0x36
+};
+// Example of Additional Authenticated Data (AAD), i.e. unencrypted data
+//	 which can be authenticated using the generated Tag value.
+static const unsigned char aad_[] = {
+	0x4d, 0x23, 0xc3, 0xce, 0xc3, 0x34, 0xb4, 0x9b, 0xdb, 0x37, 0x0c, 0x43,
+	0x7f, 0xec, 0x78, 0xde
+};
+// tag2_ = tag_ except for 1 LS bit
+static const unsigned char aad2_[] = {
+	0x4d, 0x23, 0xc3, 0xce, 0xc3, 0x34, 0xb4, 0x9b, 0xdb, 0x37, 0x0c, 0x43,
+	0x7f, 0xec, 0x78, 0xdf
+};
+
+// Expected AEAD Tag value
+static const unsigned char tag_[] = {
+	 0x67, 0xba, 0x05, 0x10, 0x26, 0x2a, 0xe4, 0x87, 0xd7, 0x37, 0xee, 0x62,
+	 0x98, 0xf7, 0x7e, 0x0c
+};
+#endif
+
+OSSL_LIB_CTX *		libctx_ = nullptr;
+const char *		propq_ = nullptr;
+EVP_CIPHER_CTX *	ctx_enc_ = nullptr;
+EVP_CIPHER_CTX *	ctx_dec_ = nullptr;
+EVP_CIPHER *		cipher_ = nullptr;
+bool					init_done_ = false;
+
+
+
+int clean (void);
+
+
+int init (size_t key_size, const unsigned char * key)
+{
+	int ret = 0;
+	// try init (ctx, cipher, encrypt operation)
+	do {
+		if ( ! key) {
+			ret = 1;
+			break;
+		}
+		if (init_done_) {
+			ret = 2;
+			break;
+		}
+		if (nullptr == (ctx_enc_ = EVP_CIPHER_CTX_new())) {
+			ret = 11;
+			break;
+		}
+		if (nullptr == (ctx_dec_ = EVP_CIPHER_CTX_new())) {
+			ret = 12;
+			break;
+		}
+		if (nullptr == (cipher_ = EVP_CIPHER_fetch(libctx_, CIPHER_MODE, propq_))) {
+			ret = 15;
+			break;
+		}
+		if (key_size != EVP_CIPHER_get_key_length(cipher_)) {
+			ret = 1;
+			break;
+		}
+		if ( ! EVP_EncryptInit_ex2(ctx_enc_, cipher_, key, nullptr, nullptr)) {
+			ret = 17;
+			break;
+		}
+		if ( ! EVP_DecryptInit_ex2(ctx_dec_, cipher_, key, nullptr, nullptr)) {
+			ret = 18;
+			break;
+		}
+	} while (false);
+	if (ret) {
+		if (ret != 2) {
+			clean();
+		}
+		printf("Init error = %d with %s mode\n", ret, CIPHER_MODE);
+		ERR_print_errors_fp(stderr);
+	} else {
+		init_done_ = true;
+		printf("Init successful with %s mode\n", CIPHER_MODE);
+	}
+	return ret;
+}
+
+
+int clean (void)
+{
+	init_done_ = false;
+	EVP_CIPHER_free(cipher_);
+	cipher_ = nullptr;
+	EVP_CIPHER_CTX_free(ctx_enc_);
+	ctx_enc_ = nullptr;
+	EVP_CIPHER_CTX_free(ctx_dec_);
+	ctx_dec_ = nullptr;
+	printf("Cleanup done\n");
+	return 0;
+}
+
+
+// If (iv_size && *iv_size == 0) then IV MUST be generated internally by cipher algorithm realization.
+//	In this case iv MUST point to memory block with size at least = EVP_MAX_IV_LENGTH.
+int encrypt (size_t pt_size, const unsigned char * pt,
+		size_t * iv_size, unsigned char * iv,
+		size_t aad_size, const unsigned char * aad,
+		size_t * enc_size, unsigned char * enc,
+		size_t tag_size, unsigned char * tag)
+{
+	int ret = 0;
+	int enc_len = 0, tmp_len;
+	OSSL_PARAM params [] = {OSSL_PARAM_END, OSSL_PARAM_END};
+	unsigned char * iv_enc_init = nullptr;
+	// try to encrypt
+	do {
+		if ( ! init_done_ || ! pt || ! enc || ! enc_size || *enc_size < pt_size + EVP_MAX_BLOCK_LENGTH || ! iv || ! iv_size || ( ! aad && tag) || (aad && ! tag)) {
+			ret = 1;
+			break;
+		}
+		// reuse already inited ctx_
+		// "For EVP_CIPH_GCM_MODE the IV will be generated internally if it is not specified."
+		if (iv_size && *iv_size != 0) {
+			params[0] = OSSL_PARAM_construct_size_t(OSSL_CIPHER_PARAM_AEAD_IVLEN, iv_size);
+			iv_enc_init = iv;
+		}
+		if ( ! EVP_EncryptInit_ex2(ctx_enc_, nullptr, nullptr, iv_enc_init, nullptr)) {///params)) {
+			ret = 17;
+			break;
+		}
+		// AAD
+		if (aad) {
+			if ( ! EVP_EncryptUpdate(ctx_enc_, nullptr, &enc_len, aad, aad_size)) {
+				ret = 19;
+				break;
+			}
+		}
+		// Enc
+		if ( ! EVP_EncryptUpdate(ctx_enc_, enc, &enc_len, pt, pt_size)) {
+			ret = 21;
+			break;
+		}
+		// Finish enc
+		if ( ! EVP_EncryptFinal_ex(ctx_enc_, enc + enc_len, &tmp_len)) {
+			ret = 23;
+			break;
+		}
+		enc_len += tmp_len;
+		// Get tag
+		if (tag) {
+			params[0] = OSSL_PARAM_construct_octet_string(OSSL_CIPHER_PARAM_AEAD_TAG, tag, tag_size);
+			if ( ! EVP_CIPHER_CTX_get_params(ctx_enc_, params)) {
+				ret = 25;
+				break;
+			}
+		}
+		// Get IV
+		if (iv_size && *iv_size == 0) {
+			*iv_size = EVP_MAX_IV_LENGTH;		// IV buffer size
+			params[0] = OSSL_PARAM_construct_octet_string(OSSL_CIPHER_PARAM_IV, iv, *iv_size);
+			if ( ! EVP_CIPHER_CTX_get_params(ctx_enc_, params)) {
+				ret = 25;
+				break;
+			}
+			*iv_size = EVP_CIPHER_CTX_get_iv_length(ctx_enc_);		// actual IV size got
+		}
+	} while (false);
+	// print result
+	if (ret) {
+		printf("Encrypt error = %d\n", ret);
+		ERR_print_errors_fp(stderr);///std::string str_err = getOpenSSLError();
+	} else {
+		*enc_size = enc_len;
+		printf("AES GCM Encrypt:\n");
+		printf("Plaintext:\n");
+		BIO_dump_fp(stdout, pt, pt_size);
+		printf("IV:\n");
+		BIO_dump_fp(stdout, iv, *iv_size);
+		printf("Ciphertext:\n");
+		BIO_dump_fp(stdout, enc, *enc_size);
+		if (tag) {
+			printf("AAD:\n");
+			BIO_dump_fp(stdout, aad, aad_size);
+			printf("Tag:\n");
+			BIO_dump_fp(stdout, tag, tag_size);
+		}
+	}
+	return ret;
+}
+
+
+int decrypt (size_t enc_size, const unsigned char * enc,
+		size_t iv_size, unsigned char * iv,
+		size_t aad_size, const unsigned char * aad,
+		size_t * dec_size, unsigned char * dec,
+		size_t tag_size, unsigned char * tag)
+{
+	int ret = 0;
+	int dec_len = 0, tmp_len;
+	OSSL_PARAM params [] = {OSSL_PARAM_END, OSSL_PARAM_END};
+	int final_res;///gcm_tag_verify;///authenticated;	// For GCM mode it is also the result of tag verification (authenticationtop)
+	// try to decrypt
+	do {
+		if ( ! init_done_ || ! enc || ! dec || ! dec_size || *dec_size < enc_size || ! iv || iv_size == 0 || ( ! aad && tag) || (aad && ! tag)) {
+			ret = 1;
+			break;
+		}
+		// reuse already inited ctx_
+		//params[0] = OSSL_PARAM_construct_size_t(OSSL_CIPHER_PARAM_AEAD_IVLEN, &iv_size);
+		if ( ! EVP_DecryptInit_ex2(ctx_dec_, nullptr, nullptr, iv, nullptr)) {/// params)) {
+			ret = 18;
+			break;
+		}
+		// AAD
+		if (aad) {
+			if ( ! EVP_DecryptUpdate(ctx_dec_, nullptr, &dec_len, aad, aad_size)) {
+				ret = 20;
+				break;
+			}
+		}
+		// Dec
+		if ( ! EVP_DecryptUpdate(ctx_dec_, dec, &dec_len, enc, enc_size)) {
+			ret = 22;
+			break;
+		}
+		// Set expected tag value
+		if (tag) {
+			params[0] = OSSL_PARAM_construct_octet_string(OSSL_CIPHER_PARAM_AEAD_TAG, tag, tag_size);
+			if ( ! EVP_CIPHER_CTX_set_params(ctx_dec_, params)) {
+				ret = 26;
+				break;
+			}
+			if (1 == OSSL_PARAM_modified(&params[0])) {
+				ret = 26;
+				break;
+			}
+		}
+		// Finish dec (for GCM it also validates tag)
+		final_res = EVP_DecryptFinal_ex(ctx_dec_, dec + dec_len, &tmp_len);
+		if (final_res <= 0) {
+			ret = 24;
+			break;
+		}
+		dec_len += tmp_len;
+	} while (false);
+	// print result
+	if (ret) {
+		printf("Decrypt error = %d\n", ret);
+		ERR_print_errors_fp(stderr);///std::string str_err = getOpenSSLError();
+	} else {
+		*dec_size = dec_len;
+		printf("AES GCM Decrypt:\n");
+		printf("Ciphertext:\n");
+		BIO_dump_fp(stdout, enc, enc_size);
+		printf("IV:\n");
+		BIO_dump_fp(stdout, iv, iv_size);
+		printf("Plaintext:\n");
+		BIO_dump_fp(stdout, dec, *dec_size);
+		if (tag) {
+			printf("AAD:\n");
+			BIO_dump_fp(stdout, aad, aad_size);
+			printf("Tag:\n");
+			BIO_dump_fp(stdout, tag, tag_size);
+		}
+	}
+	return ret;
+}
+
+
+int main (int argc, char ** argv)
+{
+	int ret;
+	size_t iv_size = IV_SIZE;
+	unsigned char iv_get_gen[EVP_MAX_IV_LENGTH];
+	size_t enc_size = 1024, enc_size2 = 2014;
+	unsigned char enc[1024];
+	unsigned char enc2[1024];
+	size_t dec_size = 1024;
+	unsigned char dec[1024];
+	unsigned char tag[16];
+	do {
+		ret = init(sizeof(key_), key_);
+		if (ret)
+			break;
+		ret = encrypt(sizeof(pt_), pt_, &iv_size, IV, AAD_SIZE, AAD, &enc_size, enc, 16, TAG);
+		if (ret)
+			break;
+		ret = decrypt(enc_size, enc, iv_size, IV, AAD_SIZE, AAD, &dec_size, dec, 16, TAG);
+		if (ret)
+			break;
+		iv_size = IV_SIZE;
+		ret = encrypt(sizeof(pt_), pt_, &iv_size, IV, AAD_SIZE, AAD, &enc_size2, enc2, 16, TAG);
+		if (ret)
+			break;
+	} while (false);
+	clean();
+	return 0;
+}
+
+-------------- next part --------------
+?
+# CMake version 3.18 supports openssl3
+cmake_minimum_required (VERSION 3.18)
+
+add_executable (TestOpenSSL "TestOpenSSL.cpp" "TestOpenSSL.h")
+
+# use openssl lib
+# > cmake -?help-module-list # will provide all supported packages to find.
+# > cmake --help-module FindOpenSSL # will provide all variables and 
+message (STATUS "Looking for openssl ...")
+#set(OPENSSL_ROOT_DIR "C:/Qt/Tools/OpenSSL-v313-x64")
+####find_package (OpenSSL REQUIRED PATHS C:/Qt/Tools/OpenSSL-v313-x64/)
+find_package (OpenSSL 3.0 REQUIRED)
+if (${OPENSSL_FOUND})
+	message (STATUS "version = " ${OPENSSL_VERSION})
+	message (STATUS "include dir = " ${OPENSSL_INCLUDE_DIR})
+	message (STATUS "crypto lib = " ${OPENSSL_CRYPTO_LIBRARY})
+	message (STATUS "crypto libs = " ${OPENSSL_CRYPTO_LIBRARIES})
+	message (STATUS "ssl lib = " ${OPENSSL_SSL_LIBRARY})
+	message (STATUS "ssl libs = " ${OPENSSL_SSL_LIBRARIES})
+	message (STATUS "openssl libs = " ${OPENSSL_LIBRARIES})
+	if (${OPENSSL_VERSION} VERSION_LESS "3.0")
+		message (STATUS "openssl found, but old")
+	else ()
+		message (STATUS "openssl found")
+	endif ()
+else ()
+	message (STATUS "openssl NOT found")
+endif ()
+# [https://www.programmersought.com/article/25754533664/]
+# (include_directores or target_include_directories and add_definition and add_library(ies)) are not required as target_link_libraries does it
+#include_directories(${OPENSSL_INCLUDE_DIR})
+###target_link_libraries(TestOpenSSL ${OPENSSL_SSL_LIBRARY})
+target_link_libraries(TestOpenSSL OpenSSL::SSL)
+
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  set_property(TARGET TestOpenSSL PROPERTY CXX_STANDARD 20)
+endif()
+
+
+From Martin.Bonner at entrust.com  Fri Oct 20 10:26:40 2023
+From: Martin.Bonner at entrust.com (Martin Bonner)
+Date: Fri, 20 Oct 2023 10:26:40 +0000
+Subject: Configuring an engine in custom openssl.cnf
+Message-ID: <DM6PR11MB418874F4F57F1ED86EA1D106F3DBA@DM6PR11MB4188.namprd11.prod.outlook.com>
+
+Back to my question about interactive mode having gone away in 3.0
+
+The actual usage was a test script which is run when building our engine to
+check it is loadable (before everything is installed).  The script was:
+     engine dynamic -pre SO_PATH:libs/nfkm.so -pre ID:nfkm -pre LIST_ADD:1 -pre LOAD
+     engine -t nfkm
+
+Well, running the first line from the command line works well enough:
+     $ external/OpenSSL3.0/bin/openssl engine dynamic -pre SO_PATH:libs/nfkm.so -pre ID:nfkm -pre LIST_ADD:1 -pre LOAD
+     (dynamic) Dynamic engine loading support
+     [Success]: SO_PATH:libs/nfkm.so
+     [Success]: ID:nfkm
+     [Success]: LIST_ADD:1
+     [Success]: LOAD
+     Loaded: (nfkm) nShield NFKM engine
+
+But running the second line (not surprisingly) fails:
+     # external/OpenSSL3.0/bin/openssl engine -t nfkm
+     40971265517F0000:error:12800067:DSO support routines:dlfcn_load:could not load the shared library:crypto/dso/dso_dlfcn.c:118:filename(/opt/nfast/openssl/lib64/engines-3/nfkm.so): /opt/nfast/openssl/lib64/engines-3/nfkm.so: cannot open shared object file: No such file or directory
+     40971265517F0000:error:12800067:DSO support routines:DSO_load:could not load the shared library:crypto/dso/dso_lib.c:152:
+     40971265517F0000:error:13000084:engine routines:dynamic_load:dso not found:crypto/engine/eng_dyn.c:442:
+     40971265517F0000:error:13000074:engine routines:ENGINE_by_id:no such engine:crypto/engine/eng_list.c:430:id=nfkm
+
+That's rather expected - the engine is not at anything like the right place
+yet (openssl was looking in /opt/nfast/openssl/lib64/engines-3/nfkm.so).
+
+If I append the "-t nfkm" to the end of the first line it fails in a rather
+different way as follows (but I'm not sure if that is supposed to work or not):
+     $ external/OpenSSL3.0/bin/openssl engine dynamic -pre SO_PATH:libs/nfkm.so -pre ID:nfkm -pre LIST_ADD:1 -pre LOAD -t nfkm
+     (dynamic) Dynamic engine loading support
+     [Success]: SO_PATH:libs/nfkm.so
+     [Success]: ID:nfkm
+     [Success]: LIST_ADD:1
+     [Success]: LOAD
+     Loaded: (nfkm) nShield NFKM engine
+          [ unavailable ]
+     (nfkm) nShield NFKM engine
+     [Failure]: SO_PATH:libs/nfkm.so
+     4097B897FE7E0000:error:13000089:engine routines:ENGINE_ctrl_cmd_string:invalid cmd name:crypto/engine/eng_ctrl.c:258:
+     [Failure]: ID:nfkm
+     4097B897FE7E0000:error:13000089:engine routines:ENGINE_ctrl_cmd_string:invalid cmd name:crypto/engine/eng_ctrl.c:258:
+     [Failure]: LIST_ADD:1
+     4097B897FE7E0000:error:13000089:engine routines:ENGINE_ctrl_cmd_string:invalid cmd name:crypto/engine/eng_ctrl.c:258:
+     [Failure]: LOAD
+     4097B897FE7E0000:error:13000089:engine routines:ENGINE_ctrl_cmd_string:invalid cmd name:crypto/engine/eng_ctrl.c:258:
+          [ unavailable ]
+
+What I had hoped would work, is a very simple openssl.cnf - but that doesn't
+seem to work either:
+     $ cat openssl.cnf
+     [ engines ]
+     nfkm = nfkm_engine
+
+     [ nfkm_engine ]
+     dynamic_path = /home/mbonner/git/main/build-host-linux/libs/nfkm.so
+
+     $ OPENSSL_CONF=openssl.cnf external/OpenSSL3.0/bin/openssl engine -t nfkm
+     40E77A2C157F0000:error:12800067:DSO support routines:dlfcn_load:could not load the shared library:crypto/dso/dso_dlfcn.c:118:filename(/opt/nfast/openssl/lib64/engines-3/nfkm.so): /opt/nfast/openssl/lib64/engines-3/nfkm.so: cannot open shared object file: No such file or directory
+     40E77A2C157F0000:error:12800067:DSO support routines:DSO_load:could not load the shared library:crypto/dso/dso_lib.c:152:
+     40E77A2C157F0000:error:13000084:engine routines:dynamic_load:dso not found:crypto/engine/eng_dyn.c:442:
+     40E77A2C157F0000:error:13000074:engine routines:ENGINE_by_id:no such engine:crypto/engine/eng_list.c:430:id=nfkm
+     $
+
+... and I get a very similar failure for nfkm_engine.
+
+It feels like I _ought_ to be able to get this to work, but I am missing
+something.  Any suggestions gratefully received.
+
+--
+Martin Bonner (he/him)
+Phone: +49 151 5046 3855
+martin.bonner at entrust.com
+
+
+Any email and files/attachments transmitted with it are intended solely for the use of the individual or entity to whom they are addressed. If this message has been sent to you in error, you must not copy, distribute or disclose of the information it contains. Please notify Entrust immediately and delete the message from your system.
+
+From tobias.lorek at se.abb.com  Fri Oct 20 11:33:24 2023
+From: tobias.lorek at se.abb.com (Tobias Lorek)
+Date: Fri, 20 Oct 2023 11:33:24 +0000
+Subject: Which properties of the compiled binary can I modify?
+Message-ID: <AS8PR06MB799193EDFDFD11E66122E6B2BFDBA@AS8PR06MB7991.eurprd06.prod.outlook.com>
+
+Hi,
+
+I am handling a project which compiles OpenSSL from source and distributes the resulting DLL as part of our product. Since we are distributing the product we are interested in changing some of the file properties on the DLL, and I would like to know if the OpenSSL project is ok with any, and if so which, of the following changes:
+
+
+  *   CompanyName
+The CompanyName property is not used at the moment. Is it acceptable that we add ABB?
+
+  *   LegalCopyright
+Is it acceptable that we set our own LegalCopyright value?
+
+  *   Signature
+Is it acceptable that we sign the binaries with our own certificates?
+
+Kind Regards,
+[ABB logotype]
+-
+Tobias
+Lorek
+ABB AB
+E-mail: tobias.lorek at se.abb.com<mailto:tobias.lorek at se.abb.com>
+abb.com<https://www.abb.com/>
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231020/6f9eac16/attachment.htm>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: image001.png
+Type: image/png
+Size: 2246 bytes
+Desc: image001.png
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20231020/6f9eac16/attachment.png>
+
+From matt at openssl.org  Fri Oct 20 15:04:52 2023
+From: matt at openssl.org (Matt Caswell)
+Date: Fri, 20 Oct 2023 16:04:52 +0100
+Subject: Which properties of the compiled binary can I modify?
+In-Reply-To: <AS8PR06MB799193EDFDFD11E66122E6B2BFDBA@AS8PR06MB7991.eurprd06.prod.outlook.com>
+References: <AS8PR06MB799193EDFDFD11E66122E6B2BFDBA@AS8PR06MB7991.eurprd06.prod.outlook.com>
+Message-ID: <88d6124c-988a-466c-8f87-00afb08453c7@openssl.org>
+
+
+
+On 20/10/2023 12:33, Tobias Lorek via openssl-users wrote:
+> Hi,
+> 
+> I am handling a project which compiles OpenSSL from source and 
+> distributes the resulting DLL as part of our product. Since we are 
+> distributing the product we are interested in changing some of the file 
+> properties on the DLL, and I would like to know if the OpenSSL project 
+> is ok with any, and if so which, of the following changes:
+> 
+>   * *CompanyName*
+> 
+> The CompanyName property is not used at the moment. Is it acceptable 
+> that we add ABB?
+> 
+>   * *LegalCopyright*
+> 
+> Is it acceptable that we set our own LegalCopyright value?
+> 
+>   * *Signature*
+> 
+> Is it acceptable that we sign the binaries with our own certificates?
+
+You must adhere to the terms of the licence. You don't say which version 
+of OpenSSL you are using (different licences apply depending on the 
+version). Assuming you are on 3.0+ then Apache v2 applies:
+
+https://www.openssl.org/source/apache-license-2.0.txt
+
+You must adhere to all the terms, but I draw your particular attention 
+to section 4 (redistribution) which seems relevant here.
+
+You must also be sure to adhere to our trademark policy. You can read 
+that here:
+
+https://www.openssl.org/policies/general/TrademarkPolicy.html
+
+As long as you are doing all of those things then you can make any 
+changes you like. I can't give you advice on what specific changes would 
+comply or not comply with the licence - you must make that determination 
+yourself. You might want to engage a lawyer to help you.
+
+Matt
+
+From openssl at openssl.org  Tue Oct 24 14:57:29 2023
+From: openssl at openssl.org (OpenSSL)
+Date: Tue, 24 Oct 2023 14:57:29 +0000
+Subject: OpenSSL version 3.0.12 published
+Message-ID: <ZTfbWdcvffMnWSfE@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+
+   OpenSSL version 3.0.12 released
+   ===============================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://www.openssl.org/
+
+   The OpenSSL project team is pleased to announce the release of
+   version 3.0.12 of our open source toolkit for SSL/TLS.
+   For details of the changes, see the release notes at:
+
+        https://www.openssl.org/news/openssl-3.0-notes.html
+
+   Specific notes on upgrading to OpenSSL 3.0 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://www.openssl.org/docs/man3.0/man7/migration_guide.html
+
+   OpenSSL 3.0.12 is available for download via HTTPS and FTP from the
+   following master locations (you can find the various FTP mirrors under
+   https://www.openssl.org/source/mirror.html):
+
+     * https://www.openssl.org/source/
+     * ftp://ftp.openssl.org/source/
+
+   The distribution file name is:
+
+    o openssl-3.0.12.tar.gz
+      Size: 15204575
+      SHA1 checksum:  b48e20c07facfdf6da9ad43a6c5126d51897699b
+      SHA256 checksum:  f93c9e8edde5e9166119de31755fc87b4aa34863662f67ddfcba14d0b6b69b61
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.0.12.tar.gz
+    openssl sha256 openssl-3.0.12.tar.gz
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmU3yz0ACgkQ2JTizos9
+efU2Kw//am9DoYHXKaJ5JL2DIn+6BW9XNf2oL/sIIEa0KOmQXtYbSmA5V57MQ7S1
+Xv6s7Yn4HuGZci1hipgStMYuj1b80e8dE5vpmm0W7PAr6ZPAtEH6ty2Y583pSQTP
+E+aoZGpUcmsuLbLDfJpKOXYAMAVgoTxaSfH/dmj2h96tpvmgvybW9FWbKvAFaNFo
+fWsbamJjQEM5gfW/OLT2lmKeUR300zI/1h1FPo9TOTyKnHAoXJe72U+IaUwPztkr
+WArlaOZrJI1e8jgYjtpkvz/yqG7OeVO1fud3MdN288chtBEvEEVIQlftHFWFriyk
+HMUGF8Pa8+DKCD71c18yPjq2cyerVod2fqx5KdMnl564rVpjmCeqoalbf/yHChu0
+5GMBoN9TgZDwq+DesvbD0dXhmhJPQWBHP7JZ1rj5ACU9Lmo50GcS8CgH/z0MJHnC
+lNCDZMIiN5ZavE3/DIkLDOIj2qBeF3uW3pSzSJo2/CE+6wqLfMv6eFlaQGELz2rv
+yTlu5fRa500nl8H58+Ry9opPO31duvklKn53qPHFzL1NwxSQQ6E3EAXe6zDAPf0X
+OaBqJZKRtWkb6vZG8kSI8LlgCCktUycbtTmnIDw0ekPjFz4do50brpXo0uyn0YAp
+Prt16sAqpPrB9hp6WZfH4hWPjaW3V0IRn/EEX9Kelm/QNTDXKD0=
+=euFz
+-----END PGP SIGNATURE-----
+
+From openssl at openssl.org  Tue Oct 24 15:00:10 2023
+From: openssl at openssl.org (OpenSSL)
+Date: Tue, 24 Oct 2023 15:00:10 +0000
+Subject: OpenSSL version 3.1.4 published
+Message-ID: <ZTfb+stH1oK5YH0U@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+
+   OpenSSL version 3.1.4 released
+   ==============================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://www.openssl.org/
+
+   The OpenSSL project team is pleased to announce the release of
+   version 3.1.4 of our open source toolkit for SSL/TLS.
+   For details of the changes, see the release notes at:
+
+        https://www.openssl.org/news/openssl-3.1-notes.html
+
+   Specific notes on upgrading to OpenSSL 3.1 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://www.openssl.org/docs/man3.1/man7/migration_guide.html
+
+   OpenSSL 3.1.4 is available for download via HTTPS and FTP from the
+   following master locations (you can find the various FTP mirrors under
+   https://www.openssl.org/source/mirror.html):
+
+     * https://www.openssl.org/source/
+     * ftp://ftp.openssl.org/source/
+
+   The distribution file name is:
+
+    o openssl-3.1.4.tar.gz
+      Size: 15569450
+      SHA1 checksum:  24c5d4308e0f901326f15c274c8c736117966499
+      SHA256 checksum:  840af5366ab9b522bde525826be3ef0fb0af81c6a9ebd84caa600fea1731eee3
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.1.4.tar.gz
+    openssl sha256 openssl-3.1.4.tar.gz
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmU3yaoACgkQ2JTizos9
+efUsiQ/9GWufu/R+ZVuNIMzokWj+TazxElKa1Dh4TIUWjxniIZoPE21YwOpRZnug
+Zyw4Q6AObN93+y6/KRtUfZy+TZy0H2O1VxIc3zJax+6yGetgvznmcju3rzLYwhs6
+MHqHazpyZwG8H5e5acjikcQmUK3tdvJy94uiZFk2vYjYfYONi6HJU0V3uFSoRDji
+rhxUSq8Yopv7M489zWxNG5Y+gr1KYj5Y4pRib430KQmiB3g567M0GA4pJqERv0IX
+XHIecXT0HE4K7LNP1mznoHtRBYG857ToLU3k2AUAUg17ZaNtEIugyNasNHHHF/yF
+2rHjV4NosfR2btJlD/074DfVVCF/XzvazRFyvhBJVhQeyK18vEj+xxrTJIEMu4ZW
+9RK0oVJQ/NZorHYok/E58/Jtkxij+MPl8fWs9dwC4phquTVighaL+u1SEDuA28wB
+12xB5BNC3pCbAjAorL486JEwosB4Auvj7UJFplkBxdYnb0BVy9/4ItunEgjpc+g+
+j/7OxounRxZnV4qe6YK+opITITWW25aKDghWMrKPZ22OuYVKvUaPUJ3BTQ+ftggA
+l+xC5o+HoIzSnYl/5XhyaEn3ip3u8LF47qxSwBCxy+hA7qkOviLGygxEBgIlxTdS
+gnVy20irYSZFATWqvdnGICRIWsujRJI+u8vEooUsLILoGeWpRZo=
+=xZOH
+-----END PGP SIGNATURE-----
+
+From openssl at openssl.org  Tue Oct 24 15:11:27 2023
+From: openssl at openssl.org (OpenSSL)
+Date: Tue, 24 Oct 2023 15:11:27 +0000
+Subject: OpenSSL Security Advisory
+Message-ID: <ZTfen1nPKoPqE9zr@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+OpenSSL Security Advisory [24th October 2023]
+=============================================
+
+Incorrect cipher key & IV length processing (CVE-2023-5363)
+===========================================================
+
+Severity: Moderate
+
+Issue summary: A bug has been identified in the processing of key and
+initialisation vector (IV) lengths.  This can lead to potential truncation
+or overruns during the initialisation of some symmetric ciphers.
+
+Impact summary: A truncation in the IV can result in non-uniqueness,
+which could result in loss of confidentiality for some cipher modes.
+
+When calling EVP_EncryptInit_ex2(), EVP_DecryptInit_ex2() or
+EVP_CipherInit_ex2() the provided OSSL_PARAM array is processed after
+the key and IV have been established.  Any alterations to the key length,
+via the "keylen" parameter or the IV length, via the "ivlen" parameter,
+within the OSSL_PARAM array will not take effect as intended, potentially
+causing truncation or overreading of these values.  The following ciphers
+and cipher modes are impacted: RC2, RC4, RC5, CCM, GCM and OCB.
+
+For the CCM, GCM and OCB cipher modes, truncation of the IV can result in
+loss of confidentiality.  For example, when following NIST's SP 800-38D
+section 8.2.1 guidance for constructing a deterministic IV for AES in
+GCM mode, truncation of the counter portion could lead to IV reuse.
+
+Both truncations and overruns of the key and overruns of the IV will
+produce incorrect results and could, in some cases, trigger a memory
+exception.  However, these issues are not currently assessed as security
+critical.
+
+Changing the key and/or IV lengths is not considered to be a common operation
+and the vulnerable API was recently introduced. Furthermore it is likely that
+application developers will have spotted this problem during testing since
+decryption would fail unless both peers in the communication were similarly
+vulnerable. For these reasons we expect the probability of an application being
+vulnerable to this to be quite low. However if an application is vulnerable then
+this issue is considered very serious. For these reasons we have assessed this
+issue as Moderate severity overall.
+
+The OpenSSL SSL/TLS implementation is not affected by this issue.
+
+The OpenSSL 3.0 and 3.1 FIPS providers are not affected by this because
+the issue lies outside of the FIPS provider boundary.
+
+OpenSSL 3.1 and 3.0 are vulnerable to this issue.
+
+OpenSSL 3.0 users should upgrade to OpenSSL 3.0.12.
+OpenSSL 3.1 users should upgrade to OpenSSL 3.1.4.
+
+This issue was reported on 21st September 2023 by Tony Battersby of
+Cybernetics.  The fix was developed by Dr Paul Dale.  This problem was
+independently reported on the 3rd of December 2022 as part of issue
+#19822, but it was not recognised as a security vulnerability at that
+time.
+
+General Advisory Notes
+======================
+
+URL for this Security Advisory:
+https://www.openssl.org/news/secadv/20231024.txt
+
+Note: the online version of the advisory may be updated with additional details
+over time.
+
+For details of OpenSSL severity classifications please see:
+https://www.openssl.org/policies/general/security-policy.html
+
+OpenSSL 1.1.1 is out of support and no longer receiving public updates. Extended
+support is available for premium support customers:
+https://www.openssl.org/support/contracts.html
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmU33bsACgkQ2JTizos9
+efVwAg/8Dh8qiBA3LEzTP39JtwAZzf0MPUEe0I5bvS7GUXIX8EemYojcNyoa/i+x
+Lr/DQtRJ0j/woiy2PhMFbej+NNMwtHD4Cu83JB+wEEiXbnt4n5yi+rWb9hw19Fs6
+g17EDbsi1j5fgCQ81Psgxg02bgC/3iE2AnDYty6mRQnfMPe599SMUEnUsRfeGdTh
+QGOwLbAH58a3OydMFD5tUHY6JKKwU7WhLrYanAT7YIlU4oQbAIEKL7+K0roIzhyq
+3o7EjtfKAr2ttcl+iOXdJYRb+0OwP59y/BBAOOOdCcb2oqDs1fPvXB8BXHhR43Ew
+i5EF47fUFxICu2kuXEe00RbbJipAqF5S0KvIKurYPjepukWjOqnNBQc4euned0gN
+bYcQgMLjYoZAp79V42kRMTQ+uMP1ElUCx4gwY8iOn6R65TmHloiNWv/q0I3XhWeH
+piLOv9lm/pMNmArpFGpySQzTY/wyyEvc9ZQcThSdWSiJOIebG4wFLYP+LvzG81/Q
+KX0yMK1dB8nyD6n+p14aIxhaWHr/7YgNO0882YbG11OQftIB5HXIXsQT5XFdVm8h
+OUCJfj1iPv1O3Xr7UkTISzGzRZyYLoUxFSi9+DrMHWaK9pQqSYDjqB6XE8vImnZN
+wJJj9hGRRZzCON5pXuh5+bIPSozdUPaZtWWm9ICobB/PLyvD05M=
+=aGd3
+-----END PGP SIGNATURE-----
+
+From openssl at openssl.org  Thu Oct 26 14:02:51 2023
+From: openssl at openssl.org (OpenSSL)
+Date: Thu, 26 Oct 2023 14:02:51 +0000
+Subject: OpenSSL version 3.2.0-beta1 published
+Message-ID: <ZTpxi0MYZq3FcDad@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+
+   OpenSSL version 3.2 beta 1 released
+   ===================================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://www.openssl.org/
+
+   OpenSSL 3.2 is currently in beta.
+
+   OpenSSL 3.2 beta 1 has now been made available.
+
+   Note: This OpenSSL pre-release has been provided for testing ONLY.
+   It should NOT be used for security critical purposes.
+
+   Specific notes on upgrading to OpenSSL 3.2 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://www.openssl.org/docs/manmaster/man7/migration_guide.html
+
+   The beta release is available for download via HTTPS and FTP from the
+   following master locations (you can find the various FTP mirrors under
+   https://www.openssl.org/source/mirror.html):
+
+     * https://www.openssl.org/source/
+     * ftp://ftp.openssl.org/source/
+
+   The distribution file name is:
+
+    o openssl-3.2.0-beta1.tar.gz
+      Size: 17624092
+      SHA1 checksum:  6c04489693f6a4ac300f58c7de3eb09782d59f81
+      SHA256 checksum:  68dcd42812b136c14ce6f7676f55375d0d3854f67c560d35372957e26d99c5ec
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.2.0-beta1.tar.gz
+    openssl sha256 openssl-3.2.0-beta1.tar.gz
+
+   Please download and check this beta release as soon as possible.
+   To report a bug, open an issue on GitHub:
+
+    https://github.com/openssl/openssl/issues
+
+   Please check the release notes and mailing lists to avoid duplicate
+   reports of known issues. (Of course, the source is also available
+   on GitHub.)
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmU6aDcACgkQ2JTizos9
+efUa/w//S4c8v58ZqHyEQ1Y7ce/B5PEp6UvRx9oBfWJKWp8/SQGtjIOm14GgcVnD
+hsPjwShlwgH0IVOEjhxLpnipawZvBxDBl4iGJqh6Dqwq4tltha3KAeHjCaaQjryk
+puuQQ4lrgRBR3Fag/8twULkEJy+UoyjZKMvaDlST1uP6DiVlvICdXH0LrIPcMo0g
+PznKR9XpsPGQA933NbdrjdaOonwzoActFNlYWchbXabsrUJz0P9Kpiy1ENbmdQvu
+2oHzlBqpDQOmCpGGkPOYXTOaBOMYK7cdJTVJ106VtY+eLjt66ikDbfKHc1pNfTk8
+x4zSzP1iBCnrhUwYmnhN2+03gZtHyMcRbpNLUGI7tTwzIEP3hZyif+++1i+mUt5t
+pw6490M/izpxEP0RioQ9aJdaF1aJMk9SAsvt0hhI0+xp8mC+nMP0pEilVFN191yO
+n7ejF+FWUJIzURSswOE592ZFd5XA2MJBE7jHA4KRno2YVG8MfXb6lyw02zvepCBU
+hF4YGSVbYd9xhf3iF1CRBIMGYDTz+GtelIzAO/GgXPa7HiuBHyZXqGEX0pC8rewT
+ALq328uwI5TKtx3UmGQZqJaFsk9IvHiId8DWrJZJwX4B2EX/Pp1/RdAYlSPHJrsz
+uDz4sqdBiCPSPVgV/hMmcYaIjm85dC2L1BEHg4EfEzyvctZOyBY=
+=Peda
+-----END PGP SIGNATURE-----
+
+From ralph at inputplus.co.uk  Mon Oct 30 15:02:09 2023
+From: ralph at inputplus.co.uk (Ralph Corderoy)
+Date: Mon, 30 Oct 2023 15:02:09 +0000
+Subject: Nerd-sniped on rsa_pkcs1_sha1 Server Key Exchange signature algorithm.
+Message-ID: <20231030150209.C9A2421536@orac.inputplus.co.uk>
+
+Hi,
+
+An nginx serving TLS on both www.example.com and plain example.com
+uses different signature algorithms in the TLSv1.2 server key exchange.
+I'd really like to understand why.
+
+It's the one nginx server configured with multiple ?server {...}?
+blocks.  Both blocks have the same TLS configuration by including the
+same file with the ssl_...  statements.  The one Let's Encrypt
+certificate chain is used by both.  When retrieved with
+
+    openssl s_client -connect     example.com:https -showcerts </dev/null
+    openssl s_client -connect www.example.com:https -showcerts </dev/null
+
+the same chain is received.  The chain's first certificate has the plain
+example.com as its CN with the www domain in the X509v3 SAN.
+
+        Subject: CN = example.com
+    ...
+            X509v3 Subject Alternative Name:
+                DNS:example.com, DNS:www.example.com
+
+Those openssl commands above say the plain uses SHA256 whilst the www
+uses SHA1.
+
+     No client certificate CA names sent
+    -Peer signing digest: SHA256
+    +Peer signing digest: SHA1
+     Peer signature type: RSA
+     Server Temp Key: ECDH, P-256, 256 bits
+
+Using tshark(1), I can see more detail when comparing other TLS
+connections to the two domains.  Left is plain, right is www.
+
+      TLSv1.2 Record Layer: Handshake Protocol: Server Key Exchange
+          Content Type: Handshake (22)
+          Version: TLS 1.2 (0x0303)
+          Length: 333
+          Handshake Protocol: Server Key Exchange
+              Handshake Type: Server Key Exchange (12)
+              Length: 329
+              EC Diffie-Hellman Server Params
+                  Curve Type: named_curve (0x03)
+                  Named Curve: secp256r1 (0x0017)
+                  Pubkey Length: 65
+                  Pubkey: 04547a26?                                |   Pubkey: 04f37c7c?
+                  Signature Algorithm: rsa_pkcs1_sha256 (0x0401)   |   Signature Algorithm: rsa_pkcs1_sha1 (0x0201)
+                      Signature Hash Algorithm Hash: SHA256 (4)    |       Signature Hash Algorithm Hash: SHA1 (2)
+                      Signature Hash Algorithm Signature: RSA (1)
+
+Both connections have the same cipher suites in the Client Hello.
+
+    TLS_AES_256_GCM_SHA384 (0x1302)                               
+    TLS_CHACHA20_POLY1305_SHA256 (0x1303)                         
+    TLS_AES_128_GCM_SHA256 (0x1301)                               
+    TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)              
+    TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (0xc030)                
+    TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 (0x009f)                  
+    TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca9)        
+    TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca8)          
+    TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256 (0xccaa)            
+    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b)              
+    TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (0xc02f)                
+    TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 (0x009e)                  
+    TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 (0xc024)              
+    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 (0xc028)                
+    TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 (0x006b)                  
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 (0xc023)              
+    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 (0xc027)                
+    TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 (0x0067)                  
+    TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (0xc00a)                 
+    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (0xc014)                   
+    TLS_DHE_RSA_WITH_AES_256_CBC_SHA (0x0039)                     
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (0xc009)                 
+    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (0xc013)                   
+    TLS_DHE_RSA_WITH_AES_128_CBC_SHA (0x0033)                     
+    TLS_RSA_WITH_AES_256_GCM_SHA384 (0x009d)                      
+    TLS_RSA_WITH_AES_128_GCM_SHA256 (0x009c)                      
+    TLS_RSA_WITH_AES_256_CBC_SHA256 (0x003d)                      
+    TLS_RSA_WITH_AES_128_CBC_SHA256 (0x003c)                      
+    TLS_RSA_WITH_AES_256_CBC_SHA (0x0035)                         
+    TLS_RSA_WITH_AES_128_CBC_SHA (0x002f)                         
+    TLS_EMPTY_RENEGOTIATION_INFO_SCSV (0x00ff)                    
+
+And the same signature hash algorithms in the Client Hello's
+signature_algorithms extension.
+
+    ecdsa_secp256r1_sha256 (0x0403)                
+    ecdsa_secp384r1_sha384 (0x0503)                
+    ecdsa_secp521r1_sha512 (0x0603)                
+    ed25519 (0x0807)                               
+    ed448 (0x0808)                                 
+    rsa_pss_pss_sha256 (0x0809)                    
+    rsa_pss_pss_sha384 (0x080a)                    
+    rsa_pss_pss_sha512 (0x080b)                    
+    rsa_pss_rsae_sha256 (0x0804)                   
+    rsa_pss_rsae_sha384 (0x0805)                   
+    rsa_pss_rsae_sha512 (0x0806)                   
+    rsa_pkcs1_sha256 (0x0401)                      
+    rsa_pkcs1_sha384 (0x0501)                      
+    rsa_pkcs1_sha512 (0x0601)                      
+    SHA224 ECDSA (0x0303)                          
+    SHA224 RSA (0x0301)                            
+    SHA224 DSA (0x0302)                            
+    SHA256 DSA (0x0402)                            
+    SHA384 DSA (0x0502)                            
+    SHA512 DSA (0x0602)                            
+
+This is an ancient Ubuntu with an old openssl-1.0.1f.  I realise the fix
+is ?upgrade? but I want to understand what's happening and learn from
+it...
+
+I think ssl3_send_server_key_exchange() is getting ?md?
+with
+
+    pkey=ssl_get_sign_pkey(s,s->s3->tmp.new_cipher,&md)
+
+which is later used to
+
+    tls12_get_sigandhash(p, pkey, md)
+
+That function searches through table tls12_md[].  If I'm right so far,
+I'm puzzled why it searches for NID_sha256 for the plain domain but
+NID_sha1 for the www.
+
+Odds are, I'm wrong and that's why I'm a bit stuck.
+
+-- 
+Cheers, Ralph.
+

@@ -1,0 +1,4098 @@
+From Ange-Thierry.Ishimwe at colorado.edu  Tue Apr  2 02:11:19 2024
+From: Ange-Thierry.Ishimwe at colorado.edu (Ange-Thierry Ishimwe)
+Date: Mon, 1 Apr 2024 20:11:19 -0600
+Subject: Adding an LLVM Optimization Pass while Building openSSL Using Clang
+Message-ID: <CAKtpt_Cxi5hkqVH6M2G5jRTq5YbuUbZkT5KXGwBbMpL8nGKVdA@mail.gmail.com>
+
+Hi all,
+
+I am currently working on building OpenSSL for RISC-V architecture using
+clang/llvm. While I've successfully compiled OpenSSL and generated a binary
+using the linux64-riscv64 configuration, I would like to integrate an LLVM
+optimization pass into the compilation process before the object files are
+created.
+
+*Traditionally, the OpenSSL process follows the pattern:*
+clang [source file] -o [obj file]
+
+
+*However, my objective is to introduce an additional step in the process,
+as follows:clang    *[source file] -o [LLVM IR File]
+*opt        *[LLVM IR File] -o [OPTIMIZED LLVM IR File]
+*clang    *[OPTIMIZED LLVM IR File] -o [obj file]
+
+Basically, I want to create intermediate representations (IR), apply a
+custom optimization pass on them, and subsequently produce an object file
+on all the source files.
+
+Could I please get some guidance or point me in the right direction on how
+to achieve this within the OpenSSL build process?
+
+Your assistance would be greatly appreciated.
+
+Best
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240401/d5508713/attachment.htm>
+
+From matt at openssl.org  Tue Apr  2 07:57:08 2024
+From: matt at openssl.org (Matt Caswell)
+Date: Tue, 2 Apr 2024 08:57:08 +0100
+Subject: Adding an LLVM Optimization Pass while Building openSSL Using
+ Clang
+In-Reply-To: <CAKtpt_Cxi5hkqVH6M2G5jRTq5YbuUbZkT5KXGwBbMpL8nGKVdA@mail.gmail.com>
+References: <CAKtpt_Cxi5hkqVH6M2G5jRTq5YbuUbZkT5KXGwBbMpL8nGKVdA@mail.gmail.com>
+Message-ID: <800b7eb5-75e9-496e-940e-ac37a054b8d6@openssl.org>
+
+
+
+On 02/04/2024 03:11, Ange-Thierry Ishimwe wrote:
+> Hi all,
+> 
+> I am currently working on building OpenSSL for RISC-V architecture using 
+> clang/llvm. While I've successfully compiled OpenSSL and generated a 
+> binary using the linux64-riscv64 configuration, I would like to 
+> integrate an LLVM optimization pass into the compilation process before 
+> the object files are created.
+> 
+> *_Traditionally, the OpenSSL process follows the pattern:_*
+> clang [source file] -o [obj file]
+> 
+> *_However, my objective is to introduce an additional step in the 
+> process, as follows:
+> _clang *[source file] -o [LLVM IR File]
+> *opt *[LLVM IR File] -o [OPTIMIZED LLVM IR File]
+> *clang *[OPTIMIZED LLVM IR File] -o [obj file]
+> 
+> Basically, I want to create intermediate representations (IR), apply a 
+> custom optimization pass on them, and subsequently produce an object 
+> file on all the source?files.
+> 
+> Could I please get some guidance or point me in the right direction on 
+> how to achieve this within the OpenSSL build process?
+> 
+> Your assistance would be greatly appreciated.
+
+I've not tried this, but my immediate thought would be to wrap the 3 
+step process up in a shell script and then use your shell script as the 
+"compiler", e.g.
+
+
+CC=myscript.sh ./config ...
+
+
+Matt
+
+
+From levitte at openssl.org  Tue Apr  2 08:25:59 2024
+From: levitte at openssl.org (Richard Levitte)
+Date: Tue, 02 Apr 2024 10:25:59 +0200
+Subject: OpenSSL version 3.3.0-beta1 published
+In-Reply-To: <dfdb9d75-d8f4-4cb5-9d8f-1758bc3f8b7f@blastwave.org> (Dennis
+ Clarke via openssl-users's message of "Fri, 29 Mar 2024 21:28:42
+ -0400")
+References: <ZgbXIPL9zTc3dDpT@openssl.org>
+ <237202e8-268d-44c9-902f-ea890f9b74c9@blastwave.org>
+ <dfdb9d75-d8f4-4cb5-9d8f-1758bc3f8b7f@blastwave.org>
+Message-ID: <87edbomaqw.fsf@lapdog.home.levitte.org>
+
+Hmmm, shouldn't the tests be written to be agnostic of the exact IP
+version that's enabled?  I.e. if IPv4 was still enabled, it should have
+worked.
+
+Cheers,
+Richard
+
+Dennis Clarke via openssl-users <openssl-users at openssl.org> writes:
+
+> On 3/29/24 20:51, Dennis Clarke via openssl-users wrote:
+>> On 3/29/24 10:58, OpenSSL wrote:
+>>>
+>>> ??? OpenSSL version 3.3 beta 1 released
+>>> ??? ===================================
+>>>
+>> Strange. The alpha1 release was flawless and the beta1 claims :
+>> 65-test_cmp_asn.t ....................... ok
+>>  ??? # ERROR: (ptr) 'res != NULL' failed @
+>> test/cmp_client_test.c:138
+>>  ??? # 0x0
+>>  ??? # CMP info: received IP
+>>  ??? # CMP info: received 'waiting' PKIStatus, starting to poll for
+>> response
+>>  ??? # CMP info: received POLLREP
+>>  ??? # CMP info: received polling response; checkAfter = 1 seconds
+>>  ??? # CMP info: received IP
+>>  ??? # CMP info: received final response after polling
+>>  ??? # CMP info: received ERROR (waiting)
+>>  ??? # CMP info: received 'waiting' PKIStatus, starting to poll for
+>> response
+>>  ??? # CMP info: received POLLREP
+>>  ??? # CMP info: received polling response; checkAfter = 1 seconds
+>>  ??? # CMP error: total timeout
+>>  ??? # CMP error: polling failed
+>>  ??? # OPENSSL_TEST_RAND_SEED=1711756120
+>>  ??? not ok 8 - test_exec_IR_ses_poll_no_timeout
+>> #
+>> ------------------------------------------------------------------------------
+>> ../../util/wrap.pl ../../test/cmp_client_test
+>> ../../test/recipes/65-test_cmp_client_data/server.key
+>> ../../test/recipes/65-test_cmp_client_data/server.crt
+>> ../../test/recipes/65-test_cmp_client_data/client.key
+>> ../../test/recipes/65-test_cmp_client_data/client.crt
+>> ../../test/recipes/65-test_cmp_client_data/client.csr none => 1
+>> not ok 1
+>> #
+>> ------------------------------------------------------------------------------
+>> # Looks like you failed 1 test of 2.65-test_cmp_client.t
+>> ....................
+>> Dubious, test returned 1 (wstat 256, 0x100)
+>> Failed 1/2 subtests
+>> This is on a Gentoo Linux server. Actually it is Itanium IA64
+>> hardware.
+>> The real thing.
+>> In any case the testsuite is running but thus far the above has
+>> failed
+>> strangely whereas the alpha1 stuff was flawless. Very strange.
+>> 
+> Sheesh, darn it, never mind, I had IPv6 disabled.
+> So please ignore the noise.
+>
+>
+> --
+> Dennis Clarke
+> RISC-V/SPARC/PPC/ARM/CISC
+> UNIX and Linux spoken
+>
+
+-- 
+-- 
+Richard Levitte         levitte at openssl.org
+OpenSSL Project         http://www.openssl.org/~levitte/
+
+From nhorman at openssl.org  Tue Apr  2 08:50:02 2024
+From: nhorman at openssl.org (Neil Horman)
+Date: Tue, 2 Apr 2024 04:50:02 -0400
+Subject: OpenSSL version 3.3.0-beta1 published
+In-Reply-To: <87edbomaqw.fsf@lapdog.home.levitte.org>
+References: <ZgbXIPL9zTc3dDpT@openssl.org>
+ <237202e8-268d-44c9-902f-ea890f9b74c9@blastwave.org>
+ <dfdb9d75-d8f4-4cb5-9d8f-1758bc3f8b7f@blastwave.org>
+ <87edbomaqw.fsf@lapdog.home.levitte.org>
+Message-ID: <CAJbOq15FMNTdOcoQW4MgETe5bcEqYCnP24ePdPOuQ_Dx592FOA@mail.gmail.com>
+
+More than that, the test in question seems to avoid the use of ip at all,
+opting to instead mock the client server communication with direct calls,
+so I'm wondering how enabling ipv6 fixed this
+
+On Tue, Apr 2, 2024 at 4:26?AM Richard Levitte <levitte at openssl.org> wrote:
+
+> Hmmm, shouldn't the tests be written to be agnostic of the exact IP
+> version that's enabled?  I.e. if IPv4 was still enabled, it should have
+> worked.
+>
+> Cheers,
+> Richard
+>
+> Dennis Clarke via openssl-users <openssl-users at openssl.org> writes:
+>
+> > On 3/29/24 20:51, Dennis Clarke via openssl-users wrote:
+> >> On 3/29/24 10:58, OpenSSL wrote:
+> >>>
+> >>>     OpenSSL version 3.3 beta 1 released
+> >>>     ===================================
+> >>>
+> >> Strange. The alpha1 release was flawless and the beta1 claims :
+> >> 65-test_cmp_asn.t ....................... ok
+> >>      # ERROR: (ptr) 'res != NULL' failed @
+> >> test/cmp_client_test.c:138
+> >>      # 0x0
+> >>      # CMP info: received IP
+> >>      # CMP info: received 'waiting' PKIStatus, starting to poll for
+> >> response
+> >>      # CMP info: received POLLREP
+> >>      # CMP info: received polling response; checkAfter = 1 seconds
+> >>      # CMP info: received IP
+> >>      # CMP info: received final response after polling
+> >>      # CMP info: received ERROR (waiting)
+> >>      # CMP info: received 'waiting' PKIStatus, starting to poll for
+> >> response
+> >>      # CMP info: received POLLREP
+> >>      # CMP info: received polling response; checkAfter = 1 seconds
+> >>      # CMP error: total timeout
+> >>      # CMP error: polling failed
+> >>      # OPENSSL_TEST_RAND_SEED=1711756120
+> >>      not ok 8 - test_exec_IR_ses_poll_no_timeout
+> >> #
+> >>
+> ------------------------------------------------------------------------------
+> >> ../../util/wrap.pl ../../test/cmp_client_test
+> >> ../../test/recipes/65-test_cmp_client_data/server.key
+> >> ../../test/recipes/65-test_cmp_client_data/server.crt
+> >> ../../test/recipes/65-test_cmp_client_data/client.key
+> >> ../../test/recipes/65-test_cmp_client_data/client.crt
+> >> ../../test/recipes/65-test_cmp_client_data/client.csr none => 1
+> >> not ok 1
+> >> #
+> >>
+> ------------------------------------------------------------------------------
+> >> # Looks like you failed 1 test of 2.65-test_cmp_client.t
+> >> ....................
+> >> Dubious, test returned 1 (wstat 256, 0x100)
+> >> Failed 1/2 subtests
+> >> This is on a Gentoo Linux server. Actually it is Itanium IA64
+> >> hardware.
+> >> The real thing.
+> >> In any case the testsuite is running but thus far the above has
+> >> failed
+> >> strangely whereas the alpha1 stuff was flawless. Very strange.
+> >>
+> > Sheesh, darn it, never mind, I had IPv6 disabled.
+> > So please ignore the noise.
+> >
+> >
+> > --
+> > Dennis Clarke
+> > RISC-V/SPARC/PPC/ARM/CISC
+> > UNIX and Linux spoken
+> >
+>
+> --
+> --
+> Richard Levitte         levitte at openssl.org
+> OpenSSL Project         http://www.openssl.org/~levitte/
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240402/192da9ae/attachment-0001.htm>
+
+From Ange-Thierry.Ishimwe at colorado.edu  Wed Apr  3 06:14:57 2024
+From: Ange-Thierry.Ishimwe at colorado.edu (Ange-Thierry Ishimwe)
+Date: Wed, 3 Apr 2024 00:14:57 -0600
+Subject: Adding an LLVM Optimization Pass while Building openSSL Using
+ Clang
+In-Reply-To: <800b7eb5-75e9-496e-940e-ac37a054b8d6@openssl.org>
+References: <CAKtpt_Cxi5hkqVH6M2G5jRTq5YbuUbZkT5KXGwBbMpL8nGKVdA@mail.gmail.com>
+ <800b7eb5-75e9-496e-940e-ac37a054b8d6@openssl.org>
+Message-ID: <CAKtpt_D9oQDzc+rjBPmrFnLDA=M=Si8i_gfnrwG9RsCnfnsqwQ@mail.gmail.com>
+
+Thanks Matt! That worked for me, I ended up using a Python script instead
+though.
+
+Ange
+
+On Tue, Apr 2, 2024 at 1:57?AM Matt Caswell <matt at openssl.org> wrote:
+
+> [External Email - Use caution]
+>
+>
+> On 02/04/2024 03:11, Ange-Thierry Ishimwe wrote:
+> > Hi all,
+> >
+> > I am currently working on building OpenSSL for RISC-V architecture using
+> > clang/llvm. While I've successfully compiled OpenSSL and generated a
+> > binary using the linux64-riscv64 configuration, I would like to
+> > integrate an LLVM optimization pass into the compilation process before
+> > the object files are created.
+> >
+> > *_Traditionally, the OpenSSL process follows the pattern:_*
+> > clang [source file] -o [obj file]
+> >
+> > *_However, my objective is to introduce an additional step in the
+> > process, as follows:
+> > _clang *[source file] -o [LLVM IR File]
+> > *opt *[LLVM IR File] -o [OPTIMIZED LLVM IR File]
+> > *clang *[OPTIMIZED LLVM IR File] -o [obj file]
+> >
+> > Basically, I want to create intermediate representations (IR), apply a
+> > custom optimization pass on them, and subsequently produce an object
+> > file on all the source files.
+> >
+> > Could I please get some guidance or point me in the right direction on
+> > how to achieve this within the OpenSSL build process?
+> >
+> > Your assistance would be greatly appreciated.
+>
+> I've not tried this, but my immediate thought would be to wrap the 3
+> step process up in a shell script and then use your shell script as the
+> "compiler", e.g.
+>
+>
+> CC=myscript.sh ./config ...
+>
+>
+> Matt
+>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240403/54b4137b/attachment.htm>
+
+From mazhh at outlook.com  Thu Apr  4 19:09:10 2024
+From: mazhh at outlook.com (Ma Zhenhua)
+Date: Thu, 4 Apr 2024 19:09:10 +0000
+Subject: In Openssl 1.1.1t I can see BN_X931_generate_prime_ex is using most
+ CPU. But I can't find the Openssl code invokes it except
+ RSA_X931_generate_key_ex for which I can't find its caller either. 
+Message-ID: <SY4P282MB2692FA18DAA1538BC8DDDF3AAA3C2@SY4P282MB2692.AUSP282.PROD.OUTLOOK.COM>
+
+Hi Team,
+
+In Openssl 1.1.1t I can see BN_X931_generate_prime_ex is using most CPU. But I can't find the Openssl code invokes it except RSA_X931_generate_key_ex for which I can't find its caller either.  Am I missing something? Or these two functions are called in the form of some macro? Thanks in advance.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240404/be2b59b1/attachment.htm>
+
+From doki.yuko at fujitsu.com  Fri Apr  5 05:55:22 2024
+From: doki.yuko at fujitsu.com (Yuko Doki (Fujitsu))
+Date: Fri, 5 Apr 2024 05:55:22 +0000
+Subject: TLSv1.0 on OpenSSL 3.0-API
+Message-ID: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+
+Hello OpenSSL users' community,
+This is my first time posting.
+
+I am developing an application using the OpenSSL API library.
+And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+
+The application supports TLS protocol versions from TLSv1.0 to 1.3, 
+but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake error.
+
+The errors are as follows.
+[client side]
+  error:0A000438:SSL routines::tlsv1 alert internal error
+[server side]
+  error:0A000076:SSL routines::no suitable signature algorithm
+
+The TLS protocol version is set using the following functions.
+  SSL_CTX_set_min_proto_version()
+  SSL_CTX_set_max_proto_version()
+No cipher suite is set. (Automatically selected by OpenSSL.)
+
+This implementation worked fine with OpenSSL 1.1.1. 
+Is OpenSSL 3.0 not supporting these protocol versions?
+I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with OpenSSL 3.0.
+
+In addition, the operating environment is as follows.
+OS: Red Hat Enterprise Linux release 9.3
+OpenSSL : OpenSSL 3.0.7 1 Nov 2022 (Library: OpenSSL 3.0.7 1 Nov 2022)
+
+Kind regards,
+Yuko Doki
+
+From tomas at openssl.org  Fri Apr  5 06:47:26 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Fri, 05 Apr 2024 08:47:26 +0200
+Subject: TLSv1.0 on OpenSSL 3.0-API
+In-Reply-To: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+Message-ID: <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+
+These versions require SHA1 to operate. However security bits for this
+algorithm was downgraded due to the known weaknesses and collision
+attacks. For that reason you have to use @SECLEVEL=0 in the cipher
+string or call SSL_CTX_set_security_level() to make TLS-1.0 and 1.1
+work.
+https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html
+
+
+Regards,
+
+Tomas Mraz, OpenSSL
+
+On Fri, 2024-04-05 at 05:55 +0000, Yuko Doki (Fujitsu) via openssl-
+users wrote:
+> Hello OpenSSL users' community,
+> This is my first time posting.
+> 
+> I am developing an application using the OpenSSL API library.
+> And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+> 
+> The application supports TLS protocol versions from TLSv1.0 to 1.3, 
+> but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake
+> error.
+> 
+> The errors are as follows.
+> [client side]
+> ? error:0A000438:SSL routines::tlsv1 alert internal error
+> [server side]
+> ? error:0A000076:SSL routines::no suitable signature algorithm
+> 
+> The TLS protocol version is set using the following functions.
+> ? SSL_CTX_set_min_proto_version()
+> ? SSL_CTX_set_max_proto_version()
+> No cipher suite is set. (Automatically selected by OpenSSL.)
+> 
+> This implementation worked fine with OpenSSL 1.1.1. 
+> Is OpenSSL 3.0 not supporting these protocol versions?
+> I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with
+> OpenSSL 3.0.
+> 
+> In addition, the operating environment is as follows.
+> OS: Red Hat Enterprise Linux release 9.3
+> OpenSSL : OpenSSL 3.0.7 1 Nov 2022 (Library: OpenSSL 3.0.7 1 Nov
+> 2022)
+> 
+> Kind regards,
+> Yuko Doki
+> 
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From doki.yuko at fujitsu.com  Mon Apr  8 02:57:34 2024
+From: doki.yuko at fujitsu.com (Yuko Doki (Fujitsu))
+Date: Mon, 8 Apr 2024 02:57:34 +0000
+Subject: TLSv1.0 on OpenSSL 3.0-API
+In-Reply-To: <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+Message-ID: <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+
+Thank you for your advice, Thomas.
+
+I added "@SECLEVEL=0" to the cipher string and tried.
+But I got a handshake error again.
+Note: I did not try SSL_CTX_set_security_level() to avoid changing the applications sources.
+
+The errors are as follows.
+[client side]
+    error:0A000438:SSL routines::tlsv1 alert internal error
+    (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+[server side]
+    error:03000098:digital envelope routines::invalid digest
+    (detail: crypto/evp/m_sigver.c line 343 - tls_construct_server_key_exchange())
+    error:0A0C0103:SSL routines::internal error
+    (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+
+The implementation for setting protocol version and cipher is as follows.
+     SSL_CTX_set_min_proto_version(ctx, TLS1_VERSION);
+     SSL_CTX_set_max_proto_version(ctx, TLS1_1_VERSION);
+     SSL_CTX_set_cipher_list(ctx, "DEFAULT:@SECLEVEL=0");
+
+Could you please tell me what is the problem and how to fix it?
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: Tomas Mraz <tomas at openssl.org> 
+Sent: Friday, April 5, 2024 3:47 PM
+To: Doki, Yuko/?? ?? <doki.yuko at fujitsu.com>; openssl-users at openssl.org
+Subject: Re: TLSv1.0 on OpenSSL 3.0-API
+
+These versions require SHA1 to operate. However security bits for this algorithm was downgraded due to the known weaknesses and collision attacks. For that reason you have to use @SECLEVEL=0 in the cipher string or call SSL_CTX_set_security_level() to make TLS-1.0 and 1.1 work.
+https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html
+
+
+Regards,
+
+Tomas Mraz, OpenSSL
+
+On Fri, 2024-04-05 at 05:55 +0000, Yuko Doki (Fujitsu) via openssl- users wrote:
+> Hello OpenSSL users' community,
+> This is my first time posting.
+> 
+> I am developing an application using the OpenSSL API library.
+> And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+> 
+> The application supports TLS protocol versions from TLSv1.0 to 1.3, 
+> but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake 
+> error.
+> 
+> The errors are as follows.
+> [client side]
+> ? error:0A000438:SSL routines::tlsv1 alert internal error [server 
+> side]
+> ? error:0A000076:SSL routines::no suitable signature algorithm
+> 
+> The TLS protocol version is set using the following functions.
+> ? SSL_CTX_set_min_proto_version()
+> ? SSL_CTX_set_max_proto_version()
+> No cipher suite is set. (Automatically selected by OpenSSL.)
+> 
+> This implementation worked fine with OpenSSL 1.1.1. 
+> Is OpenSSL 3.0 not supporting these protocol versions?
+> I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with 
+> OpenSSL 3.0.
+> 
+> In addition, the operating environment is as follows.
+> OS: Red Hat Enterprise Linux release 9.3 OpenSSL : OpenSSL 3.0.7 1 Nov 
+> 2022 (Library: OpenSSL 3.0.7 1 Nov
+> 2022)
+> 
+> Kind regards,
+> Yuko Doki
+> 
+
+--
+Tom?? Mr?z, OpenSSL
+
+
+From tomas at openssl.org  Mon Apr  8 13:59:11 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Mon, 8 Apr 2024 13:59:11 +0000
+Subject: OpenSSL Security Advisory
+Message-ID: <ZhP4L34wfuoIMhKi@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+OpenSSL Security Advisory [8th April 2024]
+==========================================
+
+Unbounded memory growth with session handling in TLSv1.3 (CVE-2024-2511)
+========================================================================
+
+Severity: Low
+
+Issue summary: Some non-default TLS server configurations can cause unbounded
+memory growth when processing TLSv1.3 sessions
+
+Impact summary: An attacker may exploit certain server configurations to trigger
+unbounded memory growth that would lead to a Denial of Service
+
+This problem can occur in TLSv1.3 if the non-default SSL_OP_NO_TICKET option is
+being used (but not if early_data support is also configured and the default
+anti-replay protection is in use). In this case, under certain conditions, the
+session cache can get into an incorrect state and it will fail to flush properly
+as it fills. The session cache will continue to grow in an unbounded manner. A
+malicious client could deliberately create the scenario for this failure to
+force a Denial of Service. It may also happen by accident in normal operation.
+
+This issue only affects TLS servers supporting TLSv1.3. It does not affect TLS
+clients.
+
+The FIPS modules in 3.2, 3.1 and 3.0 are not affected by this issue. OpenSSL
+1.0.2 is also not affected by this issue.
+
+OpenSSL 3.2, 3.1, 3.0, 1.1.1 are vulnerable to this issue.
+
+OpenSSL 3.2 users should upgrade to OpenSSL 3.2.2 once it is released.
+
+OpenSSL 3.1 users should upgrade to OpenSSL 3.1.6 once it is released.
+
+OpenSSL 3.0 users should upgrade to OpenSSL 3.0.14 once it is released.
+
+OpenSSL 1.1.1 users should upgrade to OpenSSL 1.1.1y once it is released
+(premium support customers only).
+
+Due to the low severity of this issue we are not issuing new releases of
+OpenSSL at this time. The fix will be included in the next releases when they
+become available. The fix is also available in commit e9d7083e (for 3.2),
+commit 7e4d731b (for 3.1) and commit b52867a9 (for 3.0) in the OpenSSL git
+repository. It is available to premium support customers in commit
+5f8d2577 (for 1.1.1).
+
+This issue was reported on 27th February 2024 by Manish Patidar (Hewlett Packard
+Enterprise). The fix was developed by Matt Caswell.
+
+General Advisory Notes
+======================
+
+URL for this Security Advisory:
+https://www.openssl.org/news/secadv/20240408.txt
+
+Note: the online version of the advisory may be updated with additional details
+over time.
+
+For details of OpenSSL severity classifications please see:
+https://www.openssl.org/policies/secpolicy.html
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE3HAyZir4heL0fyQ/UnRmohynnm0FAmYT9+oACgkQUnRmohyn
+nm1jPRAAlvRaeTjSlW7PULpYxAfCrCfLlMzdC15ybP1mO12ixsbdBN4qRxcXWGFP
+TMqseW1pTCvcfQzEjSzswkio6kjBCh8iN3jSEPCJSIW7FWsZBpIZLwdqytp1pMaL
+D8Pe1B542dztrCQy+1pobHpxH8EbFVLX8X9VR0nbH2xx6a3cspGc+JwS7RRQzvK3
+a27fW+KM/dyjRE8SGbFzxcgparZTcKDhB2WsjW4Hm0Z62J4v/mkxeC30SOrgH4j2
+PBsjJW0XqxOdwM40aKqRPXfjnFwDWOaXVZDjARzT9+olnt01WJiXTpnuKKYQ9y1C
+4rmUJo+qbxDnsTg+cjBiZGgsEGqH6Fu/VCw6cJF4Wj0+dZDpvludwTtLh4IRaeCp
+FqO6HWkdPg+qe9yKBvvqvf84i2kOvmSu4bVrJ5Zh524G3tYj43Uq76IiTSoLxM61
+xmSVG3n0ri8H7aiavIjuq8U75uPhqmylwAIbL5wjEuIJayuprCINyBLAcV5VAprs
+avXD6D2XBXLFFDLZ4GEDuNIOWVxO3mGGxZ0kulpGWhESIGJaZk7Rvd+xr3jLtxwT
+dWdakCmOFtFIAcAdyYow4D5vCJr1p4iaLD3RCvle5bu3KIcThzWHo0ZnTygjyWt6
+EgE0LExGT/1RTdtsXQaFQxzKd+gy4gdGfgl0u8ycYbMENKJ/tpE=
+=rMVW
+-----END PGP SIGNATURE-----
+
+From openssl at openssl.org  Tue Apr  9 12:56:00 2024
+From: openssl at openssl.org (OpenSSL)
+Date: Tue, 9 Apr 2024 12:56:00 +0000
+Subject: OpenSSL version 3.3.0 published
+Message-ID: <ZhU64O8mTQOAQpyT@openssl.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+
+   OpenSSL version 3.3.0 released
+   ==============================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://www.openssl.org/
+
+   The OpenSSL project team is pleased to announce the release of
+   version 3.3.0 of our open source toolkit for SSL/TLS.
+   For details of the changes, see the release notes at:
+
+        https://www.openssl.org/news/openssl-3.3-notes.html
+
+   Specific notes on upgrading to OpenSSL 3.3 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://www.openssl.org/docs/man3.3/man7/migration_guide.html
+
+   The OpenSSL 3.3.0 is available for download at these URLs:
+
+     * https://www.openssl.org/source/
+     * https://github.com/openssl/openssl/releases
+
+   The distribution file name is:
+
+    o openssl-3.3.0.tar.gz
+      Size: 18038030
+      SHA1 checksum:  34cdf3259fd2af83ab2c92ac30c56f79ff5ad59e
+      SHA256 checksum:  53e66b043322a606abf0087e7699a0e033a37fa13feb9742df35c3a33b18fb02
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.3.0.tar.gz
+    openssl sha256 openssl-3.3.0.tar.gz
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmYVMMIACgkQ2JTizos9
+efUa0g/+JfJ/crbeQCXfnhJUHwWcU/CvuxLcE285jXLwziKWsHfzkq3wECsNhltW
+Amkpztqa4D9tGL/Ve2UARFoNMRxnxyLyxt2DgnYxtXUcypHLDE4opKOp3CImW3Ex
+GadXBZwxbCuiXJnZITs87pEhTCj3mvbv08ayH0RxJqQGs9E1CGOcJtmvdAnRAF3Q
+5iZeFkwh+Bi3/4K04HofSjUHG7K9/WwEOZDv0PGwcuKOMXfMx5L9Xq/cPQ4bk/s/
+hGf0hxE/R05r2kfQgXVfNem9CafnA5Ts+pAefDQ/IV/wugUZYjazLMXnm5FxbYoP
+jsNnGgo8ZL3NbGAm2MEkgj6qL4NKpWqhbcgMavF2Pk9kwK3wsr52K1Monw3MxyWA
+CEzP3fpter9PdH2Lvd56nzzgrQsUozEVHrWrz3EiwOsReq+AFy2VoDjofLNoarLr
+OCiSeKm00iHUKq10MReC7seYfVKZRLN04mqu2fsdZ/WgHjcnKS2C3HbOq8jlkHFy
+dt6UWdED89/X7ohXUxwfyBDRG6VDj89yxGsVXrIWvBhCEekDe4AVaNFqtZDD+hf1
+eKuf27ll4UR/DBQdOeuJ68QM/yP0ik3rk1VVUrNkArLXRSrUP1srmy/cd4sUSkLd
+BHVl+iY7NwDq6kiZjboRyBhga5l6rxfhD0AejuHJPu31EqqH95c=
+=88+B
+-----END PGP SIGNATURE-----
+
+From bc979 at lafn.org  Tue Apr  9 15:43:39 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Tue, 9 Apr 2024 08:43:39 -0700
+Subject: SSL_accept errors
+Message-ID: <A0FFBB91-3F64-433E-86C0-4643F1150F4B@sermon-archive.info>
+
+I have a server that is "working", but there are several issues with connections.  The server requires client certificates.  If I use openssl s_client and give it the proper certificate, I see one connection that makes the request and returns the response.  There are no errors indicated by the server and the response time is almost instantaneous.  All the involved systems are on the same LAN.
+
+However, if I use one of the various clients to make the same request, the results are quite different.  There are a number of connections made that fail and then finally they make the proper connection and everything works.  The time it takes to get through all of that is quite long - around 5 seconds.  The server is recording the following errors from SSL_accept:
+
+	Connection 1 - session id context uninitialized
+	Connection 2 - session id context uninitialized
+	Connection 3 - sslv3 alert certificate unknown
+	Connection 4 - sslv3 alert certificate unknown
+
+and then Connection 5 sees the proper client certificate, authenticates and produces output.
+
+How can I figure out what is causing these multiple connections and the resulting errors.  I have tcpdump and ssldump output but nothing there gives me any ideas.  I can provide either of those if needed, but they are large.  Unfortunately I have not figured out how to get ssldump to decode the application data.  As best as I can tell, the negotiated cipher cannot be handled by ssldump.
+
+I don't have access to any of the client's source code.  The session id in the error messages indicates that perhaps there is something I need to do with establishing sessions, but I haven't found any examples of what that would entail.  The clients each have the same 2 client certificates.  They ask which one to use, but perhaps they are trying both?  However, it doesn't appear that there are any certificates being passed in either direction for the first 4 sessions.  I see them in the 5th session.
+
+-- Doug
+
+
+From bc979 at lafn.org  Tue Apr  9 15:44:41 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Tue, 9 Apr 2024 08:44:41 -0700
+Subject: Questions
+Message-ID: <A2803C77-2B9A-43E0-BA0A-721BC89A0499@sermon-archive.info>
+
+When using client certificates, how does SSL_accept validate the provided certificate?
+
+If verify_callback is used, is the client certificate validated before the callback is called?
+
+-- Doug
+
+
+From openssl-users at dukhovni.org  Tue Apr  9 17:59:09 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Tue, 9 Apr 2024 13:59:09 -0400
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <A0FFBB91-3F64-433E-86C0-4643F1150F4B@sermon-archive.info>
+ <A2803C77-2B9A-43E0-BA0A-721BC89A0499@sermon-archive.info>
+Message-ID: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+
+On Tue, Apr 09, 2024 at 08:44:41AM -0700, Doug Hardie wrote:
+
+> When using client certificates, how does SSL_accept validate the
+> provided certificate?
+
+By building a certificate chain to a local trust-anchor using the
+server's configured trust store, and any untrusted intermediate
+certificates presented by the remote client.
+
+Note that verification of client certificates DOES NOT typically include
+any "identity" checks, rather only the trustworthiness of the chain is
+verified.  It is up to the server application to perform access control
+on the requested resources based on whatever information the server
+independently gleams from the certificate during or after the TLS
+handshake.
+
+> If verify_callback is used, is the client certificate validated before
+> the callback is called?
+
+No, if all goes well, the callbacks (one per chain certificate) are
+made *as part of* validation, with the "ok" parameter set to "1" if
+there's no (new?) problem to report at the level in question.
+
+If the callback returns a non-zero value, the handshake continues, if
+zero it is aborted.  A callback that is purely diagnostic should return
+the input "ok" value.  If the callback wants to either abort an
+otherwise "ok" handshake, or ignore a particular problem, it can return
+1 under appropriate conditions even if "ok" was zero.
+
+Note that returning "ok" equal to one does not reset the verification
+status for the chain, which can be tested, for e.g. success, via:
+
+    SSL_get_verify_result(ssl) == X509_V_OK
+
+this works even on resumption, because the original validation status is
+part of the saved/resumed session.
+
+The callback can (with great care to not ignore any important error
+conditions) reset the validation result for less critical conditions,
+but then it is necessary to either abort the handshake on the import
+conditions, or save away state that an earlier problem was not
+ignorable, and reset the error to that, rather than to X509_V_OK.
+
+See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+
+On Tue, Apr 09, 2024 at 08:43:39AM -0700, Doug Hardie wrote:
+
+> The server requires client certificates.  If I use
+> openssl s_client and give it the proper certificate, I see one
+> connection that makes the request and returns the response.
+
+The "s_client" application is liberal in what it accepts:
+
+    - Without non-default options, the handshake completes (with some
+      addtional noise) even if the server certificate fails to verufy.
+
+    - It presents the specified client certificate even if the server
+      does not solicit its issuer CA (or ultimate trust anchor) in its
+      certificate request message, which lists the acceptable CAs.
+
+    - There may of course be subtle differences in various extensions
+      used, the SNI extension may be important, the others typically
+      less so.
+
+    - Your s_client may be dated, and the issue may only manifest with
+      bleeding edge client capabilities, though again your s_client is
+      likely not that old (1.1.1, supports TLS 1.3) and you rarely need
+      more.
+
+Speculatively, the second item is the most likely source of issues.
+
+
+> However, if I use one of the various clients to make the same request,
+> the results are quite different.  There are a number of connections
+> made that fail and then finally they make the proper connection and
+> everything works.  The time it takes to get through all of that is
+> quite long - around 5 seconds.  The server is recording the following
+> errors from SSL_accept:
+> 
+> 	Connection 1 - session id context uninitialized
+> 	Connection 2 - session id context uninitialized
+> 	Connection 3 - sslv3 alert certificate unknown
+> 	Connection 4 - sslv3 alert certificate unknown
+
+Who's sending/receiving the alerts?  The server would typically report
+*received* alerts, and it is then perhaps the client that is failing to
+validate the server certificate, but without a clear context, it is
+difficult to say what happened.
+
+As for session id contexts, your server code needs to set one in order
+to support resumption properly, one more difference between s_client
+and other clients, is that s_client always starts with no saved
+sessions.
+
+The Postfix SMTP server has:
+
+     /*                                                                                                                                                                           * The session_id_context identifies the service that created a session.                                                                                                     * This information is used to distinguish between multiple TLS-based                                                                                                        * servers running on the same server. We use the name of the mail system.                                                                                                   */                                                                                                                                                                        static const char server_session_id_context[] = "Postfix/TLS";
+    ...
+    SSL_CTX_set_session_id_context(server_ctx,                                                                                                                                                                 (void *) &server_session_id_context,                                                                                                                                        sizeof(server_session_id_context));
+
+> and then Connection 5 sees the proper client certificate, authenticates and produces output.
+
+Perhaps the client is no longer attempting resumption?
+
+> How can I figure out what is causing these multiple connections and
+> the resulting errors.  I have tcpdump and ssldump output but nothing
+> there gives me any ideas.
+
+The ssldump software is abandoned, use "tcpdump" + ""tshark", as explained in:
+ 
+     https://marc.info/?l=postfix-users&m=166005488423800&w=2
+
+
+> I can provide either of those if needed, but they are large.
+
+
+With "tcpdump", after capturing a bunch of traffic, you extract just a
+particular connection of interest, details in the post linked above.
+You can then analyse it with "tshark" (same link).
+
+> Unfortunately I have not figured out how to get ssldump to decode the
+> application data.  As best as I can tell, the negotiated cipher cannot
+> be handled by ssldump.
+
+Delete "ssldump" you're better off without it.
+
+> The clients each have the same 2 client certificates.  They ask which
+> one to use, but perhaps they are trying both?
+
+A given handshake can only try one client certificate as part of the
+normal handshake.  THere's also post-handshake authenticaiton (PHA) in
+TLS 1.3, but you probably don't have server code for that.
+
+That the clients are putting up a dialogue does strengthen the
+plausibility of the server's client certificate request being part of
+the problem.  You may need to carefully tune your server's list of
+solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+Less is more (ideally just one if there's only one CA issuing the
+desired certificates).
+
+And finally, but importantly, what exactly is your use case?  How does
+the server expect to benefit from (make access and authorisation
+decisions based on) client certificates?
+
+-- 
+    Viktor.
+
+From bc979 at lafn.org  Wed Apr 10 00:35:53 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Tue, 9 Apr 2024 17:35:53 -0700
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+Message-ID: <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+
+Attached is the result for the first connection:
+
+Nothing stands out that I can see.
+
+-- Doug
+
+> On Apr 9, 2024, at 10:59, Viktor Dukhovni <openssl-users at dukhovni.org> wrote:
+> 
+> On Tue, Apr 09, 2024 at 08:44:41AM -0700, Doug Hardie wrote:
+> 
+>> When using client certificates, how does SSL_accept validate the
+>> provided certificate?
+> 
+> By building a certificate chain to a local trust-anchor using the
+> server's configured trust store, and any untrusted intermediate
+> certificates presented by the remote client.
+> 
+> Note that verification of client certificates DOES NOT typically include
+> any "identity" checks, rather only the trustworthiness of the chain is
+> verified.  It is up to the server application to perform access control
+> on the requested resources based on whatever information the server
+> independently gleams from the certificate during or after the TLS
+> handshake.
+> 
+>> If verify_callback is used, is the client certificate validated before
+>> the callback is called?
+> 
+> No, if all goes well, the callbacks (one per chain certificate) are
+> made *as part of* validation, with the "ok" parameter set to "1" if
+> there's no (new?) problem to report at the level in question.
+> 
+> If the callback returns a non-zero value, the handshake continues, if
+> zero it is aborted.  A callback that is purely diagnostic should return
+> the input "ok" value.  If the callback wants to either abort an
+> otherwise "ok" handshake, or ignore a particular problem, it can return
+> 1 under appropriate conditions even if "ok" was zero.
+> 
+> Note that returning "ok" equal to one does not reset the verification
+> status for the chain, which can be tested, for e.g. success, via:
+> 
+>   SSL_get_verify_result(ssl) == X509_V_OK
+> 
+> this works even on resumption, because the original validation status is
+> part of the saved/resumed session.
+> 
+> The callback can (with great care to not ignore any important error
+> conditions) reset the validation result for less critical conditions,
+> but then it is necessary to either abort the handshake on the import
+> conditions, or save away state that an earlier problem was not
+> ignorable, and reset the error to that, rather than to X509_V_OK.
+> 
+> See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+
+Thanks for that explanation.  That would probably be helpful to others if it was included somewhere in the openssl documentation. 
+
+> 
+> On Tue, Apr 09, 2024 at 08:43:39AM -0700, Doug Hardie wrote:
+> 
+>> The server requires client certificates.  If I use
+>> openssl s_client and give it the proper certificate, I see one
+>> connection that makes the request and returns the response.
+> 
+> The "s_client" application is liberal in what it accepts:
+> 
+>   - Without non-default options, the handshake completes (with some
+>     addtional noise) even if the server certificate fails to verufy.
+> 
+>   - It presents the specified client certificate even if the server
+>     does not solicit its issuer CA (or ultimate trust anchor) in its
+>     certificate request message, which lists the acceptable CAs.
+> 
+>   - There may of course be subtle differences in various extensions
+>     used, the SNI extension may be important, the others typically
+>     less so.
+> 
+>   - Your s_client may be dated, and the issue may only manifest with
+>     bleeding edge client capabilities, though again your s_client is
+>     likely not that old (1.1.1, supports TLS 1.3) and you rarely need
+>     more.
+> 
+> Speculatively, the second item is the most likely source of issues.
+
+It should be a fairly new s_client.  The client I used for that testing, and for the server is FreeBSD 14.0.
+
+
+> 
+> 
+>> However, if I use one of the various clients to make the same request,
+>> the results are quite different.  There are a number of connections
+>> made that fail and then finally they make the proper connection and
+>> everything works.  The time it takes to get through all of that is
+>> quite long - around 5 seconds.  The server is recording the following
+>> errors from SSL_accept:
+>> 
+>> Connection 1 - session id context uninitialized
+>> Connection 2 - session id context uninitialized
+>> Connection 3 - sslv3 alert certificate unknown
+>> Connection 4 - sslv3 alert certificate unknown
+> 
+> Who's sending/receiving the alerts?  The server would typically report
+> *received* alerts, and it is then perhaps the client that is failing to
+> validate the server certificate, but without a clear context, it is
+> difficult to say what happened.
+
+All of the logging is on the server side.  I don't really have any ability to do anything with the clients.
+
+
+> 
+> As for session id contexts, your server code needs to set one in order
+> to support resumption properly, one more difference between s_client
+> and other clients, is that s_client always starts with no saved
+> sessions.
+> 
+> The Postfix SMTP server has:
+> 
+>    /*                                                                                                                                                                           * The session_id_context identifies the service that created a session.                                                                                                     * This information is used to distinguish between multiple TLS-based                                                                                                        * servers running on the same server. We use the name of the mail system.                                                                                                   */                                                                                                                                                                        static const char server_session_id_context[] = "Postfix/TLS";
+>   ...
+>   SSL_CTX_set_session_id_context(server_ctx,                                                                                                                                                                 (void *) &server_session_id_context,                                                                                                                                        sizeof(server_session_id_context));
+
+I'll have to do that then.
+
+
+> 
+>> and then Connection 5 sees the proper client certificate, authenticates and produces output.
+> 
+> Perhaps the client is no longer attempting resumption?
+> 
+>> How can I figure out what is causing these multiple connections and
+>> the resulting errors.  I have tcpdump and ssldump output but nothing
+>> there gives me any ideas.
+> 
+> The ssldump software is abandoned, use "tcpdump" + ""tshark", as explained in:
+> 
+>    https://marc.info/?l=postfix-users&m=166005488423800&w=2
+
+Thanks.   I have tdump available but had not figured out how to use it.
+
+> 
+> 
+>> I can provide either of those if needed, but they are large.
+> 
+> 
+> With "tcpdump", after capturing a bunch of traffic, you extract just a
+> particular connection of interest, details in the post linked above.
+> You can then analyse it with "tshark" (same link).
+> 
+>> Unfortunately I have not figured out how to get ssldump to decode the
+>> application data.  As best as I can tell, the negotiated cipher cannot
+>> be handled by ssldump.
+> 
+> Delete "ssldump" you're better off without it.
+
+So I see.  It's going away after I send this.
+
+> 
+>> The clients each have the same 2 client certificates.  They ask which
+>> one to use, but perhaps they are trying both?
+> 
+> A given handshake can only try one client certificate as part of the
+> normal handshake.  THere's also post-handshake authenticaiton (PHA) in
+> TLS 1.3, but you probably don't have server code for that.
+> 
+> That the clients are putting up a dialogue does strengthen the
+> plausibility of the server's client certificate request being part of
+> the problem.  You may need to carefully tune your server's list of
+> solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+> Less is more (ideally just one if there's only one CA issuing the
+> desired certificates).
+
+I only have my root certificate in the chain for authentication.  Your last response to me made that point loud and clear.  Thanks.
+
+> 
+> And finally, but importantly, what exactly is your use case?  How does
+> the server expect to benefit from (make access and authorisation
+> decisions based on) client certificates?
+
+The case is an organization that was initially using passwords for authentication.  That worked properly and was easy to setup.  However, in the process of doing that I discovered that all their users had the name of the company as their password.  Given that the loss of the information that needs to be protected would be a very significant financial loss to the company, that approach is really not a good idea.  I proposed the certificate authentication and management agreed.  
+
+-- Doug
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: ccc
+Type: application/octet-stream
+Size: 12898 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240409/adbda02f/attachment-0001.obj>
+
+From openssl-users at dukhovni.org  Wed Apr 10 05:02:13 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Wed, 10 Apr 2024 01:02:13 -0400
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+ <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+Message-ID: <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+
+On Tue, Apr 09, 2024 at 05:35:53PM -0700, Doug Hardie wrote:
+
+> Attached is the result for the first connection:
+
+There are a few reasons turned out a bit less than informative.
+
+    - You give no indication of whether this is a successful handshake
+      or a failure.  It just completes abruptly without even an error
+      indication (encrypted alert) from either side.
+
+    - The handshake used TLS 1.3, which encrypts all the interesting
+      parts of the handshake.  To really see what's going on, you might
+      to artificially limit the server's supported TLS protocols to TLS 1.2
+
+    - My "tshark" instructions strip away which side is sending a given
+      message, making it somewhat unclear, but the presented decode
+      was largely clear turn-taking.
+
+To debug TLS 1.3, you probably want to enable handshake and error logging (info)
+callbacks on the server, and not abbreviate the reported errors to such
+a degree that all context is lost.  It should be clear (to a trained
+eye) from a reported SSL alert error, for example whether the alert was
+a client to server or a server to client alert.  This means not
+summarising the error messages, but reporting them in full.
+
+> > See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+> 
+> Thanks for that explanation.  That would probably be helpful to others
+> if it was included somewhere in the openssl documentation. 
+
+I may look into it.
+
+> > Who's sending/receiving the alerts?  The server would typically report
+> > *received* alerts, and it is then perhaps the client that is failing to
+> > validate the server certificate, but without a clear context, it is
+> > difficult to say what happened.
+> 
+> All of the logging is on the server side.  I don't really have any
+> ability to do anything with the clients.
+
+Post the relevant log entries verbatim, unsummarised.
+
+> >   ...
+> >   SSL_CTX_set_session_id_context(server_ctx,
+> >                                  (void *) &server_session_id_context,
+> >                                  sizeof(server_session_id_context));
+> 
+> I'll have to do that then.
+
+It may avoid some of the problems.
+
+> > That the clients are putting up a dialogue does strengthen the
+> > plausibility of the server's client certificate request being part of
+> > the problem.  You may need to carefully tune your server's list of
+> > solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+> > Less is more (ideally just one if there's only one CA issuing the
+> > desired certificates).
+> 
+> I only have my root certificate in the chain for authentication.  Your
+> last response to me made that point loud and clear.  Thanks.
+
+But what list of CAs is sent in the certificate request?  If it is the
+CA names from full default system trust store, that could be unhelpful,
+as well as a security issue, since any of those CAs could impersonate
+your clients.  For client authentication, Postfix only trusts client
+certificate or public key fingerprints, bypassing the CA trust quagmire,
+that is typically unhelpful (and a major security risk) for client certs.
+
+
+> > And finally, but importantly, what exactly is your use case?  How does
+> > the server expect to benefit from (make access and authorisation
+> > decisions based on) client certificates?
+> 
+> The case is an organization that was initially using passwords for
+> authentication.  That worked properly and was easy to setup.  However,
+> in the process of doing that I discovered that all their users had the
+> name of the company as their password.  Given that the loss of the
+> information that needs to be protected would be a very significant
+> financial loss to the company, that approach is really not a good
+> idea.  I proposed the certificate authentication and management
+> agreed.  
+
+If this is for browser-based applications, you're probably fighting a
+losing battle.  Client certificates just haven't worked at all well for
+interactive use by most users.  They're fine for datacentre
+machine-machine comms, and in some specialised orgs (like US DoD?) where
+users have no choice, and presumably get adequate support to make it
+work.
+
+Find a way to prevent password sharing, to check password quality, and
+DO NOT force periodic password rotation, which ensures users choose bad
+passwords.  Then consider various second factor options, TOTP and HOTP
+perhaps, or SMS, ...  Some single-systems also include risk metrics,
+to bypass second factors when things look "normal".
+
+-- 
+    Viktor.
+
+From Martin.Bonner at entrust.com  Wed Apr 10 09:05:10 2024
+From: Martin.Bonner at entrust.com (Martin Bonner)
+Date: Wed, 10 Apr 2024 09:05:10 +0000
+Subject: Questions / SSL_accept errors (soliciting client
+In-Reply-To: <mailman.862.1712709365.1859.openssl-users@openssl.org>
+References: <mailman.862.1712709365.1859.openssl-users@openssl.org>
+Message-ID: <PH7PR11MB5863C5FC92667575CCBA8BD9F3062@PH7PR11MB5863.namprd11.prod.outlook.com>
+
+>> And finally, but importantly, what exactly is your use case?  How does
+>> the server expect to benefit from (make access and authorisation
+>> decisions based on) client certificates?
+
+> The case is an organization that was initially using passwords
+> for authentication.  That worked properly and was easy to setup.
+> However, in the process of doing that I discovered that all their
+> users had the name of the company as their password.  ...
+> I proposed the certificate authentication and management agreed.
+
+This is off-topic for the OPENSSL list, but it might be worth
+reconsidering passwords.  A minimum length of 12/15 characters + reject
+anything that is known to have been used as a password in the past
+(see https://haveibeenpwned.com/Passwords where to get that list),
+then strip non-alphabetic characters and reject anything with the
+company name as well, would probably be "good enough", and it is a
+much less pervasive change than switching to client certificates.
+
+Martin Bonner
+
+
+From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of openssl-users-request at openssl.org
+Sent: Wednesday, April 10, 2024 1:36 AM
+To: openssl-users at openssl.org
+Subject: [EXTERNAL] openssl-users Digest, Vol 113, Issue 6
+
+Send openssl-users mailing list submissions to openssl-users@?openssl.?org To subscribe or unsubscribe via the World Wide Web, visit https:?//urldefense.?com/v3/__https:?//mta.?openssl.?org/mailman/listinfo/openssl-users__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtt7tKjqY$
+
+Send openssl-users mailing list submissions to
+        mailto:openssl-users at openssl.org
+
+To subscribe or unsubscribe via the World Wide Web, visit
+        https://urldefense.com/v3/__https://mta.openssl.org/mailman/listinfo/openssl-users__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtt7tKjqY$
+or, via email, send a message with subject or body 'help' to
+        mailto:openssl-users-request at openssl.org
+
+You can reach the person managing the list at
+        mailto:openssl-users-owner at openssl.org
+
+When replying, please edit your Subject line so it is more specific
+than "Re: Contents of openssl-users digest..."
+
+
+Today's Topics:
+
+   1. OpenSSL version 3.3.0 published (OpenSSL)
+   2. SSL_accept errors (Doug Hardie)
+   3. Questions (Doug Hardie)
+   4. Re: Questions / SSL_accept errors (soliciting client
+      certificates) (Viktor Dukhovni)
+   5. Re: Questions / SSL_accept errors (soliciting client
+      certificates) (Doug Hardie)
+
+
+----------------------------------------------------------------------
+
+Message: 1
+Date: Tue, 9 Apr 2024 12:56:00 +0000
+From: OpenSSL <mailto:openssl at openssl.org>
+To: mailto:openssl-project at openssl.org, OpenSSL User Support ML
+        <mailto:openssl-users at openssl.org>, OpenSSL Announce ML
+        <mailto:openssl-announce at openssl.org>
+Subject: OpenSSL version 3.3.0 published
+Message-ID: <mailto:ZhU64O8mTQOAQpyT at openssl.org>
+Content-Type: text/plain; charset=us-ascii
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+
+   OpenSSL version 3.3.0 released
+   ==============================
+
+   OpenSSL - The Open Source toolkit for SSL/TLS
+   https://urldefense.com/v3/__https://www.openssl.org/__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtXBIVnb0$
+
+   The OpenSSL project team is pleased to announce the release of
+   version 3.3.0 of our open source toolkit for SSL/TLS.
+   For details of the changes, see the release notes at:
+
+        https://urldefense.com/v3/__https://www.openssl.org/news/openssl-3.3-notes.html__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtxQZDyXI$
+
+   Specific notes on upgrading to OpenSSL 3.3 from previous versions are
+   available in the OpenSSL Migration Guide, here:
+
+        https://urldefense.com/v3/__https://www.openssl.org/docs/man3.3/man7/migration_guide.html__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtU0Ko0RE$
+
+   The OpenSSL 3.3.0 is available for download at these URLs:
+
+     * https://urldefense.com/v3/__https://www.openssl.org/source/__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtHWDvDEo$
+     * https://urldefense.com/v3/__https://github.com/openssl/openssl/releases__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPti5QABDM$
+
+   The distribution file name is:
+
+    o openssl-3.3.0.tar.gz
+      Size: 18038030
+      SHA1 checksum:  34cdf3259fd2af83ab2c92ac30c56f79ff5ad59e
+      SHA256 checksum:  53e66b043322a606abf0087e7699a0e033a37fa13feb9742df35c3a33b18fb02
+
+   The checksums were calculated using the following commands:
+
+    openssl sha1 openssl-3.3.0.tar.gz
+    openssl sha256 openssl-3.3.0.tar.gz
+
+   Yours,
+
+   The OpenSSL Project Team.
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE78CkZ9YTy4PH7W0w2JTizos9efUFAmYVMMIACgkQ2JTizos9
+efUa0g/+JfJ/crbeQCXfnhJUHwWcU/CvuxLcE285jXLwziKWsHfzkq3wECsNhltW
+Amkpztqa4D9tGL/Ve2UARFoNMRxnxyLyxt2DgnYxtXUcypHLDE4opKOp3CImW3Ex
+GadXBZwxbCuiXJnZITs87pEhTCj3mvbv08ayH0RxJqQGs9E1CGOcJtmvdAnRAF3Q
+5iZeFkwh+Bi3/4K04HofSjUHG7K9/WwEOZDv0PGwcuKOMXfMx5L9Xq/cPQ4bk/s/
+hGf0hxE/R05r2kfQgXVfNem9CafnA5Ts+pAefDQ/IV/wugUZYjazLMXnm5FxbYoP
+jsNnGgo8ZL3NbGAm2MEkgj6qL4NKpWqhbcgMavF2Pk9kwK3wsr52K1Monw3MxyWA
+CEzP3fpter9PdH2Lvd56nzzgrQsUozEVHrWrz3EiwOsReq+AFy2VoDjofLNoarLr
+OCiSeKm00iHUKq10MReC7seYfVKZRLN04mqu2fsdZ/WgHjcnKS2C3HbOq8jlkHFy
+dt6UWdED89/X7ohXUxwfyBDRG6VDj89yxGsVXrIWvBhCEekDe4AVaNFqtZDD+hf1
+eKuf27ll4UR/DBQdOeuJ68QM/yP0ik3rk1VVUrNkArLXRSrUP1srmy/cd4sUSkLd
+BHVl+iY7NwDq6kiZjboRyBhga5l6rxfhD0AejuHJPu31EqqH95c=
+=88+B
+-----END PGP SIGNATURE-----
+
+
+------------------------------
+
+Message: 2
+Date: Tue, 9 Apr 2024 08:43:39 -0700
+From: Doug Hardie <mailto:bc979 at lafn.org>
+To: mailto:openssl-users at openssl.org
+Subject: SSL_accept errors
+Message-ID: <mailto:A0FFBB91-3F64-433E-86C0-4643F1150F4B at sermon-archive.info>
+Content-Type: text/plain;       charset=us-ascii
+
+I have a server that is "working", but there are several issues with connections.  The server requires client certificates.  If I use openssl s_client and give it the proper certificate, I see one connection that makes the request and returns the response.  There are no errors indicated by the server and the response time is almost instantaneous.  All the involved systems are on the same LAN.
+
+However, if I use one of the various clients to make the same request, the results are quite different.  There are a number of connections made that fail and then finally they make the proper connection and everything works.  The time it takes to get through all of that is quite long - around 5 seconds.  The server is recording the following errors from SSL_accept:
+
+        Connection 1 - session id context uninitialized
+        Connection 2 - session id context uninitialized
+        Connection 3 - sslv3 alert certificate unknown
+        Connection 4 - sslv3 alert certificate unknown
+
+and then Connection 5 sees the proper client certificate, authenticates and produces output.
+
+How can I figure out what is causing these multiple connections and the resulting errors.  I have tcpdump and ssldump output but nothing there gives me any ideas.  I can provide either of those if needed, but they are large.  Unfortunately I have not figured out how to get ssldump to decode the application data.  As best as I can tell, the negotiated cipher cannot be handled by ssldump.
+
+I don't have access to any of the client's source code.  The session id in the error messages indicates that perhaps there is something I need to do with establishing sessions, but I haven't found any examples of what that would entail.  The clients each have the same 2 client certificates.  They ask which one to use, but perhaps they are trying both?  However, it doesn't appear that there are any certificates being passed in either direction for the first 4 sessions.  I see them in the 5th session.
+
+-- Doug
+
+
+
+------------------------------
+
+Message: 3
+Date: Tue, 9 Apr 2024 08:44:41 -0700
+From: Doug Hardie <mailto:bc979 at lafn.org>
+To: Michael Wojcik via openssl-users <mailto:openssl-users at openssl.org>
+Subject: Questions
+Message-ID: <mailto:A2803C77-2B9A-43E0-BA0A-721BC89A0499 at sermon-archive.info>
+Content-Type: text/plain;       charset=us-ascii
+
+When using client certificates, how does SSL_accept validate the provided certificate?
+
+If verify_callback is used, is the client certificate validated before the callback is called?
+
+-- Doug
+
+
+
+------------------------------
+
+Message: 4
+Date: Tue, 9 Apr 2024 13:59:09 -0400
+From: Viktor Dukhovni <mailto:openssl-users at dukhovni.org>
+To: mailto:openssl-users at openssl.org
+Subject: Re: Questions / SSL_accept errors (soliciting client
+        certificates)
+Message-ID: <mailto:ZhWB7Sq3CStLtoev at chardros.imrryr.org>
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, Apr 09, 2024 at 08:44:41AM -0700, Doug Hardie wrote:
+
+> When using client certificates, how does SSL_accept validate the
+> provided certificate?
+
+By building a certificate chain to a local trust-anchor using the
+server's configured trust store, and any untrusted intermediate
+certificates presented by the remote client.
+
+Note that verification of client certificates DOES NOT typically include
+any "identity" checks, rather only the trustworthiness of the chain is
+verified.  It is up to the server application to perform access control
+on the requested resources based on whatever information the server
+independently gleams from the certificate during or after the TLS
+handshake.
+
+> If verify_callback is used, is the client certificate validated before
+> the callback is called?
+
+No, if all goes well, the callbacks (one per chain certificate) are
+made *as part of* validation, with the "ok" parameter set to "1" if
+there's no (new?) problem to report at the level in question.
+
+If the callback returns a non-zero value, the handshake continues, if
+zero it is aborted.  A callback that is purely diagnostic should return
+the input "ok" value.  If the callback wants to either abort an
+otherwise "ok" handshake, or ignore a particular problem, it can return
+1 under appropriate conditions even if "ok" was zero.
+
+Note that returning "ok" equal to one does not reset the verification
+status for the chain, which can be tested, for e.g. success, via:
+
+    SSL_get_verify_result(ssl) == X509_V_OK
+
+this works even on resumption, because the original validation status is
+part of the saved/resumed session.
+
+The callback can (with great care to not ignore any important error
+conditions) reset the validation result for less critical conditions,
+but then it is necessary to either abort the handshake on the import
+conditions, or save away state that an earlier problem was not
+ignorable, and reset the error to that, rather than to X509_V_OK.
+
+See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+
+On Tue, Apr 09, 2024 at 08:43:39AM -0700, Doug Hardie wrote:
+
+> The server requires client certificates.  If I use
+> openssl s_client and give it the proper certificate, I see one
+> connection that makes the request and returns the response.
+
+The "s_client" application is liberal in what it accepts:
+
+    - Without non-default options, the handshake completes (with some
+      addtional noise) even if the server certificate fails to verufy.
+
+    - It presents the specified client certificate even if the server
+      does not solicit its issuer CA (or ultimate trust anchor) in its
+      certificate request message, which lists the acceptable CAs.
+
+    - There may of course be subtle differences in various extensions
+      used, the SNI extension may be important, the others typically
+      less so.
+
+    - Your s_client may be dated, and the issue may only manifest with
+      bleeding edge client capabilities, though again your s_client is
+      likely not that old (1.1.1, supports TLS 1.3) and you rarely need
+      more.
+
+Speculatively, the second item is the most likely source of issues.
+
+
+> However, if I use one of the various clients to make the same request,
+> the results are quite different.  There are a number of connections
+> made that fail and then finally they make the proper connection and
+> everything works.  The time it takes to get through all of that is
+> quite long - around 5 seconds.  The server is recording the following
+> errors from SSL_accept:
+>
+>       Connection 1 - session id context uninitialized
+>       Connection 2 - session id context uninitialized
+>       Connection 3 - sslv3 alert certificate unknown
+>       Connection 4 - sslv3 alert certificate unknown
+
+Who's sending/receiving the alerts?  The server would typically report
+*received* alerts, and it is then perhaps the client that is failing to
+validate the server certificate, but without a clear context, it is
+difficult to say what happened.
+
+As for session id contexts, your server code needs to set one in order
+to support resumption properly, one more difference between s_client
+and other clients, is that s_client always starts with no saved
+sessions.
+
+The Postfix SMTP server has:
+
+     /*                                                                                                                                                                           * The session_id_context identifies the service that created a session.                                                                                                     * This information is used to distinguish between multiple TLS-based                                                                                                        * servers running on the same server. We use the name of the mail system.                                                                                                   */                                                                                                                                                                        static const char server_session_id_context[] = "Postfix/TLS";
+    ...
+    SSL_CTX_set_session_id_context(server_ctx,                                                                                                                                                                 (void *) &server_session_id_context,                                                                                                                                        sizeof(server_session_id_context));
+
+> and then Connection 5 sees the proper client certificate, authenticates and produces output.
+
+Perhaps the client is no longer attempting resumption?
+
+> How can I figure out what is causing these multiple connections and
+> the resulting errors.  I have tcpdump and ssldump output but nothing
+> there gives me any ideas.
+
+The ssldump software is abandoned, use "tcpdump" + ""tshark", as explained in:
+
+     https://urldefense.com/v3/__https://marc.info/?l=postfix-users&m=166005488423800&w=2__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtiZQYfRg$
+
+
+> I can provide either of those if needed, but they are large.
+
+
+With "tcpdump", after capturing a bunch of traffic, you extract just a
+particular connection of interest, details in the post linked above.
+You can then analyse it with "tshark" (same link).
+
+> Unfortunately I have not figured out how to get ssldump to decode the
+> application data.  As best as I can tell, the negotiated cipher cannot
+> be handled by ssldump.
+
+Delete "ssldump" you're better off without it.
+
+> The clients each have the same 2 client certificates.  They ask which
+> one to use, but perhaps they are trying both?
+
+A given handshake can only try one client certificate as part of the
+normal handshake.  THere's also post-handshake authenticaiton (PHA) in
+TLS 1.3, but you probably don't have server code for that.
+
+That the clients are putting up a dialogue does strengthen the
+plausibility of the server's client certificate request being part of
+the problem.  You may need to carefully tune your server's list of
+solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+Less is more (ideally just one if there's only one CA issuing the
+desired certificates).
+
+And finally, but importantly, what exactly is your use case?  How does
+the server expect to benefit from (make access and authorisation
+decisions based on) client certificates?
+
+--
+    Viktor.
+
+
+------------------------------
+
+Message: 5
+Date: Tue, 9 Apr 2024 17:35:53 -0700
+From: Doug Hardie <mailto:bc979 at lafn.org>
+To: mailto:openssl-users at openssl.org
+Subject: Re: Questions / SSL_accept errors (soliciting client
+        certificates)
+Message-ID: <mailto:89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2 at sermon-archive.info>
+Content-Type: text/plain; charset="us-ascii"
+
+Attached is the result for the first connection:
+
+Nothing stands out that I can see.
+
+-- Doug
+
+> On Apr 9, 2024, at 10:59, Viktor Dukhovni <mailto:openssl-users at dukhovni.org> wrote:
+>
+> On Tue, Apr 09, 2024 at 08:44:41AM -0700, Doug Hardie wrote:
+>
+>> When using client certificates, how does SSL_accept validate the
+>> provided certificate?
+>
+> By building a certificate chain to a local trust-anchor using the
+> server's configured trust store, and any untrusted intermediate
+> certificates presented by the remote client.
+>
+> Note that verification of client certificates DOES NOT typically include
+> any "identity" checks, rather only the trustworthiness of the chain is
+> verified.  It is up to the server application to perform access control
+> on the requested resources based on whatever information the server
+> independently gleams from the certificate during or after the TLS
+> handshake.
+>
+>> If verify_callback is used, is the client certificate validated before
+>> the callback is called?
+>
+> No, if all goes well, the callbacks (one per chain certificate) are
+> made *as part of* validation, with the "ok" parameter set to "1" if
+> there's no (new?) problem to report at the level in question.
+>
+> If the callback returns a non-zero value, the handshake continues, if
+> zero it is aborted.  A callback that is purely diagnostic should return
+> the input "ok" value.  If the callback wants to either abort an
+> otherwise "ok" handshake, or ignore a particular problem, it can return
+> 1 under appropriate conditions even if "ok" was zero.
+>
+> Note that returning "ok" equal to one does not reset the verification
+> status for the chain, which can be tested, for e.g. success, via:
+>
+>   SSL_get_verify_result(ssl) == X509_V_OK
+>
+> this works even on resumption, because the original validation status is
+> part of the saved/resumed session.
+>
+> The callback can (with great care to not ignore any important error
+> conditions) reset the validation result for less critical conditions,
+> but then it is necessary to either abort the handshake on the import
+> conditions, or save away state that an earlier problem was not
+> ignorable, and reset the error to that, rather than to X509_V_OK.
+>
+> See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+
+Thanks for that explanation.  That would probably be helpful to others if it was included somewhere in the openssl documentation.
+
+>
+> On Tue, Apr 09, 2024 at 08:43:39AM -0700, Doug Hardie wrote:
+>
+>> The server requires client certificates.  If I use
+>> openssl s_client and give it the proper certificate, I see one
+>> connection that makes the request and returns the response.
+>
+> The "s_client" application is liberal in what it accepts:
+>
+>   - Without non-default options, the handshake completes (with some
+>     addtional noise) even if the server certificate fails to verufy.
+>
+>   - It presents the specified client certificate even if the server
+>     does not solicit its issuer CA (or ultimate trust anchor) in its
+>     certificate request message, which lists the acceptable CAs.
+>
+>   - There may of course be subtle differences in various extensions
+>     used, the SNI extension may be important, the others typically
+>     less so.
+>
+>   - Your s_client may be dated, and the issue may only manifest with
+>     bleeding edge client capabilities, though again your s_client is
+>     likely not that old (1.1.1, supports TLS 1.3) and you rarely need
+>     more.
+>
+> Speculatively, the second item is the most likely source of issues.
+
+It should be a fairly new s_client.  The client I used for that testing, and for the server is FreeBSD 14.0.
+
+
+>
+>
+>> However, if I use one of the various clients to make the same request,
+>> the results are quite different.  There are a number of connections
+>> made that fail and then finally they make the proper connection and
+>> everything works.  The time it takes to get through all of that is
+>> quite long - around 5 seconds.  The server is recording the following
+>> errors from SSL_accept:
+>>
+>> Connection 1 - session id context uninitialized
+>> Connection 2 - session id context uninitialized
+>> Connection 3 - sslv3 alert certificate unknown
+>> Connection 4 - sslv3 alert certificate unknown
+>
+> Who's sending/receiving the alerts?  The server would typically report
+> *received* alerts, and it is then perhaps the client that is failing to
+> validate the server certificate, but without a clear context, it is
+> difficult to say what happened.
+
+All of the logging is on the server side.  I don't really have any ability to do anything with the clients.
+
+
+>
+> As for session id contexts, your server code needs to set one in order
+> to support resumption properly, one more difference between s_client
+> and other clients, is that s_client always starts with no saved
+> sessions.
+>
+> The Postfix SMTP server has:
+>
+>    /*                                                                                                                                                                           * The session_id_context identifies the service that created a session.                                                                                                     * This information is used to distinguish between multiple TLS-based                                                                                                        * servers running on the same server. We use the name of the mail system.                                                                                                   */                                                                                                                                                                        static const char server_session_id_context[] = "Postfix/TLS";
+>   ...
+>   SSL_CTX_set_session_id_context(server_ctx,                                                                                                                                                                 (void *) &server_session_id_context,                                                                                                                                        sizeof(server_session_id_context));
+
+I'll have to do that then.
+
+
+>
+>> and then Connection 5 sees the proper client certificate, authenticates and produces output.
+>
+> Perhaps the client is no longer attempting resumption?
+>
+>> How can I figure out what is causing these multiple connections and
+>> the resulting errors.  I have tcpdump and ssldump output but nothing
+>> there gives me any ideas.
+>
+> The ssldump software is abandoned, use "tcpdump" + ""tshark", as explained in:
+>
+>    https://urldefense.com/v3/__https://marc.info/?l=postfix-users&m=166005488423800&w=2__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtiZQYfRg$
+
+Thanks.   I have tdump available but had not figured out how to use it.
+
+>
+>
+>> I can provide either of those if needed, but they are large.
+>
+>
+> With "tcpdump", after capturing a bunch of traffic, you extract just a
+> particular connection of interest, details in the post linked above.
+> You can then analyse it with "tshark" (same link).
+>
+>> Unfortunately I have not figured out how to get ssldump to decode the
+>> application data.  As best as I can tell, the negotiated cipher cannot
+>> be handled by ssldump.
+>
+> Delete "ssldump" you're better off without it.
+
+So I see.  It's going away after I send this.
+
+>
+>> The clients each have the same 2 client certificates.  They ask which
+>> one to use, but perhaps they are trying both?
+>
+> A given handshake can only try one client certificate as part of the
+> normal handshake.  THere's also post-handshake authenticaiton (PHA) in
+> TLS 1.3, but you probably don't have server code for that.
+>
+> That the clients are putting up a dialogue does strengthen the
+> plausibility of the server's client certificate request being part of
+> the problem.  You may need to carefully tune your server's list of
+> solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+> Less is more (ideally just one if there's only one CA issuing the
+> desired certificates).
+
+I only have my root certificate in the chain for authentication.  Your last response to me made that point loud and clear.  Thanks.
+
+>
+> And finally, but importantly, what exactly is your use case?  How does
+> the server expect to benefit from (make access and authorisation
+> decisions based on) client certificates?
+
+The case is an organization that was initially using passwords for authentication.  That worked properly and was easy to setup.  However, in the process of doing that I discovered that all their users had the name of the company as their password.  Given that the loss of the information that needs to be protected would be a very significant financial loss to the company, that approach is really not a good idea.  I proposed the certificate authentication and management agreed.
+
+-- Doug
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: ccc
+Type: application/octet-stream
+Size: 12898 bytes
+Desc: not available
+URL: <https://urldefense.com/v3/__https://mta.openssl.org/pipermail/openssl-users/attachments/20240409/adbda02f/attachment.obj__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtGH5WTLg$>
+
+------------------------------
+
+Subject: Digest Footer
+
+_______________________________________________
+openssl-users mailing list
+mailto:openssl-users at openssl.org
+https://urldefense.com/v3/__https://mta.openssl.org/mailman/listinfo/openssl-users__;!!FJ-Y8qCqXTj2!Z4_OjCVt2ZxN2QfqMULBlr9PruEFLHmdq-wMr8gkIhKkX19e5-opf4Izyob0knUn_Th1ye1EZNYjAhMs0HPhEkPtt7tKjqY$
+
+
+------------------------------
+
+End of openssl-users Digest, Vol 113, Issue 6
+*********************************************
+Any email and files/attachments transmitted with it are intended solely for the use of the individual or entity to whom they are addressed. If this message has been sent to you in error, you must not copy, distribute or disclose of the information it contains. Please notify Entrust immediately and delete the message from your system.
+
+From doki.yuko at fujitsu.com  Thu Apr 11 06:41:19 2024
+From: doki.yuko at fujitsu.com (Yuko Doki (Fujitsu))
+Date: Thu, 11 Apr 2024 06:41:19 +0000
+Subject: TLSv1.0 on OpenSSL 3.0-API
+In-Reply-To: <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+ <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+Message-ID: <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+
+Hello OpenSSL users' community,
+I still haven't been able to resolve the issue.
+
+After that, I tried some additional cipher strings, but I got the same error.
+The string I tried this time is as follows.
+  "ALL:@SECLEVEL=0"
+  "ECDHE-RSA-AES256-SHA:@SECLEVEL=0"
+
+I would appreciate any further advice.
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Yuko Doki (Fujitsu) via openssl-users
+Sent: Monday, April 8, 2024 11:58 AM
+To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+
+Thank you for your advice, Thomas.
+
+I added "@SECLEVEL=0" to the cipher string and tried.
+But I got a handshake error again.
+Note: I did not try SSL_CTX_set_security_level() to avoid changing the applications sources.
+
+The errors are as follows.
+[client side]
+    error:0A000438:SSL routines::tlsv1 alert internal error
+    (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+[server side]
+    error:03000098:digital envelope routines::invalid digest
+    (detail: crypto/evp/m_sigver.c line 343 - tls_construct_server_key_exchange())
+    error:0A0C0103:SSL routines::internal error
+    (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+
+The implementation for setting protocol version and cipher is as follows.
+     SSL_CTX_set_min_proto_version(ctx, TLS1_VERSION);
+     SSL_CTX_set_max_proto_version(ctx, TLS1_1_VERSION);
+     SSL_CTX_set_cipher_list(ctx, "DEFAULT:@SECLEVEL=0");
+
+Could you please tell me what is the problem and how to fix it?
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: Tomas Mraz <tomas at openssl.org> 
+Sent: Friday, April 5, 2024 3:47 PM
+To: Doki, Yuko/?? ?? <doki.yuko at fujitsu.com>; openssl-users at openssl.org
+Subject: Re: TLSv1.0 on OpenSSL 3.0-API
+
+These versions require SHA1 to operate. However security bits for this algorithm was downgraded due to the known weaknesses and collision attacks. For that reason you have to use @SECLEVEL=0 in the cipher string or call SSL_CTX_set_security_level() to make TLS-1.0 and 1.1 work.
+https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html
+
+
+Regards,
+
+Tomas Mraz, OpenSSL
+
+On Fri, 2024-04-05 at 05:55 +0000, Yuko Doki (Fujitsu) via openssl- users wrote:
+> Hello OpenSSL users' community,
+> This is my first time posting.
+> 
+> I am developing an application using the OpenSSL API library.
+> And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+> 
+> The application supports TLS protocol versions from TLSv1.0 to 1.3, 
+> but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake 
+> error.
+> 
+> The errors are as follows.
+> [client side]
+> ? error:0A000438:SSL routines::tlsv1 alert internal error [server 
+> side]
+> ? error:0A000076:SSL routines::no suitable signature algorithm
+> 
+> The TLS protocol version is set using the following functions.
+> ? SSL_CTX_set_min_proto_version()
+> ? SSL_CTX_set_max_proto_version()
+> No cipher suite is set. (Automatically selected by OpenSSL.)
+> 
+> This implementation worked fine with OpenSSL 1.1.1. 
+> Is OpenSSL 3.0 not supporting these protocol versions?
+> I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with 
+> OpenSSL 3.0.
+> 
+> In addition, the operating environment is as follows.
+> OS: Red Hat Enterprise Linux release 9.3 OpenSSL : OpenSSL 3.0.7 1 Nov 
+> 2022 (Library: OpenSSL 3.0.7 1 Nov
+> 2022)
+> 
+> Kind regards,
+> Yuko Doki
+> 
+
+--
+Tom?? Mr?z, OpenSSL
+
+
+From dclarke at blastwave.org  Thu Apr 11 10:36:18 2024
+From: dclarke at blastwave.org (Dennis Clarke)
+Date: Thu, 11 Apr 2024 06:36:18 -0400
+Subject: OpenSSL 3.3.0 ( and others ) fail testsuite due to IPv6 disabled
+Message-ID: <dba7cc1f-bf22-4ce1-9404-055eecfb2a27@blastwave.org>
+
+
+This is sort of a follow up to 
+https://mta.openssl.org/pipermail/openssl-users/2024-April/017080.html
+
+This is something I have seen over and over and over across recent
+versions of OpenSSL. At least in the last five years or so.
+
+These few tests will always fail if IPv6 is disabled :
+
+         # INFO:  @ test/bio_dgram_test.c:126
+         # # Testing with AF_INET6, local=0
+         #
+         # ERROR: (int) 'fd1 >= 0' failed @ test/bio_dgram_test.c:172
+         # [-1] compared to [0]
+         # 80AB1E05F37F0000:error:80000061:system 
+library:BIO_socket:Address family not supported by 
+protocol:crypto/bio/bio_sock2.c:51:calling socket()
+         # 80AB1E05F37F0000:error:10000076:BIO 
+routines:BIO_socket:unable to create socket:crypto/bio/bio_sock2.c:53:
+         # OPENSSL_TEST_RAND_SEED=1712830904
+         not ok 2 - iteration 2
+# 
+------------------------------------------------------------------------------
+         # INFO:  @ test/bio_dgram_test.c:126
+         # # Testing with AF_INET6, local=1
+         #
+         # ERROR: (int) 'fd1 >= 0' failed @ test/bio_dgram_test.c:172
+         # [-1] compared to [0]
+         # 80AB1E05F37F0000:error:80000061:system 
+library:BIO_socket:Address family not supported by 
+protocol:crypto/bio/bio_sock2.c:51:calling socket()
+         # 80AB1E05F37F0000:error:10000076:BIO 
+routines:BIO_socket:unable to create socket:crypto/bio/bio_sock2.c:53:
+         # OPENSSL_TEST_RAND_SEED=1712830904
+         not ok 4 - iteration 4
+# 
+------------------------------------------------------------------------------
+     # OPENSSL_TEST_RAND_SEED=1712830904
+     not ok 1 - test_bio_dgram
+# 
+------------------------------------------------------------------------------
+../../util/wrap.pl ../../test/bio_dgram_test => 1
+not ok 1 - running bio_dgram_test
+# 
+------------------------------------------------------------------------------
+#   Failed test 'running bio_dgram_test'
+#   at 
+/opt/bw/build/openssl-3.3.0_xeon_devuan.001/util/perl/OpenSSL/Test/Simple.pm 
+line 77.
+# Looks like you failed 1 test of 1.04-test_bio_dgram.t 
+.....................
+Dubious, test returned 1 (wstat 256, 0x100)
+Failed 1/1 subtests
+
+
+One may enable IPv6 on nothing more than a loopback interface and then
+everything passes just fine. So the question raised by Richard Levitte
+seems on target here : shouldn't the tests be written to be agnostic of
+the exact IP version that is enabled?
+
+The follow up by Neil Horman really does ask a loaded question :
+
+     More than that, the test in question seems to avoid the use of
+     ip at all, opting to instead mock the client server communication
+     with direct calls, so I'm wondering how enabling ipv6 fixed this
+
+See https://mta.openssl.org/pipermail/openssl-users/2024-April/017081.html
+
+I certainly am curious also.
+
+
+--
+Dennis Clarke
+RISC-V/SPARC/PPC/ARM/CISC
+UNIX and Linux spoken
+
+From anuavnd at gmail.com  Sat Apr 13 17:21:22 2024
+From: anuavnd at gmail.com (anupama m)
+Date: Sat, 13 Apr 2024 22:51:22 +0530
+Subject: Session Tickets in TLS1.3
+Message-ID: <CAOh_ZKSwMjayGYkT1kPvh5MRTkBpm9YmGiMaB07tiD8R-fuFGw@mail.gmail.com>
+
+Hi,
+
+My client application is trying to connect to "www.pypi.org" using TLS1.3.
+As can be seen in the screenshot below, the server is sending the "New
+Session Ticket" before the client sends the CCS and Finished message.
+According to the RFC, tickets are post handshake messages and should be
+sent by the server after it has received the Client Finished message (hope
+this still holds true).
+
+[image: session ticket.JPG]
+
+Because of this ordering, i can see that the openssl-1.1.1 is not
+processing the session ticket when the handshake is happening(I don't see a
+callback). I will have to notify openssl again after it is done processing
+the client finished or else the connection gets stuck.
+
+Can you please shed some light on this behavior? Is this handled in later
+versions of openssl?
+
+Thanks,
+Anupama M
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240413/c21c0133/attachment-0001.htm>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: session ticket.JPG
+Type: image/jpeg
+Size: 87065 bytes
+Desc: not available
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240413/c21c0133/attachment-0001.jpe>
+
+From teo.en.ming at protonmail.com  Mon Apr 15 13:35:53 2024
+From: teo.en.ming at protonmail.com (Turritopsis Dohrnii Teo En Ming)
+Date: Mon, 15 Apr 2024 13:35:53 +0000
+Subject: [EXTERNAL] - 32-bit OpenSSL binary found in Suprema BioStar 2
+ door access system
+In-Reply-To: <YQBPR01MB10705563F1717217F8DB31C97C2262@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+References: <UhY0_dLeKhC083tig4XIyUimrwm57Ecc9tocHvJC2V7NE6pQCPgztL3eyl00fgmRJwAPgi0QhIyUt_P526MysBsq704oW3S2DE8Lp6_u2-4=@protonmail.com>
+ <YQBPR01MB10705563F1717217F8DB31C97C2262@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+Message-ID: <kBNNunEjZQDqYXVn_TxsVKpsKgxud1fYi0ZSw_EWY_KsdI61d_v5VmSlwH6TXfsyuPfKCl3HHsgcm0qVFyn-sHhVi320LlxVVgw6PqVB7b0=@protonmail.com>
+
+On Sunday, March 10th, 2024 at 1:42 AM, Michael Wojcik via openssl-users <openssl-users at openssl.org> wrote:
+
+> > From: openssl-users openssl-users-bounces at openssl.org On Behalf Of
+> > Turritopsis Dohrnii Teo En Ming via openssl-users
+> > Sent: Saturday, 9 March, 2024 06:59
+> > To: openssl-users at openssl.org
+> > 
+> > On 7 March 2024 Thursday, when I was installing new self-signed SSL
+> > certificate for the door access system for a law firm in Singapore, I notice that
+> > Suprema BioStar 2 also has 32-bit OpenSSL binary.
+> > 
+> > The path is:
+> > 
+> > C:\Program Files\BioStar 2(x64)\ta\OpenSSL-Win32\bin
+> > 
+> > I am wondering if I can install 64-bit OpenSSL binary from another packager.
+> > Will there be any conflict?
+> 
+> 
+> That would depend on:
+> 
+> 1) What exactly you mean by "OpenSSL binary". Just the openssl.exe utility program? The OpenSSL libraries, built as DLLs?
+> 
+> 2) What software currently running on the system uses the OpenSSL binary or binaries in question, and if it uses the OpenSSL libraries, whether they're linked statically or dynamically.
+> 
+> 3) If that software uses the openssl.exe program or OpenSSL DLLs, what its PATH environment-variable setting is, and whether your "packager" puts the new binaries in a directory included in that PATH value, and where in the value that is, relative to the existing OpenSSL binaries.
+> 
+> 4) For the openssl.exe executable, whether the version you want to install is a different version than the existing one, and whether any software that currently depends on it is sensitive to any changes between those versions.
+> 
+> In most cases, it won't be a problem, but no one can say for certain without knowing precisely how OpenSSL is currently used on the system.
+> 
+> --
+> Michael Wojcik
+
+Dear Michael,
+
+I am thinking of installing Third Party OpenSSL Related Binary Distributions like FireDaemon.
+
+Link: https://wiki.openssl.org/index.php/Binaries
+
+I think there shouldn't be a conflict.
+
+Regards,
+
+Mr. Turritopsis Dohrnii Teo En Ming
+Targeted Individual in Singapore
+
+From kajal at openssl.org  Tue Apr 16 05:37:09 2024
+From: kajal at openssl.org (Kajal Sapkota)
+Date: Mon, 15 Apr 2024 22:37:09 -0700
+Subject: Upcoming Webinar: Writing a TLS Client
+Message-ID: <3a1e7ac6-00f0-4dbe-a2e2-f1b49248c00e@openssl.org>
+
+We are pleased to announce our upcoming webinar, Writing a TLS Client.
+
+In this webinar we will cover writing a simple TLS client using the 
+OpenSSL APIs. The webinar will cover how to write an application that 
+connects to a server and securely exchanges data using TLS using the 
+OpenSSL API.
+At the end of the webinar we will host a Q&A session, giving you the 
+opportunity to have your questions answered by OpenSSL developers.
+
+Event Details
+
+  * *Date*: April 25, 2024
+  * *Time*: 09:00 AM Pacific Time (US and Canada)
+  * *Location*: Online (Zoom)
+    <https://zoom.us/webinar/register/WN_esx4heVnR56vFUG9dwm-VQ>
+
+How to Register
+
+To register for the webinar, click here 
+<https://zoom.us/webinar/register/WN_esx4heVnR56vFUG9dwm-VQ>, fill in 
+your details, and you will receive a confirmation email with all the 
+information you will need to join us on the day of the event. You will 
+need to register in order to be able to attend the webinar.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240415/a5779715/attachment.htm>
+
+From hlandau at openssl.org  Tue Apr 16 08:35:43 2024
+From: hlandau at openssl.org (Hugo Landau)
+Date: Tue, 16 Apr 2024 09:35:43 +0100
+Subject: OpenSSL users at RSA Conference 2024
+Message-ID: <72b616c6-df9f-41aa-82e0-3bbded62bbf7@openssl.org>
+
+OpenSSL (OSS) will be attending RSA Conference 2024 (May 6-9) this year 
+to better engage with all of our users and communities.
+
+
+If anyone is attending RSAC - whether on behalf of a company using 
+OpenSSL or as an individual user - or just in the area, we'd be 
+interested in meeting with them to talk about OpenSSL and their specific 
+needs and use cases.
+
+If anyone wants to meet up there, you can reply privately to this email 
+or fill in the form so we can try and schedule a time:
+
+https://forms.gle/2qyK7VSNY1bBhcFQ7
+
+https://openssl.org/blog/blog/2024/04/15/oss-rsa/
+
+
+Hugo Landau
+
+OpenSSL Software Services
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240416/3b10ace0/attachment.htm>
+
+From mwojcik at opentext.com  Tue Apr 16 22:57:28 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Tue, 16 Apr 2024 22:57:28 +0000
+Subject: [EXTERNAL] - 32-bit OpenSSL binary found in Suprema BioStar 2
+ door access system
+In-Reply-To: <kBNNunEjZQDqYXVn_TxsVKpsKgxud1fYi0ZSw_EWY_KsdI61d_v5VmSlwH6TXfsyuPfKCl3HHsgcm0qVFyn-sHhVi320LlxVVgw6PqVB7b0=@protonmail.com>
+References: <UhY0_dLeKhC083tig4XIyUimrwm57Ecc9tocHvJC2V7NE6pQCPgztL3eyl00fgmRJwAPgi0QhIyUt_P526MysBsq704oW3S2DE8Lp6_u2-4=@protonmail.com>
+ <YQBPR01MB10705563F1717217F8DB31C97C2262@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+ <kBNNunEjZQDqYXVn_TxsVKpsKgxud1fYi0ZSw_EWY_KsdI61d_v5VmSlwH6TXfsyuPfKCl3HHsgcm0qVFyn-sHhVi320LlxVVgw6PqVB7b0=@protonmail.com>
+Message-ID: <YQBPR01MB107053D30717A6CE2AB2A1229C2082@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: Turritopsis Dohrnii Teo En Ming <teo.en.ming at protonmail.com>
+> Sent: Monday, 15 April, 2024 07:36
+> > > From: openssl-users openssl-users-bounces at openssl.org On Behalf Of
+> > > Turritopsis Dohrnii Teo En Ming via openssl-users
+> > > Sent: Saturday, 9 March, 2024 06:59
+> > > To: openssl-users at openssl.org
+> > >
+> > > On 7 March 2024 Thursday, when I was installing new self-signed SSL
+> > > certificate for the door access system for a law firm in Singapore, I notice that
+> > > Suprema BioStar 2 also has 32-bit OpenSSL binary.
+> > >
+> > > The path is:
+> > >
+> > > C:\Program Files\BioStar 2(x64)\ta\OpenSSL-Win32\bin
+> > >
+> > > I am wondering if I can install 64-bit OpenSSL binary from another packager.
+> > > Will there be any conflict?
+
+> I am thinking of installing Third Party OpenSSL Related Binary Distributions like
+> FireDaemon.
+
+I can't comment on that; I don't know what it contains, or how its installation process works.
+
+> I think there shouldn't be a conflict.
+
+This is more a question about Windows and how it loads DLLs, than it is an OpenSSL question.
+
+Assuming BioStar 2 loads the OpenSSL DLLs using the normal Windows mechanism, from EXEs in the same directory as those DLLs, then it should continue to load its own OpenSSL DLLs. Windows puts the EXE's directory at the start of the DLL search path when doing a normal implicit load, assuming no SxS nonsense interferes. Though that said, it's odd that BioStar 2 puts the OpenSSL DLLs in a "bin" directory (apparently) of their own. I can't say what BioStar 2 is up to here; I have no idea how the developers of that package expect things to work.
+
+The other concern is whether any other programs which use OpenSSL will end up loading it from the BioStar 2 OpenSSL-Win32\bin directory rather than the FireDaemon installation directory, whatever that might be. Applications which simply have an implicit dependency on the OpenSSL DLLs, or which do a conventional LoadLibrary, will typically end up searching the directories in their PATH environment value. So you would want to ensure that the FireDaemon directory containing the OpenSSL DLLs is earlier in the PATH for at least those applications, and probably for everything ? assuming BioStar 2 does something sensible like specify its library-loading source.
+
+In short, it's impossible for anyone to say whether there will be a problem without recreating your environment. This is a universal difficulty with loading shared modules. The best approach for professional software is to avoid using modules which might conflict, by being explicit with their linking or using alternative file and symbol names or whatever. But many ISVs do not take that precaution.
+
+-- 
+Michael Wojcik
+
+From andrej_d at hotmail.com  Thu Apr 18 11:24:49 2024
+From: andrej_d at hotmail.com (Andrej Doba)
+Date: Thu, 18 Apr 2024 11:24:49 +0000
+Subject: compare JWK and key in PEM format
+In-Reply-To: <DB5PR10MB77243FC781F3E34D2288EFD8E20E2@DB5PR10MB7724.EURPRD10.PROD.OUTLOOK.COM>
+References: <DB5PR10MB77243FC781F3E34D2288EFD8E20E2@DB5PR10MB7724.EURPRD10.PROD.OUTLOOK.COM>
+Message-ID: <DB5PR10MB7724A73FAC1135910AEC7AD4E20E2@DB5PR10MB7724.EURPRD10.PROD.OUTLOOK.COM>
+
+Dear SSL Users ?
+
+
+
+Is there a way compare JWK and key in PEM format using C++ JWT-CPP lib?
+
+
+
+JWK sample:
+
+{"crv":"P-256","kty":"EC","use":"sig","x":"Dpcd3iZJvK3tqZ79mCux4seWvcLWnES6ddbwKkFpKsk","y":"3BupJ8ZEuUTfsr8gP-FPE5e25C0F1ZOz3fBuNHuleBE"}
+
+
+
+PEM sample:
+
+-----BEGIN PUBLIC KEY-----
+
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEDpcd3iZJvK3tqZ79mCux4seWvcLW
+
+nES6ddbwKkFpKsncG6knxkS5RN+yvyA/4U8Tl7bkLQXVk7Pd8G40e6V4EQ==
+
+-----END PUBLIC KEY-----
+
+
+
+Thanks for responses.
+
+-ad
+
+_____________________________ Andrej Doba
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240418/848742d5/attachment.htm>
+
+From hkario at redhat.com  Thu Apr 18 11:38:49 2024
+From: hkario at redhat.com (Hubert Kario)
+Date: Thu, 18 Apr 2024 13:38:49 +0200
+Subject: compare JWK and key in PEM format
+In-Reply-To: <DB5PR10MB7724A73FAC1135910AEC7AD4E20E2@DB5PR10MB7724.EURPRD10.PROD.OUTLOOK.COM>
+References: <DB5PR10MB77243FC781F3E34D2288EFD8E20E2@DB5PR10MB7724.EURPRD10.PROD.OUTLOOK.COM>
+ <DB5PR10MB7724A73FAC1135910AEC7AD4E20E2@DB5PR10MB7724.EURPRD10.PROD.OUTLOOK.COM>
+Message-ID: <2d3f8c15-7dfe-4ac6-bec6-685f8fa25e16@redhat.com>
+
+$ openssl pkey -in key.pem -pubin -text
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEDpcd3iZJvK3tqZ79mCux4seWvcLW
+nES6ddbwKkFpKsncG6knxkS5RN+yvyA/4U8Tl7bkLQXVk7Pd8G40e6V4EQ==
+-----END PUBLIC KEY-----
+Public-Key: (256 bit)
+pub:
+    04:0e:97:1d:de:26:49:bc:ad:ed:a9:9e:fd:98:2b:
+    b1:e2:c7:96:bd:c2:d6:9c:44:ba:75:d6:f0:2a:41:
+    69:2a:c9:dc:1b:a9:27:c6:44:b9:44:df:b2:bf:20:
+    3f:e1:4f:13:97:b6:e4:2d:05:d5:93:b3:dd:f0:6e:
+    34:7b:a5:78:11
+ASN1 OID: prime256v1
+NIST CURVE: P-256
+
+$ echo Dpcd3iZJvK3tqZ79mCux4seWvcLWnES6ddbwKkFpKsk= | openssl base64 -d | 
+hexdump -C
+00000000  0e 97 1d de 26 49 bc ad  ed a9 9e fd 98 2b b1 e2  
+|....&I.......+..|
+00000010  c7 96 bd c2 d6 9c 44 ba  75 d6 f0 2a 41 69 2a c9  
+|......D.u..*Ai*.|
+00000020
+
+the y coordinate doesn't seem to match, but I think it may have been 
+mangled
+because of email:
+$ echo 3BupJ8ZEuUTfsr8gPFPE5e25C0F1ZOz3fBuNHuleBE== | openssl base64 -d | 
+hexdump -C
+00000000  dc 1b a9 27 c6 44 b9 44  df b2 bf 20 3c 53 c4 e5  |...'.D.D... 
+<S..|
+00000010  ed b9 0b 41 75 64 ec f7  7c 1b 8d 1e e9 5e 04     
+|...Aud..|....^.|
+0000001f
+
+(normally the public key is a concatenation of 04, to indicate uncompressed
+point encoding, and then concatenated x and y coordinates;
+If you see one starting with 02 or 03 that means it's compressed, so just
+the x coordinate is sent)
+
+On Thursday, 18 April 2024 13:24:49 CEST, Andrej Doba wrote:
+> Dear SSL Users ?
+>  
+> Is there a way compare JWK and key in PEM format using C++ JWT-CPP lib?
+>  
+> JWK sample:
+> {"crv":"P-256","kty":"EC","use":"sig","x":"Dpcd3iZJvK3tqZ79mCux4seWvcLWnES6ddbwKkFpKsk","y":"3BupJ8ZEuUTfsr8gP-FPE5e25C0F1ZOz3fBuNHuleBE"}
+>  
+> PEM sample:
+> -----BEGIN PUBLIC KEY-----
+> MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEDpcd3iZJvK3tqZ79mCux4seWvcLW
+> nES6ddbwKkFpKsncG6knxkS5RN+yvyA/4U8Tl7bkLQXVk7Pd8G40e6V4EQ==
+> -----END PUBLIC KEY-----
+>  
+> Thanks for responses.
+> -ad
+>
+> _____________________________ Andrej Doba
+
+-- 
+Regards,
+Hubert Kario
+Principal Quality Engineer, RHEL Crypto team
+Web: www.cz.redhat.com
+Red Hat Czech s.r.o., Purky?ova 115, 612 00, Brno, Czech Republic
+
+
+From gerd.kleinau at mitel.com  Thu Apr 18 14:45:19 2024
+From: gerd.kleinau at mitel.com (Gerd Kleinau)
+Date: Thu, 18 Apr 2024 14:45:19 +0000
+Subject: Question to function cipher_list_tls12_num
+Message-ID: <MW3PR12MB4521935DAB00B01FA5B8BAAD870E2@MW3PR12MB4521.namprd12.prod.outlook.com>
+
+Hi all,
+
+I use openSsl 3.0.9 and the appweb 9.0.1 in my application. In this application we can configured the default cipher suites.
+When we changed the default cipher suites list to only one TLS 1.3 cipher suite, we get  the Error SSL_R_NO_CIPHER_MATCH.
+
+The function cipher_list_tls12_num () that is called in SSL_CTX_set_cipher_list() returns 0 when only  TLS 1.3 suites are configured as default.
+Actually I must have at least one TLS 1.2 to avoid this error.
+
+Why is that implented in this way?
+
+Best regards
+Gerd Kleinau
+
+
+
+
+________________________________
+NOTE: This e-mail (including any attachments) is for the sole use of the intended recipient(s) and may contain information that is confidential and/or protected by legal privilege. Any unauthorized review, use, copy, disclosure or distribution of this e-mail is strictly prohibited. If you are not the intended recipient, please notify Mitel immediately and destroy all copies of this e-mail. Mitel does not accept any liability for breach of security, error or virus that may result from the transmission of this message.
+HINWEIS: Diese E-Mail, inklusive aller Anh?nge, ist ausschlie?lich f?r die Verwendung durch den Empf?nger bestimmt und kann Informationen enthalten, die rechtlich vertraulich und gesch?tzt zu behandeln sind. Jede nicht autorisierte Einsicht, Nutzung, Vervielf?ltigung, Ver?ffentlichung oder Verteilung dieser E-Mail ist strengstens untersagt. Sind Sie nicht der urspr?ngliche Empf?nger dieser Nachricht, unterrichten Sie Mitel bitte umgehend und vernichten diese E-Mail und alle Kopien. Mitel ?bernimmt keine Haftung bei Verletzung der Sicherheit, Einbruch, Fehlern oder Viren, die durch die ?bertragung dieser Nachricht verursacht werden.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240418/78328d84/attachment.htm>
+
+From bc979 at lafn.org  Thu Apr 18 23:49:52 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Thu, 18 Apr 2024 16:49:52 -0700
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+ <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+ <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+Message-ID: <28F18A54-4B95-4E0B-B789-5DC636F92153@sermon-archive.info>
+
+
+> On Apr 9, 2024, at 22:02, Viktor Dukhovni <openssl-users at dukhovni.org> wrote:
+> 
+> On Tue, Apr 09, 2024 at 05:35:53PM -0700, Doug Hardie wrote:
+> 
+>> Attached is the result for the first connection:
+> 
+> There are a few reasons turned out a bit less than informative.
+> 
+>    - You give no indication of whether this is a successful handshake
+>      or a failure.  It just completes abruptly without even an error
+>      indication (encrypted alert) from either side.
+> 
+>    - The handshake used TLS 1.3, which encrypts all the interesting
+>      parts of the handshake.  To really see what's going on, you might
+>      to artificially limit the server's supported TLS protocols to TLS 1.2
+> 
+>    - My "tshark" instructions strip away which side is sending a given
+>      message, making it somewhat unclear, but the presented decode
+>      was largely clear turn-taking.
+> 
+> To debug TLS 1.3, you probably want to enable handshake and error logging (info)
+> callbacks on the server, and not abbreviate the reported errors to such
+> a degree that all context is lost.  It should be clear (to a trained
+> eye) from a reported SSL alert error, for example whether the alert was
+> a client to server or a server to client alert.  This means not
+> summarising the error messages, but reporting them in full.
+
+Finally got time to get back to this.  Here are the server logged errors for the first 6 connections.  They are all basically identical.  The first message is the SSL error and the second is the one returned by SSL_accept.  I do not have access to any client logs or error indications.  Both of these errors were recorded immediately after the SSL_accept call.
+
+Apr 18 16:15:17 <3.7> RIB wncert[20518]: SSL Error: Accept failed - 0020A163511D0000:error:0A000416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown:/usr/src/crypto/openssl/ssl/record/rec_layer_s3.c:1586:SSL alert number 46
+
+Apr 18 16:15:17 <3.7> RIB wncert[20518]: logerr  msg=Accept failed  msg2=No error: 0
+
+
+These 6 connection attempts occurred prior to the user selecting the proper certificate to use.  Once that was done, there was only on additional connection and it was successful.  No error returns and the server returned the proper response.
+
+> 
+>>> See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+>> 
+>> Thanks for that explanation.  That would probably be helpful to others
+>> if it was included somewhere in the openssl documentation.
+> 
+> I may look into it.
+> 
+>>> Who's sending/receiving the alerts?  The server would typically report
+>>> *received* alerts, and it is then perhaps the client that is failing to
+>>> validate the server certificate, but without a clear context, it is
+>>> difficult to say what happened.
+>> 
+>> All of the logging is on the server side.  I don't really have any
+>> ability to do anything with the clients.
+> 
+> Post the relevant log entries verbatim, unsummarised.
+> 
+>>>  ...
+>>>  SSL_CTX_set_session_id_context(server_ctx,
+>>>                                 (void *) &server_session_id_context,
+>>>                                 sizeof(server_session_id_context));
+>> 
+>> I'll have to do that then.
+> 
+> It may avoid some of the problems.
+
+That was done before the tests above.  I don't see any significant changes other than there are no more error messages indicating sessions.
+
+> 
+>>> That the clients are putting up a dialogue does strengthen the
+>>> plausibility of the server's client certificate request being part of
+>>> the problem.  You may need to carefully tune your server's list of
+>>> solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+>>> Less is more (ideally just one if there's only one CA issuing the
+>>> desired certificates).
+>> 
+>> I only have my root certificate in the chain for authentication.  Your
+>> last response to me made that point loud and clear.  Thanks.
+> 
+> But what list of CAs is sent in the certificate request?  If it is the
+> CA names from full default system trust store, that could be unhelpful,
+> as well as a security issue, since any of those CAs could impersonate
+> your clients.  For client authentication, Postfix only trusts client
+> certificate or public key fingerprints, bypassing the CA trust quagmire,
+> that is typically unhelpful (and a major security risk) for client certs.
+
+Not sure how to answer this.  I have set SSL_CTX_load_verify_dir (ssl_ctx, "/dev/null").  There is only my root certificate used to generate the client certificates in SSL_CTX_load_verify_locations and SSL_load_client_CA_file. 
+
+My server cert (from letsencrypt) is set in SSL_CTX_use_certificate_file along with it's key in SSL_CTX_use_PrivateKey_file.
+
+> 
+> 
+>>> And finally, but importantly, what exactly is your use case?  How does
+>>> the server expect to benefit from (make access and authorisation
+>>> decisions based on) client certificates?
+>> 
+>> The case is an organization that was initially using passwords for
+>> authentication.  That worked properly and was easy to setup.  However,
+>> in the process of doing that I discovered that all their users had the
+>> name of the company as their password.  Given that the loss of the
+>> information that needs to be protected would be a very significant
+>> financial loss to the company, that approach is really not a good
+>> idea.  I proposed the certificate authentication and management
+>> agreed.  
+> 
+> If this is for browser-based applications, you're probably fighting a
+> losing battle.  Client certificates just haven't worked at all well for
+> interactive use by most users.  They're fine for datacentre
+> machine-machine comms, and in some specialised orgs (like US DoD?) where
+> users have no choice, and presumably get adequate support to make it
+> work.
+> 
+> Find a way to prevent password sharing, to check password quality, and
+> DO NOT force periodic password rotation, which ensures users choose bad
+> passwords.  Then consider various second factor options, TOTP and HOTP
+> perhaps, or SMS, ...  Some single-systems also include risk metrics,
+> to bypass second factors when things look "normal".
+
+This is a high intensity, time critical, environment.  Management doesn't want time wasted trying find/remember passwords.  
+
+-- Doug
+
+
+
+From doki.yuko at fujitsu.com  Fri Apr 19 01:27:26 2024
+From: doki.yuko at fujitsu.com (Yuko Doki (Fujitsu))
+Date: Fri, 19 Apr 2024 01:27:26 +0000
+Subject: TLSv1.0 on OpenSSL 3.0-API (looking for answers)
+In-Reply-To: <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+ <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+Message-ID: <TYCPR01MB80875597708C311B3CF35CCFF80D2@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+
+Hello OpenSSL users' community,
+I still haven't been able to solve the problem of TLS1.0 and LS1.1 connection error with OpenSSL3.0. 
+If anyone knows a solution, please advise.
+
+I will explain the problem again.
+----
+I am developing an application using the OpenSSL 3.0 API library.
+When I tested the connection using TLSv1.0 and TLSv1.1, I got a handshake error.
+Successful with TLS1.2 and TLS1.3.
+
+I got some advice here, so I set "DEFAULT:@SECLEVEL=0" or "ALL:@SECLEVEL=0"
+ to the argument string of SSL_CTX_set_cipher_list() and tried connecting. 
+However, the following error occurred again.
+
+ [client side error]
+    error:0A000438:SSL routines::tlsv1 alert internal error
+    (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+
+ [server side error]
+    error:03000098:digital envelope routines::invalid digest
+    (detail: crypto/evp/m_sigver.c line 343 - tls_construct_server_key_exchange())
+    error:0A0C0103:SSL routines::internal error
+    (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+----
+
+Any advice would be greatly appreciated.
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Yuko Doki (Fujitsu) via openssl-users
+Sent: Thursday, April 11, 2024 3:41 PM
+To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+
+Hello OpenSSL users' community,
+I still haven't been able to resolve the issue.
+
+After that, I tried some additional cipher strings, but I got the same error.
+The string I tried this time is as follows.
+  "ALL:@SECLEVEL=0"
+  "ECDHE-RSA-AES256-SHA:@SECLEVEL=0"
+
+I would appreciate any further advice.
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Yuko Doki (Fujitsu) via openssl-users
+Sent: Monday, April 8, 2024 11:58 AM
+To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+
+Thank you for your advice, Thomas.
+
+I added "@SECLEVEL=0" to the cipher string and tried.
+But I got a handshake error again.
+Note: I did not try SSL_CTX_set_security_level() to avoid changing the applications sources.
+
+The errors are as follows.
+[client side]
+    error:0A000438:SSL routines::tlsv1 alert internal error
+    (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+[server side]
+    error:03000098:digital envelope routines::invalid digest
+    (detail: crypto/evp/m_sigver.c line 343 - tls_construct_server_key_exchange())
+    error:0A0C0103:SSL routines::internal error
+    (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+
+The implementation for setting protocol version and cipher is as follows.
+     SSL_CTX_set_min_proto_version(ctx, TLS1_VERSION);
+     SSL_CTX_set_max_proto_version(ctx, TLS1_1_VERSION);
+     SSL_CTX_set_cipher_list(ctx, "DEFAULT:@SECLEVEL=0");
+
+Could you please tell me what is the problem and how to fix it?
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: Tomas Mraz <tomas at openssl.org> 
+Sent: Friday, April 5, 2024 3:47 PM
+To: Doki, Yuko/?? ?? <doki.yuko at fujitsu.com>; openssl-users at openssl.org
+Subject: Re: TLSv1.0 on OpenSSL 3.0-API
+
+These versions require SHA1 to operate. However security bits for this algorithm was downgraded due to the known weaknesses and collision attacks. For that reason you have to use @SECLEVEL=0 in the cipher string or call SSL_CTX_set_security_level() to make TLS-1.0 and 1.1 work.
+https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html
+
+
+Regards,
+
+Tomas Mraz, OpenSSL
+
+On Fri, 2024-04-05 at 05:55 +0000, Yuko Doki (Fujitsu) via openssl- users wrote:
+> Hello OpenSSL users' community,
+> This is my first time posting.
+> 
+> I am developing an application using the OpenSSL API library.
+> And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+> 
+> The application supports TLS protocol versions from TLSv1.0 to 1.3, 
+> but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake 
+> error.
+> 
+> The errors are as follows.
+> [client side]
+> ? error:0A000438:SSL routines::tlsv1 alert internal error [server 
+> side]
+> ? error:0A000076:SSL routines::no suitable signature algorithm
+> 
+> The TLS protocol version is set using the following functions.
+> ? SSL_CTX_set_min_proto_version()
+> ? SSL_CTX_set_max_proto_version()
+> No cipher suite is set. (Automatically selected by OpenSSL.)
+> 
+> This implementation worked fine with OpenSSL 1.1.1. 
+> Is OpenSSL 3.0 not supporting these protocol versions?
+> I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with 
+> OpenSSL 3.0.
+> 
+> In addition, the operating environment is as follows.
+> OS: Red Hat Enterprise Linux release 9.3 OpenSSL : OpenSSL 3.0.7 1 Nov 
+> 2022 (Library: OpenSSL 3.0.7 1 Nov
+> 2022)
+> 
+> Kind regards,
+> Yuko Doki
+> 
+
+--
+Tom?? Mr?z, OpenSSL
+
+
+From openssl-users at dukhovni.org  Fri Apr 19 01:24:52 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Thu, 18 Apr 2024 21:24:52 -0400
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <28F18A54-4B95-4E0B-B789-5DC636F92153@sermon-archive.info>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+ <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+ <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+ <28F18A54-4B95-4E0B-B789-5DC636F92153@sermon-archive.info>
+Message-ID: <ZiHH5HENJBii4S6_@chardros.imrryr.org>
+
+On Thu, Apr 18, 2024 at 04:49:52PM -0700, Doug Hardie wrote:
+
+> > It should be clear (to a trained eye) from a reported SSL alert
+> > error, for example whether the alert was a client to server or a
+> > server to client alert.  This means not summarising the error
+> > messages, but reporting them in full.
+> 
+> Finally got time to get back to this.  Here are the server logged
+> errors for the first 6 connections.  They are all basically identical.
+> The first message is the SSL error and the second is the one returned
+> by SSL_accept.  I do not have access to any client logs or error
+> indications.  Both of these errors were recorded immediately after the
+> SSL_accept call.
+
+Thanks, the below is much more clear/actionable.
+
+> Apr 18 16:15:17 <3.7> RIB wncert[20518]: SSL Error: Accept failed -
+> 0020A163511D0000:error:0A000416:SSL routines:ssl3_read_bytes:
+> sslv3 alert certificate unknown:/usr/src/crypto/openssl/ssl/record/rec_layer_s3.c:1586:
+> SSL alert number 46
+
+This is a client-to-server alert, initiated by the remote client, to
+indicate that the client does not like something about server's
+certificate.
+
+If the server certificate chain is complete (not missing required
+intermediate certs), unexpired and issued by a trust-anchor that should
+be present on the client, then perhaps the client is actually unhappy
+with the CAs in the certificate request, though that seems less likely.
+
+> These 6 connection attempts occurred prior to the user selecting the
+> proper certificate to use.  Once that was done, there was only on
+> additional connection and it was successful.  No error returns and the
+> server returned the proper response.
+
+Therefore, first ensure that clients should be able to validate your
+server certificate chain.
+
+> > But what list of CAs is sent in the certificate request?  If it is the
+> > CA names from full default system trust store, that could be unhelpful,
+> > as well as a security issue, since any of those CAs could impersonate
+> > your clients.  For client authentication, Postfix only trusts client
+> > certificate or public key fingerprints, bypassing the CA trust quagmire,
+> > that is typically unhelpful (and a major security risk) for client certs.
+> 
+> Not sure how to answer this.  I have set SSL_CTX_load_verify_dir
+> (ssl_ctx, "/dev/null").  There is only my root certificate used to
+> generate the client certificates in SSL_CTX_load_verify_locations and
+> SSL_load_client_CA_file. 
+
+Perhaps some clients don't like requests for certs from CAs they don't
+know?
+
+> My server cert (from letsencrypt) is set in
+> SSL_CTX_use_certificate_file along with it's key in
+> SSL_CTX_use_PrivateKey_file.
+
+Are you using "cert.pem" or "fullchain.pem"?  The former is not a
+complete chain.
+
+> > Find a way to prevent password sharing, to check password quality, and
+> > DO NOT force periodic password rotation, which ensures users choose bad
+> > passwords.  Then consider various second factor options, TOTP and HOTP
+> > perhaps, or SMS, ...  Some single-systems also include risk metrics,
+> > to bypass second factors when things look "normal".
+> 
+> This is a high intensity, time critical, environment.  Management
+> doesn't want time wasted trying find/remember passwords.  
+
+That may be so, but client certificates for interactive use by humans
+don't have a good usability track record.
+
+-- 
+    Viktor.
+
+From bc979 at lafn.org  Fri Apr 19 03:28:13 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Thu, 18 Apr 2024 20:28:13 -0700
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+ <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+ <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+Message-ID: <B63D08B9-37EF-4123-8BAD-DF9C8C22E6C7@sermon-archive.info>
+
+Really off the wall idea - is it possible that the client is trying to establish a QUIC session?
+
+-- Doug
+
+> On Apr 9, 2024, at 22:02, Viktor Dukhovni <openssl-users at dukhovni.org> wrote:
+> 
+> On Tue, Apr 09, 2024 at 05:35:53PM -0700, Doug Hardie wrote:
+> 
+>> Attached is the result for the first connection:
+> 
+> There are a few reasons turned out a bit less than informative.
+> 
+>    - You give no indication of whether this is a successful handshake
+>      or a failure.  It just completes abruptly without even an error
+>      indication (encrypted alert) from either side.
+> 
+>    - The handshake used TLS 1.3, which encrypts all the interesting
+>      parts of the handshake.  To really see what's going on, you might
+>      to artificially limit the server's supported TLS protocols to TLS 1.2
+> 
+>    - My "tshark" instructions strip away which side is sending a given
+>      message, making it somewhat unclear, but the presented decode
+>      was largely clear turn-taking.
+> 
+> To debug TLS 1.3, you probably want to enable handshake and error logging (info)
+> callbacks on the server, and not abbreviate the reported errors to such
+> a degree that all context is lost.  It should be clear (to a trained
+> eye) from a reported SSL alert error, for example whether the alert was
+> a client to server or a server to client alert.  This means not
+> summarising the error messages, but reporting them in full.
+> 
+>>> See X509_STORE_CTX_set_error(3), but tread cautiously, there be dragons.
+>> 
+>> Thanks for that explanation.  That would probably be helpful to others
+>> if it was included somewhere in the openssl documentation.
+> 
+> I may look into it.
+> 
+>>> Who's sending/receiving the alerts?  The server would typically report
+>>> *received* alerts, and it is then perhaps the client that is failing to
+>>> validate the server certificate, but without a clear context, it is
+>>> difficult to say what happened.
+>> 
+>> All of the logging is on the server side.  I don't really have any
+>> ability to do anything with the clients.
+> 
+> Post the relevant log entries verbatim, unsummarised.
+> 
+>>>  ...
+>>>  SSL_CTX_set_session_id_context(server_ctx,
+>>>                                 (void *) &server_session_id_context,
+>>>                                 sizeof(server_session_id_context));
+>> 
+>> I'll have to do that then.
+> 
+> It may avoid some of the problems.
+> 
+>>> That the clients are putting up a dialogue does strengthen the
+>>> plausibility of the server's client certificate request being part of
+>>> the problem.  You may need to carefully tune your server's list of
+>>> solicited client CAs.  See the docs for SSL_CTX_set_client_CA_list(3).
+>>> Less is more (ideally just one if there's only one CA issuing the
+>>> desired certificates).
+>> 
+>> I only have my root certificate in the chain for authentication.  Your
+>> last response to me made that point loud and clear.  Thanks.
+> 
+> But what list of CAs is sent in the certificate request?  If it is the
+> CA names from full default system trust store, that could be unhelpful,
+> as well as a security issue, since any of those CAs could impersonate
+> your clients.  For client authentication, Postfix only trusts client
+> certificate or public key fingerprints, bypassing the CA trust quagmire,
+> that is typically unhelpful (and a major security risk) for client certs.
+> 
+> 
+>>> And finally, but importantly, what exactly is your use case?  How does
+>>> the server expect to benefit from (make access and authorisation
+>>> decisions based on) client certificates?
+>> 
+>> The case is an organization that was initially using passwords for
+>> authentication.  That worked properly and was easy to setup.  However,
+>> in the process of doing that I discovered that all their users had the
+>> name of the company as their password.  Given that the loss of the
+>> information that needs to be protected would be a very significant
+>> financial loss to the company, that approach is really not a good
+>> idea.  I proposed the certificate authentication and management
+>> agreed.  
+> 
+> If this is for browser-based applications, you're probably fighting a
+> losing battle.  Client certificates just haven't worked at all well for
+> interactive use by most users.  They're fine for datacentre
+> machine-machine comms, and in some specialised orgs (like US DoD?) where
+> users have no choice, and presumably get adequate support to make it
+> work.
+> 
+> Find a way to prevent password sharing, to check password quality, and
+> DO NOT force periodic password rotation, which ensures users choose bad
+> passwords.  Then consider various second factor options, TOTP and HOTP
+> perhaps, or SMS, ...  Some single-systems also include risk metrics,
+> to bypass second factors when things look "normal".
+> 
+> -- 
+>    Viktor.
+
+
+From openssl-users at dukhovni.org  Fri Apr 19 03:35:09 2024
+From: openssl-users at dukhovni.org (Viktor Dukhovni)
+Date: Thu, 18 Apr 2024 23:35:09 -0400
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <B63D08B9-37EF-4123-8BAD-DF9C8C22E6C7@sermon-archive.info>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+ <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+ <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+ <B63D08B9-37EF-4123-8BAD-DF9C8C22E6C7@sermon-archive.info>
+Message-ID: <ZiHmbQZEiGoqowQ8@chardros.imrryr.org>
+
+On Thu, Apr 18, 2024 at 08:28:13PM -0700, Doug Hardie wrote:
+
+> Really off the wall idea - is it possible that the client is trying to establish a QUIC session?
+
+Random guesses not grounded in evidence are rarely helpful, this is one
+such instance.  QUIC is over UDP, your server accepts TCP connections.
+And certificate matching is basically the same in QUIC as in TLS.
+
+Best to focus on resolving the incoming TLS alerts from clients that
+purport problems with validating the server's certificate chain.
+
+-- 
+    Viktor.
+
+From bc979 at lafn.org  Fri Apr 19 06:57:57 2024
+From: bc979 at lafn.org (Doug Hardie)
+Date: Thu, 18 Apr 2024 23:57:57 -0700
+Subject: Questions / SSL_accept errors (soliciting client certificates)
+In-Reply-To: <ZiHH5HENJBii4S6_@chardros.imrryr.org>
+References: <ZhWB7Sq3CStLtoev@chardros.imrryr.org>
+ <89DCA32D-14BA-4734-9DCD-D03E4A8FB7F2@sermon-archive.info>
+ <ZhYdVfV1VWmKCqzT@chardros.imrryr.org>
+ <28F18A54-4B95-4E0B-B789-5DC636F92153@sermon-archive.info>
+ <ZiHH5HENJBii4S6_@chardros.imrryr.org>
+Message-ID: <83A66FE7-87AB-488F-9DEB-9E26FFB41EF8@sermon-archive.info>
+
+Good catch.  You are right, I didn't have fullchain configured.  Now I have my cert from LetsEncrypt in SSL_CTX_use_certificate_file along with it's key in SSL_CTX_use_PrivateKey_file.  I tried using the fullchain from LetsEncrypt in SSL_CTX_use_certificate_chain_file and it didn't work.  I had to find the LetsEncrypt roots for X3 and R3 and add them into the fullchain.  Now I get totally different errors in the server logs.
+
+The first connection SSL_accept returns:
+Apr 18 23:32:43 <3.7> RIB wncert[21349]: SSL Error: Accept failed - 0020C142E9550000:error:0A0000C7:SSL routines:tls_process_client_certificate:peer did not return a certificate:/usr/src/crypto/openssl/ssl/statem/statem_srvr.c:3511:
+Apr 18 23:32:43 <3.7> RIB wncert[21349]: logerr  msg=Client did not return a certificate.  msg2=(null)
+
+
+The second returns a valid certificate, but never sends any data.  It eventually times out and exits.
+
+The third connection returns the proper certificate and the appropriate data.
+
+If the user makes another request, only one connection is established and it works properly.  At this point, I believe, the server issues have been corrected and I am dealing with client issues which I have no control over.  Thanks for all your help.  I can't imagine just how much time you have put into understanding OpenSSL.  The original server code was written back in 98 or so for SSLeay.  It had to be brought up to date as the old code used "features" that were eliminated.
+
+-- Doug
+
+> On Apr 18, 2024, at 18:24, Viktor Dukhovni <openssl-users at dukhovni.org> wrote:
+> 
+> On Thu, Apr 18, 2024 at 04:49:52PM -0700, Doug Hardie wrote:
+> 
+>>> It should be clear (to a trained eye) from a reported SSL alert
+>>> error, for example whether the alert was a client to server or a
+>>> server to client alert.  This means not summarising the error
+>>> messages, but reporting them in full.
+>> 
+>> Finally got time to get back to this.  Here are the server logged
+>> errors for the first 6 connections.  They are all basically identical.
+>> The first message is the SSL error and the second is the one returned
+>> by SSL_accept.  I do not have access to any client logs or error
+>> indications.  Both of these errors were recorded immediately after the
+>> SSL_accept call.
+> 
+> Thanks, the below is much more clear/actionable.
+> 
+>> Apr 18 16:15:17 <3.7> RIB wncert[20518]: SSL Error: Accept failed -
+>> 0020A163511D0000:error:0A000416:SSL routines:ssl3_read_bytes:
+>> sslv3 alert certificate unknown:/usr/src/crypto/openssl/ssl/record/rec_layer_s3.c:1586:
+>> SSL alert number 46
+> 
+> This is a client-to-server alert, initiated by the remote client, to
+> indicate that the client does not like something about server's
+> certificate.
+> 
+> If the server certificate chain is complete (not missing required
+> intermediate certs), unexpired and issued by a trust-anchor that should
+> be present on the client, then perhaps the client is actually unhappy
+> with the CAs in the certificate request, though that seems less likely.
+> 
+>> These 6 connection attempts occurred prior to the user selecting the
+>> proper certificate to use.  Once that was done, there was only on
+>> additional connection and it was successful.  No error returns and the
+>> server returned the proper response.
+> 
+> Therefore, first ensure that clients should be able to validate your
+> server certificate chain.
+> 
+>>> But what list of CAs is sent in the certificate request?  If it is the
+>>> CA names from full default system trust store, that could be unhelpful,
+>>> as well as a security issue, since any of those CAs could impersonate
+>>> your clients.  For client authentication, Postfix only trusts client
+>>> certificate or public key fingerprints, bypassing the CA trust quagmire,
+>>> that is typically unhelpful (and a major security risk) for client certs.
+>> 
+>> Not sure how to answer this.  I have set SSL_CTX_load_verify_dir
+>> (ssl_ctx, "/dev/null").  There is only my root certificate used to
+>> generate the client certificates in SSL_CTX_load_verify_locations and
+>> SSL_load_client_CA_file.
+> 
+> Perhaps some clients don't like requests for certs from CAs they don't
+> know?
+> 
+>> My server cert (from letsencrypt) is set in
+>> SSL_CTX_use_certificate_file along with it's key in
+>> SSL_CTX_use_PrivateKey_file.
+> 
+> Are you using "cert.pem" or "fullchain.pem"?  The former is not a
+> complete chain.
+> 
+>>> Find a way to prevent password sharing, to check password quality, and
+>>> DO NOT force periodic password rotation, which ensures users choose bad
+>>> passwords.  Then consider various second factor options, TOTP and HOTP
+>>> perhaps, or SMS, ...  Some single-systems also include risk metrics,
+>>> to bypass second factors when things look "normal".
+>> 
+>> This is a high intensity, time critical, environment.  Management
+>> doesn't want time wasted trying find/remember passwords.  
+> 
+> That may be so, but client certificates for interactive use by humans
+> don't have a good usability track record.
+> 
+> -- 
+>    Viktor.
+
+
+From tomas at openssl.org  Fri Apr 19 07:02:43 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Fri, 19 Apr 2024 09:02:43 +0200
+Subject: TLSv1.0 on OpenSSL 3.0-API (looking for answers)
+In-Reply-To: <TYCPR01MB80875597708C311B3CF35CCFF80D2@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+ <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80875597708C311B3CF35CCFF80D2@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+Message-ID: <cef02e5aa009db80042e753b63931557c4d03dcb.camel@openssl.org>
+
+Hello,
+
+do you use the default provider or do you configure some other
+providers such as the fips provider?
+
+Is this a regular OpenSSL build (which particular version is used?) or
+is this some Linux distribution provided build?
+
+Regards,
+
+Tomas Mraz, OpenSSL
+
+On Fri, 2024-04-19 at 01:27 +0000, Yuko Doki (Fujitsu) via openssl-
+users wrote:
+> Hello OpenSSL users' community,
+> I still haven't been able to solve the problem of TLS1.0 and LS1.1
+> connection error with OpenSSL3.0. 
+> If anyone knows a solution, please advise.
+> 
+> I will explain the problem again.
+> ----
+> I am developing an application using the OpenSSL 3.0 API library.
+> When I tested the connection using TLSv1.0 and TLSv1.1, I got a
+> handshake error.
+> Successful with TLS1.2 and TLS1.3.
+> 
+> I got some advice here, so I set "DEFAULT:@SECLEVEL=0" or
+> "ALL:@SECLEVEL=0"
+> ?to the argument string of SSL_CTX_set_cipher_list() and tried
+> connecting. 
+> However, the following error occurred again.
+> 
+> ?[client side error]
+> ??? error:0A000438:SSL routines::tlsv1 alert internal error
+> ??? (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+> 
+> ?[server side error]
+> ??? error:03000098:digital envelope routines::invalid digest
+> ??? (detail: crypto/evp/m_sigver.c line 343 -
+> tls_construct_server_key_exchange())
+> ??? error:0A0C0103:SSL routines::internal error
+> ??? (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+> ----
+> 
+> Any advice would be greatly appreciated.
+> 
+> Kind regards,
+> Yuko Doki
+> 
+> -----Original Message-----
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Yuko Doki (Fujitsu) via openssl-users
+> Sent: Thursday, April 11, 2024 3:41 PM
+> To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+> Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+> 
+> Hello OpenSSL users' community,
+> I still haven't been able to resolve the issue.
+> 
+> After that, I tried some additional cipher strings, but I got the
+> same error.
+> The string I tried this time is as follows.
+> ? "ALL:@SECLEVEL=0"
+> ? "ECDHE-RSA-AES256-SHA:@SECLEVEL=0"
+> 
+> I would appreciate any further advice.
+> 
+> Kind regards,
+> Yuko Doki
+> 
+> -----Original Message-----
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Yuko Doki (Fujitsu) via openssl-users
+> Sent: Monday, April 8, 2024 11:58 AM
+> To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+> Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+> 
+> Thank you for your advice, Thomas.
+> 
+> I added "@SECLEVEL=0" to the cipher string and tried.
+> But I got a handshake error again.
+> Note: I did not try SSL_CTX_set_security_level() to avoid changing
+> the applications sources.
+> 
+> The errors are as follows.
+> [client side]
+> ??? error:0A000438:SSL routines::tlsv1 alert internal error
+> ??? (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+> [server side]
+> ??? error:03000098:digital envelope routines::invalid digest
+> ??? (detail: crypto/evp/m_sigver.c line 343 -
+> tls_construct_server_key_exchange())
+> ??? error:0A0C0103:SSL routines::internal error
+> ??? (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+> 
+> The implementation for setting protocol version and cipher is as
+> follows.
+> ???? SSL_CTX_set_min_proto_version(ctx, TLS1_VERSION);
+> ???? SSL_CTX_set_max_proto_version(ctx, TLS1_1_VERSION);
+> ???? SSL_CTX_set_cipher_list(ctx, "DEFAULT:@SECLEVEL=0");
+> 
+> Could you please tell me what is the problem and how to fix it?
+> 
+> Kind regards,
+> Yuko Doki
+> 
+> -----Original Message-----
+> From: Tomas Mraz <tomas at openssl.org> 
+> Sent: Friday, April 5, 2024 3:47 PM
+> To: Doki, Yuko/?? ?? <doki.yuko at fujitsu.com>;
+> openssl-users at openssl.org
+> Subject: Re: TLSv1.0 on OpenSSL 3.0-API
+> 
+> These versions require SHA1 to operate. However security bits for
+> this algorithm was downgraded due to the known weaknesses and
+> collision attacks. For that reason you have to use @SECLEVEL=0 in the
+> cipher string or call SSL_CTX_set_security_level() to make TLS-1.0
+> and 1.1 work.
+> https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html
+> 
+> 
+> Regards,
+> 
+> Tomas Mraz, OpenSSL
+> 
+> On Fri, 2024-04-05 at 05:55 +0000, Yuko Doki (Fujitsu) via openssl-
+> users wrote:
+> > Hello OpenSSL users' community,
+> > This is my first time posting.
+> > 
+> > I am developing an application using the OpenSSL API library.
+> > And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+> > 
+> > The application supports TLS protocol versions from TLSv1.0 to 1.3,
+> > but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake 
+> > error.
+> > 
+> > The errors are as follows.
+> > [client side]
+> > ? error:0A000438:SSL routines::tlsv1 alert internal error [server 
+> > side]
+> > ? error:0A000076:SSL routines::no suitable signature algorithm
+> > 
+> > The TLS protocol version is set using the following functions.
+> > ? SSL_CTX_set_min_proto_version()
+> > ? SSL_CTX_set_max_proto_version()
+> > No cipher suite is set. (Automatically selected by OpenSSL.)
+> > 
+> > This implementation worked fine with OpenSSL 1.1.1. 
+> > Is OpenSSL 3.0 not supporting these protocol versions?
+> > I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with
+> > OpenSSL 3.0.
+> > 
+> > In addition, the operating environment is as follows.
+> > OS: Red Hat Enterprise Linux release 9.3 OpenSSL : OpenSSL 3.0.7 1
+> > Nov 
+> > 2022 (Library: OpenSSL 3.0.7 1 Nov
+> > 2022)
+> > 
+> > Kind regards,
+> > Yuko Doki
+> > 
+> 
+> --
+> Tom?? Mr?z, OpenSSL
+> 
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From Roman.Janota at cesnet.cz  Mon Apr 22 07:30:58 2024
+From: Roman.Janota at cesnet.cz (Roman Janota)
+Date: Mon, 22 Apr 2024 09:30:58 +0200
+Subject: Moving X509_CRL between X509_STOREs
+Message-ID: <c84c3696-ef07-4e74-a426-d62865290a9a@cesnet.cz>
+
+Hello,
+
+is there a way to move all the X509_CRLs (or all the certs in general) 
+from one X509_STORE to another? I tried fetching them with 
+`X509_STORE_get1_all_certs`, which sadly doesn't get the CRLs. Then I 
+tried `X509_STORE_get0_objects`, but I am unsure of what to do with 
+these objects as I cannot access X509_OBJECT's members or find an API 
+that would set an object to a X509_STORE. I am using OpenSSL 3.0.0.
+
+Thank you in advance,
+Roman.
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: smime.p7s
+Type: application/pkcs7-signature
+Size: 4280 bytes
+Desc: S/MIME Cryptographic Signature
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240422/39c3e977/attachment.p7s>
+
+From doki.yuko at fujitsu.com  Mon Apr 22 08:01:49 2024
+From: doki.yuko at fujitsu.com (Yuko Doki (Fujitsu))
+Date: Mon, 22 Apr 2024 08:01:49 +0000
+Subject: TLSv1.0 on OpenSSL 3.0-API (looking for answers)
+In-Reply-To: <cef02e5aa009db80042e753b63931557c4d03dcb.camel@openssl.org>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+ <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80875597708C311B3CF35CCFF80D2@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <cef02e5aa009db80042e753b63931557c4d03dcb.camel@openssl.org>
+Message-ID: <TYCPR01MB80871CF293346A767DE5D326F8122@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+
+Thank you for your reply, Thomas.
+
+I have not configured any providers, so the default provider will be used.
+
+When using RedHat Linux distribution, "@SECLEVEL=0" did not seem to work.
+The versions are as follows.
+  OpenSSL 3.0.7 1 Nov 2022 (Library: OpenSSL 3.0.7 1 Nov 2022)
+Will changing the provider in the file "openssl.cnf" have any effect?
+
+I also tried with OpenSSL built from the source downloaded from "https://www.openssl.org/source/", on Solaris.
+This time, adding "@SECLEVEL=0" was effect, the TLS1.0 connection was successful.
+The versions are as follows.
+  OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+
+This problem seems to occur only in the RedHat distribution, so it might be better to ask RedHat.
+Thank you for your cooperation.
+
+Kind regards,
+Yuko Doki
+-----Original Message-----
+From: Tomas Mraz <tomas at openssl.org> 
+Sent: Friday, April 19, 2024 4:03 PM
+To: Doki, Yuko/?? ?? <doki.yuko at fujitsu.com>; openssl-users at openssl.org
+Subject: Re: TLSv1.0 on OpenSSL 3.0-API (looking for answers)
+
+Hello,
+
+do you use the default provider or do you configure some other providers such as the fips provider?
+
+Is this a regular OpenSSL build (which particular version is used?) or is this some Linux distribution provided build?
+
+Regards,
+
+Tomas Mraz, OpenSSL
+
+On Fri, 2024-04-19 at 01:27 +0000, Yuko Doki (Fujitsu) via openssl- users wrote:
+> Hello OpenSSL users' community,
+> I still haven't been able to solve the problem of TLS1.0 and LS1.1 
+> connection error with OpenSSL3.0.
+> If anyone knows a solution, please advise.
+> 
+> I will explain the problem again.
+> ----
+> I am developing an application using the OpenSSL 3.0 API library.
+> When I tested the connection using TLSv1.0 and TLSv1.1, I got a 
+> handshake error.
+> Successful with TLS1.2 and TLS1.3.
+> 
+> I got some advice here, so I set "DEFAULT:@SECLEVEL=0" or 
+> "ALL:@SECLEVEL=0"
+> ?to the argument string of SSL_CTX_set_cipher_list() and tried 
+> connecting.
+> However, the following error occurred again.
+> 
+> ?[client side error]
+> ??? error:0A000438:SSL routines::tlsv1 alert internal error
+> ??? (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init())
+> 
+> ?[server side error]
+> ??? error:03000098:digital envelope routines::invalid digest
+> ??? (detail: crypto/evp/m_sigver.c line 343 -
+> tls_construct_server_key_exchange())
+> ??? error:0A0C0103:SSL routines::internal error
+> ??? (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+> ----
+> 
+> Any advice would be greatly appreciated.
+> 
+> Kind regards,
+> Yuko Doki
+> 
+> -----Original Message-----
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of 
+> Yuko Doki (Fujitsu) via openssl-users
+> Sent: Thursday, April 11, 2024 3:41 PM
+> To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+> Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+> 
+> Hello OpenSSL users' community,
+> I still haven't been able to resolve the issue.
+> 
+> After that, I tried some additional cipher strings, but I got the same 
+> error.
+> The string I tried this time is as follows.
+> ? "ALL:@SECLEVEL=0"
+> ? "ECDHE-RSA-AES256-SHA:@SECLEVEL=0"
+> 
+> I would appreciate any further advice.
+> 
+> Kind regards,
+> Yuko Doki
+> 
+> -----Original Message-----
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of 
+> Yuko Doki (Fujitsu) via openssl-users
+> Sent: Monday, April 8, 2024 11:58 AM
+> To: 'Tomas Mraz' <tomas at openssl.org>; openssl-users at openssl.org
+> Subject: RE: TLSv1.0 on OpenSSL 3.0-API
+> 
+> Thank you for your advice, Thomas.
+> 
+> I added "@SECLEVEL=0" to the cipher string and tried.
+> But I got a handshake error again.
+> Note: I did not try SSL_CTX_set_security_level() to avoid changing the 
+> applications sources.
+> 
+> The errors are as follows.
+> [client side]
+> ??? error:0A000438:SSL routines::tlsv1 alert internal error
+> ??? (detail: ssl/statem/statem_srvr.c line 2684 - do_sigver_init()) 
+> [server side]
+> ??? error:03000098:digital envelope routines::invalid digest
+> ??? (detail: crypto/evp/m_sigver.c line 343 -
+> tls_construct_server_key_exchange())
+> ??? error:0A0C0103:SSL routines::internal error
+> ??? (detail: ssl/record/rec_layer_s3.c line 1600 - ssl3_read_bytes())
+> 
+> The implementation for setting protocol version and cipher is as 
+> follows.
+> ???? SSL_CTX_set_min_proto_version(ctx, TLS1_VERSION);
+> ???? SSL_CTX_set_max_proto_version(ctx, TLS1_1_VERSION);
+> ???? SSL_CTX_set_cipher_list(ctx, "DEFAULT:@SECLEVEL=0");
+> 
+> Could you please tell me what is the problem and how to fix it?
+> 
+> Kind regards,
+> Yuko Doki
+> 
+> -----Original Message-----
+> From: Tomas Mraz <tomas at openssl.org>
+> Sent: Friday, April 5, 2024 3:47 PM
+> To: Doki, Yuko/?? ?? <doki.yuko at fujitsu.com>; 
+> openssl-users at openssl.org
+> Subject: Re: TLSv1.0 on OpenSSL 3.0-API
+> 
+> These versions require SHA1 to operate. However security bits for this 
+> algorithm was downgraded due to the known weaknesses and collision 
+> attacks. For that reason you have to use @SECLEVEL=0 in the cipher 
+> string or call SSL_CTX_set_security_level() to make TLS-1.0 and 1.1 
+> work.
+> https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level
+> .html
+> 
+> 
+> Regards,
+> 
+> Tomas Mraz, OpenSSL
+> 
+> On Fri, 2024-04-05 at 05:55 +0000, Yuko Doki (Fujitsu) via openssl- 
+> users wrote:
+> > Hello OpenSSL users' community,
+> > This is my first time posting.
+> > 
+> > I am developing an application using the OpenSSL API library.
+> > And now I'm trying to migrate from OpenSSL 1.1.1 to 3.0.
+> > 
+> > The application supports TLS protocol versions from TLSv1.0 to 1.3, 
+> > but with OpenSSL 3.0, TLSv1.0 and TLSv1.1 resulted in a handshake 
+> > error.
+> > 
+> > The errors are as follows.
+> > [client side]
+> > ? error:0A000438:SSL routines::tlsv1 alert internal error [server 
+> > side]
+> > ? error:0A000076:SSL routines::no suitable signature algorithm
+> > 
+> > The TLS protocol version is set using the following functions.
+> > ? SSL_CTX_set_min_proto_version()
+> > ? SSL_CTX_set_max_proto_version()
+> > No cipher suite is set. (Automatically selected by OpenSSL.)
+> > 
+> > This implementation worked fine with OpenSSL 1.1.1. 
+> > Is OpenSSL 3.0 not supporting these protocol versions?
+> > I would appreciate any advice on how to use TLSv1.0 or TLSv1.1 with 
+> > OpenSSL 3.0.
+> > 
+> > In addition, the operating environment is as follows.
+> > OS: Red Hat Enterprise Linux release 9.3 OpenSSL : OpenSSL 3.0.7 1 
+> > Nov
+> > 2022 (Library: OpenSSL 3.0.7 1 Nov
+> > 2022)
+> > 
+> > Kind regards,
+> > Yuko Doki
+> > 
+> 
+> --
+> Tom?? Mr?z, OpenSSL
+> 
+
+--
+Tom?? Mr?z, OpenSSL
+
+
+From hvn at open.com.au  Mon Apr 22 08:22:18 2024
+From: hvn at open.com.au (Heikki Vatiainen)
+Date: Mon, 22 Apr 2024 11:22:18 +0300
+Subject: TLSv1.0 on OpenSSL 3.0-API (looking for answers)
+In-Reply-To: <TYCPR01MB80871CF293346A767DE5D326F8122@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+ <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80875597708C311B3CF35CCFF80D2@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <cef02e5aa009db80042e753b63931557c4d03dcb.camel@openssl.org>
+ <TYCPR01MB80871CF293346A767DE5D326F8122@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+Message-ID: <cb4cf044-989a-4a4e-95e8-8b3d18539773@open.com.au>
+
+On 22.4.2024 11.01, Yuko Doki (Fujitsu) via openssl-users wrote:
+
+> I have not configured any providers, so the default provider will be used.
+> 
+> When using RedHat Linux distribution, "@SECLEVEL=0" did not seem to work.
+> The versions are as follows.
+>    OpenSSL 3.0.7 1 Nov 2022 (Library: OpenSSL 3.0.7 1 Nov 2022)
+> Will changing the provider in the file "openssl.cnf" have any effect?
+> 
+> I also tried with OpenSSL built from the source downloaded from "https://www.openssl.org/source/", on Solaris.
+> This time, adding "@SECLEVEL=0" was effect, the TLS1.0 connection was successful.
+> The versions are as follows.
+>    OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+> 
+> This problem seems to occur only in the RedHat distribution, so it might be better to ask RedHat.
+
+
+See RedHat documentation about their system-wide crypto policies:
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening
+
+There's, for example, a table that tells that TLSv1.1 and earlier are 
+not enabled by default. With RHEL 8 they could be enabled, but with 9 it 
+seems the can not. Even with command 'update-crypto-policies' it appears 
+not possible to enable TLSv1.0.
+
+Please let us know how it goes,
+Heikki
+
+-- 
+Heikki Vatiainen
+OSC, makers of Radiator
+Visit radiatorsoftware.com for Radiator AAA server software
+
+From tomas at openssl.org  Mon Apr 22 09:01:34 2024
+From: tomas at openssl.org (Tomas Mraz)
+Date: Mon, 22 Apr 2024 11:01:34 +0200
+Subject: Moving X509_CRL between X509_STOREs
+In-Reply-To: <c84c3696-ef07-4e74-a426-d62865290a9a@cesnet.cz>
+References: <c84c3696-ef07-4e74-a426-d62865290a9a@cesnet.cz>
+Message-ID: <1a4b2e18d2e06bc337d7fc159d8993fcffab38ff.camel@openssl.org>
+
+You can simply use X509_OBJECT_get0_X509_CRL() to retrieve the X509_CRL
+pointer inside the object. It will return NULL if it is not a CRL.
+
+Unfortunately the function is undocumented.
+
+Tomas Mraz, OpenSSL
+
+On Mon, 2024-04-22 at 09:30 +0200, Roman Janota via openssl-users
+wrote:
+> Hello,
+> 
+> is there a way to move all the X509_CRLs (or all the certs in
+> general) 
+> from one X509_STORE to another? I tried fetching them with 
+> `X509_STORE_get1_all_certs`, which sadly doesn't get the CRLs. Then I
+> tried `X509_STORE_get0_objects`, but I am unsure of what to do with 
+> these objects as I cannot access X509_OBJECT's members or find an API
+> that would set an object to a X509_STORE. I am using OpenSSL 3.0.0.
+> 
+> Thank you in advance,
+> Roman.
+> 
+
+-- 
+Tom?? Mr?z, OpenSSL
+
+
+From srahul.292919 at gmail.com  Mon Apr 22 16:27:51 2024
+From: srahul.292919 at gmail.com (Rahul Shukla)
+Date: Mon, 22 Apr 2024 21:57:51 +0530
+Subject: Seeing intermittent crash for TLSv1.3
+Message-ID: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+
+Hi All,
+I'm experiencing an intermittent crash with TLSv1.3. Despite my efforts to
+analyze it using Valgrind or Purify, I'm unable to replicate the issue.
+Does anyone have any insights into this??
+
+
+#0  0x0000724208ea1743 in unlink_chunk (p=p at entry=0x7241ec4c9550,
+av=0x7241ec000030) at ./malloc/malloc.c:1634
+#1  0x0000724208ea462b in _int_malloc (av=av at entry=0x7241ec000030,
+bytes=bytes at entry=80) at ./malloc/malloc.c:4307
+#2  0x0000724208ea5139 in __GI___libc_malloc (bytes=80) at
+./malloc/malloc.c:3329
+#3  0x00005a11a31f06ce in CRYPTO_zalloc ()
+#4  0x00005a11a318d321 in bn_expand2 ()
+#5  0x00005a11a318feab in BN_lshift1 ()
+#6  0x00005a11a32e0481 in BN_mod_lshift1_quick ()
+#7  0x00005a11a31b5f35 in ossl_ec_GFp_simple_ladder_step ()
+#8  0x00005a11a31ad34d in ossl_ec_scalar_mul_ladder ()
+#9  0x00005a11a31addf1 in ossl_ec_wNAF_mul ()
+#10 0x00005a11a31abc3d in EC_POINT_mul ()
+#11 0x00005a11a31a8d7f in ossl_ec_key_simple_generate_key ()
+#12 0x00005a11a31a8061 in ossl_ec_key_gen ()
+#13 0x00005a11a31a7fce in EC_KEY_generate_key ()
+#14 0x00005a11a3297b38 in ec_gen ()
+#15 0x00005a11a31d6c2b in evp_keymgmt_util_gen ()
+#16 0x00005a11a31e2aa7 in EVP_PKEY_generate ()
+#17 0x00005a11a311a317 in ssl_generate_pkey_group ()
+#18 0x00005a11a31462bc in tls_construct_ctos_key_share ()
+#19 0x00005a11a31443c3 in tls_construct_extensions ()
+#20 0x00005a11a314f92d in tls_construct_client_hello ()
+#21 0x00005a11a314e667 in state_machine ()
+#22 0x00005a11a3125184 in SSL_do_handshake ()
+.....
+
+
+TIA.
+
+-Rahul
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240422/b2c2c31b/attachment.htm>
+
+From hkario at redhat.com  Mon Apr 22 17:32:04 2024
+From: hkario at redhat.com (Hubert Kario)
+Date: Mon, 22 Apr 2024 19:32:04 +0200
+Subject: Seeing intermittent crash for TLSv1.3
+In-Reply-To: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+References: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+Message-ID: <963b7dce-1747-4d06-a77f-1d99b3dd95e4@redhat.com>
+
+Have you double-checked that the RAM in that PC is fine?
+Run memtest86+ for 24h, if possible.
+
+On Monday, 22 April 2024 18:27:51 CEST, Rahul Shukla wrote:
+> Hi All, 
+> I'm experiencing an intermittent crash with TLSv1.3. Despite my 
+> efforts to analyze it using Valgrind or Purify, I'm unable to 
+> replicate the issue. Does anyone have any insights into this??
+>
+>
+> #0  0x0000724208ea1743 in unlink_chunk 
+> (p=p at entry=0x7241ec4c9550, av=0x7241ec000030) at 
+> ./malloc/malloc.c:1634
+> #1  0x0000724208ea462b in _int_malloc 
+> (av=av at entry=0x7241ec000030, bytes=bytes at entry=80) at 
+> ./malloc/malloc.c:4307
+> #2  0x0000724208ea5139 in __GI___libc_malloc (bytes=80) at 
+> ./malloc/malloc.c:3329
+> #3  0x00005a11a31f06ce in CRYPTO_zalloc ()
+> #4  0x00005a11a318d321 in bn_expand2 ()
+> #5  0x00005a11a318feab in BN_lshift1 ()
+> #6  0x00005a11a32e0481 in BN_mod_lshift1_quick ()
+> #7  0x00005a11a31b5f35 in ossl_ec_GFp_simple_ladder_step ()
+> #8  0x00005a11a31ad34d in ossl_ec_scalar_mul_ladder ()
+> #9  0x00005a11a31addf1 in ossl_ec_wNAF_mul ()
+> #10 0x00005a11a31abc3d in EC_POINT_mul ()
+> #11 0x00005a11a31a8d7f in ossl_ec_key_simple_generate_key ()
+> #12 0x00005a11a31a8061 in ossl_ec_key_gen ()
+> #13 0x00005a11a31a7fce in EC_KEY_generate_key ()
+> #14 0x00005a11a3297b38 in ec_gen ()
+> #15 0x00005a11a31d6c2b in evp_keymgmt_util_gen ()
+> #16 0x00005a11a31e2aa7 in EVP_PKEY_generate ()
+> #17 0x00005a11a311a317 in ssl_generate_pkey_group ()
+> #18 0x00005a11a31462bc in tls_construct_ctos_key_share ()
+> #19 0x00005a11a31443c3 in tls_construct_extensions ()
+> #20 0x00005a11a314f92d in tls_construct_client_hello ()
+> #21 0x00005a11a314e667 in state_machine ()
+> #22 0x00005a11a3125184 in SSL_do_handshake ()
+> .....
+>
+>
+> TIA.
+>
+> -Rahul 
+
+-- 
+Regards,
+Hubert Kario
+Principal Quality Engineer, RHEL Crypto team
+Web: www.cz.redhat.com
+Red Hat Czech s.r.o., Purky?ova 115, 612 00, Brno, Czech Republic
+
+
+From srahul.292919 at gmail.com  Tue Apr 23 01:18:58 2024
+From: srahul.292919 at gmail.com (Rahul Shukla)
+Date: Tue, 23 Apr 2024 06:48:58 +0530
+Subject: Seeing intermittent crash for TLSv1.3
+In-Reply-To: <963b7dce-1747-4d06-a77f-1d99b3dd95e4@redhat.com>
+References: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+ <963b7dce-1747-4d06-a77f-1d99b3dd95e4@redhat.com>
+Message-ID: <CAKcoO8RZsV2NvqRWmbvNz1oegNc26V879AGeuGqbiNvhMPA+eg@mail.gmail.com>
+
+Hi Hubert,
+Thanks for the quick reply.I believe RAM is fine. We have other machines as
+well where we can see this issue. We tried on windows today and now we are
+consistently seeing this crash there.
+The only problem is that we are not able to see this crash when we are
+running our debug modules with Purify or Valgrind. So no clue what is
+causing it.
+
+
+--Rahul
+
+
+
+On Mon, Apr 22, 2024 at 11:02?PM Hubert Kario <hkario at redhat.com> wrote:
+
+> Have you double-checked that the RAM in that PC is fine?
+> Run memtest86+ for 24h, if possible.
+>
+> On Monday, 22 April 2024 18:27:51 CEST, Rahul Shukla wrote:
+> > Hi All,
+> > I'm experiencing an intermittent crash with TLSv1.3. Despite my
+> > efforts to analyze it using Valgrind or Purify, I'm unable to
+> > replicate the issue. Does anyone have any insights into this??
+> >
+> >
+> > #0  0x0000724208ea1743 in unlink_chunk
+> > (p=p at entry=0x7241ec4c9550, av=0x7241ec000030) at
+> > ./malloc/malloc.c:1634
+> > #1  0x0000724208ea462b in _int_malloc
+> > (av=av at entry=0x7241ec000030, bytes=bytes at entry=80) at
+> > ./malloc/malloc.c:4307
+> > #2  0x0000724208ea5139 in __GI___libc_malloc (bytes=80) at
+> > ./malloc/malloc.c:3329
+> > #3  0x00005a11a31f06ce in CRYPTO_zalloc ()
+> > #4  0x00005a11a318d321 in bn_expand2 ()
+> > #5  0x00005a11a318feab in BN_lshift1 ()
+> > #6  0x00005a11a32e0481 in BN_mod_lshift1_quick ()
+> > #7  0x00005a11a31b5f35 in ossl_ec_GFp_simple_ladder_step ()
+> > #8  0x00005a11a31ad34d in ossl_ec_scalar_mul_ladder ()
+> > #9  0x00005a11a31addf1 in ossl_ec_wNAF_mul ()
+> > #10 0x00005a11a31abc3d in EC_POINT_mul ()
+> > #11 0x00005a11a31a8d7f in ossl_ec_key_simple_generate_key ()
+> > #12 0x00005a11a31a8061 in ossl_ec_key_gen ()
+> > #13 0x00005a11a31a7fce in EC_KEY_generate_key ()
+> > #14 0x00005a11a3297b38 in ec_gen ()
+> > #15 0x00005a11a31d6c2b in evp_keymgmt_util_gen ()
+> > #16 0x00005a11a31e2aa7 in EVP_PKEY_generate ()
+> > #17 0x00005a11a311a317 in ssl_generate_pkey_group ()
+> > #18 0x00005a11a31462bc in tls_construct_ctos_key_share ()
+> > #19 0x00005a11a31443c3 in tls_construct_extensions ()
+> > #20 0x00005a11a314f92d in tls_construct_client_hello ()
+> > #21 0x00005a11a314e667 in state_machine ()
+> > #22 0x00005a11a3125184 in SSL_do_handshake ()
+> > .....
+> >
+> >
+> > TIA.
+> >
+> > -Rahul
+>
+> --
+> Regards,
+> Hubert Kario
+> Principal Quality Engineer, RHEL Crypto team
+> Web: www.cz.redhat.com
+> Red Hat Czech s.r.o., Purky?ova 115, 612 00, Brno, Czech Republic
+>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240423/e4604139/attachment-0001.htm>
+
+From lists at rustichelli.net  Tue Apr 23 06:33:06 2024
+From: lists at rustichelli.net (lists)
+Date: Tue, 23 Apr 2024 08:33:06 +0200
+Subject: status of PKCS#11 providers?
+Message-ID: <30685fed-b1e7-7cce-bedb-2f02818b457d@rustichelli.net>
+
+Hi all,
+
+I happily use libp11 as a PKCS#11 engine for OpenSSL in my projects.
+
+Now I need to experiment with PKCS#11 *providers*.
+
+In my understanding the most promising GENERIC pkcs#11 provider is this 
+one: https://github.com/latchset/pkcs11-provider
+
+Any other project at a better stage? I tried some other but they all 
+seem at early stages, abandoned or intended for specific hardware, or 
+with some quirks.
+
+Can anybody confirm this? Thanks - Umberto
+
+
+From doki.yuko at fujitsu.com  Tue Apr 23 06:43:01 2024
+From: doki.yuko at fujitsu.com (Yuko Doki (Fujitsu))
+Date: Tue, 23 Apr 2024 06:43:01 +0000
+Subject: TLSv1.0 on OpenSSL 3.0-API
+In-Reply-To: <cb4cf044-989a-4a4e-95e8-8b3d18539773@open.com.au>
+References: <TYCPR01MB8087F2B80952F91BB2069E92F8032@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <4310c41eba15bf6b050384a8fac0218c40ce0e24.camel@openssl.org>
+ <TYCPR01MB808765D37E5A1693559F4375F8002@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80876686DEF3164AAFDF61A8F8052@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <TYCPR01MB80875597708C311B3CF35CCFF80D2@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <cef02e5aa009db80042e753b63931557c4d03dcb.camel@openssl.org>
+ <TYCPR01MB80871CF293346A767DE5D326F8122@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+ <cb4cf044-989a-4a4e-95e8-8b3d18539773@open.com.au>
+Message-ID: <TYCPR01MB8087FC43704F37A08DEBE5A4F8112@TYCPR01MB8087.jpnprd01.prod.outlook.com>
+
+Thank you for the information, Heikki.
+
+I understood from the RedHat documentation you pointed out that no matter
+ what crypto policy I specify, I cannot use TLSv1.1 or earlier on RHEL9.
+
+On the other hand, I have confirmed that connections using TLSv1.1 or earlier
+ are possible even on RHEL9 by using the package "compat-openssl11".
+I suspect that this is not covered by the crypto policy.
+
+I would like to report this with gratitude.
+
+Kind regards,
+Yuko Doki
+
+-----Original Message-----
+From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of Heikki Vatiainen
+Sent: Monday, April 22, 2024 5:22 PM
+To: openssl-users at openssl.org
+Subject: Re: TLSv1.0 on OpenSSL 3.0-API (looking for answers)
+
+On 22.4.2024 11.01, Yuko Doki (Fujitsu) via openssl-users wrote:
+
+> I have not configured any providers, so the default provider will be used.
+> 
+> When using RedHat Linux distribution, "@SECLEVEL=0" did not seem to work.
+> The versions are as follows.
+>    OpenSSL 3.0.7 1 Nov 2022 (Library: OpenSSL 3.0.7 1 Nov 2022)
+> Will changing the provider in the file "openssl.cnf" have any effect?
+> 
+> I also tried with OpenSSL built from the source downloaded from "https://www.openssl.org/source/", on Solaris.
+> This time, adding "@SECLEVEL=0" was effect, the TLS1.0 connection was successful.
+> The versions are as follows.
+>    OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+> 
+> This problem seems to occur only in the RedHat distribution, so it might be better to ask RedHat.
+
+
+See RedHat documentation about their system-wide crypto policies:
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening
+
+There's, for example, a table that tells that TLSv1.1 and earlier are 
+not enabled by default. With RHEL 8 they could be enabled, but with 9 it 
+seems the can not. Even with command 'update-crypto-policies' it appears 
+not possible to enable TLSv1.0.
+
+Please let us know how it goes,
+Heikki
+
+-- 
+Heikki Vatiainen
+OSC, makers of Radiator
+Visit radiatorsoftware.com for Radiator AAA server software
+
+From sahana at redhat.com  Tue Apr 23 07:14:38 2024
+From: sahana at redhat.com (Sahana Prasad)
+Date: Tue, 23 Apr 2024 09:14:38 +0200
+Subject: status of PKCS#11 providers?
+In-Reply-To: <30685fed-b1e7-7cce-bedb-2f02818b457d@rustichelli.net>
+References: <30685fed-b1e7-7cce-bedb-2f02818b457d@rustichelli.net>
+Message-ID: <CAFx8g8vid6jDEm8N1oCwoFPVX+BKUTvcyGZchZEtPfHYtKiNTg@mail.gmail.com>
+
+On Tue, Apr 23, 2024 at 8:33?AM lists <lists at rustichelli.net> wrote:
+
+> Hi all,
+>
+> I happily use libp11 as a PKCS#11 engine for OpenSSL in my projects.
+>
+> Now I need to experiment with PKCS#11 *providers*.
+>
+> In my understanding the most promising GENERIC pkcs#11 provider is this
+> one: https://github.com/latchset/pkcs11-provider
+>
+> Any other project at a better stage? I tried some other but they all
+> seem at early stages, abandoned or intended for specific hardware, or
+> with some quirks.
+>
+> Can anybody confirm this? Thanks - Umberto
+>
+
+Hi Umberto,
+
+yes, we confirm that you can use pkcs11-provider for your projects. It's
+already available in fedora [1] too.
+
+[1] https://bodhi.fedoraproject.org/updates/?packages=pkcs11-provider
+
+
+Thank you,
+Regards,
+Sahana Prasad
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240423/83bb929a/attachment-0001.htm>
+
+From hkario at redhat.com  Tue Apr 23 08:05:13 2024
+From: hkario at redhat.com (Hubert Kario)
+Date: Tue, 23 Apr 2024 10:05:13 +0200
+Subject: Seeing intermittent crash for TLSv1.3
+In-Reply-To: <CAKcoO8RZsV2NvqRWmbvNz1oegNc26V879AGeuGqbiNvhMPA+eg@mail.gmail.com>
+References: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+ <963b7dce-1747-4d06-a77f-1d99b3dd95e4@redhat.com>
+ <CAKcoO8RZsV2NvqRWmbvNz1oegNc26V879AGeuGqbiNvhMPA+eg@mail.gmail.com>
+Message-ID: <fdc712de-4c07-474c-82ff-ec99f799ce1a@redhat.com>
+
+Try using --malloc-fill=af --free-fill=fa ?
+(or some other non-zero values)
+
+On Tuesday, 23 April 2024 03:18:58 CEST, Rahul Shukla wrote:
+> Hi Hubert,
+> Thanks for the quick reply.I believe RAM is fine. We have other 
+> machines as well where we can see this issue. We tried on 
+> windows today and now we are consistently seeing this crash 
+> there. 
+> The only problem is that we are not able to see this crash when 
+> we are running our debug modules with Purify or Valgrind. So no 
+> clue what is causing it.
+>
+>
+> --Rahul
+>
+>
+>
+> On Mon, Apr 22, 2024 at 11:02?PM Hubert Kario <hkario at redhat.com> wrote:
+> Have you double-checked that the RAM in that PC is fine?
+> Run memtest86+ for 24h, if possible.
+>
+> On Monday, 22 April 2024 18:27:51 CEST, Rahul Shukla wrote:
+>> Hi All, 
+>> I'm experiencing an intermittent crash with TLSv1.3. Despite my 
+>> efforts to analyze it using Valgrind or Purify, I'm unable to 
+>> replicate the issue. Does anyone have any insights into this??
+>>
+>>
+>> #0  0x0000724208ea1743 in unlink_chunk 
+>> (p=p at entry=0x7241ec4c9550, av=0x7241ec000030) at 
+>> ./malloc/malloc.c:1634
+>> #1  0x0000724208ea462b in _int_malloc 
+>> (av=av at entry=0x7241ec000030, bytes=bytes at entry=80) at 
+>> ./malloc/malloc.c:4307
+>> #2  0x0000724208ea5139 in __GI___libc_malloc (bytes=80) at 
+>> ./malloc/malloc.c:3329
+>> #3  0x00005a11a31f06ce in CRYPTO_zalloc ()
+>> #4  0x00005a11a318d321 in bn_expand2 ()
+>> #5  0x00005a11a318feab in BN_lshift1 ()
+>> #6  0x00005a11a32e0481 in BN_mod_lshift1_quick ()
+>> #7  0x00005a11a31b5f35 in ossl_ec_GFp_simple_ladder_step ()
+>> #8  0x00005a11a31ad34d in ossl_ec_scalar_mul_ladder ()
+>> #9  0x00005a11a31addf1 in ossl_ec_wNAF_mul ()
+>> #10 0x00005a11a31abc3d in EC_POINT_mul ()
+>> #11 0x00005a11a31a8d7f in ossl_ec_key_simple_generate_key ()
+>> #12 0x00005a11a31a8061 in ossl_ec_key_gen ()
+>> #13 0x00005a11a31a7fce in EC_KEY_generate_key ()
+>> #14 0x00005a11a3297b38 in ec_gen ()
+>> #15 0x00005a11a31d6c2b in evp_keymgmt_util_gen ()
+>> #16 0x00005a11a31e2aa7 in EVP_PKEY_generate ()
+>> #17 0x00005a11a311a317 in ssl_generate_pkey_group ()
+>> #18 0x00005a11a31462bc in tls_construct_ctos_key_share ()
+>> #19 0x00005a11a31443c3 in tls_construct_extensions ()
+>> #20 0x00005a11a314f92d in tls_construct_client_hello ()
+>> #21 0x00005a11a314e667 in state_machine ()
+>> #22 0x00005a11a3125184 in SSL_do_handshake ()
+>> .....
+>>
+>>
+>> TIA.
+>>
+>> -Rahul 
+>
+
+-- 
+Regards,
+Hubert Kario
+Principal Quality Engineer, RHEL Crypto team
+Web: www.cz.redhat.com
+Red Hat Czech s.r.o., Purky?ova 115, 612 00, Brno, Czech Republic
+
+
+From mwojcik at opentext.com  Tue Apr 23 13:51:34 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Tue, 23 Apr 2024 13:51:34 +0000
+Subject: [EXTERNAL] - Re: Seeing intermittent crash for TLSv1.3
+In-Reply-To: <fdc712de-4c07-474c-82ff-ec99f799ce1a@redhat.com>
+References: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+ <963b7dce-1747-4d06-a77f-1d99b3dd95e4@redhat.com>
+ <CAKcoO8RZsV2NvqRWmbvNz1oegNc26V879AGeuGqbiNvhMPA+eg@mail.gmail.com>
+ <fdc712de-4c07-474c-82ff-ec99f799ce1a@redhat.com>
+Message-ID: <YQBPR01MB10705F5B8524777B5D44A8F09C2112@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+
+> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+> Hubert Kario
+> Sent: Tuesday, 23 April, 2024 02:05
+> 
+> Try using --malloc-fill=af --free-fill=fa ?
+> (or some other non-zero values)
+
+Or on a glibc platform (which I'm assuming Rahul's original message referred to, as that looked like a gdb backtrace), enabling libc_malloc_debug with LD_PRELOAD and setting MALLOC_CHECK_ or the equivalent glibc tunable. In my experience it can be a bit of work getting glibc malloc debugging working, and Valgrind is usually a better option; but if, as Rahul reported, valgrind is not diagnosing the issue, glibc malloc debugging is another possible route.
+
+That said, it's not entirely clear to me whether Rahul exhausted the valgrind option, since in the previous message he wrote that "we are not able to see this crash when we are running our debug modules with Purify or Valgrind". I'd suggest running the precise problem scenario ? same build, same reproduction sequence ? under valgrind (memcheck), and then go through the valgrind output, starting with the post-termination report. If valgrind doesn't identify a problem with the debug build, try it with the release build.
+
+-- 
+Michael Wojcik
+
+From hkario at redhat.com  Wed Apr 24 12:05:48 2024
+From: hkario at redhat.com (Hubert Kario)
+Date: Wed, 24 Apr 2024 14:05:48 +0200
+Subject: [EXTERNAL] - Re: Seeing intermittent crash for TLSv1.3
+In-Reply-To: <YQBPR01MB10705F5B8524777B5D44A8F09C2112@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+References: <CAKcoO8QUQBgbS5ie8fDxE7hCY9CMMhqyZBpu=L_tSXwbEir_xA@mail.gmail.com>
+ <963b7dce-1747-4d06-a77f-1d99b3dd95e4@redhat.com>
+ <CAKcoO8RZsV2NvqRWmbvNz1oegNc26V879AGeuGqbiNvhMPA+eg@mail.gmail.com>
+ <fdc712de-4c07-474c-82ff-ec99f799ce1a@redhat.com>
+ <YQBPR01MB10705F5B8524777B5D44A8F09C2112@YQBPR01MB10705.CANPRD01.PROD.OUTLOOK.COM>
+Message-ID: <4f7c3c94-4f40-4bc9-838c-1c91a3693dcc@redhat.com>
+
+On Tuesday, 23 April 2024 15:51:34 CEST, Michael Wojcik via openssl-users 
+wrote:
+>> From: openssl-users <openssl-users-bounces at openssl.org> On Behalf Of
+>> Hubert Kario
+>> Sent: Tuesday, 23 April, 2024 02:05
+>> 
+>> Try using --malloc-fill=af --free-fill=fa ?
+>> (or some other non-zero values)
+>
+> Or on a glibc platform (which I'm assuming Rahul's original 
+> message referred to, as that looked like a gdb backtrace), 
+> enabling libc_malloc_debug with LD_PRELOAD and setting 
+> MALLOC_CHECK_ or the equivalent glibc tunable. In my experience 
+> it can be a bit of work getting glibc malloc debugging working, 
+> and Valgrind is usually a better option; but if, as Rahul 
+> reported, valgrind is not diagnosing the issue, glibc malloc 
+> debugging is another possible route.
+>
+> That said, it's not entirely clear to me whether Rahul 
+> exhausted the valgrind option, since in the previous message he 
+> wrote that "we are not able to see this crash when we are 
+> running our debug modules with Purify or Valgrind". I'd suggest 
+> running the precise problem scenario ? same build, same 
+> reproduction sequence ? under valgrind (memcheck), and then go 
+> through the valgrind output, starting with the post-termination 
+> report. If valgrind doesn't identify a problem with the debug 
+> build, try it with the release build.
+
+I proposed use of those two options because I personally had exact same
+situation (not with OpenSSL, but with a C application still):
+valgrind was content and application was running fine, but when running
+without valgrind the application would segfault.
+To make it segfault in valgrind those two options were necessary, then
+it was crashing reliably under valgrind too.
+-- 
+Regards,
+Hubert Kario
+Principal Quality Engineer, RHEL Crypto team
+Web: www.cz.redhat.com
+Red Hat Czech s.r.o., Purky?ova 115, 612 00, Brno, Czech Republic
+
+
+From mwojcik at opentext.com  Mon Apr 29 14:18:36 2024
+From: mwojcik at opentext.com (Michael Wojcik)
+Date: Mon, 29 Apr 2024 14:18:36 +0000
+Subject: Invalid code generated by GCC on 32-bit x86 in gcm128.c
+Message-ID: <YT3PR01MB9898BD3A60F819699AD02F80C21B2@YT3PR01MB9898.CANPRD01.PROD.OUTLOOK.COM>
+
+We recently debugged, and found a workaround for, a GCC [###version] code-generation error when compiling OpenSSL 3.0.8 for 32-bit on Intel x86. This error resulted in a use of a misaligned memory operand with a packed-quadword instruction, producing a SIGSEGV on RedHat 8. (I'm a bit surprised Linux doesn't raise SIGBUS for this particular trap, but whatever.) I wanted to document this here in case other people run into it.
+
+Aside: This does raise the question: Why aren't other people running into it? And why are we only seeing it now? Honestly, I don't know. It is sensitive to stack layout, but in some of our tests we could reproduce it consistently. It's possible you'll never see this in a program where the path into the sensitive functions in gcm128.c, which appear to be CRYPTO_gcm128_aad, CRYPTO_gcm128_encrypt, and CRYPTO_gcm128_decrypt, is made up completely of code compiled with GCC. In our case we have non-GCC code along that path in some cases, and that non-GCC code does not follow GCC's rather arbitrary stack-frame alignment rules for x86, so GCC may be making an invalid assumption about callers further up the stack and how they'll pad and align stack frames.
+
+(It's known that with default build flags and optimization, GCC requires that callers align *parameters* strictly, because it may generate SSE code for operations on 64-bit and larger operations. But the problem here isn't a parameter, as I'll show in a moment.)
+
+Anyway, back to the issue.
+
+The affected functions declare a 64-bit integer object with automatic storage class:
+
+    u64 alen = ctx->len.u[0];
+
+and then operate on it:
+
+    alen += len;
+
+GCC, under appropriate conditions, generates code that performs a packed-quadword operation (specifically a PADDQ) with alen as the destination. That requires alen have 64-bit alignment. However, the generated code puts alen on a 32-bit boundary; examining its address before the trap occurs confirms it ends with 0x8.
+
+The fix we're using is to add -mstackrealign to the build flags for OpenSSL on GCC x86 platforms. That adds prologue code to each function which checks the stack alignment at runtime and fixes it if necessary. Unfortunately this does mean some performance cost, obviously, which we have not yet tried to measure.
+
+After quite a bit of investigation, we're fairly confident we'd call this a GCC bug. It looks like a consequence of the "fix" for GCC bug 65105, which was made a couple of years ago, to use XMM registers in 32-bit generated code on x86. GCC has an unfortunate history of assuming stronger stack-alignment rules on this platform than are required by the ISA or enforced by other languages and compilers, and some members of the GCC team are a bit notorious for their ... enthusiasm ... in justifying this position.
+
+We have not yet attempted to raise this as a GCC bug, because, well, I've read those discussions in the GCC forums.
+
+-- 
+Michael Wojcik
+
+From prithvi.raj_r at nokia.com  Tue Apr 30 13:06:52 2024
+From: prithvi.raj_r at nokia.com (Prithvi Raj R (Nokia))
+Date: Tue, 30 Apr 2024 13:06:52 +0000
+Subject: Open SSL 1.1.1 and Vxworks 5.4.2 - Query on Entropy source
+In-Reply-To: <AS8PR07MB829702F86E6A02A13885F440C51B2@AS8PR07MB8297.eurprd07.prod.outlook.com>
+References: <AS8PR07MB829702F86E6A02A13885F440C51B2@AS8PR07MB8297.eurprd07.prod.outlook.com>
+Message-ID: <AS8PR07MB82974428441BD44D74E6465FC51A2@AS8PR07MB8297.eurprd07.prod.outlook.com>
+
+Users,
+
+An update here: See that we have OPENSSL_RAND_SEED_OS  defined on our VxWorks based system. Would it be a trusted entropy source ? The default for VxWorks seems to be OPENSSL_RAND_SEED_NONE.
+
+Thanks,
+Prithvi
+From: Prithvi Raj R (Nokia)
+Sent: Tuesday, April 30, 2024 12:47 AM
+To: openssl-users at openssl.org
+Subject: Open SSL 1.1.1 and Vxworks 5.4.2 - Query on Entropy source
+
+Hi Users,
+
+A beginner on cryptography and Open SSL here.
+
+First query - On our VxWorks 5.4.2 based system with Open SSL 1.1.1, I would like to know what entropy source would be used by RAND_priv_bytes() to generate random numbers. Does Vxworks not use an OS based entropy source ?  I see so in the openssl link: https://mta.openssl.org/pipermail/openssl-users/2020-March/012087.html.
+In our implementation, we have the OPENSSL_RAND_SEED_NONE macro definition commented in the opensslconf.h file. What would be the default entropy source then if OS based sources are not used ? Which Open SSL config file/compile parameter can help me zero in on the correct entropy source being used ?  Wanted to know if the source is a trusted one or not. See that rand_drbg_get_entropy is being used (no parent drbg ;_rand_pool_acquire_entropy is used with entropy factor 2 being set) and entropy available is greater than 0.
+
+Second query - Please confirm if the following are valid:
+
+  1.  Understand the Entropy size by default is 256 bits.
+  2.  Understand that RAND_priv_bytes() is cryptographically secure (depends on the entropy source again ?)
+
+Thanks,
+Prithvi
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240430/22c6c765/attachment.htm>
+
+From tot191919 at outlook.com  Tue Apr 30 14:59:44 2024
+From: tot191919 at outlook.com (Tot 191919)
+Date: Tue, 30 Apr 2024 14:59:44 +0000
+Subject: Unable to verify LDAP CRL
+Message-ID: <IA2PR20MB725659FA6E519B8A618099BFBB1A2@IA2PR20MB7256.namprd20.prod.outlook.com>
+
+Hello, I am unable to validate an LDAP based CRL for any of my certificates. If I download the CRL from LDAP, decode it from base64, and then run it through OpenSSL, it works without issue. When I run an strace, it appears that openssl is looking for the certificate on the local filesystem, and my server never attempts to make a network connection to the LDAP server during the verification. I have tried running with the -verbose flag; however, that does not add any additional details. My certificate is a self-signed root cert just for the purposes of testing. Can you please advise?
+
+Running on RHEL
+
+cat /etc/redhat-release; uname -r
+Red Hat Enterprise Linux release 8.8 (Ootpa)
+4.18.0-477.36.1.el8_8.x86_64
+
+
+OpenSSL Version:
+
+OpenSSL 1.1.1k  FIPS 25 Mar 2021
+
+
+Command resulting in error:
+
+openssl verify -crl_check -CAfile test_root.pem test_root.pem
+CN = XXXX-Root-XXX-GP
+error 3 at 0 depth lookup: unable to get certificate CRL
+error test_root.pem: verification failed
+
+
+Downloading from LDAP and running file through OpenSSL:
+
+ldapsearch -o ldif-wrap=no -x -H ldap://my-ldap.example.net:389 -b "cn=CA1,ou=crl,dc=example,dc=net" "certificateRevocationList;binary" | sed -n '/^certificateRevocationList;binary:: /{s/^certificateRevocationList;binary:: //p}' > crl.base64
+base64 -d crl.base64 > crl.der
+openssl crl -inform DER -text -noout -in crl.der
+Certificate Revocation List (CRL):
+        Version 2 (0x1)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C = US, O = XXXX, CN = XXXX-CRL-GP
+        Last Update: Apr 27 05:31:19 2024 GMT
+        Next Update: May 27 05:31:19 2024 GMT
+Revoked Certificates:
+    Serial Number: 56D5B8C0EB3E0C162E9171A70D455B7D6541F702
+        Revocation Date: Apr 27 05:31:19 2024 GMT
+    Signature Algorithm: sha256WithRSAEncryption
+         38:eb:d6:b7:2e:11:66:f6:b2:b9:18:88:7b:fd:7c:4a:be:fd:
+         30:cd:85:7c:4d:77:8b:9b:bc:58:32:38:da:f1:1a:ea:af:a9:
+         fa:83:2c:39:95:e3:42:f7:40:f3:31:df:41:12:94:cb:7d:be:
+         8b:e7:74:db:e1:2f:61:23:cc:db:ca:2e:d8:05:49:22:f3:bb:
+         d9:03:21:8f:b5:8f:c4:9b:6d:ec:db:0e:69:93:d3:fc:5d:0f:
+         6a:9f:0a:55:cc:a4:ec:3d:60:79:e3:44:ea:32:5f:1f:5d:bf:
+         56:36:96:69:1e:e1:d0:7e:c1:f8:79:ba:55:83:a0:77:fc:6a:
+         15:43:61:c8:53:ac:98:59:d9:86:19:43:f8:43:15:ba:57:b8:
+         34:6e:a8:ba:5c:2f:0c:e3:b1:0c:c0:d4:be:f6:46:4e:10:57:
+         06:1c:93:f3:e8:88:0f:d5:7b:68:2f:f1:4c:29:f3:7a:ee:98:
+         04:90:84:ff:ee:bf:6f:3e:7d:b7:79:c2:af:3a:b5:53:86:92:
+         5c:c8:4f:44:7c:55:61:e9:ba:6f:ac:85:1a:55:93:8f:05:eb:
+         f3:dc:bc:be:4a:35:cc:37:1a:47:02:29:a9:32:ee:7e:1c:ec:
+         9e:bc:3c:36:03:cc:1b:0c:5e:56:3b:a9:eb:db:f2:1d:89:39:
+         d1:e0:05:86
+
+
+Here is my certificate:
+
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            42:93:9c:9d:71:47:5e:6e:63:ab:39:97:58:c6:44:21:c0:43:2d:18
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: CN = XXXX-Root-XX-GP
+        Validity
+            Not Before: Apr 27 09:36:58 2024 GMT
+            Not After : Apr 25 09:46:58 2034 GMT
+        Subject: CN = XXXX-Root-XX-GP
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    XXXXXXXX
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Subject Key Identifier:
+                5C:83:F3:7A:B9:09:FD:D2:C3:A8:A1:60:E6:F2:40:A7:B5:16:3A:C4
+            X509v3 Authority Key Identifier:
+                keyid:5C:83:F3:7A:B9:09:FD:D2:C3:A8:A1:60:E6:F2:40:A7:B5:16:3A:C4
+
+            X509v3 Subject Alternative Name:
+                DNS:XXXX-Root-XX-GP
+            X509v3 CRL Distribution Points:
+
+                Full Name:
+                  URI:ldap://my-ldap.example.net/cn=CA1,ou=crl,dc=example,dc=net?certificateRevocationList;binary
+
+    Signature Algorithm: sha256WithRSAEncryption
+         d7:49:b2:2b:e6:f7:95:5a:38:48:cf:36:0e:b6:ca:20:01:c7:
+         0e:d3:62:17:94:ce:44:76:99:06:7f:d5:91:95:2c:a5:42:3f:
+         46:af:7a:38:85:2f:17:ba:db:50:45:c5:c0:0e:97:7a:e8:d7:
+         4f:55:bf:6e:84:85:be:fd:a6:82:a2:c8:60:bb:d5:b8:74:fb:
+         cf:07:a4:5b:ec:8b:f5:a2:d4:4a:a4:5c:35:ad:80:19:cf:ed:
+         36:23:8d:4a:94:cc:5f:f4:c0:82:44:5e:6a:52:50:c8:b0:9c:
+         3b:1f:a4:4c:9e:f8:27:e9:29:be:c4:2c:fc:20:a5:48:21:47:
+         03:ef:9e:f7:84:61:48:d2:3a:f5:f6:bd:a5:f1:e0:8b:56:08:
+         5f:1b:fa:9a:da:8d:9a:13:5b:0b:7d:64:46:ff:23:56:7e:5d:
+         07:31:32:02:75:52:5f:a8:f2:1f:41:c0:7f:6b:46:dd:bb:02:
+         47:61:61:01:a8:dc:c6:f1:4a:93:07:05:04:e7:bd:c5:53:2f:
+         04:1e:0f:9d:83:7f:d0:75:62:fc:0c:11:fe:2a:a5:fb:47:b5:
+         84:93:ef:0e:23:5b:e3:62:72:28:c4:4e:8c:85:13:fe:7e:42:
+         15:03:c6:9a:39:fb:b7:8a:df:84:c9:15:89:fc:f3:1e:6e:c9:
+         33:de:3d:c8
+
+
+I am able to curl LDAP successfully to get the CRL back ... I am also able retrieve the CRL via an LDAP search:
+
+curl ldap://my-ldap.example.net:389/cn=CA1,ou=crl,dc=ldap,dc=net?certificateRevocationList;binary
+
+DN: cn=CA1,ou=crl,dc=example,dc=net
+??certificateRevocationList;binary::XXXXXXXX
+
+ldapsearch -o ldif-wrap=no -x -H ldap://my-server.example.net:389 -b "cn=CA1,ou=crl,dc=example,dc=net" "certificateRevocationList;binary"
+# extended LDIF
+#
+# LDAPv3
+# base <cn=CA1,ou=crl,dc=example,dc=net> with scope subtree
+# filter: (objectclass=*)
+# requesting: certificateRevocationList;binary
+#
+
+# CA1, crl, example.net
+dn: cn=CA1,ou=crl,dc=example,dc=net
+certificateRevocationList;binary::XXXXXXX
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+
+
+Adding strace where I am seeing an error related to searching for a local file that is not specified in my cert or CRL.
+
+openat(AT_FDCWD, "test_root.pem", O_RDONLY) = 3
+fstat(3, {st_mode=S_IFREG|0640, st_size=1342, ...}) = 0
+read(3, "-----BEGIN CERTIFICATE-----\nMIID"..., 4096) = 1342
+close(3)                                = 0
+openat(AT_FDCWD, "/etc/localtime", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=3561, ...}) = 0
+fstat(3, {st_mode=S_IFREG|0644, st_size=3561, ...}) = 0
+read(3, "TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\6\0\0\0\6\0\0\0\0"..., 4096) = 3561
+lseek(3, -2269, SEEK_CUR)               = 1292
+read(3, "TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\6\0\0\0\6\0\0\0\0"..., 4096) = 2269
+close(3)                                = 0
+**stat("/etc/pki/tls/certs/78fcdcfd.r0", 0x7fff0080a5e0) = -1 ENOENT (No such file or directory)**
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <https://mta.openssl.org/pipermail/openssl-users/attachments/20240430/8f9b7ac6/attachment-0001.htm>
+

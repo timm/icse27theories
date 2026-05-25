@@ -1,0 +1,18 @@
+project:
+  website: https://github.com/apache/openssl
+
+version_control:
+  log: /Users/timm/gits/timm/icse27theories/data/openssl/git_repo/.git
+  log_url: https://github.com/apache/openssl
+  branch:
+    - master
+
+commit_message_id_regex:
+  issue_id: "#[0-9]+"
+
+filter:
+  keep_filepaths_ending_with:
+    - c
+    - h
+  remove_filepaths_containing:
+    - test

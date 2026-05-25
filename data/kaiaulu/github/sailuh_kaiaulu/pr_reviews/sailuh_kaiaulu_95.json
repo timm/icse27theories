@@ -1,0 +1,42 @@
+[
+  {
+    "id": 666210727,
+    "node_id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2MjEwNzI3",
+    "user": {
+      "login": "carlosparadis",
+      "id": 17270563,
+      "node_id": "MDQ6VXNlcjE3MjcwNTYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17270563?u=959ed3d365c2a705f071c0bf120bb1096b1b6940&v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/carlosparadis",
+      "html_url": "https://github.com/carlosparadis",
+      "followers_url": "https://api.github.com/users/carlosparadis/followers",
+      "following_url": "https://api.github.com/users/carlosparadis/following{/other_user}",
+      "gists_url": "https://api.github.com/users/carlosparadis/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/carlosparadis/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/carlosparadis/subscriptions",
+      "organizations_url": "https://api.github.com/users/carlosparadis/orgs",
+      "repos_url": "https://api.github.com/users/carlosparadis/repos",
+      "events_url": "https://api.github.com/users/carlosparadis/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/carlosparadis/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "@CorneJB What you have is fine! I can make the other columns in `parse_mbox` optional. Truth be told, the only information we need to construct the networks and the social smells is what you captured. I only included other stuff from Apache's in the case in the future we could need it. In retrospect, it is best whatever is not strictly required for social smells remains optional for clarity on what is needed and what is not needed.\r\n\r\nLooking on Perceval's pipermail is okay too to see if we are missing anything, but we want to keep the 3rd party dependencies to a minimum where possible and don't require an extensive wheel reinventing. For perceval in particular, others were unable to run on Windows which makes that portion of Kaiaulu also not work. For the time being, I think this passes all checks I can think of! \r\n\r\nI will go ahead and open a new issue as a self-reminder to check if the field exists for all the other unnecessary columns for `pase_mbox()`.\r\n\r\np.s: Since you are now familiarized with the XML and httr libraries, if you would have any interest to convert that little shell script: https://github.com/sailuh/kaiaulu/blob/master/mbox_downloader.sh into another downloader function so the codebase could finally be fully in R, please feel free to tackle #99. No pressure :^) ",
+    "state": "APPROVED",
+    "html_url": "https://github.com/sailuh/kaiaulu/pull/95#pullrequestreview-666210727",
+    "pull_request_url": "https://api.github.com/repos/sailuh/kaiaulu/pulls/95",
+    "author_association": "MEMBER",
+    "_links": {
+      "html": {
+        "href": "https://github.com/sailuh/kaiaulu/pull/95#pullrequestreview-666210727"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/sailuh/kaiaulu/pulls/95"
+      }
+    },
+    "submitted_at": "2021-05-22T21:00:01Z",
+    "commit_id": "d773640dcb7dc67db862ef231a2feda37910a8e0"
+  }
+]

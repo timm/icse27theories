@@ -1,0 +1,2 @@
+project,Jr_n,Tr_n,Sr_n,train_rate,promote_rate,n_slices,slice_days,seed
+airflow,1221,94,23,0.853848114169215,0.133839389414302,28,90,1
