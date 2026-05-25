@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>defmap — SD-Theses</title>
+<title>defmap (1991) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>defmap<span class="tag">universal cell</span></h1>
+<h1>defmap <span class="dim" style="font-weight:400;">(1991)</span><span class="tag">universal cell</span></h1>
 <p class="sub-title">Abdel-Hamid &amp; Madnick (1991) — defect-management submodel.</p>
 
 <div class="tabs">
@@ -102,7 +102,40 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_defmap.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>End-to-end notebook: <code>lifts/lift_defmap.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">tool &lt;- parse_config(&quot;../tools.yml&quot;)
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)
+git_repo_path &lt;- get_git_repo_path(conf)
+perceval_path &lt;- get_tool_project(&quot;perceval&quot;, tool)</code></pre>
+<pre><code class="language-r">project_git &lt;- parse_gitlog(perceval_path, git_repo_path) %&gt;%
+  filter_by_file_extension(get_file_extensions(conf), &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(get_substring_filepath(conf), &quot;file_pathname&quot;)
+project_git$author_datetimetz &lt;- as.POSIXct(project_git$author_datetimetz,
+                                            format = &quot;%a %b %d %H:%M:%S %Y %z&quot;,
+                                            tz = &quot;UTC&quot;)
+szz &lt;- parse_szz_bugfixes(&quot;../data/helix/derived/szz_pairs.csv&quot;)</code></pre>
+<pre><code class="language-r">tag_dates &lt;- get_tag_dates(git_repo_path)
+kable(head(tag_dates, 20))
+nrow(tag_dates)</code></pre>
+<pre><code class="language-r">phases &lt;- compute_per_phase_defects(szz, project_git, tag_dates)
+kable(phases)
+summary(phases$tst_proxy)</code></pre>
+<pre><code class="language-r">dir.create(&quot;../outputs&quot;, showWarnings = FALSE)
+out &lt;- data.table(project       = &quot;helix&quot;,
+                  tst_median    = median(phases$tst_proxy, na.rm = TRUE),
+                  tst_mean      = mean(phases$tst_proxy,   na.rm = TRUE),
+                  total_inject  = sum(phases$injected,  na.rm = TRUE),
+                  total_caught  = sum(phases$caught,    na.rm = TRUE),
+                  total_leaked  = sum(phases$leaked,    na.rm = TRUE),
+                  n_phases      = nrow(phases),
+                  seed          = seed)
+fwrite(out, &quot;../outputs/lift_defmap_helix.csv&quot;)
+kable(out)</code></pre>
   </div>
 
   <div id="panel-4" class="tab-content">

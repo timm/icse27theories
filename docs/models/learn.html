@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>learn — SD-Theses</title>
+<title>learn (2000) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>learn<span class="tag">process-cond. cell</span></h1>
+<h1>learn <span class="dim" style="font-weight:400;">(2000)</span><span class="tag">process-cond. cell</span></h1>
 <p class="sub-title">Sterman, J. (2000). Business Dynamics, ch. 18.</p>
 
 <div class="tabs">
@@ -98,7 +98,51 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_learn.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>End-to-end notebook: <code>lifts/lift_learn.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">tool &lt;- parse_config(&quot;../tools.yml&quot;)
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)
+git_repo_path &lt;- get_git_repo_path(conf)
+perceval_path &lt;- get_tool_project(&quot;perceval&quot;, tool)</code></pre>
+<pre><code class="language-r">project_git &lt;- parse_gitlog(perceval_path, git_repo_path) %&gt;%
+  filter_by_file_extension(get_file_extensions(conf), &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(get_substring_filepath(conf), &quot;file_pathname&quot;)
+project_git$author_datetimetz &lt;- as.POSIXct(project_git$author_datetimetz,
+                                            format = &quot;%a %b %d %H:%M:%S %Y %z&quot;,
+                                            tz = &quot;UTC&quot;)
+project_git &lt;- identity_match(list(git_log = project_git),
+                              c(&quot;author_name_email&quot;),
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = &quot;identity_id&quot;)$git_log
+uniqueN(project_git$identity_id)</code></pre>
+<pre><code class="language-r">cohorts &lt;- compute_cohorts(project_git,
+                           jr_max_days = 365,
+                           sr_min_days = 1095)
+kable(head(cohorts[order(-tenure_days)], 20))
+table(cohorts$cohort)</code></pre>
+<pre><code class="language-r">rates &lt;- estimate_transition_rates(project_git,
+                                   jr_max_days = 365,
+                                   sr_min_days = 1095)
+str(rates)</code></pre>
+<pre><code class="language-r">dir.create(&quot;../outputs&quot;, showWarnings = FALSE)
+counts &lt;- table(cohorts$cohort)
+out &lt;- data.table(
+  project       = &quot;helix&quot;,
+  Jr_n          = as.integer(counts[&quot;Jr&quot;]),
+  Tr_n          = as.integer(counts[&quot;Tr&quot;]),
+  Sr_n          = as.integer(counts[&quot;Sr&quot;]),
+  train_rate    = rates$train_rate,
+  promote_rate  = rates$promote_rate,
+  n_slices      = rates$n_slices,
+  seed          = seed
+)
+fwrite(out, &quot;../outputs/lift_learn_helix.csv&quot;)
+kable(out)</code></pre>
   </div>
 
   <div id="panel-4" class="tab-content">

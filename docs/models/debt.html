@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>debt — SD-Theses</title>
+<title>debt (1992) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>debt<span class="tag">universal cell</span></h1>
+<h1>debt <span class="dim" style="font-weight:400;">(1992)</span><span class="tag">universal cell</span></h1>
 <p class="sub-title">Cunningham, W. (1992). The WyCash Portfolio Management System.</p>
 
 <div class="tabs">
@@ -100,7 +100,63 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_debt.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>End-to-end notebook: <code>lifts/lift_debt.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu)
+require(data.table)
+require(stringi)
+require(knitr)
+require(yaml)
+require(magrittr)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">tool &lt;- parse_config(&quot;../tools.yml&quot;)
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)
+
+perceval_path  &lt;- get_tool_project(&quot;perceval&quot;, tool)
+refminer_path  &lt;- tool$refactoring_miner$executable
+git_repo_path  &lt;- get_git_repo_path(conf)
+
+file_extensions    &lt;- get_file_extensions(conf)
+substring_filepath &lt;- get_substring_filepath(conf)</code></pre>
+<pre><code class="language-r">project_git &lt;- parse_gitlog(perceval_path, git_repo_path)
+
+project_git &lt;- project_git %&gt;%
+  filter_by_file_extension(file_extensions, &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(substring_filepath, &quot;file_pathname&quot;)
+
+project_git$author_datetimetz &lt;- as.POSIXct(project_git$author_datetimetz,
+                                            format = &quot;%a %b %d %H:%M:%S %Y %z&quot;,
+                                            tz = &quot;UTC&quot;)</code></pre>
+<pre><code class="language-r">refminer_json &lt;- &quot;../data/helix/derived/refminer.json&quot;
+refactorings  &lt;- flatten_refactoring_json(refminer_json)
+
+nrow(refactorings)
+length(unique(refactorings$commit_hash))
+table(refactorings$refactoring_type)[1:10]</code></pre>
+<pre><code class="language-r">window_days &lt;- 90
+pay_rate_table &lt;- compute_pay_rate(project_git, refactorings,
+                                   window_days = window_days)
+kable(head(pay_rate_table, 20))
+summary(pay_rate_table$pay_rate)</code></pre>
+<pre><code class="language-r">born_rate_table &lt;- compute_born_rate_proxy(project_git,
+                                           window_days = window_days,
+                                           big_commit_files = 5)
+kable(head(born_rate_table, 20))
+summary(born_rate_table$born_rate)</code></pre>
+<pre><code class="language-r">out &lt;- data.table(
+  project           = &quot;helix&quot;,
+  pay_rate_median   = median(pay_rate_table$pay_rate,   na.rm = TRUE),
+  pay_rate_mean     = mean(pay_rate_table$pay_rate,     na.rm = TRUE),
+  born_rate_median  = median(born_rate_table$born_rate, na.rm = TRUE),
+  born_rate_mean    = mean(born_rate_table$born_rate,   na.rm = TRUE),
+  n_refactor_events = nrow(refactorings),
+  n_commits         = uniqueN(project_git$commit_hash),
+  window_days       = window_days,
+  seed              = seed
+)
+fwrite(out, &quot;../outputs/lift_debt_helix.csv&quot;)
+kable(out)</code></pre>
   </div>
 
   <div id="panel-4" class="tab-content">

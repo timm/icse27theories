@@ -178,6 +178,7 @@ def render_refs(name):
 
 MODELS = {
     "diapers": dict(
+        year=2016,
         cite="Toy demonstrator (no real-world referent).",
         cell="dark",
         intro="Smallest possible compartmental model used to demonstrate the framework's machinery. Has no Brooks- or Sterman-style intent — it exists to show the SD harness running end-to-end with one stock and one flow.",
@@ -195,6 +196,7 @@ MODELS = {
         ],
     ),
     "brooks": dict(
+        year=1975,
         manual=True,  # hand-tuned page in docs/models/brooks.html; generator skips
         cite="Brooks, F. P. (1975). The Mythical Man-Month.",
         cell="universal",
@@ -217,6 +219,7 @@ MODELS = {
         ],
     ),
     "bugs": dict(
+        year=1979,
         cite="Goel, A. L. & Okumoto, K. (1979). Time-dependent error-detection rate model.",
         cell="process-cond.",
         intro="Software-reliability-growth: cumulative defects discovered N(t) follows an exponential approach to an asymptote a. The discovery rate b decays as Latent bugs are removed from the system.",
@@ -237,6 +240,7 @@ MODELS = {
         ],
     ),
     "debt": dict(
+        year=1992,
         cite="Cunningham, W. (1992). The WyCash Portfolio Management System.",
         cell="universal",
         intro="Technical debt accumulates as you ship fast. The debt then slows down future shipping, creating a feedback loop. Three params: born_rate (new debt per ship), intr_rate (compounding interest on existing debt), pay_rate (debt paid down by refactoring).",
@@ -261,6 +265,7 @@ MODELS = {
         ],
     ),
     "sir": dict(
+        year=1927,
         cite="Kermack, W. O. & McKendrick, A. G. (1927). A contribution to the mathematical theory of epidemics.",
         cell="universal",
         intro="Adapted from epidemiology: bad architectural patterns spread through a codebase like a contagious disease. Susceptible files (S), Infected files (I), Recovered files (R, refactored). Beta = infection rate via dependency edges. Gamma = recovery (refactor) rate.",
@@ -281,6 +286,7 @@ MODELS = {
         ],
     ),
     "rework": dict(
+        year=1991,
         cite="Abdel-Hamid, T. & Madnick, S. E. (1991). Software Project Dynamics.",
         cell="universal",
         intro="Hidden rework cycle: Req → Dev → Test branches into pass-or-rework. High failure rate trapping work in the Rew loop dominates output. The ctrl is failrate — the fraction of Test outputs that fall back to Rew rather than passing to Done.",
@@ -305,6 +311,7 @@ MODELS = {
         ],
     ),
     "learn": dict(
+        year=2000,
         cite="Sterman, J. (2000). Business Dynamics, ch. 18.",
         cell="process-cond.",
         intro="Workforce-flow pipeline: Jr → Tr → Sr → Ment(or). The senior stock Sr is the ctrl. Thesis: remove seniors (Sr=0) and the training pipeline starves — juniors have no mentors to graduate toward.",
@@ -325,6 +332,7 @@ MODELS = {
         ],
     ),
     "brooksq": dict(
+        year=2008,
         cite="Brooks (1975) + Madachy, R. (2008). Software Process Dynamics.",
         cell="fragile",
         intro="Brooks's quality side: late hires don't just slow veterans, they also inject more bugs that leak into the field. Five stocks (Vet, New, Done, Bugs, Esc) + inj_rate (injection per Vet-prod) + leak_rate (fraction of bugs not caught quickly).",
@@ -349,6 +357,7 @@ MODELS = {
         ],
     ),
     "defmap": dict(
+        year=1991,
         cite="Abdel-Hamid & Madnick (1991) — defect-management submodel.",
         cell="universal",
         intro="Defect flow: Injected → Caught (by testing) or → Latent → Prod (field-escape). The ctrl tst (testing intensity) modulates how many defects get Caught before reaching Prod.",
@@ -359,6 +368,7 @@ MODELS = {
         results="Lifted via SZZ phase-partition. tst_proxy = caught-within-phase / injected-within-phase. Helix 0.375, junit5 0.15, Ambari 0.098, tomcat 0.085. All projects operate in the LOW-tst (predicted-bad) regime, with Helix the least-bad.",
     ),
     "aiwork": dict(
+        year=2024,
         cite="GitClear (2024) + Becker et al. (METR, 2025): AI churn vs gen tradeoff.",
         cell="universal",
         intro="AI-assisted development creates a churn-vs-gen tradeoff: AI generates more code (raises Kept) but also more churn (raises Churned, the discard rate). The net depends on whether genuine learning happens or just velocity-of-deletion.",
@@ -369,6 +379,7 @@ MODELS = {
         results="Structurally unlifted. Methodological worked example: the framework can express this thesis, but no field data source can calibrate it. That gap is itself a contribution.",
     ),
     "flaky": dict(
+        year=2014,
         cite="Luo et al. (2014). An empirical analysis of flaky tests.",
         cell="universal",
         intro="Flakiness compounds: flaky tests slow CI feedback → bugs leak into mainline → more flakiness. The model treats Flaky as a stock fed by chaotic interactions in Tests, drained by CI Discipline.",
@@ -379,6 +390,7 @@ MODELS = {
         results="Highest-priority dark model to lift in future sessions — public data exists, parser missing.",
     ),
     "dora": dict(
+        year=2018,
         cite="Forsgren, N., Humble, J., & Kim, G. (2018). Accelerate.",
         cell="universal",
         intro="DORA's deploy-cycle dynamic: larger batches → higher change-failure rate (CFR) → longer mean-time-to-recover (MTTR) → bottleneck on the next deploy. Four params: batch_size (ctrl), cfr_coef, arrival_rate, rec_rate.",
@@ -389,6 +401,7 @@ MODELS = {
         results="Lifted on 7 projects via tag-deploy + SZZ-CFR-and-MTTR. Helix batch=73.9, MTTR=88d; junit5 batch=38.4, MTTR=73d; openssl batch=54.8, MTTR=686d (huge — old project with infrequent tags). All projects operate above the model's batch=50 threshold or with very long MTTR; the predicted-bad regime is the common case.",
     ),
     "micro": dict(
+        year=2015,
         cite="Newman, S. (2015). Building Microservices.",
         cell="process-cond.",
         intro="Service-architecture coupling dynamic: more services lower local deploy risk but increase cross-service failure cascades. Stocks track Services, Couplings, and Cascades.",
@@ -399,6 +412,7 @@ MODELS = {
         results="Structurally unlifted on the current 8-project family. Would need a microservice-style OSS project + k8s/Helm manifest scrape.",
     ),
     "teamtopo": dict(
+        year=2019,
         cite="Skelton, M. & Pais, M. (2019). Team Topologies.",
         cell="universal",
         intro="Team-shape constraints throughput: stream-aligned teams in tight coupling produce sub-linear scaling. Cognitive load on each team becomes the bottleneck.",
@@ -409,6 +423,7 @@ MODELS = {
         results="Structurally unlifted. Methodological case: framework expresses the thesis, the field does not collect the data.",
     ),
     "burnout": dict(
+        year=2024,
         cite="DORA wellbeing report (2024) + Maslach inventory.",
         cell="process-cond.",
         intro="Long hours and emotional exhaustion degrade output. Stocks: Energy, Exhaustion, Output. Recovery rate competes with depletion rate.",
@@ -419,6 +434,7 @@ MODELS = {
         results="Structurally unlifted. Methodological case alongside aiwork and aidebt.",
     ),
     "aidebt": dict(
+        year=2024,
         cite="Speculative SE-2026 thesis (composite of GitClear + technical-debt literature).",
         cell="world-cond.",
         intro="AI-generated code accelerates feature delivery but accumulates a deferred debt cost (hidden complexity, less-maintainable patterns). The model exhibits a regime crossover near tmax ≈ 26 — early AI use looks net-positive, late accumulation goes net-negative.",
@@ -429,6 +445,7 @@ MODELS = {
         results="The most interesting dark model. The regime-crossover at tmax ≈ 26 places it in the world-conditional cell (robust to params, fragile to inputs). The only model where the default rq() verdict is REFUTE.",
     ),
     "archpat": dict(
+        year=1992,
         cite="Martin, R. C. (2008). Clean Architecture. + Perry, D. E. & Wolf, A. L. (1992). Foundations for the study of software architecture.",
         cell="fragile",
         intro="Three architectural regions: Patterned (under good architecture), Legacy (not), Drift (was patterned, eroded). Migration moves Legacy → Patterned at rate proportional to migrate_rate · available_effort. Decay (Perry-Wolf erosion) moves Patterned → Drift.",
@@ -439,6 +456,7 @@ MODELS = {
         results="Lifted on Helix and Ambari via pattern4 (GoF) + RefactoringMiner + SZZ. Both projects exceed model.Legacy hi=200 (Helix 384, Ambari 1890); Ambari exceeds Patterned hi=200 (381). Calibrated rq() gap widens from +229 to +390 with Helix's larger Legacy. junit5 lift blocked by Gradle JDK 25 toolchain mismatch.",
     ),
     "congruence": dict(
+        year=2008,
         cite="Newman, M. E. J. (2015). Networks: An Introduction. + Blondel et al. (2008) Louvain communities.",
         cell="universal",
         intro="Boundary-spanning developers (\"brokers\") hold a fragmented communication graph together. If brokers leave, the graph fragments, sub-communities lose context, net cohesive work collapses.",
@@ -546,13 +564,33 @@ def render_cross_project_for_model(model_name, cp):
     return "\n".join(out)
 
 
-def lift_pane_body(meta):
+def extract_rmd_code_chunks(rmd_path):
+    """Return list of (lang, code) tuples from a Rmd file's fenced chunks."""
+    if not rmd_path.exists():
+        return []
+    src = rmd_path.read_text()
+    pat = re.compile(r"```\{r[^}]*\}\n(.*?)\n```", re.S)
+    return [m.group(1) for m in pat.finditer(src)]
+
+
+def lift_pane_body(meta, name):
     if meta["lifted"]:
-        return (
-            f'<p>The lift is documented end-to-end in '
-            f'<code>{html.escape(meta["lift_rmd"])}</code> — kaiaulu-vignette '
-            f'style, knit to HTML, branchable into kaiaulu as a PR.</p>'
+        rmd_rel = meta["lift_rmd"]
+        rmd_abs = ROOT / rmd_rel
+        chunks  = extract_rmd_code_chunks(rmd_abs)
+        head = (
+            f'<p>End-to-end notebook: <code>{html.escape(rmd_rel)}</code> '
+            f'(kaiaulu vignette style; knits to HTML; branchable into kaiaulu '
+            f'as a PR). The R chunks below are the substantive lift logic.</p>'
         )
+        if not chunks:
+            return head + '<p class="dim">No fenced R chunks found in the .Rmd.</p>'
+        body_parts = []
+        for c in chunks:
+            body_parts.append(
+                f'<pre><code class="language-r">{html.escape(c)}</code></pre>'
+            )
+        return head + "\n".join(body_parts)
     return (
         f'<p>This model has not been lifted on any project.</p>'
         f'<div class="callout"><span class="label">why not</span>'
@@ -580,7 +618,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{name} — SD-Theses</title>
+<title>{name} ({year}) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -601,7 +639,7 @@ TEMPLATE = """<!doctype html>
 
 <main>
 
-<h1>{name}<span class="tag">{cell} cell</span></h1>
+<h1>{name} <span class="dim" style="font-weight:400;">({year})</span><span class="tag">{cell} cell</span></h1>
 <p class="sub-title">{cite}</p>
 
 <div class="tabs">
@@ -688,6 +726,7 @@ def main():
         model_code = html.escape(extract_model_code(name))
         page = TEMPLATE.format(
             name           = name,
+            year           = meta.get("year", "—"),
             cell           = meta["cell"],
             cite           = html.escape(meta["cite"]),
             intro          = html.escape(meta["intro"]),
@@ -695,7 +734,7 @@ def main():
             rq_text        = html.escape(meta["rq_text"]),
             lift_status    = render_lift_status(meta),
             model_code     = model_code,
-            lift_pane      = lift_pane_body(meta),
+            lift_pane      = lift_pane_body(meta, name),
             attrs_pane     = attrs_pane_body(meta),
             scorecard_rows = render_scorecard_rows(name, audit),
             results        = html.escape(meta["results"]),

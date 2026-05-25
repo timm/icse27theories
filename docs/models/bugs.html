@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bugs — SD-Theses</title>
+<title>bugs (1979) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>bugs<span class="tag">process-cond. cell</span></h1>
+<h1>bugs <span class="dim" style="font-weight:400;">(1979)</span><span class="tag">process-cond. cell</span></h1>
 <p class="sub-title">Goel, A. L. &amp; Okumoto, K. (1979). Time-dependent error-detection rate model.</p>
 
 <div class="tabs">
@@ -95,7 +95,79 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_bugs.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>End-to-end notebook: <code>lifts/lift_bugs.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(jsonlite)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">gh_issue_glob &lt;- &quot;/Users/timm/Downloads/helix/github/apache_helix/issue/*.json&quot;</code></pre>
+<pre><code class="language-r">files &lt;- Sys.glob(gh_issue_glob)
+cat(&quot;Issue files:&quot;, length(files), &quot;\n&quot;)
+
+issues &lt;- rbindlist(lapply(files, function(f) {
+  d &lt;- fromJSON(f, simplifyVector = FALSE)
+  if (is.list(d) &amp;&amp; !is.null(d[[1]]$id)) {
+    # list of issues
+    rbindlist(lapply(d, function(i) {
+      labels &lt;- vapply(i$labels %||% list(), `[[`, &quot;&quot;, &quot;name&quot;)
+      data.table(
+        id        = as.integer(i$id %||% NA),
+        state     = i$state %||% NA_character_,
+        labels    = paste(labels, collapse = &quot;;&quot;),
+        closed_at = i$closed_at %||% NA_character_
+      )
+    }), fill = TRUE)
+  } else if (is.list(d) &amp;&amp; &quot;issues&quot; %in% names(d)) {
+    rbindlist(lapply(d$issues, function(i) data.table(
+      id = as.integer(i$id %||% NA),
+      state = i$state %||% NA_character_,
+      labels = &quot;&quot;,
+      closed_at = i$closed_at %||% NA_character_
+    )), fill = TRUE)
+  } else NULL
+}), fill = TRUE)
+
+cat(&quot;Total issues parsed:&quot;, nrow(issues), &quot;\n&quot;)
+cat(&quot;States:\n&quot;); print(table(issues$state))</code></pre>
+<pre><code class="language-r">bugs &lt;- issues[grepl(&quot;bug&quot;, labels, ignore.case = TRUE) &amp;
+               !is.na(closed_at) &amp; closed_at != &quot;&quot;]
+cat(&quot;Bug-labeled + closed:&quot;, nrow(bugs), &quot;\n&quot;)
+bugs[, closed_ts := as.POSIXct(closed_at, format = &quot;%Y-%m-%dT%H:%M:%SZ&quot;,
+                               tz = &quot;UTC&quot;)]
+setorder(bugs, closed_ts)</code></pre>
+<pre><code class="language-r">t0       &lt;- min(bugs$closed_ts)
+rel_t    &lt;- as.numeric(difftime(bugs$closed_ts, t0, units = &quot;secs&quot;))
+cum_N    &lt;- seq_along(rel_t)
+mean_N   &lt;- mean(cum_N)
+ss_tot   &lt;- sum((cum_N - mean_N)^2)
+a_max    &lt;- max(cum_N) * 1.2
+best     &lt;- list(a = NA, b = NA, sse = Inf)
+for (a in a_max * c(0.8, 1.0, 1.2, 1.5, 2.0, 3.0)) {
+  for (b in c(1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4)) {
+    pred &lt;- a * (1 - exp(-b * rel_t))
+    sse  &lt;- sum((pred - cum_N)^2)
+    if (sse &lt; best$sse) best &lt;- list(a = a, b = b, sse = sse)
+  }
+}
+r2 &lt;- 1 - best$sse / ss_tot
+cat(sprintf(&quot;Goel-Okumoto: a=%.2f  b=%.3e  R^2=%.4f\n&quot;,
+            best$a, best$b, r2))
+span_days &lt;- as.numeric(difftime(max(bugs$closed_ts), t0, units = &quot;days&quot;))
+cat(sprintf(&quot;Span: %.1f days\n&quot;, span_days))</code></pre>
+<pre><code class="language-r">dir.create(&quot;../outputs&quot;, showWarnings = FALSE)
+out &lt;- data.table(
+  project         = &quot;helix&quot;,
+  n_issues_total  = nrow(issues),
+  n_bugs_closed   = nrow(bugs),
+  gokumoto_a      = best$a,
+  gokumoto_b      = best$b,
+  fit_r2          = r2,
+  span_days       = span_days,
+  seed            = seed
+)
+fwrite(out, &quot;../outputs/lift_bugs_helix.csv&quot;)
+kable(out)</code></pre>
   </div>
 
   <div id="panel-4" class="tab-content">

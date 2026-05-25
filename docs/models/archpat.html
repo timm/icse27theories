@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>archpat — SD-Theses</title>
+<title>archpat (1992) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>archpat<span class="tag">fragile cell</span></h1>
+<h1>archpat <span class="dim" style="font-weight:400;">(1992)</span><span class="tag">fragile cell</span></h1>
 <p class="sub-title">Martin, R. C. (2008). Clean Architecture. + Perry, D. E. &amp; Wolf, A. L. (1992). Foundations for the study of software architecture.</p>
 
 <div class="tabs">
@@ -137,7 +137,67 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_archpat.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>End-to-end notebook: <code>lifts/lift_archpat.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr); require(jsonlite)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">tool &lt;- parse_config(&quot;../tools.yml&quot;)
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)
+
+perceval_path &lt;- get_tool_project(&quot;perceval&quot;, tool)
+git_repo_path &lt;- get_git_repo_path(conf)</code></pre>
+<pre><code class="language-r">project_git &lt;- parse_gitlog(perceval_path, git_repo_path) %&gt;%
+  filter_by_file_extension(get_file_extensions(conf), &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(get_substring_filepath(conf),
+                               &quot;file_pathname&quot;)
+project_git$author_datetimetz &lt;- as.POSIXct(project_git$author_datetimetz,
+                                            format = &quot;%a %b %d %H:%M:%S %Y %z&quot;,
+                                            tz = &quot;UTC&quot;)
+cat(&quot;gitlog rows:&quot;, nrow(project_git),
+    &quot; commits:&quot;, uniqueN(project_git$commit_hash), &quot;\n&quot;)</code></pre>
+<pre><code class="language-r">pat_dt &lt;- fread(&quot;../data/helix/derived/pattern4/patterned_files.csv&quot;)
+patterned_files &lt;- unique(pat_dt$file_pathname)
+cat(&quot;Modules scanned:&quot;, paste(unique(pat_dt$module), collapse = &quot;, &quot;), &quot;\n&quot;)
+cat(&quot;Pattern instances:&quot;, nrow(pat_dt),
+    &quot;  unique patterned files:&quot;, length(patterned_files), &quot;\n&quot;)
+cat(&quot;Pattern type distribution:\n&quot;)
+print(pat_dt[, .N, by = pattern_type][order(-N)])</code></pre>
+<pre><code class="language-r">szz &lt;- parse_szz_bugfixes(&quot;../data/helix/derived/szz_pairs.csv&quot;)
+cat(&quot;SZZ pairs:&quot;, nrow(szz),
+    &quot;  unique introducing commits:&quot;, uniqueN(szz$introducing_commit_hash), &quot;\n&quot;)
+
+intro_hashes &lt;- unique(szz$introducing_commit_hash)
+intro_files  &lt;- unique(project_git[commit_hash %in% intro_hashes,
+                                   .(commit_hash, file_pathname)])
+file_bug_freq &lt;- intro_files[, .(bug_count = uniqueN(commit_hash)),
+                              by = file_pathname]
+nrow(file_bug_freq)</code></pre>
+<pre><code class="language-r">file_churn &lt;- compute_file_churn(project_git, window_days = 180)
+nrow(file_churn)</code></pre>
+<pre><code class="language-r">partition &lt;- assign_file_partition(
+  patterned_files       = patterned_files,
+  file_bug_freq         = file_bug_freq,
+  file_churn            = file_churn,
+  legacy_bug_threshold  = 3,
+  drift_churn_threshold = 0.5
+)
+print(table(partition$stock, useNA = &quot;ifany&quot;))</code></pre>
+<pre><code class="language-r">counts &lt;- table(partition$stock)
+out &lt;- data.table(
+  project           = &quot;helix&quot;,
+  Patterned_n       = as.integer(counts[&quot;Patterned&quot;]),
+  Legacy_n          = as.integer(counts[&quot;Legacy&quot;]),
+  Drift_n           = as.integer(counts[&quot;Drift&quot;]),
+  Other_n           = as.integer(counts[&quot;Other&quot;]),
+  n_files           = nrow(partition),
+  n_patterned_input = length(patterned_files),
+  modules           = paste(unique(pat_dt$module), collapse = &quot;,&quot;),
+  seed              = seed
+)
+fwrite(out, &quot;../outputs/lift_archpat_helix.csv&quot;)
+kable(out)</code></pre>
   </div>
 
   <div id="panel-4" class="tab-content">

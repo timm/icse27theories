@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>brooksq — SD-Theses</title>
+<title>brooksq (2008) — SD-Theses</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>brooksq<span class="tag">fragile cell</span></h1>
+<h1>brooksq <span class="dim" style="font-weight:400;">(2008)</span><span class="tag">fragile cell</span></h1>
 <p class="sub-title">Brooks (1975) + Madachy, R. (2008). Software Process Dynamics.</p>
 
 <div class="tabs">
@@ -107,7 +107,82 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>The lift is documented end-to-end in <code>lifts/lift_brooksq.Rmd</code> — kaiaulu-vignette style, knit to HTML, branchable into kaiaulu as a PR.</p>
+    <p>End-to-end notebook: <code>lifts/lift_brooksq.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu)
+require(data.table)
+require(stringi)
+require(knitr)
+require(yaml)
+require(magrittr)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">tool &lt;- parse_config(&quot;../tools.yml&quot;)
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)
+
+perceval_path &lt;- get_tool_project(&quot;perceval&quot;, tool)
+git_repo_path &lt;- get_git_repo_path(conf)
+
+file_extensions    &lt;- get_file_extensions(conf)
+substring_filepath &lt;- get_substring_filepath(conf)</code></pre>
+<pre><code class="language-r">project_git &lt;- parse_gitlog(perceval_path, git_repo_path)
+
+project_git &lt;- project_git %&gt;%
+  filter_by_file_extension(file_extensions, &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(substring_filepath, &quot;file_pathname&quot;)
+
+project_git$author_datetimetz &lt;- as.POSIXct(project_git$author_datetimetz,
+                                            format = &quot;%a %b %d %H:%M:%S %Y %z&quot;,
+                                            tz = &quot;UTC&quot;)</code></pre>
+<pre><code class="language-r">project_log &lt;- list(git_log = project_git)
+name_column &lt;- c(&quot;author_name_email&quot;)
+project_log &lt;- identity_match(project_log,
+                              name_column,
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = &quot;identity_id&quot;)
+project_git &lt;- project_log$git_log</code></pre>
+<pre><code class="language-r">szz &lt;- parse_szz_bugfixes(&quot;../data/helix/derived/szz_pairs.csv&quot;)
+
+nrow(szz)
+length(unique(szz$fixing_commit_hash))
+length(unique(szz$introducing_commit_hash))</code></pre>
+<pre><code class="language-r">late_hires &lt;- detect_late_hires(project_git,
+                                min_project_age_days = 365)
+kable(head(late_hires, 20))</code></pre>
+<pre><code class="language-r">window_days &lt;- 90
+
+velocity_changes &lt;- compute_velocity_changes(project_git,
+                                             late_hires,
+                                             window_days = window_days)
+velocity_changes[, brooks_tax := (pre_velocity - post_velocity) / pre_velocity]
+
+summary(velocity_changes$brooks_tax)</code></pre>
+<pre><code class="language-r">injection_changes &lt;- compute_injection_changes(szz,
+                                               late_hires,
+                                               window_days = window_days)
+injection_changes[, inj_rate_increase := inj_rate_post - inj_rate_pre]
+
+kable(head(injection_changes, 20))
+summary(injection_changes$inj_rate_increase)</code></pre>
+<pre><code class="language-r">latency_days &lt;- 30
+leak_rate    &lt;- estimate_leak_rate(szz, latency_days = latency_days)
+leak_rate</code></pre>
+<pre><code class="language-r">out &lt;- data.table(
+  project           = &quot;helix&quot;,
+  brooks_tax_median = median(velocity_changes$brooks_tax,        na.rm = TRUE),
+  inj_rate_pre_med  = median(injection_changes$inj_rate_pre,     na.rm = TRUE),
+  inj_rate_post_med = median(injection_changes$inj_rate_post,    na.rm = TRUE),
+  inj_rate_increase = median(injection_changes$inj_rate_increase,na.rm = TRUE),
+  leak_rate         = leak_rate,
+  n_hires           = nrow(velocity_changes),
+  n_szz_pairs       = nrow(szz),
+  window_days       = window_days,
+  latency_days      = latency_days,
+  seed              = seed
+)
+fwrite(out, &quot;../outputs/lift_brooksq_helix.csv&quot;)
+kable(out)</code></pre>
   </div>
 
   <div id="panel-4" class="tab-content">
