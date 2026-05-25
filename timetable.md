@@ -33,6 +33,26 @@ Future steps S13–S20 (param plausibility, boundary adq, calibrated
 rq rerun, behavior reprod/pred, family-member, verdict write-up,
 Carlos PR review).
 
+**Update 2026-05-24 (late eve)**: **8 projects unzipped from
+Carlos's Drive bundle**, S16 now spans 8 projects:
+
+| project  | lifts done | language | comm   |
+|----------|-----------:|----------|--------|
+| Helix    | 8/8        | java     | jira+mbox|
+| junit5   | 7/8        | java     | github |
+| Ambari   | 8/8        | java     | jira+mbox|
+| kaiaulu  | 5/8        | R        | github |
+| airflow  | 6/8        | python   | mbox   |
+| openssl  | 2/8        | c        | pipermail|
+| tomcat   | 5/8        | java     | mbox   |
+| camel    | 5/8        | java     | jira   |
+
+**46 lifts total** (was 23 before unzip).
+
+F1 replication strengthened to 6 of 7 projects (kaiaulu only
+in-range, smallest sample). Paper should widen brooksq.leak_rate hi
+from 0.5 to ≥0.9.
+
 **Update 2026-05-24 (eve)**: **S16 (family-member) running across
 3 projects** via `scripts/cross_project.py` →
 `outputs/cross_project.csv`.
