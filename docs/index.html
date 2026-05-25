@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>icse27theories — SE compartmental models</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand">icse27theories<span class="sub">— SE compartmental models, falsified</span></span>
+    <nav>
+      <a href="https://github.com/timm/icse27theories">repo</a>
+      <a href="https://github.com/timm/icse27theories/blob/main/findings.md">findings</a>
+      <a href="https://github.com/timm/icse27theories/blob/main/TIMETABLE.md">timetable</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>System-Dynamics Theses of Software Engineering<span class="tag">18 models</span></h1>
+<p class="sub-title">
+  Each card below is one theory: a compartmental model + a falsifiable
+  thesis. Click for the model code, the data-lift recipe, the V&amp;V
+  scorecard, and the multi-project empirical results.
+</p>
+
+<div class="callout">
+  <span class="label">site status</span>
+  Currently 1 of 18 models has a built page (<a href="models/brooks.html">brooks</a>).
+  The remaining cards are wired with their typology + status; clicking
+  a non-built card is a no-op.
+</div>
+
+<h2>Models</h2>
+<div class="grid">
+  <a class="card universal" href="models/brooks.html">
+    <div class="name">brooks</div>
+    <div class="desc">Mythical Man-Month: late hires hurt veteran velocity.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 8/8</span></div>
+  </a>
+  <a class="card fragile disabled">
+    <div class="name">brooksq</div>
+    <div class="desc">Brooks + quality: late hires inject more bugs (split verdict).</div>
+    <div class="meta"><span class="badge">fragile</span><span>lifted 7/8</span></div>
+  </a>
+  <a class="card process disabled">
+    <div class="name">bugs</div>
+    <div class="desc">Goel-Okumoto exponential reliability growth.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>lifted 3/8</span></div>
+  </a>
+  <a class="card universal disabled">
+    <div class="name">debt</div>
+    <div class="desc">Cunningham technical debt slows shipping.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 5/8</span></div>
+  </a>
+  <a class="card universal disabled">
+    <div class="name">sir</div>
+    <div class="desc">Kermack-McKendrick: bad-pattern spread (data path now open via Depends).</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 0/8</span></div>
+  </a>
+  <a class="card universal disabled">
+    <div class="name">rework</div>
+    <div class="desc">Abdel-Hamid &amp; Madnick: hidden rework cycle.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
+  </a>
+  <a class="card process disabled">
+    <div class="name">learn</div>
+    <div class="desc">Sterman: Jr → Tr → Sr workforce flow.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>lifted 8/8</span></div>
+  </a>
+  <a class="card universal disabled">
+    <div class="name">defmap</div>
+    <div class="desc">Abdel-Hamid defect submodel: low test rate inflates Latent.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
+  </a>
+  <a class="card universal disabled">
+    <div class="name">dora</div>
+    <div class="desc">Forsgren/Humble/Kim: large batches drive CFR up.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
+  </a>
+  <a class="card fragile disabled">
+    <div class="name">archpat</div>
+    <div class="desc">Ric's claim: patterns repair already-bad codebases.</div>
+    <div class="meta"><span class="badge">fragile</span><span>lifted 2/8</span></div>
+  </a>
+  <a class="card universal disabled">
+    <div class="name">congruence</div>
+    <div class="desc">Newman/radio-silence: brokers hold fragmented projects together.</div>
+    <div class="meta"><span class="badge">universal</span><span>lifted 3/8</span></div>
+  </a>
+
+  <a class="card dark disabled">
+    <div class="name">diapers</div>
+    <div class="desc">Toy demonstrator (no real-world correspondence).</div>
+    <div class="meta"><span class="badge">dark</span><span>n/a</span></div>
+  </a>
+  <a class="card dark disabled">
+    <div class="name">aiwork</div>
+    <div class="desc">AI churn vs gen tradeoff.</div>
+    <div class="meta"><span class="badge">dark</span><span>no AI attribution data</span></div>
+  </a>
+  <a class="card dark disabled">
+    <div class="name">aidebt</div>
+    <div class="desc">AI-introduced technical debt.</div>
+    <div class="meta"><span class="badge">dark</span><span>no AI attribution data</span></div>
+  </a>
+  <a class="card dark disabled">
+    <div class="name">flaky</div>
+    <div class="desc">CI flake rates over time.</div>
+    <div class="meta"><span class="badge">dark</span><span>no CI flake logs parsed</span></div>
+  </a>
+  <a class="card dark disabled">
+    <div class="name">micro</div>
+    <div class="desc">Service architecture deploy / failure.</div>
+    <div class="meta"><span class="badge">dark</span><span>no service-arch data</span></div>
+  </a>
+  <a class="card dark disabled">
+    <div class="name">teamtopo</div>
+    <div class="desc">Skelton-Pais team-topology dynamics.</div>
+    <div class="meta"><span class="badge">dark</span><span>no org-chart data</span></div>
+  </a>
+  <a class="card dark disabled">
+    <div class="name">burnout</div>
+    <div class="desc">DORA wellbeing: long hours degrade output.</div>
+    <div class="meta"><span class="badge">dark</span><span>no HR/wellbeing data</span></div>
+  </a>
+</div>
+
+<h2>Typology (stress-matrix 2&times;2 cell)</h2>
+<table>
+  <thead>
+    <tr><th>cell</th><th>meaning</th><th>count</th><th>members</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">10</td><td class="mono dim">debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence, brooks</td></tr>
+    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">5</td><td class="mono dim">diapers, bugs, learn, micro, burnout</td></tr>
+    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">3</td><td class="mono dim">brooksq, archpat</td></tr>
+    <tr><td><span class="dim">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">1</td><td class="mono dim">aidebt (regime crossover at t&asymp;26)</td></tr>
+  </tbody>
+</table>
+
+<h2>Headline findings (full text in <a href="https://github.com/timm/icse27theories/blob/main/findings.md">findings.md</a>)</h2>
+<ul>
+  <li><strong>F0</strong> &mdash; 5 model parameters fail boundary-adequacy across multiple projects.
+      Bounds in <code>sd.py</code> too tight for mature OSS scale.</li>
+  <li><strong>F1</strong> &mdash; <code>brooksq.leak_rate</code> exceeds model <code>hi=0.5</code>
+      on 7 of 8 projects (monotonic 0.42 &rarr; 0.93 across 5 languages).</li>
+  <li><strong>F2</strong> &mdash; <code>debt.pay_rate</code> convergent across 5 Java projects
+      (0.36&ndash;0.59). Most family-coherent metric.</li>
+  <li><strong>F3</strong> &mdash; Brooks effect varies 11&times; across 8 projects
+      (Ambari 0.029 &rarr; airflow 0.311).</li>
+  <li><strong>F4</strong> &mdash; brooksq quality thesis split: Ambari supports, Helix neutral,
+      junit5 refutes.</li>
+</ul>
+
+</main>
+
+<footer>
+  Tim Menzies &middot; Rick Kazman &middot; Carlos Paradis &middot; Umar Iftikhar
+  &middot; <a href="https://github.com/timm/icse27theories">github.com/timm/icse27theories</a>
+</footer>
+
+</body>
+</html>
