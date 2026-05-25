@@ -17,6 +17,7 @@ from models.sd import (brooks, brooksq, debt, rework, defmap, dora, learn,
 KEY_METRIC = {
     'brooks':     'brooks_tax_median',
     'brooksq':    'leak_rate',
+    'bugs':       'gokumoto_a',
     'debt':       'pay_rate_median',
     'rework':     'failrate_median',
     'defmap':     'tst_median',
