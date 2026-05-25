@@ -12,6 +12,12 @@ tools/
 # Cloned datasets (large, public — re-clone from upstream)
 data/helix/git_repo/
 data/*/git_repo/
+data/helix_clean/
+data/*/mod_mbox/
+data/*/bk_mod_mbox/
+data/*/pipermail/
+data/*/jira/
+data/*/github/
 
 # Large derived artifacts (re-generate via scripts/szz_*.py + RefactoringMiner)
 data/*/derived/refminer*.json
