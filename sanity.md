@@ -16,7 +16,7 @@ Carlos's two sanity checks (2026-05-20 email §2):
 | brooks    | no               | gitlog only                    | yes (git only — single source) | identity_match exact |
 | bugs      | yes (Bug-type)   | needs JIRA dump (not done)     | no                     | n/a               |
 | debt      | no               | RefactoringMiner events        | no                     | n/a               |
-| sir       | n/a              | n/a (abstract)                 | n/a                    | n/a               |
+| sir       | no               | **Depends file-level graph (NEW path opened 2026-05-25)** | n/a               | n/a               |
 | rework    | yes (any bug)    | **commit-msg heuristic + SZZ** | no                     | n/a               |
 | learn     | no               | gitlog cohorts                 | yes (git only)         | identity_match exact |
 | brooksq   | yes (any bug)    | **commit-msg heuristic + SZZ** | yes (git only)         | identity_match exact |
@@ -84,3 +84,6 @@ What each project's bug-count source is in the current lifts:
    alongside git emails. Refines all 4 mbox-bearing projects.
 5. **Pipermail SZZ for openssl** — would unlock 3 more openssl lifts
    if regex tuned to openssl's commit conventions.
+6. **sir lift via Depends + pattern4 over time** — Depends now
+   producing dep graphs. `sir` needs (anti-pattern × time × dep-graph)
+   to model pattern spread. Expensive multi-snapshot pipeline; deferred.

@@ -1,0 +1,106 @@
+{
+  "Cast" : {
+    "name" : "Cast",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 10
+    }
+  },
+  "Call" : {
+    "name" : "Call",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 4
+    }
+  },
+  "Import" : {
+    "name" : "Import",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 0
+    }
+  },
+  "Return" : {
+    "name" : "Return",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 6
+    }
+  },
+  "Set" : {
+    "name" : "Set",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 7
+    }
+  },
+  "Use" : {
+    "name" : "Use",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 9
+    }
+  },
+  "Implement" : {
+    "name" : "Implement",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 2
+    }
+  },
+  "Annotation" : {
+    "name" : "Annotation",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 12
+    }
+  },
+  "Extend" : {
+    "name" : "Extend",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 3
+    }
+  },
+  "Create" : {
+    "name" : "Create",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 8
+    }
+  },
+  "Throw" : {
+    "name" : "Throw",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 11
+    }
+  },
+  "Parameter" : {
+    "name" : "Parameter",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 5
+    }
+  },
+  "Contain" : {
+    "name" : "Contain",
+    "id" : {
+      "family" : 0,
+      "vendor" : 2,
+      "type" : 1
+    }
+  }
+}
