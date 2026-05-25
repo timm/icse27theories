@@ -28,3 +28,7 @@ data/*/mod_mbox/
 *.swp
 .idea/
 .vscode/
+
+# Depends cwd output (writes here regardless of -o flag)
+depends.log
+depends-dv8map.mapping
