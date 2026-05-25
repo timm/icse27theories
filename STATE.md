@@ -114,3 +114,54 @@ feasibility/
 data/
   README.md               Drive link, Helix paths, dataset list
 ```
+
+---
+
+## Update 2026-05-24 → 2026-05-25 (Claude Code session)
+
+**Framework: 18 models** (was 17 — added `congruence` for
+broker-loss → fragmentation thesis, lands in "universal" 2×2 cell).
+
+**Projects lifted: 8 of 8 from Carlos's Drive bundle** (Helix,
+junit5, Ambari, kaiaulu, airflow, openssl, tomcat, camel). Coverage:
+- Helix: 9/10 informable models (only `bugs` missing — needs full JIRA)
+- Ambari: 8/8 Java models
+- Tomcat: 8/8 (incl. wider BZ regex)
+- Camel: 5/8 (debt pending RefMiner background)
+- openssl: 6/8 (no Java tools — no archpat/debt)
+- airflow: 6/8 (Python — no archpat/debt)
+- kaiaulu: 5/8 (R — no archpat/debt)
+- junit5: 7/8 (Gradle JDK toolchain mismatch blocks archpat)
+
+**~60 lift CSVs in `outputs/`** across (model × project) cells.
+
+**Key replicated findings** (`findings.md` for full prose, `sanity.md`
+for per-cell status):
+- **F0 model-bound failures across 5 params** (25/103 cells flagged):
+  brooksq.{leak_rate, inj_rate}, archpat.{Legacy, Patterned},
+  learn.Jr, congruence.{Brokers, Clusters}. Bounds were set at
+  "small project" scale; mature OSS systematically exceeds.
+- **F1 brooksq.leak_rate = 0.5 hi** violated on 7/8 projects
+  (monotonic 0.42→0.93 across 5 languages).
+- **F2 debt.pay_rate convergent** across 4 Java projects (0.36–0.59).
+- **F3 Brooks effect 11x spread** across 8 projects (Ambari 0.029 →
+  airflow 0.311 with n_hires ≥ 50).
+- **F4 brooksq quality thesis SPLIT** across 3 projects (Ambari
+  +0.094 supports, junit5 -0.011 refutes, Helix 0 neutral).
+
+**Tools installed today** (no sudo for most): PyDriller (venv),
+Perceval (venv), R 4.6 + kaiaulu pkg + CRAN deps, Temurin OpenJDK 26
+(brew --cask, needed user sudo), Maven 3.9.16, scc 3.7.0,
+RefactoringMiner 3.0.10, pattern4.jar (CLI breakthrough discovered),
+Depends 0.9.7, git-filter-repo 2.47.0, networkx + python-louvain.
+
+**Outstanding**:
+- Camel RefMiner still running in background (~24k commits, large)
+- `bugs` lift blocked on full Helix JIRA dump (Carlos's Drive has it)
+- `sir` data path opened via Depends (multi-snapshot pipeline deferred)
+- GH push blocked by 5 files >100MB; `scripts/fix_gh_push.sh`
+  prepared (uses git-filter-repo --strip-blobs-bigger-than 100M)
+
+**Key docs**: `findings.md` (paper-relevant observations),
+`TIMETABLE.md` (per-model hours), `sanity.md` (per-cell sanity
+status), `diary/` (collaborator email archive), `outputs/` (raw CSVs).
