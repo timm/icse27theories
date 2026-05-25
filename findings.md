@@ -31,24 +31,32 @@ Skipped per language/build mismatch:
 
 ### F1. **Replicated boundary-adequacy failure: brooksq.leak_rate**
 
-Confirmed on **5 of 6 projects** where the lift ran (kaiaulu the
+Confirmed on **6 of 7 projects** where the lift ran (kaiaulu the
 outlier with smallest sample):
 
 | project | leak_rate | status |
 |---------|----------:|--------|
-| kaiaulu | 0.418     | IN  (n=146 pairs, smallest) |
+| kaiaulu | 0.418     | IN  (n=146 pairs, smallest sample by ~10x) |
 | Helix   | 0.571     | OUT |
 | junit5  | 0.604     | OUT |
 | Ambari  | 0.697     | OUT |
 | camel   | 0.712     | OUT |
+| airflow | 0.825     | OUT |
 | tomcat  | 0.865     | OUT |
 
-Model's declared `hi = 0.5`. Five of six independent projects exceed
-the bound, with kaiaulu the only in-range (also the smallest sample
-by 10x). Not a one-project quirk — the model's parameter range was
-specified too narrowly to span real-world projects. Paper should
-widen the bound to ≥0.9 or revise the metric definition
+Model's declared `hi = 0.5`. Six of seven independent projects exceed
+the bound; kaiaulu the only in-range and the smallest sample by 10x.
+Includes projects across 4 languages (Java, Python, R, C — though
+openssl untested). Not a one-project quirk — the model's parameter
+range was specified too narrowly to span real-world projects. Paper
+should widen the bound to ≥ 0.9 or revise the metric definition
 (`fraction of bugs with fix latency > 30 days`).
+
+**Implication for the falsification methodology**: leak_rate as
+defined captures something about engineering culture that *all*
+mature OSS projects fail (or all definitions of "leaked" used by
+practitioners are looser than 30 days). Either reading is paper
+material.
 
 ### F2. **debt.pay_rate is convergent across projects**
 
