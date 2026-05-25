@@ -190,7 +190,7 @@ What actually happened, ignoring hour estimates:
 | brooks     | ✓ | ✓   | ✓   | ✓   | ✓   | **✓** |
 | bugs       | ✓ | ✓   | —   | —   | —   | — |
 | debt       | ✓ | ✓   | ✓   | ✓   | ✓   | **✓** |
-| sir        | ✓ | n/a | n/a | n/a | n/a | n/a |
+| sir        | ✓ | ✓ (Depends) | ✓ | (helix) | — | — |
 | rework     | ✓ | ✓   | ✓   | ✓   | ✓   | **✓** |
 | learn      | ✓ | ✓   | (shared) | (shared) | ✓ | **✓** |
 | brooksq    | ✓ | ✓   | ✓   | ✓   | ✓   | **✓** |
