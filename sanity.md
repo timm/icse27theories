@@ -14,7 +14,7 @@ Carlos's two sanity checks (2026-05-20 email §2):
 |-----------|------------------|--------------------------------|------------------------|-------------------|
 | diapers   | n/a              | n/a (toy)                      | n/a                    | n/a               |
 | brooks    | no               | gitlog only                    | yes (git only — single source) | identity_match exact |
-| bugs      | yes (Bug-type)   | needs JIRA dump (not done)     | no                     | n/a               |
+| bugs      | yes (Bug-type)   | **GH issues (helix, kaiaulu) + JIRA (camel)** | no | n/a               |
 | debt      | no               | RefactoringMiner events        | no                     | n/a               |
 | sir       | no               | **Depends file-level graph (NEW path opened 2026-05-25)** | n/a               | n/a               |
 | rework    | yes (any bug)    | **commit-msg heuristic + SZZ** | no                     | n/a               |
@@ -42,7 +42,7 @@ What each project's bug-count source is in the current lifts:
 
 | project  | comm source(s)         | bug-count source        | identity bridge needed | bridge state         |
 |----------|------------------------|-------------------------|------------------------|----------------------|
-| Helix    | JIRA + mbox + github   | **commit-msg heuristic** (full JIRA dump avail but not loaded) | git-only models: no; congruence: yes | identity_match exact |
+| Helix    | JIRA + mbox + github   | **GH issues bug-label** (170 closed) + commit-msg heuristic | git-only models: no; congruence: yes | identity_match exact |
 | junit5   | github only            | commit-msg `#NNN` heuristic | github → would need login alias source (not loaded) | identity_match exact |
 | Ambari   | JIRA + mbox            | **commit-msg heuristic** (JIRA dump not loaded) | git only: no    | identity_match exact |
 | kaiaulu  | github                 | commit-msg `#NNN` heuristic | github → alias source needed | identity_match exact |
