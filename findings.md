@@ -29,6 +29,24 @@ Skipped per language/build mismatch:
 
 ## Headline findings
 
+### F0. **Three model-bound violations replicate across projects**
+
+| param                  | model.hi | violated by                               |
+|------------------------|---------:|-------------------------------------------|
+| brooksq.leak_rate      | 0.5      | 6 of 7 lifted projects (only kaiaulu IN)  |
+| archpat.Legacy         | 200      | 2 of 2 testable projects (Helix, Ambari)  |
+| congruence.Brokers     | 20       | 1 of 3 mbox projects (tomcat: 39)         |
+
+**Pattern**: sd.py model bounds were specified at "small project"
+scale; mature OSS exceeds them. Recommend widening:
+- `leak_rate hi`     0.5  →  0.9
+- `Legacy     hi`    200  →  2000
+- `Brokers    hi`    20   →  50
+- `Clusters   hi`    20   →  50
+
+Until the bounds widen, `boundary_check.py` will keep flagging real
+projects as OUT_OF_RANGE.
+
 ### F1. **Replicated boundary-adequacy failure: brooksq.leak_rate**
 
 Confirmed on **6 of 7 projects** where the lift ran (kaiaulu the
