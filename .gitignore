@@ -16,6 +16,14 @@ data/*/git_repo/
 # Large derived artifacts (re-generate via scripts/szz_*.py + RefactoringMiner)
 data/*/derived/refminer*.json
 
+# Source zips from Carlos's Drive bundle (large; re-download manually)
+data/_zips/
+
+# Large mbox files (some Apache projects have multi-GB mbox archives)
+data/*/mbox/*.mbox
+data/*/bk_mod_mbox/
+data/*/mod_mbox/
+
 # Editor / IDE
 *.swp
 .idea/
