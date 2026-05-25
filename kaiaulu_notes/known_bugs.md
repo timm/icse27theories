@@ -105,3 +105,76 @@ every caller to flatten.
 commit_hash, refactoring_type, refactoring_description,
 left_locations (semicolon-joined), right_locations (semicolon-joined)
 ```
+
+## NEW 2026-05-25: parse_dependencies() filename mismatch
+
+**Function**: `parse_dependencies(depends_jar_path, git_repo_path, language, output_dir)`
+
+**Symptom**: `cannot open the connection — <output_dir>/<project>.json`
+
+**Root cause**: The wrapper invokes
+```
+java -jar depends.jar java <folder> <project_name> --dir <output_dir>
+     --auto-include --granularity=file --namepattern=/ --format=json
+```
+With `--granularity=file`, Depends 0.9.7 writes
+`<project_name>-file.json` (suffix added). But kaiaulu's wrapper then
+reads `<output_dir><project_name>.json` (no `-file` suffix). Always
+fails.
+
+**Verified**: Apache Helix repo, Depends 0.9.7. Confirmed by direct
+`java -jar` call producing `helixtest-file.json`.
+
+**Recommended fix**: kaiaulu source change one line —
+```diff
+- output_path <- stri_c(output_dir, project_name, ".json")
++ output_path <- stri_c(output_dir, project_name, "-file.json")
+```
+Or drop `--granularity=file` (then Depends writes class-level deps,
+not file-level — semantically different).
+
+## NEW 2026-05-25: parse_java_code_refactoring_json() path stripping + stdout parsing
+
+**Function**: `parse_java_code_refactoring_json(rminer_path, git_repo_path, start_commit, end_commit)`
+
+**Two bugs**:
+
+(a) **Path mangling**: wrapper does
+`git_uri <- stri_replace_last(git_repo_path, replacement="", regex=".git")`.
+The regex `.git` (period = any char) matches `_git` in `helix/git_repo`
+in addition to the trailing `.git`. On Helix path
+`/data/helix/git_repo/.git`, this can strip the wrong segment, yielding
+e.g. `/data/helix_repo` (missing `git_`). RefMiner then fails to find
+the repo and returns exit 1.
+
+(b) **Mixed-stream parsing**: even if (a) is fixed, the wrapper does
+`jsonlite::parse_json(rminer_output)` on captured stdout, but RefMiner
+prints `[main] INFO …` lines and `Total count: …` summary lines
+*alongside* the JSON. Result: lexical JSON parse error.
+
+**Recommended fixes**:
+(a) `regex = "\\.git$"` (anchor + escape dot)
+(b) write JSON to a temp file via `-json <path>` flag, then read that;
+    or grep out the non-JSON lines before parsing.
+
+**Workaround in our project**: bypass kaiaulu's wrapper; call
+RefactoringMiner directly via the launcher script with `-json <out>`,
+then use our own `lifts/functions.R` `flatten_refactoring_json()`.
+
+## 2026-05-25 sanity-check summary (Carlos's §4 verification)
+
+Five tools required; calling kaiaulu wrappers without prior knowledge
+of the tool:
+
+| wrapper | tool | status |
+|---|---|---|
+| `parse_gitlog` (already verified) | Perceval | ✓ 44,672 rows on Helix |
+| `parse_line_metrics` | scc | ✓ 1,835 rows on Helix |
+| `parse_gof_patterns` | pattern4 (XML parser only) | ✓ 687 rows on Helix |
+| `parse_dependencies` | Depends | ✗ filename bug (above) |
+| `parse_java_code_refactoring_json` | RefactoringMiner | ✗ path + parse bugs (above) |
+
+3 of 5 wrappers verified end-to-end. 2 have kaiaulu source bugs that
+prevent direct verification but the underlying tools are installed
+and work via direct CLI calls (verified by our `lifts/functions.R`
+helpers).
