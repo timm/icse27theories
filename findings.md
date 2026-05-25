@@ -58,19 +58,25 @@ mature OSS projects fail (or all definitions of "leaked" used by
 practitioners are looser than 30 days). Either reading is paper
 material.
 
-### F2. **debt.pay_rate is convergent across projects**
+### F2. **debt.pay_rate falls in narrow band across 4 Java projects**
 
 | project | pay_rate_median |
 |---------|----------------:|
+| tomcat  | 0.365           |
+| Ambari  | 0.527           |
 | Helix   | 0.588           |
 | junit5  | 0.590           |
-| Ambari  | 0.527           |
 
-Three independent Apache-style Java projects all fall in 0.5–0.6.
-Either a real property of how Java OSS projects evolve, or a stable
-artifact of RefactoringMiner's detection convention. Either way,
-defensible as an observation. Spread is ~12%; the other lifted
-metrics (failrate, cfr, brooks_tax) spread by 5–14x.
+Four independent Apache-style Java projects all fall in 0.36–0.59.
+Earlier 3-project claim ("essentially identical at 0.59") was too
+strong; tomcat broadens the band downward. Possible drivers: tomcat
+is older (Ant build, pre-Maven style) and RefactoringMiner may catch
+fewer of its refactor patterns. The spread (60%) is still much
+narrower than failrate (15x), cfr (180x), or brooks_tax (11x) — so
+**pay_rate is the most family-coherent metric in the bank**.
+
+camel debt pending (RefMiner running). If camel lands in same band,
+F2 is stronger; if it diverges, weaker.
 
 ### F3. **Brooks effect highly variable across 8 projects**
 
