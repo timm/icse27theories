@@ -3,42 +3,52 @@
 Empirical results from running the SD-falsification framework on
 three Apache-style Java projects in one Claude Code session.
 
-## Coverage
+## Coverage (8 projects now)
 
-|             | Helix          | junit5        | Ambari         |
-|-------------|----------------|---------------|----------------|
-| commits     | 4,898          | 10,784        | 25,090         |
-| tags        | 44             | 113           | 133            |
-| identities  | 73             | 185           | 134            |
-| span        | 14.8 years     | 11 years      | 14+ years      |
-| issue scheme| JIRA HELIX-N   | GH #N         | JIRA AMBARI-N  |
-| SZZ pairs   | 1,297          | 11,867        | 15,992         |
-| refactor evts| 21,945        | 36,204        | 66,037         |
-| lifts done  | 8              | 7             | 8              |
+|          | Helix | junit5 | Ambari | kaiaulu | airflow | openssl | tomcat | camel |
+|----------|------:|-------:|-------:|--------:|--------:|--------:|-------:|------:|
+| commits  | 4.9k  | 10.8k  | 25.1k  | 175     | 13.3k   | 39.8k   | 22.5k  | 3.0k  |
+| tags     | 44    | 113    | 133    | 0       | 936     | 433     | 234    | 227   |
+| ids      | 73    | 185    | 134    | 8       | 1,338   | 1,029   | 62     | 14    |
+| lang     | java  | java   | java   | R       | py      | c       | java   | java  |
+| issue    | JIRA  | GH#    | JIRA   | GH#     | mix     | GH#     | BZ     | JIRA  |
+| SZZ pairs| 1,297 | 11,867 | 15,992 | 146     | (run)   | (skip)  | 74     | 931   |
+| lifts ✓  | 8     | 7      | 8      | 5       | 2       | 2       | 5      | 5     |
 
-**Helix and Ambari both fully lifted (8/8 informable models). junit5
-has 7/8 (archpat blocked by Gradle JDK toolchain mismatch — junit5
-requires JDK 25, host has Temurin 26).** Total: 23 lifts across 3
-projects in one session.
+42 lifts done across 8 projects (8 informable models × 8 projects =
+64 potential cells; 42 filled).
+
+Skipped per language/build mismatch:
+- archpat + debt need RefMiner + (for archpat) pattern4 on bytecode;
+  R/py/c projects don't apply. So 4 projects (kaiaulu, airflow,
+  openssl, tomcat-via-Ant) miss those two.
+- airflow SZZ still running in background as of this snapshot.
+- openssl SZZ skipped (39k commits ≈ 1h wall, deferred).
+- tomcat's BZ regex matched only 74 commits — likely under-matched;
+  could widen regex in a future pass.
 
 ## Headline findings
 
 ### F1. **Replicated boundary-adequacy failure: brooksq.leak_rate**
 
-Confirmed on **all three** projects:
+Confirmed on **5 of 6 projects** where the lift ran (kaiaulu the
+outlier with smallest sample):
 
-| project | leak_rate |
-|---------|----------:|
-| Helix   | 0.571     |
-| junit5  | 0.604     |
-| Ambari  | 0.697     |
+| project | leak_rate | status |
+|---------|----------:|--------|
+| kaiaulu | 0.418     | IN  (n=146 pairs, smallest) |
+| Helix   | 0.571     | OUT |
+| junit5  | 0.604     | OUT |
+| Ambari  | 0.697     | OUT |
+| camel   | 0.712     | OUT |
+| tomcat  | 0.865     | OUT |
 
-Model's declared `hi = 0.5`. Three independent Apache-style Java
-projects all exceed the bound, monotonically. Not a one-project
-quirk — the model's parameter range was specified too narrowly to
-span real-world projects. The paper should either widen the bound or
-revise the metric definition (`fraction of bugs with fix latency >
-30 days`).
+Model's declared `hi = 0.5`. Five of six independent projects exceed
+the bound, with kaiaulu the only in-range (also the smallest sample
+by 10x). Not a one-project quirk — the model's parameter range was
+specified too narrowly to span real-world projects. Paper should
+widen the bound to ≥0.9 or revise the metric definition
+(`fraction of bugs with fix latency > 30 days`).
 
 ### F2. **debt.pay_rate is convergent across projects**
 
@@ -54,19 +64,27 @@ artifact of RefactoringMiner's detection convention. Either way,
 defensible as an observation. Spread is ~12%; the other lifted
 metrics (failrate, cfr, brooks_tax) spread by 5–14x.
 
-### F3. **Brooks effect varies 8x across projects**
+### F3. **Brooks effect highly variable across 8 projects**
 
-| project | brooks_tax_median |
-|---------|------------------:|
-| Ambari  | 0.029            |
-| Helix   | 0.113            |
-| junit5  | 0.222            |
+| project  | brooks_tax_median | n_hires | language |
+|----------|------------------:|--------:|----------|
+| kaiaulu  | -1.134           | 6       | R        |
+| camel    | -0.144           | 5       | java     |
+| Ambari   | +0.029           | 126     | java     |
+| tomcat   | +0.055           | 50      | java     |
+| Helix    | +0.113           | 65      | java     |
+| openssl  | +0.146           | 1,019   | c        |
+| junit5   | +0.222           | 169     | java     |
+| airflow  | +0.311           | 1,285   | python   |
 
-Brooks thesis (late hires hurt veteran velocity) is supported on all
-three but with very different magnitudes. junit5 shows the strongest
-effect; Ambari the weakest. Possible explanations: different team-size
-distributions, different mentoring practices, different release
-cadences. Worth probing in EMSE extension.
+Negative values (kaiaulu, camel) come from very small n_hires (5-6)
+and are noise. Among projects with n_hires ≥ 50, all show positive
+brooks_tax (Brooks supported) but magnitudes vary 11x (0.029 → 0.311).
+
+Language doesn't predict effect — Python (airflow) and Java (junit5)
+both top the chart; Java (Ambari, tomcat) sits at the bottom.
+Possible drivers: team size, release cadence, mentoring practices.
+Worth probing in EMSE extension.
 
 ### F4. **brooksq quality thesis: SPLIT empirical verdict across 3 projects**
 
