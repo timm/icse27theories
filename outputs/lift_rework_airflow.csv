@@ -1,0 +1,2 @@
+project,failrate_median,failrate_mean,n_windows,window_days,seed
+airflow,0.397626112759644,0.351468309720914,29,90,1
