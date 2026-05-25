@@ -1,4 +1,6 @@
 perceval: /Users/timm/gits/timm/icse27theories/.venv/bin/perceval
 refactoring_miner: /Users/timm/gits/timm/icse27theories/tools/RefactoringMiner-3.0.10/bin/RefactoringMiner
 pattern4: /Users/timm/gits/timm/icse27theories/tools/pattern4/pattern4.jar
+depends: /Users/timm/gits/timm/icse27theories/tools/depends/depends-0.9.7/depends.jar
+scc: /opt/homebrew/bin/scc
 tmp: /tmp
