@@ -111,7 +111,7 @@ See `findings.md` for the 8 paper-relevant findings.
 | brooks     | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | 0.5 | **0.5**| **0.1**| —      | ~1.0     | **0.5** | **~4.1** | **lift_brooks_helix.csv** ✓ brooks_tax_median = 0.113 (thesis ✓). S11 skeleton predated today; today S8/S9/S12 + bug fixes to S11 |
 | bugs       | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | 0.5 | —      | 0*     | —      | —        | —       | ~2.0  | Goel-Okumoto; S7=JIRA (kaiaulu-native); not lifted yet |
 | debt       | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | 0.5 | **0.0**| **0.0**| **0.5**| **0.5**  | **0.5** | **~3.0** | **lift_debt_helix.csv** ✓ pay_rate = 0.59 ≫ born = 0.25 (Helix pays down) |
-| sir        | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | n/a | n/a    | n/a    | n/a    | n/a      | n/a     | ~1.5  | epidemic model; no SE data map |
+| sir        | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | **0.5** | **0.0**| (helix)| **0.5**| —        | —       | **~2.5** | data path OPENED 2026-05-25 via Depends file-level dep graph; multi-snapshot pipeline (Depends × time × pattern4) deferred — lift skeleton not yet written |
 | rework     | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | 0.5 | **0.0**| **0.0**| **0.0**| **0.5**  | **0.5** | **~2.5** | **lift_rework_helix.csv** ✓ failrate = 0.019 (safe regime) |
 | learn      | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | 0.5 | **0.0**| **0.0**| **0.0**| **0.5**  | **0.5** | **~2.5** | **lift_learn_helix.csv** ✓ Jr=43, Tr=21, Sr=9 (top-heavy junior); train_rate=1.0 **at boundary** |
 | brooksq    | 0.5 | 0.5 | 0.5 | 0* | —  | 0* | 0*  | 0.5 | **0.5**| **0.1**| **0.5**| **0.5**  | **0.5** | **~3.6** | **lift_brooksq_helix.csv** ✓ brooks side ✓ + inj_increase = 0 (quality thesis ✗) |
