@@ -29,6 +29,9 @@ data/*/mod_mbox/
 .idea/
 .vscode/
 
+# Claude Code local config
+.claude/
+
 # Depends cwd output (writes here regardless of -o flag)
 depends.log
 depends-dv8map.mapping
