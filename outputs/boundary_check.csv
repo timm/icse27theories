@@ -94,6 +94,8 @@ tomcat,congruence,Brokers,39,0,20,out_of_range
 tomcat,congruence,Clusters,33,1,20,out_of_range
 camel,brooksq,inj_rate,0.5222,0,0.5,out_of_range
 camel,brooksq,leak_rate,0.7121,0,0.5,out_of_range
+camel,debt,pay_rate,0.4613,0,1,in_range
+camel,debt,born_rate,0.2261,0,1,in_range
 camel,rework,failrate,0.1692,0,1,in_range
 camel,dora,batch_size,8.761,1,100,in_range
 camel,dora,arrival_rate,2.85,0,50,in_range
