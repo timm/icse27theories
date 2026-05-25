@@ -18,7 +18,7 @@ import csv, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.sd import (brooks, brooksq, debt, rework, defmap, dora, learn,
-                       archpat)
+                       archpat, congruence)
 
 
 def _clip(v, lo, hi):
@@ -154,15 +154,30 @@ def calibrate_archpat(csv_row):
     return m.rq(), m.rq(bg=bg), notes
 
 
+def calibrate_congruence(csv_row):
+    """congruence.init has Brokers + Clusters stocks. Lift gives both
+    directly from radio_silence mbox analysis."""
+    m = congruence()
+    overrides = {
+        'Brokers':  float(csv_row['Brokers_n']),
+        'Clusters': float(csv_row['Clusters_n']),
+    }
+    notes = ["rate params (broker_form, fragment_rate, merge_rate, "
+             "work_rate) not lifted"]
+    bg = _override_init(m.init, overrides, notes)
+    return m.rq(), m.rq(bg=bg), notes
+
+
 MODELS = [
-    ('brooks',   calibrate_brooks),
-    ('brooksq',  calibrate_brooksq),
-    ('debt',     calibrate_debt),
-    ('rework',   calibrate_rework),
-    ('defmap',   calibrate_defmap),
-    ('dora',     calibrate_dora),
-    ('learn',    calibrate_learn),
-    ('archpat',  calibrate_archpat),
+    ('brooks',     calibrate_brooks),
+    ('brooksq',    calibrate_brooksq),
+    ('debt',       calibrate_debt),
+    ('rework',     calibrate_rework),
+    ('defmap',     calibrate_defmap),
+    ('dora',       calibrate_dora),
+    ('learn',      calibrate_learn),
+    ('archpat',    calibrate_archpat),
+    ('congruence', calibrate_congruence),
 ]
 
 

@@ -8,7 +8,7 @@ version_control:
     - master
 
 commit_message_id_regex:
-  issue_id: 'BZ[0-9]+|bug[0-9]+'
+  issue_id: 'BZ\s*[0-9]+|bugzilla.*id=[0-9]+|bug\s*[0-9]+'
 
 filter:
   keep_filepaths_ending_with:

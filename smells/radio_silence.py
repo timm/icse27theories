@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 # Port of kaiaulu smell_radio_silence to python.
 # Pipeline: mbox files -> reply graph -> community detection -> brokers.
+#
+# Usage:
+#   python3 smells/radio_silence.py <mbox-dir> [out-csv]
+# If out-csv given, also writes per-cluster summary as CSV for lifts.
 
-import os, re, mailbox, email.utils, glob
+import os, re, sys, csv, mailbox, email.utils, glob
 from collections import defaultdict
 import networkx as nx
 import community as community_louvain
 
-MBOX_DIR = "/home/claude/helix/helix/mod_mbox/save_mbox_mail"
+MBOX_DIR = sys.argv[1] if len(sys.argv) > 1 \
+           else "/home/claude/helix/helix/mod_mbox/save_mbox_mail"
+OUT_CSV  = sys.argv[2] if len(sys.argv) > 2 else None
 
 # ---- 1. parse mbox -> messages -----------------------------------------
 
@@ -128,3 +134,20 @@ print(f"\n=== Cluster size distribution ===")
 print(f"  total clusters: {n_clusters}")
 print(f"  size-1 clusters: {sum(1 for s in cluster_sizes if s == 1)}")
 print(f"  largest 5 cluster sizes: {cluster_sizes[:5]}")
+
+# ---- 7. csv output for congruence lift --------------------------------
+if OUT_CSV:
+    os.makedirs(os.path.dirname(OUT_CSV) or ".", exist_ok=True)
+    with open(OUT_CSV, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["metric", "value"])
+        w.writerow(["n_messages",   len(msg_to_sender)])
+        w.writerow(["n_devs",       G.number_of_nodes()])
+        w.writerow(["n_devs_main",  G_main.number_of_nodes()])
+        w.writerow(["n_edges",      G.number_of_edges()])
+        w.writerow(["n_clusters",   n_clusters])
+        w.writerow(["n_size1_clusters", sum(1 for s in cluster_sizes if s == 1)])
+        w.writerow(["n_brokers",    len(unique_brokers)])
+        w.writerow(["n_incidents",  len(broker_details)])
+        w.writerow(["largest_cluster_size", cluster_sizes[0] if cluster_sizes else 0])
+    print(f"\nWrote {OUT_CSV}")
