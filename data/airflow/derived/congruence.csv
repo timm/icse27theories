@@ -1,0 +1,10 @@
+metric,value
+n_messages,1350
+n_devs,142
+n_devs_main,142
+n_edges,438
+n_clusters,7
+n_size1_clusters,0
+n_brokers,4
+n_incidents,4
+largest_cluster_size,46

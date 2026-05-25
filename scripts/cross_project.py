@@ -9,31 +9,34 @@ columns per project, plus boundary-status flags.
 import csv, glob, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.sd import brooks, brooksq, debt, rework, defmap, dora, learn, archpat
+from models.sd import (brooks, brooksq, debt, rework, defmap, dora, learn,
+                       archpat, congruence)
 
 
 # Key metric to surface per model.
 KEY_METRIC = {
-    'brooks':  'brooks_tax_median',
-    'brooksq': 'leak_rate',
-    'debt':    'pay_rate_median',
-    'rework':  'failrate_median',
-    'defmap':  'tst_median',
-    'dora':    'cfr',
-    'learn':   'train_rate',
-    'archpat': 'Legacy_n',
+    'brooks':     'brooks_tax_median',
+    'brooksq':    'leak_rate',
+    'debt':       'pay_rate_median',
+    'rework':     'failrate_median',
+    'defmap':     'tst_median',
+    'dora':       'cfr',
+    'learn':      'train_rate',
+    'archpat':    'Legacy_n',
+    'congruence': 'Brokers_n',
 }
 
 # Param mapping for boundary check (same as boundary_check.py).
 MODEL_FACTORIES = {
-    'brooks':  brooks,
-    'brooksq': brooksq,
-    'debt':    debt,
-    'rework':  rework,
-    'defmap':  defmap,
-    'dora':    dora,
-    'learn':   learn,
-    'archpat': archpat,
+    'brooks':     brooks,
+    'brooksq':    brooksq,
+    'debt':       debt,
+    'rework':     rework,
+    'defmap':     defmap,
+    'dora':       dora,
+    'learn':      learn,
+    'archpat':    archpat,
+    'congruence': congruence,
 }
 
 # Maps lift CSV column → model.init parameter (for boundary check).
@@ -44,6 +47,7 @@ PARAM_FOR_METRIC = {
     'dora.cfr':           None,  # cfr not a direct model param
     'learn.train_rate':   ('learn', 'train_rate'),
     'archpat.Legacy_n':   ('archpat', 'Legacy'),
+    'congruence.Brokers_n': ('congruence', 'Brokers'),
 }
 
 
