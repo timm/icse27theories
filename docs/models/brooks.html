@@ -15,11 +15,9 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">icse27theories</a><span class="sub">/ brooks</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ brooks</span></span>
     <nav>
       <a href="../index.html">all models</a>
-      <a href="https://github.com/timm/icse27theories/blob/main/models/sd.py">sd.py</a>
-      <a href="https://github.com/timm/icse27theories/blob/main/lifts/lift_brooks.Rmd">lift.Rmd</a>
     </nav>
   </div>
 </header>
@@ -111,8 +109,8 @@
 
   <h2>The SD model</h2>
   <p>
-    From <a href="https://github.com/timm/icse27theories/blob/main/models/sd.py"><code>models/sd.py</code></a>,
-    annotated. Every executable line carries a comment.
+    From <code>models/sd.py</code>, annotated. Every executable line
+    carries a comment.
   </p>
 
 <pre><code class="language-python">def brooks():
@@ -192,7 +190,7 @@
     proprietary tools.
   </p>
   <p>
-    Full notebook: <a href="https://github.com/timm/icse27theories/blob/main/lifts/lift_brooks.Rmd"><code>lifts/lift_brooks.Rmd</code></a>
+    Full notebook: <code>lifts/lift_brooks.Rmd</code>
     (kaiaulu vignette style, knits to HTML, branchable into kaiaulu as a PR).
     Below: the core chunks.
   </p>
@@ -373,13 +371,12 @@ compute_velocity_changes <- function(project_git, late_hires,
       <tr>
         <td><strong>Perceval</strong></td>
         <td>git log parsing (kaiaulu dependency)</td>
-        <td><code>pip install perceval</code> &middot;
-            <a href="https://github.com/chaoss/grimoirelab-perceval">repo</a></td>
+        <td><code>pip install perceval</code></td>
       </tr>
       <tr>
         <td><strong>kaiaulu</strong></td>
         <td>R package: parse_gitlog, identity_match, filters</td>
-        <td><code>remotes::install_github("sailuh/kaiaulu")</code></td>
+        <td>install from CRAN-style source</td>
       </tr>
     </tbody>
   </table>
@@ -618,8 +615,8 @@ compute_velocity_changes <- function(project_git, late_hires,
   </ul>
 
   <p class="dim">
-    Full discussion in
-    <a href="https://github.com/timm/icse27theories/blob/main/findings.md#f3-brooks-effect-highly-variable-across-8-projects">findings.md &middot; F3</a>.
+    Full discussion in the supplementary <code>findings.md</code>
+    (finding F3).
   </p>
 
   </div>
@@ -628,8 +625,7 @@ compute_velocity_changes <- function(project_git, late_hires,
 </main>
 
 <footer>
-  Tim Menzies &middot; Rick Kazman &middot; Carlos Paradis &middot; Umar Iftikhar
-  &middot; <a href="https://github.com/timm/icse27theories">github.com/timm/icse27theories</a>
+  Anonymous submission &middot; ICSE 2027
 </footer>
 
 </body>

@@ -10,11 +10,11 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand">icse27theories<span class="sub">— SE compartmental models, falsified</span></span>
+    <span class="brand">SD-Theses<span class="sub">— SE compartmental models, falsified</span></span>
     <nav>
-      <a href="https://github.com/timm/icse27theories">repo</a>
-      <a href="https://github.com/timm/icse27theories/blob/main/findings.md">findings</a>
-      <a href="https://github.com/timm/icse27theories/blob/main/TIMETABLE.md">timetable</a>
+      <a href="#models">models</a>
+      <a href="#findings">findings</a>
+      <a href="#typology">typology</a>
     </nav>
   </div>
 </header>
@@ -29,13 +29,13 @@
 </p>
 
 <div class="callout">
-  <span class="label">site status</span>
+  <span class="label">demo</span>
   Currently 1 of 18 models has a built page (<a href="models/brooks.html">brooks</a>).
-  The remaining cards are wired with their typology + status; clicking
-  a non-built card is a no-op.
+  The remaining cards show the typology + lift status; clicking a
+  non-built card is a no-op.
 </div>
 
-<h2>Models</h2>
+<h2 id="models">Models</h2>
 <div class="grid">
   <a class="card universal" href="models/brooks.html">
     <div class="name">brooks</div>
@@ -84,7 +84,7 @@
   </a>
   <a class="card fragile disabled">
     <div class="name">archpat</div>
-    <div class="desc">Ric's claim: patterns repair already-bad codebases.</div>
+    <div class="desc">Design patterns repair already-bad codebases (Kazman-style claim).</div>
     <div class="meta"><span class="badge">fragile</span><span>lifted 2/8</span></div>
   </a>
   <a class="card universal disabled">
@@ -130,7 +130,7 @@
   </a>
 </div>
 
-<h2>Typology (stress-matrix 2&times;2 cell)</h2>
+<h2 id="typology">Typology (stress-matrix 2&times;2 cell)</h2>
 <table>
   <thead>
     <tr><th>cell</th><th>meaning</th><th>count</th><th>members</th></tr>
@@ -143,7 +143,7 @@
   </tbody>
 </table>
 
-<h2>Headline findings (full text in <a href="https://github.com/timm/icse27theories/blob/main/findings.md">findings.md</a>)</h2>
+<h2 id="findings">Headline findings</h2>
 <ul>
   <li><strong>F0</strong> &mdash; 5 model parameters fail boundary-adequacy across multiple projects.
       Bounds in <code>sd.py</code> too tight for mature OSS scale.</li>
@@ -160,8 +160,7 @@
 </main>
 
 <footer>
-  Tim Menzies &middot; Rick Kazman &middot; Carlos Paradis &middot; Umar Iftikhar
-  &middot; <a href="https://github.com/timm/icse27theories">github.com/timm/icse27theories</a>
+  Anonymous submission &middot; ICSE 2027
 </footer>
 
 </body>
