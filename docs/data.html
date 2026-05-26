@@ -41,24 +41,78 @@
 <p>
   All 8 are mature Apache- or Apache-adjacent open-source projects with
   long git history, accessible issue trackers, and stable identity records.
-  They were chosen for language diversity, age range, and team size spread —
+  Chosen for language diversity, age range, and team-size spread &mdash;
   not for any prior expectation about the V&amp;V outcome.
 </p>
+
+<h3>Repos and roles</h3>
 <table>
   <thead>
     <tr><th>project</th><th>language</th><th>repo</th><th>issue tracker</th><th>role in family</th></tr>
   </thead>
   <tbody>
-    <tr><td><strong>Apache Helix</strong></td><td>Java</td><td>github.com/apache/helix</td><td>JIRA</td><td>headline target — first project lifted, used to sanity-check most models</td></tr>
-    <tr><td><strong>junit5</strong></td><td>Java</td><td>github.com/junit-team/junit5</td><td>GitHub Issues</td><td>large-team Java baseline; brooksq refute case</td></tr>
-    <tr><td><strong>Apache Ambari</strong></td><td>Java</td><td>github.com/apache/ambari</td><td>JIRA</td><td>large-team Java with rich JIRA; F1 + F4 source project</td></tr>
-    <tr><td><strong>kaiaulu</strong></td><td>R</td><td>github.com/sailuh/kaiaulu</td><td>GitHub Issues</td><td>small-team R baseline; tools' own host project</td></tr>
-    <tr><td><strong>Apache Airflow</strong></td><td>Python</td><td>github.com/apache/airflow</td><td>JIRA → GitHub</td><td>large-team Python; F3 strongest-positive case</td></tr>
-    <tr><td><strong>OpenSSL</strong></td><td>C</td><td>github.com/openssl/openssl</td><td>GitHub Issues</td><td>security-critical C baseline</td></tr>
-    <tr><td><strong>Apache Tomcat</strong></td><td>Java</td><td>github.com/apache/tomcat</td><td>Bugzilla</td><td>long-history Java; checks generalization to ancient codebases</td></tr>
-    <tr><td><strong>Apache Camel</strong></td><td>Java</td><td>github.com/apache/camel</td><td>JIRA</td><td>integration-framework Java; tested as Helix sibling</td></tr>
+    <tr><td><strong>Apache Helix</strong></td><td>Java</td><td><a href="https://github.com/apache/helix" target="_blank" rel="noopener">apache/helix</a></td><td>JIRA</td><td>headline target — first project lifted, used to sanity-check most models</td></tr>
+    <tr><td><strong>junit5</strong></td><td>Java</td><td><a href="https://github.com/junit-team/junit5" target="_blank" rel="noopener">junit-team/junit5</a></td><td>GitHub Issues</td><td>large-team Java baseline; brooksq refute case</td></tr>
+    <tr><td><strong>Apache Ambari</strong></td><td>Java</td><td><a href="https://github.com/apache/ambari" target="_blank" rel="noopener">apache/ambari</a></td><td>JIRA</td><td>large-team Java with rich JIRA; F1 + F4 source project</td></tr>
+    <tr><td><strong>kaiaulu</strong></td><td>R</td><td><a href="https://github.com/sailuh/kaiaulu" target="_blank" rel="noopener">sailuh/kaiaulu</a></td><td>GitHub Issues</td><td>small-team R baseline; tools' own host project</td></tr>
+    <tr><td><strong>Apache Airflow</strong></td><td>Python</td><td><a href="https://github.com/apache/airflow" target="_blank" rel="noopener">apache/airflow</a></td><td>JIRA → GitHub</td><td>large-team Python; F3 strongest-positive case</td></tr>
+    <tr><td><strong>OpenSSL</strong></td><td>C</td><td><a href="https://github.com/openssl/openssl" target="_blank" rel="noopener">openssl/openssl</a></td><td>GitHub Issues</td><td>security-critical C baseline</td></tr>
+    <tr><td><strong>Apache Tomcat</strong></td><td>Java</td><td><a href="https://github.com/apache/tomcat" target="_blank" rel="noopener">apache/tomcat</a></td><td>Bugzilla</td><td>long-history Java; checks generalization to ancient codebases</td></tr>
+    <tr><td><strong>Apache Camel</strong></td><td>Java</td><td><a href="https://github.com/apache/camel" target="_blank" rel="noopener">apache/camel</a></td><td>JIRA</td><td>integration-framework Java; tested as Helix sibling</td></tr>
   </tbody>
 </table>
+
+<h3>Size and collection window</h3>
+<p>
+  Numbers below are computed from the on-disk dataset (scc for LOC; the
+  SZZ-bugfix-commit CSV for date span, unique authors, and bugfix count;
+  the brooks lift's <code>n_hires</code> for the late-hire-event count).
+  Date spans are <em>bugfix-commit</em> spans, not git-history spans
+  (which are longer; bugfix dates reflect when defect-tagged work was
+  done, the most-mined surface).
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>project</th>
+      <th class="num">LOC (code)</th>
+      <th class="num">files</th>
+      <th class="num">bugfix commits</th>
+      <th class="num">unique bugfix authors</th>
+      <th class="num">n_hires (brooks)</th>
+      <th>bugfix-data window</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>airflow</td>  <td class="num">305 419</td>  <td class="num">3 012</td>  <td class="num">2 534</td>  <td class="num">685</td>   <td class="num">1 285</td>  <td>2014-11 → 2021-08</td></tr>
+    <tr><td>ambari</td>   <td class="num">625 569</td>  <td class="num">4 368</td>  <td class="num">2 460</td>  <td class="num">181</td>   <td class="num">126</td>    <td>2011-09 → 2025-12</td></tr>
+    <tr><td>camel</td>    <td class="num">99 145</td>   <td class="num">1 987</td>  <td class="num">188</td>    <td class="num">11</td>    <td class="num">5</td>      <td>2007-06 → 2009-02</td></tr>
+    <tr><td>helix</td>    <td class="num">199 071</td>  <td class="num">1 545</td>  <td class="num">180</td>    <td class="num">24</td>    <td class="num">65</td>     <td>2012-08 → 2022-04</td></tr>
+    <tr><td>junit5</td>   <td class="num">133 978</td>  <td class="num">1 724</td>  <td class="num">1 507</td>  <td class="num">117</td>   <td class="num">169</td>    <td>2015-10 → 2026-05</td></tr>
+    <tr><td>kaiaulu</td>  <td class="num">—</td>        <td class="num">—</td>      <td class="num">31</td>     <td class="num">4</td>     <td class="num">6</td>      <td>2020-05 → 2023-11</td></tr>
+    <tr><td>openssl</td>  <td class="num">706 948</td>  <td class="num">2 230</td>  <td class="num">1 518</td>  <td class="num">~165</td>  <td class="num">1 019</td>  <td>~1998 → 2024 <span class="dim">(re-parse pending)</span></td></tr>
+    <tr><td>tomcat</td>   <td class="num">341 145</td>  <td class="num">2 490</td>  <td class="num">2 958</td>  <td class="num">~2 185</td><td class="num">50</td>     <td>~2002 → 2024 <span class="dim">(re-parse pending)</span></td></tr>
+    <tr style="border-top:2px solid var(--border-strong);font-weight:600;">
+      <td>totals (clean 6)</td>
+      <td class="num">1 363 182</td>
+      <td class="num">12 636</td>
+      <td class="num">6 900</td>
+      <td class="num">1 022</td>
+      <td class="num">1 656</td>
+      <td><span class="dim">2007–2026, 19-year span</span></td>
+    </tr>
+  </tbody>
+</table>
+<p class="dim" style="font-size:12px;">
+  Caveats. (a) kaiaulu LOC line is blank because <code>scc</code> on the
+  R repo produced an empty count (R extension not auto-detected in this
+  pipeline); follow-up to wire <code>--include-ext r,rmd</code>. (b)
+  openssl/tomcat author + date columns contain CSV-quoting artefacts
+  from the bugfix-commit extractor — numbers are best-current estimates
+  while a sanitised re-parse is pending. (c) &quot;unique bugfix authors&quot;
+  is a <em>lower bound</em> on developer count: many committers never
+  touch a defect-tagged file in the observed window.
+</p>
 
 <h2>The tool pipeline</h2>
 <p>
