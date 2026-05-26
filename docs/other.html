@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Other candidates — MYTHS</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ other candidates</span></span>
+    <nav><a href="index.html">all built models</a></nav>
+  </div>
+</header>
+
+<main>
+
+<h1>Other candidate models<span class="tag">47 unbuilt</span></h1>
+<p class="sub-title">
+  Models named in the SE literature but <em>not yet</em> on the main
+  MYTHS page. Each = one compartmental form + a falsifiable thesis.
+  18 are already built; the 47 below are the next-to-build set.
+</p>
+
+<div class="callout">
+  <span class="label">data legend</span>
+  <span class="ok">have</span> data on disk now &middot;
+  <span class="warn">partial</span> would need 1–2 days of new pipeline &middot;
+  <span class="bad">none</span> structurally absent on the 8 projects &middot;
+  <span class="dim">tacit</span> not formalised in archival literature.
+</div>
+
+<h2>Source-quality tally</h2>
+<table>
+  <thead><tr><th>tier</th><th>meaning</th><th class="num">count</th></tr></thead>
+  <tbody>
+    <tr><td><span class="ok">A</span></td><td>well-cited peer-reviewed archival source (DOI/IEEE/ACM)</td><td class="num">21</td></tr>
+    <tr><td><span class="warn">B</span></td><td>book or grey-lit anchor; partial peer-reviewed companion</td><td class="num">15</td></tr>
+    <tr><td><span class="dim">C</span></td><td>tacit / named-only / not formally modelled</td><td class="num">11</td></tr>
+  </tbody>
+</table>
+
+<h2>By family</h2>
+
+<h3>Defects, reliability, debt</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>entropy</td><td>1980</td><td>Lehman, <em>Proc. IEEE</em> — <a href="https://doi.org/10.1109/PROC.1980.11805" target="_blank">10.1109/PROC.1980.11805</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — gitlog + scc → LOC trajectory per release tag</td></tr>
+    <tr><td>costchange</td><td>1981</td><td>Boehm, <em>Software Engineering Economics</em> (book)</td><td><span class="ok">A</span></td><td><span class="ok">have</span> — SZZ pairs + release tags → phase-bucketed bug cost</td></tr>
+    <tr><td>pareto</td><td>1992</td><td>Fenton+Ohlsson <em>IEEE TSE</em> — <a href="https://doi.org/10.1109/32.879815" target="_blank">10.1109/32.879815</a>; Ostrand+Weyuker <em>FSE</em></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — SZZ + file mapping → per-file bug count, hotspot persistence</td></tr>
+    <tr><td>bugage</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="warn">partial</span> — would need issue-open-time time series</td></tr>
+  </tbody>
+</table>
+
+<h3>Review, ownership, knowledge</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>linus</td><td>1999</td><td>Raymond, <em>The Cathedral and the Bazaar</em>; Mockus <em>TOSEM</em> 2002</td><td><span class="warn">B</span></td><td><span class="ok">have</span> — review-comment counts from GH PR data + SZZ for defect recurrence</td></tr>
+    <tr><td>ownership</td><td>2011</td><td>Bird et al <em>FSE</em> — <a href="https://doi.org/10.1145/2025113.2025119" target="_blank">10.1145/2025113.2025119</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — per-module per-author commits + SZZ defects → minor-author share regression</td></tr>
+    <tr><td>orgchurn</td><td>2010</td><td>Nagappan, Murphy, Basili <em>ICSE</em> — <a href="https://doi.org/10.1145/1368088.1368160" target="_blank">10.1145/1368088.1368160</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — identity-departure detection (last commit &gt; N months) + SZZ rate spike</td></tr>
+    <tr><td>docdrift</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="warn">partial</span> — README/docs/*.md git-blame age vs whole-repo touch rate</td></tr>
+    <tr><td>revlat</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="ok">have</span> — GH PR data for Helix + kaiaulu has review wait timestamps</td></tr>
+  </tbody>
+</table>
+
+<h3>Complexity, evolution, scale</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>nosilver</td><td>1986</td><td>Brooks <em>IEEE Computer</em> — <a href="https://doi.org/10.1109/MC.1987.1663532" target="_blank">10.1109/MC.1987.1663532</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — essential vs accidental complexity is inherently judgmental; could proxy via RefMiner refactor share</td></tr>
+    <tr><td>secondsys</td><td>1975</td><td>Brooks, <em>MMM</em> (book)</td><td><span class="warn">B</span></td><td><span class="bad">none</span> — Apache projects don't have a clean "system #2 attempt" event</td></tr>
+    <tr><td>coordn2</td><td>1975</td><td>Brooks (MMM); Curtis et al <em>CACM</em> 1988</td><td><span class="warn">B</span></td><td><span class="ok">have</span> — identity_match count vs commits-per-week → fit n(n−1)/2 overhead</td></tr>
+    <tr><td>mirroring</td><td>2006</td><td>MacCormack, Baldwin, Rusnak <em>Management Science</em> — <a href="https://doi.org/10.1287/mnsc.1060.0552" target="_blank">10.1287/mnsc.1060.0552</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — Depends file-DSM + gitlog who-touches-what DSM → MacCormack mirror coefficient</td></tr>
+    <tr><td>deadcode</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="warn">partial</span> — could approximate via Depends reachability (callable but never called)</td></tr>
+    <tr><td>migration</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="warn">partial</span> — detect via parallel-API patterns in commit messages ("deprecat", "migrate")</td></tr>
+  </tbody>
+</table>
+
+<h3>Estimation, planning, economics</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>estbias</td><td>—</td><td>Jorgensen <em>IEEE TSE</em> 2004 — <a href="https://doi.org/10.1109/TSE.2004.108" target="_blank">10.1109/TSE.2004.108</a>; Kahneman+Tversky '79</td><td><span class="ok">A</span></td><td><span class="bad">none</span> — no project on disk records estimate-vs-actual time</td></tr>
+    <tr><td>scope</td><td>—</td><td>Boehm; Jones, <em>Applied Software Measurement</em> (books)</td><td><span class="warn">B</span></td><td><span class="ok">have</span> — JIRA issue inflow rate vs close rate gives backlog growth</td></tr>
+    <tr><td>escalation</td><td>—</td><td>Staw <em>Org Behavior</em> 1976 — <a href="https://doi.org/10.1016/0030-5073(76)90005-2" target="_blank">10.1016/0030-5073(76)90005-2</a></td><td><span class="ok">A</span></td><td><span class="bad">none</span> — sunk-cost decisions not visible in OSS git history</td></tr>
+    <tr><td>ctxswitch</td><td>—</td><td>Weinberg, <em>Quality Software Management</em> (book); Meyer et al <em>FSE</em> 2014</td><td><span class="warn">B</span></td><td><span class="ok">have</span> — per-developer per-day file-diversity → context-switch proxy</td></tr>
+    <tr><td>buildtrap</td><td>—</td><td>Perri, <em>Escaping the Build Trap</em> (book)</td><td><span class="warn">B</span></td><td><span class="bad">none</span> — no value-realised data in OSS git</td></tr>
+  </tbody>
+</table>
+
+<h3>Flow, process, queueing</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>little</td><td>1961</td><td>Little <em>Operations Research</em> — <a href="https://doi.org/10.1287/opre.9.3.383" target="_blank">10.1287/opre.9.3.383</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — GH issue/PR data for Helix + kaiaulu + JIRA gives WIP, throughput, cycle time</td></tr>
+    <tr><td>testshape</td><td>2009</td><td>Cohn, <em>Succeeding with Agile</em> (book; "test pyramid")</td><td><span class="warn">B</span></td><td><span class="warn">partial</span> — infer test-tier from path prefix (unit/integ/system) heuristically</td></tr>
+  </tbody>
+</table>
+
+<h3>SD archetypes (Senge)</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>shiftburden</td><td>—</td><td>Repenning, Sterman <em>ASQ</em> 2002 — <a href="https://doi.org/10.2307/3094847" target="_blank">10.2307/3094847</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — heuristic hotfix detection from commit msg ("hotfix", "urgent") + SZZ recurrence</td></tr>
+    <tr><td>commons</td><td>—</td><td>Hardin <em>Science</em> 1968 — <a href="https://doi.org/10.1126/science.162.3859.1243" target="_blank">10.1126/science.162.3859.1243</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — per-team file-touches share of common modules; no CI data</td></tr>
+    <tr><td>limits</td><td>—</td><td>Senge, <em>The Fifth Discipline</em> (book)</td><td><span class="warn">B</span></td><td><span class="ok">have</span> — commits/week vs team size → asymptotic ceiling fit</td></tr>
+    <tr><td>successful</td><td>—</td><td>Merton <em>Science</em> 1968 — <a href="https://doi.org/10.1126/science.159.3810.56" target="_blank">10.1126/science.159.3810.56</a></td><td><span class="warn">B</span></td><td><span class="ok">have</span> — module test-coverage / commit attention divergence over time</td></tr>
+    <tr><td>erodegoals</td><td>—</td><td>Senge archetype (book)</td><td><span class="warn">B</span></td><td><span class="warn">partial</span> — CI test-suite pass-rate drift would need GH Actions logs</td></tr>
+  </tbody>
+</table>
+
+<h3>ML / data systems</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>drift</td><td>—</td><td>Gama et al <em>ACM CSUR</em> 2014 — <a href="https://doi.org/10.1145/2523813" target="_blank">10.1145/2523813</a></td><td><span class="ok">A</span></td><td><span class="bad">none</span> — no project on disk is an ML system with production accuracy logs</td></tr>
+    <tr><td>cace</td><td>2015</td><td>Sculley et al <em>NeurIPS</em> — Hidden Technical Debt in ML</td><td><span class="ok">A</span></td><td><span class="bad">none</span> — same gap as drift</td></tr>
+    <tr><td>collapse</td><td>2024</td><td>Shumailov et al <em>Nature</em> — <a href="https://doi.org/10.1038/s41586-024-07566-y" target="_blank">10.1038/s41586-024-07566-y</a></td><td><span class="ok">A</span></td><td><span class="bad">none</span> — no training-data provenance logs</td></tr>
+    <tr><td>labeldebt</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="bad">none</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Security</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>exposure</td><td>2006</td><td>Frei et al <em>SIGCOMM LSAD</em> — <a href="https://doi.org/10.1145/1162666.1162671" target="_blank">10.1145/1162666.1162671</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — NVD CVE entries for openssl/tomcat exist publicly; would need NVD-to-commit mapping pipeline</td></tr>
+    <tr><td>deprot</td><td>2018</td><td>Decan, Mens, Constantinou <em>MSR</em> — <a href="https://doi.org/10.1145/3196398.3196401" target="_blank">10.1145/3196398.3196401</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — pom.xml / requirements.txt git history → dependency version trajectory</td></tr>
+    <tr><td>patchherd</td><td>—</td><td>SIR-shaped; no SE-specific peer-reviewed source</td><td><span class="warn">B</span></td><td><span class="bad">none</span> — fix-uptake telemetry not in OSS git</td></tr>
+    <tr><td>alertfatigue</td><td>—</td><td>[tacit, SOC literature]</td><td><span class="dim">C</span></td><td><span class="bad">none</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Interfaces, deps, config sprawl</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>hyrum</td><td>—</td><td>[named, unmodeled — Hyrum's Law]</td><td><span class="dim">C</span></td><td><span class="bad">none</span> — would need usage telemetry of internal APIs</td></tr>
+    <tr><td>postel</td><td>—</td><td>RFC 760/793; IAB RFC 5841 "harmful consequences"</td><td><span class="warn">B</span></td><td><span class="bad">none</span> — interop ambiguity logs not in OSS git</td></tr>
+    <tr><td>flagdebt</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="warn">partial</span> — could grep for feature-flag patterns in code, age them via git blame</td></tr>
+    <tr><td>configdrift</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="bad">none</span> — environment configs are deploy-time, not git-resident</td></tr>
+  </tbody>
+</table>
+
+<h3>Quality norms, gaming, human factors</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>goodhart</td><td>—</td><td>Goodhart 1975; Strathern 1997 (peer-reviewed adaptation)</td><td><span class="warn">B</span></td><td><span class="bad">none</span> — metric-gaming signals are mostly absent in OSS</td></tr>
+    <tr><td>brokenwin</td><td>—</td><td>Hunt &amp; Thomas, <em>The Pragmatic Programmer</em> (book); Wilson+Kelling 1982 (essay)</td><td><span class="warn">B</span></td><td><span class="warn">partial</span> — could quantify TODO/FIXME density growth over time</td></tr>
+    <tr><td>riskcomp</td><td>—</td><td>Peltzman <em>JPE</em> 1975 — <a href="https://doi.org/10.1086/260352" target="_blank">10.1086/260352</a></td><td><span class="warn">B</span></td><td><span class="bad">none</span> — would need a controlled experiment (more tests → less careful code)</td></tr>
+  </tbody>
+</table>
+
+<h3>Productivity, adoption, ecosystem</h3>
+<table>
+  <thead><tr><th>model</th><th>year</th><th>source</th><th>tier</th><th>data on disk?</th></tr></thead>
+  <tbody>
+    <tr><td>tenx</td><td>1968</td><td>Sackman, Erikson, Grant <em>CACM</em> — <a href="https://doi.org/10.1145/362851.362858" target="_blank">10.1145/362851.362858</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — per-developer LOC/commit/day as productivity proxy; not Sackman's controlled-task design</td></tr>
+    <tr><td>diffusion</td><td>1969</td><td>Bass <em>Management Science</em> — <a href="https://doi.org/10.1287/mnsc.15.5.215" target="_blank">10.1287/mnsc.15.5.215</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — first-use spreading of an internal API call could be Bass-fit; needs API-usage scrape</td></tr>
+    <tr><td>fwchurn</td><td>—</td><td>[tacit]</td><td><span class="dim">C</span></td><td><span class="bad">none</span> — cross-project framework adoption telemetry absent</td></tr>
+    <tr><td>wirth</td><td>1995</td><td>Wirth <em>IEEE Computer</em> — <a href="https://doi.org/10.1109/2.348001" target="_blank">10.1109/2.348001</a></td><td><span class="ok">A</span></td><td><span class="warn">partial</span> — binary size per release tag computable; hardware capability is exogenous (Moore's-law table)</td></tr>
+    <tr><td>ossfail</td><td>2017</td><td>Coelho, Valente <em>FSE</em> — <a href="https://doi.org/10.1145/3106237.3106246" target="_blank">10.1145/3106237.3106246</a></td><td><span class="ok">A</span></td><td><span class="ok">have</span> — truck factor from gitlog + observed "death" partial via abandoned branches</td></tr>
+  </tbody>
+</table>
+
+<h2>Data-availability tally</h2>
+<table>
+  <thead><tr><th>tier</th><th class="num">have</th><th class="num">partial</th><th class="num">none</th><th class="num">total</th></tr></thead>
+  <tbody>
+    <tr><td><span class="ok">A</span> (21)</td><td class="num ok">8</td><td class="num warn">7</td><td class="num bad">6</td><td class="num">21</td></tr>
+    <tr><td><span class="warn">B</span> (15)</td><td class="num ok">6</td><td class="num warn">3</td><td class="num bad">6</td><td class="num">15</td></tr>
+    <tr><td><span class="dim">C</span> (11)</td><td class="num ok">1</td><td class="num warn">5</td><td class="num bad">5</td><td class="num">11</td></tr>
+    <tr><td><strong>all 47</strong></td><td class="num ok"><strong>15</strong></td><td class="num warn"><strong>15</strong></td><td class="num bad"><strong>17</strong></td><td class="num"><strong>47</strong></td></tr>
+  </tbody>
+</table>
+
+<h2>Buildable today (A &amp; B with <span class="ok">have</span>) — 14 candidates</h2>
+
+<p>Ordered by likely paper-impact:</p>
+<ol>
+  <li><strong>ownership</strong> (A) — Bird et al's minor-author regression, replicated on 8 projects.</li>
+  <li><strong>orgchurn</strong> (A) — Nagappan/Murphy/Basili departure-spike test.</li>
+  <li><strong>pareto</strong> (A) — hotspot 80/20 + persistence across releases.</li>
+  <li><strong>mirroring</strong> (A) — MacCormack mirror coefficient on Helix Depends DSM.</li>
+  <li><strong>little</strong> (A) — Little's law sanity check on Helix GH issue stream.</li>
+  <li><strong>entropy</strong> (A) — Lehman LOC-trajectory monotonicity over 5 Java projects.</li>
+  <li><strong>costchange</strong> (A) — Boehm phase-bucketed bug cost (SZZ already in place).</li>
+  <li><strong>deprot</strong> (A) — Decan/Mens dep staleness in pom.xml history.</li>
+  <li><strong>ossfail</strong> (A) — truck factor + project-death observation.</li>
+  <li><strong>coordn2</strong> (B) — quadratic comm cost on team size.</li>
+  <li><strong>scope</strong> (B) — JIRA inflow vs close rate.</li>
+  <li><strong>ctxswitch</strong> (B) — per-day file diversity per dev.</li>
+  <li><strong>limits</strong> (B) — commits/week vs team size asymptote.</li>
+  <li><strong>successful</strong> (B) — Matthew effect on module attention.</li>
+  <li><strong>linus</strong> (B) — review-effort vs defect-recurrence (needs GH PR pull).</li>
+</ol>
+
+<h2>Partial today (would need new pipeline) — 15 candidates</h2>
+<p class="dim">nosilver, bugage, docdrift, deadcode, migration, testshape, shiftburden, commons, erodegoals, exposure, brokenwin, tenx, diffusion, wirth, flagdebt.</p>
+
+<h2>Structurally absent (today) — 17 candidates</h2>
+<p class="dim">secondsys, estbias, escalation, buildtrap, drift, cace, collapse, labeldebt, patchherd, alertfatigue, hyrum, postel, configdrift, goodhart, riskcomp, fwchurn, revlat (revlat moves to <span class="ok">have</span> if we pull GH PR data).</p>
+
+<p class="dim" style="margin-top:32px;font-size:12px;">
+  Source-quality categories per the inventory document.
+  &middot; <span class="ok">A</span> = peer-reviewed archival (DOI/IEEE/ACM)
+  &middot; <span class="warn">B</span> = book or grey-lit anchor; partial peer-reviewed companion
+  &middot; <span class="dim">C</span> = tacit / named-only.
+</p>
+
+</main>
+
+<footer>Anonymous submission &middot; ICSE 2027</footer>
+
+</body>
+</html>
