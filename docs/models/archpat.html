@@ -25,7 +25,7 @@
 <main>
 
 <h1>archpat <span class="dim" style="font-weight:400;">(1992)</span><span class="tag">fragile cell</span></h1>
-<p class="sub-title">Martin, R. C. (2008). Clean Architecture. + Perry, D. E. &amp; Wolf, A. L. (1992). Foundations for the study of software architecture.</p>
+<p class="sub-title">Perry &amp; Wolf (1992) + Martin (2008) Clean Architecture — patterns repair already-bad code.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,21 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Three architectural regions: Patterned (under good architecture), Legacy (not), Drift (was patterned, eroded). Migration moves Legacy → Patterned at rate proportional to migrate_rate · available_effort. Decay (Perry-Wolf erosion) moves Patterned → Drift.</p>
+    <p>Three architectural regions: <em>Patterned</em> (under good architecture), <em>Legacy</em> (not), <em>Drift</em> (was patterned, eroded). Migration moves Legacy → Patterned at rate proportional to migrate_rate · available_effort. Decay (Perry-Wolf erosion) moves Patterned → Drift. Drift eventually decays back to Legacy.</p>
+    <p>The model tests whether <em>aggressive migration</em> (migrate=1.5) can repair an already-bad project (Patterned=10, Legacy=90, Debt=40) better than slow migration (migrate=0.2). The thesis says yes: applying patterns actively pays down debt.</p>
+    <p class="dim"><em>Intuition</em>: Patterns aren't just for greenfield. Aggressive refactoring can move a legacy codebase into patterned shape.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Feat − Debt at end of run.</p>
+    <p><strong><code>Feat − Debt</code> at end of run.</strong></p>
+    <p>Net delivery minus carried debt. Patterned files generate Feat faster; Legacy files generate Debt faster.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>From an already-bad start (Patterned=10, Legacy=90, Debt=40), aggressive migration (migrate=1.5) repairs the project vs slow (migrate=0.2).</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_archpat.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1145/141874.141884" target="_blank" rel="noopener">Perry, D. E., &amp; Wolf, A. L. (1992). Foundations for the Study of Software Architecture. <em>ACM SIGSOFT Software Engineering Notes</em> 17(4):40–52.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1145/3180155.3180206" target="_blank" rel="noopener">Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/TSE.2009.1" target="_blank" rel="noopener">Tsantalis, N., &amp; Chatzigeorgiou, A. (2009). Identification of Move Method Refactoring Opportunities. <em>IEEE TSE</em> 35(3):347–367. (Underlying pattern4 algorithms.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/clean-architecture-a-craftsmans-guide-to-software-structure-and-design/P200000009528" target="_blank" rel="noopener">Martin, R. C. (2008). <em>Clean Architecture</em>. Prentice Hall.</a></td><td><span class="warn">book</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>From an already-bad start, migrate=1.5 outperforms migrate=0.2.</strong></p>
+    <p>CONFIRM with gap +229 at default. The expected direction is positive (UP) because we want y to be HIGHER under aggressive migration.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>archpat is <span class='bad'>fragile</span>. Stress shows verdict survives only narrow background regimes — 66/200 inputs, 89/200 params. The thesis depends on specific operating conditions.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -137,7 +133,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_archpat.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>Lifted via the heaviest pipeline in the framework: <strong>Maven compile</strong> → <strong>pattern4 CLI</strong> → <strong>parse_pattern4_xml.py</strong> → <strong>R archpat lift</strong>. Each step is independent and re-runnable. Discovery during this lift: pattern4.jar IS CLI-callable despite its GUI-default manifest — see the memory note in the repo (<code>reference_pattern4_gotcha.md</code>).</p><p>Full notebook: <code>lifts/lift_archpat.Rmd</code>. Companion fallback: Arcan smell detector (open source) if pattern4 setup is blocked.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
@@ -202,30 +199,77 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">compiled .class files</td><td>input to GoF detector</td><td>mvn compile -pl &lt;module&gt; -am -DskipTests</td></tr>
+<tr><td class="mono">patterned_files.csv</td><td>Patterned partition members</td><td>pattern4 -target classes -output xml + parse_pattern4_xml.py</td></tr>
+<tr><td class="mono">introducing_commit_hash + file_path</td><td>bug-frequency per file</td><td>PyDriller B-SZZ output</td></tr>
+<tr><td class="mono">file_pathname + churn</td><td>Drift partition members</td><td>kaiaulu gitlog + compute_file_churn helper</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>Maven 3.9</strong></td><td>compile project to bytecode</td></tr>
+<tr><td><strong>pattern4.jar</strong></td><td>GoF detector (CLI mode)</td></tr>
+<tr><td><strong>PyDriller 2.9</strong></td><td>B-SZZ</td></tr>
+<tr><td><strong>kaiaulu</strong></td><td>gitlog filter, identity_match</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: required (Legacy partition uses bug-frequency). SZZ as proxy works; JIRA Bug filter would be cleaner. <strong>(2) Identity bridging</strong>: not used (file-level lift).</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap +228.69</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">fragile <span class="dim">(inputs 66/200 CONFIRM, params 89/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap +228.69</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 66/200 CONFIRM, params 89/200)</span></td></tr>
+</tbody></table>
+    <div class='callout'><span class='label'>boundary violations</span>archpat.Legacy_n hi=200 is exceeded on both lifted projects: Helix 384, Ambari 1890. archpat.Patterned_n hi=200 also exceeded on Ambari (381). The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files in each partition.</div>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on Helix and Ambari via pattern4 (GoF) + RefactoringMiner + SZZ. Both projects exceed model.Legacy hi=200 (Helix 384, Ambari 1890); Ambari exceeds Patterned hi=200 (381). Calibrated rq() gap widens from +229 to +390 with Helix&#x27;s larger Legacy. junit5 lift blocked by Gradle JDK 25 toolchain mismatch.</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>Legacy_n</code>. Bounds: <code>[0, 200]</code>.</p>
+    <p>Lifted on Helix (1985 files) and Ambari (6600 files). junit5 attempted but blocked by Gradle JDK 25 toolchain mismatch.</p>
+    <table><thead><tr>
+<th>project</th>
+<th>Patterned</th>
+<th>Legacy</th>
+<th>Drift</th>
+<th>Other</th>
+<th>n_files</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">149</td>
+<td class="mono">384 (OUT)</td>
+<td class="mono">0</td>
+<td class="mono">1452</td>
+<td class="mono">1985</td>
+</tr>
+<tr>
+<td class="mono">Ambari</td>
+<td class="mono">381 (OUT)</td>
+<td class="mono">1890 (OUT)</td>
+<td class="mono">0</td>
+<td class="mono">4329</td>
+<td class="mono">6600</td>
+</tr>
+</tbody></table>
+    <p>Helix and Ambari both have far more Legacy than the model's hi=200 anticipates. Calibrated rq() gap widens from +229 to +390 with Helix's larger Legacy — more legacy means more headroom for the migrate parameter to act, which strengthens the thesis. Drift is 0 in both projects because the churn threshold isn't met by any file in a recent 180-day window — both projects are mature enough that no file is actively drifting.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>F0 contribution</strong>: archpat's two boundary violations (Legacy + Patterned) anchor two of the five F0 violations.</li>
+<li><strong>Counter-intuitive calibrated strengthening</strong>: bigger Legacy → stronger thesis. Helix's calibration moves the rq gap from +229 to +390 because the model has more room to move files from Legacy to Patterned.</li>
+<li><strong>Maven build cost</strong>: archpat's pipeline is the heaviest in the framework. RefMiner + pattern4 + Maven compile all in series, per project. ~30 min per Java project. Caching the intermediate XMLs is essential for reproducibility.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>Legacy_n</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
 <tr><td>ambari</td><td class="num mono">1890</td><td><span class="bad">OUT</span></td></tr>
@@ -238,6 +282,19 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/141874.141884" target="_blank" rel="noopener">Perry, D. E., &amp; Wolf, A. L. (1992). Foundations for the Study of Software Architecture. <em>ACM SIGSOFT SEN</em> 17(4):40–52.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/3180155.3180206" target="_blank" rel="noopener">Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/TSE.2009.1" target="_blank" rel="noopener">Tsantalis, N., &amp; Chatzigeorgiou, A. (2009). Identification of Move Method Refactoring Opportunities. <em>IEEE TSE</em> 35(3):347–367.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/clean-architecture-a-craftsmans-guide-to-software-structure-and-design/P200000009528" target="_blank" rel="noopener">Martin, R. C. (2008). <em>Clean Architecture</em>. Prentice Hall.</a></td><td><span class="warn">book</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

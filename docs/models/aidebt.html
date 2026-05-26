@@ -24,8 +24,8 @@
 
 <main>
 
-<h1>aidebt <span class="dim" style="font-weight:400;">(2024)</span><span class="tag">world-cond. cell</span></h1>
-<p class="sub-title">Speculative SE-2026 thesis (composite of GitClear + technical-debt literature).</p>
+<h1>aidebt <span class="dim" style="font-weight:400;">(2024)</span><span class="tag">world-conditional cell</span></h1>
+<p class="sub-title">Speculative thesis combining GitClear AI-debt + classical technical-debt literature.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,20 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>AI-generated code accelerates feature delivery but accumulates a deferred debt cost (hidden complexity, less-maintainable patterns). The model exhibits a regime crossover near tmax ≈ 26 — early AI use looks net-positive, late accumulation goes net-negative.</p>
+    <p>AI-generated code accelerates feature delivery <em>now</em> but accumulates hidden technical debt that bites <em>later</em>. The model exhibits a regime crossover near tmax ≈ 26: early AI use looks net-positive on y; late accumulation goes net-negative as the deferred debt cost dominates.</p>
+    <p>aidebt is the only model in the bank where the default <code>rq()</code> verdict is <strong>REFUTE</strong>. That's because at tmax=20 (short horizon) the AI's velocity gain dominates; at tmax=30+ the debt accumulation reverses the sign.</p>
+    <p class="dim"><em>Intuition</em>: Borrowing from the future eventually costs more than borrowing.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Feat − 0.3·Debt at end of run.</p>
+    <p><strong><code>Feat − 0.3·Debt</code> at end of run.</strong></p>
+    <p>Lower debt-penalty than the debt model (0.3 vs 1.0) because AI-debt is partly recoverable via refactoring — less than human-debt which has full carrying cost.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Long-horizon (tmax &gt; 30) AI-heavy runs become net-negative — the only model with a REFUTE verdict at default init.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality" target="_blank" rel="noopener">Harding, W. (2024). Coding on Copilot — Multi-year Research Shows AI's Impact on Code Quality. GitClear.</a></td><td><span class="dim">industry</span></td></tr>
-<tr><td><a href="https://arxiv.org/abs/2302.06590" target="_blank" rel="noopener">Peng, S., et al. (2023). The Impact of AI on Developer Productivity. arXiv:2302.06590.</a></td><td><span class="warn">preprint</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/MS.2012.167" target="_blank" rel="noopener">Kruchten, P., Nord, R. L., &amp; Ozkaya, I. (2012). Technical Debt: From Metaphor to Theory and Practice. <em>IEEE Software</em> 29(6):18–21.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Long-horizon (tmax &gt; 30) AI-heavy runs become net-negative.</strong></p>
+    <p>At tmax=20 (default), the answer is REFUTE — AI looks great. At tmax=30+, CONFIRM. This is the regime crossover.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>aidebt is the framework's only <span class='dim'>world-conditional</span> model — robust to parameter perturbation (188/200) but fragile to input perturbation (75/200). The regime crossover at t≈26 places it firmly in this cell.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -104,36 +101,63 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>Same as aiwork: no AI-authorship attribution exists in any open dataset.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. Same blocker as aiwork: no AI-authorship attribution exists in open datasets.</p>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A — same data gap as aiwork.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="bad">REFUTE</span> &middot; gap +6.50</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">world-conditional <span class="dim">(inputs 188/200 CONFIRM, params 75/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="bad">REFUTE</span> &middot; gap +6.50</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>world-conditional <span class="dim">(inputs 188/200 CONFIRM, params 75/200)</span></td></tr>
+</tbody></table>
+    <div class='callout'><span class='label'>methodologically interesting</span>aidebt is the only REFUTE-at-default model. Its world-conditional placement is what makes it interesting: the framework's 2&times;2 typology gains a populated 4th cell because of this one model.</div>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>The most interesting dark model. The regime-crossover at tmax ≈ 26 places it in the world-conditional cell (robust to params, fragile to inputs). The only model where the default rq() verdict is REFUTE.</p>
+    <p>No empirical results. methodologically the most interesting dark model.</p>
+    
+    <p>The regime-crossover behaviour is a useful demonstration of the framework's expressive power — and a warning that single-tmax verdicts can mislead.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Time-horizon matters</strong>: REFUTE at tmax=20 vs CONFIRM at tmax=30 shows that verdict-summarisation must report the horizon.</li>
+<li><strong>4-cell typology fully populated</strong>: aidebt's world-conditional placement is the only example. Without it, the 2&times;2 framework would have a permanently empty cell.</li>
+<li><strong>Future calibration</strong>: same path as aiwork — opt-in IDE instrumentation could give per-commit AI usage data.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1109/MS.2012.167" target="_blank" rel="noopener">Kruchten, P., Nord, R. L., &amp; Ozkaya, I. (2012). Technical Debt: From Metaphor to Theory and Practice. <em>IEEE Software</em> 29(6):18–21.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://arxiv.org/abs/2302.06590" target="_blank" rel="noopener">Peng, S., et al. (2023). The Impact of AI on Developer Productivity. arXiv:2302.06590.</a></td><td><span class="warn">preprint</span></td></tr>
+<tr><td><a href="https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality" target="_blank" rel="noopener">Harding, W. (2024). Coding on Copilot — Multi-year Research Shows AI's Impact on Code Quality. GitClear.</a></td><td><span class="dim">industry</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

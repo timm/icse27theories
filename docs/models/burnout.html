@@ -24,8 +24,8 @@
 
 <main>
 
-<h1>burnout <span class="dim" style="font-weight:400;">(2024)</span><span class="tag">process-cond. cell</span></h1>
-<p class="sub-title">DORA wellbeing report (2024) + Maslach inventory.</p>
+<h1>burnout <span class="dim" style="font-weight:400;">(2024)</span><span class="tag">process-conditional cell</span></h1>
+<p class="sub-title">DORA wellbeing reports + Maslach burnout inventory.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,19 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Long hours and emotional exhaustion degrade output. Stocks: Energy, Exhaustion, Output. Recovery rate competes with depletion rate.</p>
+    <p>Sustained high hours and emotional exhaustion degrade output. The model tracks Energy (resource), Exhaustion (depletion), and Output (delivered work). Recovery rate (rest, lower hours) competes with depletion rate (hours, stress).</p>
+    <p>Maslach's burnout inventory (1981) defines the psychological construct; DORA's 2024 wellbeing report shows the operational impact on team output.</p>
+    <p class="dim"><em>Intuition</em>: Tired teams ship less. Eventually they ship nothing.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Cumulative output minus exhaustion penalty.</p>
+    <p><strong>Cumulative output minus exhaustion penalty.</strong></p>
+    <p>Penalises operating above Exhaustion threshold.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Sustained high hours collapse output via exhaustion.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1002/job.4030020205" target="_blank" rel="noopener">Maslach, C., &amp; Jackson, S. E. (1981). The Measurement of Experienced Burnout. <em>Journal of Organizational Behavior</em> 2(2):99–113.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://cloud.google.com/devops/state-of-devops" target="_blank" rel="noopener">DORA / Google Cloud (2024). Wellbeing and Burnout — <em>State of DevOps Report</em>.</a></td><td><span class="dim">industry</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Sustained high hours collapse output via exhaustion.</strong></p>
+    <p>CONFIRM at default for elevated hours regime.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>burnout is <span class='warn'>process-conditional</span> — robust to input stocks, fragile to recovery-rate parameters.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -97,36 +95,62 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>HR/wellbeing surveys are private and ethics-gated. Commit-timing proxies (off-hours commits) are weak and don&#x27;t capture the construct.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. HR/wellbeing surveys are private and ethics-gated. The off-hours commit proxy (count commits outside 9–17 local time) is weak — it conflates timezone, schedule preference, and burnout.</p>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A. Would need (a) self-reported wellbeing data (survey or HR), (b) a weak proxy like off-hours commits — already extractable from gitlog but not a faithful construct.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -384.38</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 41/200 CONFIRM, params 197/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -384.38</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 41/200 CONFIRM, params 197/200)</span></td></tr>
+</tbody></table>
+    
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Structurally unlifted. Methodological case alongside aiwork and aidebt.</p>
+    <p>No empirical results. burnout joins aiwork and aidebt as a structurally-dark model in the paper.</p>
+    
+    <p>Possible future work: a weak off-hours-commit proxy could give a baseline lift. Industry partnership would give better data.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Privacy gate</strong>: wellbeing data is ethics-gated. Industry partnerships with explicit consent would be the only path.</li>
+<li><strong>Weak proxies available</strong>: off-hours commit fraction is computable but doesn't faithfully measure the Maslach construct.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1002/job.4030020205" target="_blank" rel="noopener">Maslach, C., &amp; Jackson, S. E. (1981). The Measurement of Experienced Burnout. <em>Journal of Organizational Behavior</em> 2(2):99–113.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1108/13620430910966406" target="_blank" rel="noopener">Schaufeli, W. B., Leiter, M. P., &amp; Maslach, C. (2009). Burnout: 35 Years of Research and Practice. <em>Career Development International</em> 14(3):204–220.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://cloud.google.com/devops/state-of-devops" target="_blank" rel="noopener">DORA / Google Cloud (2024). Wellbeing and Burnout — <em>State of DevOps Report</em>.</a></td><td><span class="dim">industry</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

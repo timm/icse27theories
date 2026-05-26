@@ -24,8 +24,8 @@
 
 <main>
 
-<h1>micro <span class="dim" style="font-weight:400;">(2015)</span><span class="tag">process-cond. cell</span></h1>
-<p class="sub-title">Newman, S. (2015). Building Microservices.</p>
+<h1>micro <span class="dim" style="font-weight:400;">(2015)</span><span class="tag">process-conditional cell</span></h1>
+<p class="sub-title">Newman (2015) microservices coupling dynamic.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,19 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Service-architecture coupling dynamic: more services lower local deploy risk but increase cross-service failure cascades. Stocks track Services, Couplings, and Cascades.</p>
+    <p>Service-architecture has a coupling/cascading tradeoff: more services lower local deploy risk (one service breaking doesn't crash the monolith) but increase inter-service dependency surfaces. If coupling exceeds some threshold, a single service failure cascades.</p>
+    <p>The SD form tracks Services, Couplings, and Cascades. Couplings are pairwise (n choose 2 service-pairs). Cascades are propagation events from one service's failure to its dependents.</p>
+    <p class="dim"><em>Intuition</em>: One service breaking is fine. One service breaking and bringing down 30 others is a microservice outage.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Healthy services − 2·Cascading-failures.</p>
+    <p><strong>Healthy services − 2·Cascading-failures.</strong></p>
+    <p>Penalty on cascading failures is 2× the bonus for healthy operation.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Coupling threshold breached → cascade dominates.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1016/j.jss.2018.09.082" target="_blank" rel="noopener">Soldani, J., Tamburri, D. A., &amp; Van Den Heuvel, W.-J. (2018). The Pains and Gains of Microservices: A Systematic Grey Literature Review. <em>Journal of Systems and Software</em> 146:215–232.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://www.oreilly.com/library/view/building-microservices/9781491950340/" target="_blank" rel="noopener">Newman, S. (2015). <em>Building Microservices</em>. O'Reilly.</a></td><td><span class="warn">book</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Coupling threshold breached → cascade dominates.</strong></p>
+    <p>CONFIRM at default for high-coupling regimes.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>micro is <span class='warn'>process-conditional</span> — input stress is robust (network size doesn't break the thesis) but the coupling parameter is fragile (perturbing it can drop the verdict to neutral).</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -95,36 +93,62 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>No public service-architecture map for the projects on disk. Microservice OSS projects exist (Netflix Eureka, k8s manifests) but no curated dataset combining git history + service topology.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. The 8 projects on disk are monoliths (Helix, junit5, Ambari, tomcat, camel) or library-style code (kaiaulu, airflow as DAG runner, openssl) — none are microservice deployments. A microservice OSS project (Netflix Eureka, Hashicorp Consul, etc.) would need to be added.</p><div class='callout'><span class='label'>why not</span>The framework's 8-project family doesn't include any microservice exemplars. Adding one would also require service-topology scraping (k8s manifests, Helm charts, OpenAPI specs) — outside today's scope.</div>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A. Would need (a) a microservice-style project, (b) service-topology extractor (k8s/Helm/OpenAPI), (c) service-incident logs for cascading-failure detection.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -67.01</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 30/200 CONFIRM, params 141/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -67.01</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 30/200 CONFIRM, params 141/200)</span></td></tr>
+</tbody></table>
+    
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Structurally unlifted on the current 8-project family. Would need a microservice-style OSS project + k8s/Helm manifest scrape.</p>
+    <p>No empirical results. micro is structurally dark on the current 8-project family — the projects available are not microservice deployments.</p>
+    
+    <p>A future session could clone a microservice-style project + manifest scraper.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Family scope limit</strong>: an 8-monolith family can't evaluate a microservice thesis. The framework needs deliberate selection of microservice projects for this lift.</li>
+<li><strong>Service-topology data is project-specific</strong>: unlike git-log + JIRA which are nearly universal, microservice topologies live in deploy-time configs (k8s, Helm) that vary widely.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1016/j.jss.2018.09.082" target="_blank" rel="noopener">Soldani, J., Tamburri, D. A., &amp; Van Den Heuvel, W.-J. (2018). The Pains and Gains of Microservices: A Systematic Grey Literature Review. <em>JSS</em> 146:215–232.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://www.oreilly.com/library/view/building-microservices/9781491950340/" target="_blank" rel="noopener">Newman, S. (2015). <em>Building Microservices</em>. O'Reilly.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1007/978-3-319-67425-4_12" target="_blank" rel="noopener">Dragoni, N., Giallorenzo, S., Lluch Lafuente, A., et al. (2017). Microservices: Yesterday, Today, and Tomorrow. <em>Present and Ulterior Software Engineering</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

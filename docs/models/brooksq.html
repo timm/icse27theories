@@ -25,7 +25,7 @@
 <main>
 
 <h1>brooksq <span class="dim" style="font-weight:400;">(2008)</span><span class="tag">fragile cell</span></h1>
-<p class="sub-title">Brooks (1975) + Madachy, R. (2008). Software Process Dynamics.</p>
+<p class="sub-title">Brooks (1975) extended with Madachy (2008): quality side.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,20 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Brooks&#x27;s quality side: late hires don&#x27;t just slow veterans, they also inject more bugs that leak into the field. Five stocks (Vet, New, Done, Bugs, Esc) + inj_rate (injection per Vet-prod) + leak_rate (fraction of bugs not caught quickly).</p>
+    <p>Brooks's mythical-man-month has a quality side that the velocity-only model omits: late hires don't just slow veterans, they also inject more bugs that leak into the field. The brooksq SD form tracks five stocks (Vet, New, Done, Bugs, Esc) with two extra rate params: <em>inj_rate</em> (bugs per veteran-prod-unit) and <em>leak_rate</em> (fraction of bugs that escape to Esc without being caught).</p>
+    <p>The success measure becomes <code>Done − 5·Esc</code>: escaped bugs are penalised 5× more heavily than unfinished work. A surge of new hires increases comm overhead AND raises inj_rate, double-hitting the y metric.</p>
+    <p class="dim"><em>Intuition</em>: New hires don't know the codebase. They both work slower AND introduce more defects. The compound effect is what brooksq captures.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Done − 5·Esc — escaped bugs penalise heavily.</p>
+    <p><strong><code>Done − 5·Esc</code> — bug-escapes hurt 5× more than open work.</strong></p>
+    <p>A &quot;quality-aware progress&quot; metric. A team that delivers 100 done with 30 escaped is rated −50, worse than a team with 50 done and zero escapes (rated +50).</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>boost=10 newcomers at t=10 hurts y = Done − 5·Esc.</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_brooksq.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1109/MC.1987.1663532" target="_blank" rel="noopener">Brooks Jr., F. P. (1987). No Silver Bullet. <em>IEEE Computer</em> 20(4):10–19.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1002/9780470192719" target="_blank" rel="noopener">Madachy, R. J. (2008). <em>Software Process Dynamics</em>. Wiley-IEEE Press.</a></td><td><span class="warn">book</span></td></tr>
-<tr><td><a href="https://doi.org/10.1002/bltj.2229" target="_blank" rel="noopener">Mockus, A., &amp; Weiss, D. M. (2000). Predicting Risk of Software Changes. <em>Bell Labs Technical Journal</em> 5(2):169–180. (Used for SZZ-style risk modelling.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong><code>boost = 10</code> newcomers at t=10 hurts <code>y = Done − 5·Esc</code>.</strong></p>
+    <p>Same trigger as Brooks but a tougher y. CONFIRM at default with gap ≈ −46. Stress reveals fragility — the verdict is sensitive to background.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>brooksq is <span class='bad'>fragile</span>. Inputs stress: only 4/200 CONFIRM. Params stress: only 39/200. Either a noisy input cocktail or a perturbed parameter cocktail breaks the verdict — the thesis depends on a narrow operating regime.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -107,7 +104,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_brooksq.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>Lifted via the same SZZ pipeline as rework + brooks's late-hire detection. inj_rate_pre/post = bug-introducing commit count in symmetric 90-day windows around each late-hire event. leak_rate = fraction of SZZ pairs whose fix-introduction latency exceeds 30 days.</p><p>Full notebook: <code>lifts/lift_brooksq.Rmd</code>. Companion helpers: <code>parse_szz_bugfixes</code>, <code>compute_injection_changes</code>, <code>estimate_leak_rate</code> in <code>lifts/functions.R</code>.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu)
@@ -187,30 +185,114 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">late_hire events</td><td>trigger timestamps for the windows</td><td>kaiaulu identity_match → detect_late_hires</td></tr>
+<tr><td class="mono">introducing_commit_hash + date</td><td>inj_rate numerator</td><td>PyDriller B-SZZ</td></tr>
+<tr><td class="mono">commit_hash + date</td><td>inj_rate denominator</td><td>kaiaulu parse_gitlog</td></tr>
+<tr><td class="mono">latency_days</td><td>leak_rate threshold (default 30)</td><td>lift parameter</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>PyDriller 2.9</strong></td><td>B-SZZ over commit history</td></tr>
+<tr><td><strong>Perceval / kaiaulu</strong></td><td>gitlog + identity_match</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: required (SZZ-introducing commits). <strong>(2) Identity bridging</strong>: only git used; mbox bridging not required for this lift.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -45.91</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">fragile <span class="dim">(inputs 4/200 CONFIRM, params 39/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -45.91</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 4/200 CONFIRM, params 39/200)</span></td></tr>
+</tbody></table>
+    <div class='callout'><span class='label'>known boundary violation</span><code>brooksq.leak_rate hi = 0.5</code> is exceeded on every lifted project except kaiaulu (the smallest sample). Median ≈ 0.71. The model's bound was set at small-project scale; mature OSS routinely has &gt;70% of bug-fixes lagging the introduction by &gt;30 days. F1 in <code>findings.md</code>.</div>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on 7 projects via SZZ. brooksq&#x27;s leak_rate exceeds model.hi=0.5 on 7 of 7 with lift (only kaiaulu 0.42 in-range — smallest sample). Monotonic 0.42→0.93 across 5 languages — structural model-bound failure (F1). On inj_rate_increase, verdict is SPLIT: Ambari +0.094 supports, Helix 0 neutral, junit5 -0.011 mildly refutes (F4).</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>leak_rate</code>. Bounds: <code>[0, 0.5]</code>.</p>
+    <p><strong>F1 boundary violation (7/8 projects)</strong> and <strong>F4 split verdict (3 of 3 projects)</strong> are the two strongest paper claims from the entire framework. brooksq is the model that delivered the framework's biggest empirical findings.</p>
+    <table><thead><tr>
+<th>project</th>
+<th>leak_rate</th>
+<th>bound</th>
+<th>inj_rate_increase</th>
+<th>n_szz_pairs</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">kaiaulu</td>
+<td class="mono">0.418</td>
+<td class="mono">IN</td>
+<td class="mono">—</td>
+<td class="mono">146</td>
+</tr>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">0.571</td>
+<td class="mono">OUT</td>
+<td class="mono">0.000</td>
+<td class="mono">1,297</td>
+</tr>
+<tr>
+<td class="mono">junit5</td>
+<td class="mono">0.604</td>
+<td class="mono">OUT</td>
+<td class="mono">-0.011</td>
+<td class="mono">11,867</td>
+</tr>
+<tr>
+<td class="mono">Ambari</td>
+<td class="mono">0.697</td>
+<td class="mono">OUT</td>
+<td class="mono">+0.094</td>
+<td class="mono">15,992</td>
+</tr>
+<tr>
+<td class="mono">camel</td>
+<td class="mono">0.712</td>
+<td class="mono">OUT</td>
+<td class="mono">-0.189</td>
+<td class="mono">931</td>
+</tr>
+<tr>
+<td class="mono">airflow</td>
+<td class="mono">0.825</td>
+<td class="mono">OUT</td>
+<td class="mono">-0.011</td>
+<td class="mono">11,170</td>
+</tr>
+<tr>
+<td class="mono">tomcat</td>
+<td class="mono">0.876</td>
+<td class="mono">OUT</td>
+<td class="mono">0.000</td>
+<td class="mono">8,855</td>
+</tr>
+<tr>
+<td class="mono">openssl</td>
+<td class="mono">0.931</td>
+<td class="mono">OUT</td>
+<td class="mono">-0.022</td>
+<td class="mono">5,424</td>
+</tr>
+</tbody></table>
+    <p>Two findings here: (a) leak_rate exceeds model bound on 7 of 8 — definitive structural model-bound failure across 5 languages, monotonically from kaiaulu's 0.42 to openssl's 0.93. (b) inj_rate_increase verdict is SPLIT: Ambari +0.094 supports, Helix 0 neutral, junit5/airflow/tomcat marginally refute, camel decisively refutes. Brooks's quality thesis does NOT replicate universally.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>F1</strong>: paper recommends widening <code>leak_rate hi</code> from 0.5 to 1.0. Mature OSS systematically lags bug-fixes &gt; 30 days.</li>
+<li><strong>F4</strong>: the brooks-velocity side replicates (all positive in big-sample projects); the brooks-quality side does NOT. Argues against a universal SE-law framing.</li>
+<li><strong>Methodology gain</strong>: combining structural V&amp;V (fragile cell), boundary check (OUT), and family-member test (split) gives a much sharper paper claim than any single test would.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>leak_rate</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">0.825335720680394</td><td><span class="bad">OUT</span></td></tr>
 <tr><td>ambari</td><td class="num mono">0.697098549274637</td><td><span class="bad">OUT</span></td></tr>
@@ -223,6 +305,19 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1109/MC.1987.1663532" target="_blank" rel="noopener">Brooks Jr., F. P. (1987). No Silver Bullet — Essence and Accidents of Software Engineering. <em>IEEE Computer</em> 20(4):10–19.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1002/9780470192719" target="_blank" rel="noopener">Madachy, R. J. (2008). <em>Software Process Dynamics</em>. Wiley-IEEE Press.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1002/bltj.2229" target="_blank" rel="noopener">Mockus, A., &amp; Weiss, D. M. (2000). Predicting Risk of Software Changes. <em>Bell Labs Technical Journal</em> 5(2):169–180.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/ASE.2006.23" target="_blank" rel="noopener">Kim, S., Zimmermann, T., Pan, K., &amp; Whitehead, E. J. (2006). Automatic identification of bug-introducing changes. <em>ASE '06</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

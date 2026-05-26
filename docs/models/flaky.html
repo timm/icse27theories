@@ -25,7 +25,7 @@
 <main>
 
 <h1>flaky <span class="dim" style="font-weight:400;">(2014)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Luo et al. (2014). An empirical analysis of flaky tests.</p>
+<p class="sub-title">Luo et al. (2014, FSE) flaky-test empirical analysis.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,19 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Flakiness compounds: flaky tests slow CI feedback → bugs leak into mainline → more flakiness. The model treats Flaky as a stock fed by chaotic interactions in Tests, drained by CI Discipline.</p>
+    <p>Test flakiness compounds. A flaky test slows CI feedback, which delays bug discovery, which lets defects accumulate. The accumulated defects in turn surface as more flaky tests (real-bug-masquerading-as-flake), and the cycle deepens.</p>
+    <p>The model treats Flaky as a stock that grows when CI-Discipline weakens; CI-Discipline weakens when there are too many flakes to triage. The thesis is one of negative feedback loop dominance.</p>
+    <p class="dim"><em>Intuition</em>: A team that tolerates flaky tests gets more flaky tests. The flake-mask probability is the runaway parameter.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Done − 3·Esc — flakes that mask real bugs cost 3x.</p>
+    <p><strong><code>Done − 3·Esc</code> — flakes that mask real bugs cost 3×.</strong></p>
+    <p>Lower penalty than brooksq because not every flake masks a bug; but real bugs masked by flakes are 3× worse than open work.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Flake-mask probability 0.01 → 0.4 dominates output.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1145/2635868.2635920" target="_blank" rel="noopener">Luo, Q., Hariri, F., Eloussi, L., &amp; Marinov, D. (2014). An Empirical Analysis of Flaky Tests. <em>FSE '14</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/ICST.2019.00038" target="_blank" rel="noopener">Lam, W., Oei, R., Shi, A., Marinov, D., &amp; Xie, T. (2019). iDFlakies: A Framework for Detecting and Partially Classifying Flaky Tests. <em>ICST '19</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Flake-mask probability 0.01 → 0.4 dominates output.</strong></p>
+    <p>A 40× shift in mask probability collapses the feedback loop into runaway mode. CONFIRM at default.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>flaky is <span class='ok'>universal</span>. Robust to stock and param stress.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -99,36 +97,62 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>No CI flake-outcome logs in any kaiaulu pipeline. GitHub Actions logs are public for some OSS projects but no parser exists. Reachable but unbuilt (~1-2 days of focused engineering).</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. CI flake-outcome logs exist for some projects (GitHub Actions stores them) but no kaiaulu-style parser ingests them. Building one is reachable engineering — probably 1–2 days for a GH Actions API client + retry-pattern detector — but unbuilt in this session.</p><div class='callout'><span class='label'>highest-priority dark model</span>flaky is the most-reachable dark model. GitHub Actions logs are public for the OSS projects on disk. A retry-pattern detector would unlock empirical calibration without needing a fundamentally new data source.</div>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A — would need: (a) GH Actions API client, (b) test-rerun detector, (c) flake-vs-real-bug classifier.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -127.97</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 196/200 CONFIRM, params 200/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -127.97</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 196/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Highest-priority dark model to lift in future sessions — public data exists, parser missing.</p>
+    <p>No empirical results. flaky is dark for a tractable reason — the data exists, no parser yet.</p>
+    
+    <p>A future session could build a GH Actions retry-detector + lift flaky empirically.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Buildable in 1–2 sessions</strong>: unlike aiwork or teamtopo, flaky's data exists. The parser is the only missing piece.</li>
+<li><strong>Cross-project ground truth available</strong>: iDFlakies (Lam et al. 2019) provides a labelled flaky-test corpus that could validate any detector built here.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/2635868.2635920" target="_blank" rel="noopener">Luo, Q., Hariri, F., Eloussi, L., &amp; Marinov, D. (2014). An Empirical Analysis of Flaky Tests. <em>FSE '14</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/ICST.2019.00038" target="_blank" rel="noopener">Lam, W., Oei, R., Shi, A., Marinov, D., &amp; Xie, T. (2019). iDFlakies: A Framework for Detecting and Partially Classifying Flaky Tests. <em>ICST '19</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/3338906.3338945" target="_blank" rel="noopener">Eck, M., Palomba, F., Castelluccio, M., &amp; Bacchelli, A. (2019). Understanding Flaky Tests: The Developer's Perspective. <em>ESEC/FSE '19</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

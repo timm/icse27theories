@@ -25,7 +25,7 @@
 <main>
 
 <h1>aiwork <span class="dim" style="font-weight:400;">(2024)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">GitClear (2024) + Becker et al. (METR, 2025): AI churn vs gen tradeoff.</p>
+<p class="sub-title">GitClear / METR — AI churn vs gen tradeoff.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,20 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>AI-assisted development creates a churn-vs-gen tradeoff: AI generates more code (raises Kept) but also more churn (raises Churned, the discard rate). The net depends on whether genuine learning happens or just velocity-of-deletion.</p>
+    <p>AI-assisted development creates a tradeoff: AI generates more code (raising Kept) but also more churn (raising Churned, the discard rate). The net depends on whether genuine learning happens or just velocity-of-deletion. GitClear's 2024 multi-year analysis claims AI-assisted code has higher churn within 2 weeks, suggesting the productivity gain is partly illusory.</p>
+    <p>The SD form makes this explicit: Wip flows to Kept at gen_rate × (1 − churn_rate), or to Churned at gen_rate × churn_rate. AI raises both rates simultaneously; the net effect depends on which dominates.</p>
+    <p class="dim"><em>Intuition</em>: AI helps you type fast but you delete what you just wrote.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Kept − Churned at end of run.</p>
+    <p><strong><code>Kept − Churned</code> at end of run.</strong></p>
+    <p>Net retained code. Higher = more durable contributions.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>ai=1 (full AI assist) reduces net Kept code.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://arxiv.org/abs/2302.06590" target="_blank" rel="noopener">Peng, S., Kalliamvakou, E., Cihon, P., &amp; Demirer, M. (2023). The Impact of AI on Developer Productivity: Evidence from GitHub Copilot. arXiv:2302.06590.</a></td><td><span class="warn">preprint</span></td></tr>
-<tr><td><a href="https://doi.org/10.1145/3491101.3519665" target="_blank" rel="noopener">Vaithilingam, P., Zhang, T., &amp; Glassman, E. L. (2022). Expectation vs. Experience: Evaluating the Usability of Code Generation Tools Powered by Large Language Models. <em>CHI EA '22</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality" target="_blank" rel="noopener">Harding, W. (2024). Coding on Copilot — Multi-year Research Shows AI's Impact on Code Quality. GitClear.</a></td><td><span class="dim">industry</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong><code>ai=1</code> (full AI assist) reduces net Kept code.</strong></p>
+    <p>If AI's churn-amplification exceeds its gen-amplification, the net is negative. CONFIRM at default.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>aiwork sits in <span class='ok'>universal</span> — verdict is robust under random stress at the default parameter regime.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -105,36 +102,62 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>Per-commit AI-authorship attribution does not exist in any open dataset. GitHub Copilot and similar tools do not tag commits. Would require building an attribution corpus before any project lift is possible.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. There is currently no open dataset that tags commits with AI-authorship attribution. GitHub Copilot and similar tools do not record their use in commit metadata. Even author-confessed AI usage (e.g. "Co-authored-by: Copilot") is rare and not standardised.</p><div class='callout'><span class='label'>why not</span>The framework can express the thesis cleanly. The field hasn't collected the data needed to calibrate it. Building such a corpus would require either (a) instrumentation of AI tools at the IDE level to log per-commit usage, or (b) a self-reported survey of developers — both substantial research projects in themselves.</div>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A while structurally dark.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -51.69</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 143/200 CONFIRM, params 133/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -51.69</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 143/200 CONFIRM, params 133/200)</span></td></tr>
+</tbody></table>
+    
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Structurally unlifted. Methodological worked example: the framework can express this thesis, but no field data source can calibrate it. That gap is itself a contribution.</p>
+    <p>No empirical results. aiwork is part of the paper's <em>methodological case</em>: the framework expresses theses the field can't yet calibrate, naming the data gaps.</p>
+    
+    <p>A future-research agenda item: build an AI-authorship attribution corpus (perhaps via opt-in IDE instrumentation).</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Field-wide data gap</strong>: aiwork is one of 7 dark models in the framework. Its inability to be calibrated is itself a finding worth flagging to ICSE reviewers.</li>
+<li><strong>Practical recommendation</strong>: tool vendors (GitHub Copilot, Codeium, Cursor) should consider opt-in commit-level usage logging — a small change with large research impact.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://arxiv.org/abs/2302.06590" target="_blank" rel="noopener">Peng, S., Kalliamvakou, E., Cihon, P., &amp; Demirer, M. (2023). The Impact of AI on Developer Productivity: Evidence from GitHub Copilot. arXiv:2302.06590.</a></td><td><span class="warn">preprint</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/3491101.3519665" target="_blank" rel="noopener">Vaithilingam, P., Zhang, T., &amp; Glassman, E. L. (2022). Expectation vs. Experience: Evaluating the Usability of Code Generation Tools Powered by Large Language Models. <em>CHI EA '22</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality" target="_blank" rel="noopener">Harding, W. (2024). Coding on Copilot — Multi-year Research Shows AI's Impact on Code Quality. GitClear.</a></td><td><span class="dim">industry</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

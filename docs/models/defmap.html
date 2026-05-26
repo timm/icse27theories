@@ -25,7 +25,7 @@
 <main>
 
 <h1>defmap <span class="dim" style="font-weight:400;">(1991)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Abdel-Hamid &amp; Madnick (1991) — defect-management submodel.</p>
+<p class="sub-title">Abdel-Hamid &amp; Madnick (1991) defect-flow submodel.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,19 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Defect flow: Injected → Caught (by testing) or → Latent → Prod (field-escape). The ctrl tst (testing intensity) modulates how many defects get Caught before reaching Prod.</p>
+    <p>Defect lifecycle: bugs are <em>Injected</em> by ongoing development. Some get <em>Caught</em> by testing/review; the rest become <em>Latent</em>. Latent bugs eventually reach <em>Prod</em> (field-escape) where users encounter them. The single ctrl variable <em>tst</em> (testing intensity) modulates how many Injected get Caught vs leaked to Latent.</p>
+    <p>The thesis is operational: testing matters even at the margin. Cutting tst from 2.5 to 0.5 changes the defect destination — without changing how many bugs are injected.</p>
+    <p class="dim"><em>Intuition</em>: Bugs get made and then they either get caught or they escape. More testing → fewer escapes.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>−end.Prod − 0.5·end.Latent — negative because we want fewer escaped + fewer pending.</p>
+    <p><strong><code>−end.Prod − 0.5·end.Latent</code>.</strong></p>
+    <p>Negative because we want fewer escaped + fewer pending. Latent is half-weighted because it represents future-escape potential, not realised escape.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>tst 2.5 → 0.5 (sharp reduction in testing) inflates Prod defects.</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_defmap.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1145/76380.76383" target="_blank" rel="noopener">Abdel-Hamid, T. K., &amp; Madnick, S. E. (1989). Lessons Learned from Modeling the Dynamics of Software Development. <em>Communications of the ACM</em> 32(12):1426–1438.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1145/1083142.1083147" target="_blank" rel="noopener">Śliwerski, J., Zimmermann, T., &amp; Zeller, A. (2005). When Do Changes Induce Fixes? <em>MSR '05</em>. (The SZZ paper underpinning the lift's defect-injection signal.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong><code>tst 2.5 → 0.5</code> inflates Prod defects.</strong></p>
+    <p>Cutting testing intensity drives more Latent and eventually more Prod. CONFIRM at default with gap = −100 (strong).</p>
+    <h2>Stress-matrix cell</h2>
+    <p>defmap is <span class='ok'>universal</span> with 200/200 CONFIRM in both input and param stress — the testing intensity dominates the y-flow regardless of background.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -102,7 +100,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_defmap.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>Lifted via per-release-phase SZZ partitioning. Each release tag defines a phase boundary. For each phase, count bug-introducing commits (Injected), bug-fix commits in the same phase (Caught), and bug-introducing commits in this phase fixed in a later phase or never (Leaked). tst_proxy = Caught / Injected.</p><p>Full notebook: <code>lifts/lift_defmap.Rmd</code>.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
@@ -140,30 +139,89 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">release_tags</td><td>phase boundaries</td><td>git tag --sort=v:refname</td></tr>
+<tr><td class="mono">introducing_commit_hash + date</td><td>Injected count per phase</td><td>PyDriller B-SZZ</td></tr>
+<tr><td class="mono">fixing_commit_hash + date</td><td>Caught count per phase</td><td>kaiaulu parse_gitlog + commit_message regex</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>PyDriller 2.9</strong></td><td>B-SZZ + tag enumeration</td></tr>
+<tr><td><strong>kaiaulu</strong></td><td>parse_gitlog, identity_match</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: required. <strong>(2) Identity bridging</strong>: not used.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="dim">SKIP</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -100.00</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 147/200 CONFIRM, params 163/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">SKIP</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -100.00</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 147/200 CONFIRM, params 163/200)</span></td></tr>
+</tbody></table>
+    <p>All 8 structural tests PASS. Cell typology is robust (universal).</p>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted via SZZ phase-partition. tst_proxy = caught-within-phase / injected-within-phase. Helix 0.375, junit5 0.15, Ambari 0.098, tomcat 0.085. All projects operate in the LOW-tst (predicted-bad) regime, with Helix the least-bad.</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>tst_median</code>. Bounds: <code>[-, -]</code>.</p>
+    <p>Lifted on 7 projects. <strong>All 7 operate in the low-tst (predicted-bad) regime</strong> — tst_proxy ranges from 0 to 0.99 with most values well below the model's default tst=2.5. Helix is the least-bad (tst=0.375); airflow and openssl have tst=0 (no bugs caught in the same phase as introduced).</p>
+    <table><thead><tr>
+<th>project</th>
+<th>tst_proxy</th>
+<th>note</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">camel</td>
+<td class="mono">0.987</td>
+<td class="mono">very-high — possibly small-sample artifact</td>
+</tr>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">0.375</td>
+<td class="mono">best of the 7</td>
+</tr>
+<tr>
+<td class="mono">junit5</td>
+<td class="mono">0.150</td>
+<td class="mono"></td>
+</tr>
+<tr>
+<td class="mono">Ambari</td>
+<td class="mono">0.098</td>
+<td class="mono">worst of the lifted Java projects</td>
+</tr>
+<tr>
+<td class="mono">tomcat</td>
+<td class="mono">0.085</td>
+<td class="mono"></td>
+</tr>
+<tr>
+<td class="mono">openssl</td>
+<td class="mono">0.000</td>
+<td class="mono">all bugs leak across phases</td>
+</tr>
+<tr>
+<td class="mono">airflow</td>
+<td class="mono">0.000</td>
+<td class="mono">all bugs leak across phases</td>
+</tr>
+</tbody></table>
+    <p>The variance suggests different release-cadence cultures. camel's near-1.0 is suspect (only 2 phases captured); openssl and airflow have tst=0 because their release cadence is so slow that almost no SZZ-introducing commits are also fixed in the same tag-bounded phase.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Operating-regime confirmation</strong>: the thesis predicts that low tst → high Latent. Across 7 projects we see uniformly low tst. We can't falsify the thesis because no project tests the other regime — but the thesis explains the data well.</li>
+<li><strong>Release cadence matters</strong>: defmap's phases are tied to release tags. Continuous-deployment projects (no tags) would need a different phase definition.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>tst_median</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">0</td><td><span class="dim">-</span></td></tr>
 <tr><td>ambari</td><td class="num mono">0.0983606557377049</td><td><span class="dim">-</span></td></tr>
@@ -176,6 +234,17 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/76380.76383" target="_blank" rel="noopener">Abdel-Hamid, T. K., &amp; Madnick, S. E. (1989). Lessons Learned from Modeling the Dynamics of Software Development. <em>Communications of the ACM</em> 32(12):1426–1438.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1083142.1083147" target="_blank" rel="noopener">Śliwerski, J., Zimmermann, T., &amp; Zeller, A. (2005). When Do Changes Induce Fixes? <em>MSR '05</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

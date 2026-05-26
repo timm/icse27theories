@@ -25,7 +25,7 @@
 <main>
 
 <h1>teamtopo <span class="dim" style="font-weight:400;">(2019)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Skelton, M. &amp; Pais, M. (2019). Team Topologies.</p>
+<p class="sub-title">Skelton &amp; Pais (2019) Team Topologies.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,20 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Team-shape constraints throughput: stream-aligned teams in tight coupling produce sub-linear scaling. Cognitive load on each team becomes the bottleneck.</p>
+    <p>Conway's law in compartmental form: team structure constrains software structure. Skelton &amp; Pais propose 4 team types (stream-aligned, enabling, complicated-subsystem, platform) and 3 interaction modes (collaboration, X-as-a-service, facilitating). The SD form tracks cognitive-load accumulation per team.</p>
+    <p>If cognitive load on a stream-aligned team breaches its ceiling, output declines. This is the system-dynamics encoding of Conway/Skelton.</p>
+    <p class="dim"><em>Intuition</em>: Teams have cognitive-load ceilings. Past the ceiling, throughput drops.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Aggregate team output minus a load penalty.</p>
+    <p><strong>Aggregate team output minus a load penalty.</strong></p>
+    <p>Penalises teams operating above cognitive-load capacity.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Cognitive load ceiling breached → output declines.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://www.melconway.com/Home/Committees_Paper.html" target="_blank" rel="noopener">Conway, M. E. (1968). How Do Committees Invent? <em>Datamation</em> 14(4):28–31. (The original Conway's law.)</a></td><td><span class="dim">magazine</span></td></tr>
-<tr><td><a href="https://itrevolution.com/product/team-topologies/" target="_blank" rel="noopener">Skelton, M., &amp; Pais, M. (2019). <em>Team Topologies</em>. IT Revolution.</a></td><td><span class="warn">book</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/TSE.2003.1205177" target="_blank" rel="noopener">Herbsleb, J. D., &amp; Mockus, A. (2003). An Empirical Study of Speed and Communication in Globally Distributed Software Development. <em>IEEE TSE</em> 29(6):481–494.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Cognitive load ceiling breached → output declines.</strong></p>
+    <p>CONFIRM at default.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>teamtopo is <span class='ok'>universal</span> at default — the cognitive-load mechanism dominates under random stress.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -95,36 +92,62 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>Org-chart + team-boundary data is private to companies. No open dataset exists.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. Org-chart + team-boundary data is private to companies. Even in OSS, Apache projects don't formally have "team" structures — the volunteer model maps poorly onto Skelton-Pais categories.</p><div class='callout'><span class='label'>why not</span>This is the prototypical structurally-dark model: the data simply isn't collected publicly. Companies wouldn't share their internal org charts even if asked.</div>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A. Would need (a) explicit team membership rosters, (b) cognitive-load measurements (survey data) or proxies (LOC per team-period, files-touched diversity).</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -139.84</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 191/200 CONFIRM, params 112/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -139.84</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 191/200 CONFIRM, params 112/200)</span></td></tr>
+</tbody></table>
+    
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Structurally unlifted. Methodological case: framework expresses the thesis, the field does not collect the data.</p>
+    <p>No empirical results. teamtopo is the most fundamentally dark model in the bank — the data is private by construction.</p>
+    
+    <p>The framework expresses the thesis cleanly. Calibrating it would require partnerships with companies willing to share internal data.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>OSS may be the wrong domain</strong>: Apache-style volunteer projects don't have the team structures Skelton-Pais assumes. Industry partnerships or commercial-OSS hybrids would be better test beds.</li>
+<li><strong>Proxies are possible</strong>: file-touch diversity per developer-cohort could approximate cognitive-load. But the foundational "team" boundaries would still need to be supplied externally.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://www.melconway.com/Home/Committees_Paper.html" target="_blank" rel="noopener">Conway, M. E. (1968). How Do Committees Invent? <em>Datamation</em> 14(4):28–31.</a></td><td><span class="dim">magazine</span></td></tr>
+<tr><td><a href="https://itrevolution.com/product/team-topologies/" target="_blank" rel="noopener">Skelton, M., &amp; Pais, M. (2019). <em>Team Topologies</em>. IT Revolution.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/TSE.2003.1205177" target="_blank" rel="noopener">Herbsleb, J. D., &amp; Mockus, A. (2003). An Empirical Study of Speed and Communication in Globally Distributed Software Development. <em>IEEE TSE</em> 29(6):481–494.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

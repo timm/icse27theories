@@ -25,7 +25,7 @@
 <main>
 
 <h1>debt <span class="dim" style="font-weight:400;">(1992)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Cunningham, W. (1992). The WyCash Portfolio Management System.</p>
+<p class="sub-title">Cunningham (1992): technical debt slows shipping.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,20 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Technical debt accumulates as you ship fast. The debt then slows down future shipping, creating a feedback loop. Three params: born_rate (new debt per ship), intr_rate (compounding interest on existing debt), pay_rate (debt paid down by refactoring).</p>
+    <p>Shipping fast accrues technical debt. The debt then slows down future shipping. Three rates govern the dynamic: <em>born_rate</em> (new debt per ship), <em>intr_rate</em> (compounding interest on existing debt), and <em>pay_rate</em> (debt paid down by refactoring). The original metaphor comes from financial portfolio management — Cunningham's WyCash team described code shortcuts as a loan.</p>
+    <p>The SD form makes the loop explicit: <code>Vel</code> declines as <code>Debt</code> grows; ships add more debt; debt compounds; refactoring works the other way. Whether debt eventually dominates depends on whether <code>pay_rate</code> ≥ effective <code>born_rate + intr_rate</code>.</p>
+    <p class="dim"><em>Intuition</em>: A project that ships fast without refactoring is borrowing time from its future self at compound interest.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Cumulative Feat shipped minus mean Debt over the run.</p>
+    <p><strong><code>end.Feat</code> minus mean <code>Debt</code> over the run.</strong></p>
+    <p>Net value delivered, penalised by carried debt. A high-Feat project can still have low y if it accumulates Debt rapidly.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Starting Debt=50 (already-indebted project) hurts net feature delivery vs starting Debt=0.</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_debt.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1145/157709.157715" target="_blank" rel="noopener">Cunningham, W. (1992). The WyCash Portfolio Management System. <em>OOPSLA '92 Addendum</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/MS.2012.167" target="_blank" rel="noopener">Kruchten, P., Nord, R. L., &amp; Ozkaya, I. (2012). Technical Debt: From Metaphor to Theory and Practice. <em>IEEE Software</em> 29(6):18–21.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1145/3180155.3180206" target="_blank" rel="noopener">Tsantalis, N., Mansouri, M., et al. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Starting <code>Debt=50</code> hurts net feature delivery vs starting <code>Debt=0</code>.</strong></p>
+    <p>The pre-indebted project has less velocity headroom from t=0. CONFIRM = starting with debt costs you. Default params CONFIRM with gap ≈ −57.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>debt is <span class='ok'>universal</span> — input AND parameter perturbation both keep the verdict CONFIRM (200/200 and 200/200). The thesis is robust because the debt feedback loop is dominant under almost any parameter regime.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -100,7 +97,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_debt.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>Lifted via <strong>RefactoringMiner</strong> (Tsantalis et al. 2018). pay_rate = fraction of commits in a 90-day window containing at least one detected refactoring. born_rate proxied by share of multi-file (≥5 files) commits — a crude churn indicator. Full notebook: <code>lifts/lift_debt.Rmd</code>.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu)
@@ -161,30 +159,94 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">commit_hash</td><td>uniqueness key</td><td>project git log · kaiaulu parse_gitlog</td></tr>
+<tr><td class="mono">file_pathname</td><td>scope filter</td><td>project git log</td></tr>
+<tr><td class="mono">refactoring_events</td><td>denominator for pay_rate</td><td>RefactoringMiner -a · JSON output</td></tr>
+<tr><td class="mono">commit_message_id</td><td>(optional) JIRA link</td><td>kaiaulu parse_commit_message_id</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>Perceval</strong></td><td>git log parsing (kaiaulu dep)</td></tr>
+<tr><td><strong>kaiaulu</strong></td><td>parse_gitlog, identity_match, filters</td></tr>
+<tr><td><strong>RefactoringMiner 3.0.10</strong></td><td>refactor-event detection over all commits</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: not required. <strong>(2) Identity bridging</strong>: not required (lift is project-aggregate, not per-developer).</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -56.65</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 200/200 CONFIRM, params 200/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -56.65</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 200/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    <p>All 8 structural tests PASS. The robust cell placement matches the strong default rq() gap.</p>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on 5 Java projects via RefactoringMiner. The pay_rate metric is convergent across projects (0.36–0.59) — by far the most family-coherent metric in the bank. Compare to brooks_tax which spreads 11x. See finding F2.</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>pay_rate_median</code>. Bounds: <code>[0, 1]</code>.</p>
+    <p>Lifted on 5 Java projects. The <strong>pay_rate metric is convergent</strong> — a 60% spread across 5 independent codebases (0.36–0.59), compared to failrate spreading 15× and CFR spreading 180×. <strong>pay_rate is the most family-coherent metric in the bank.</strong></p>
+    <table><thead><tr>
+<th>project</th>
+<th>pay_rate</th>
+<th>born_rate proxy</th>
+<th>n_refactor_events</th>
+<th>n_commits</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">tomcat</td>
+<td class="mono">0.365</td>
+<td class="mono">0.100</td>
+<td class="mono">45,814</td>
+<td class="mono">22,453</td>
+</tr>
+<tr>
+<td class="mono">camel</td>
+<td class="mono">0.461</td>
+<td class="mono">0.226</td>
+<td class="mono">208,118</td>
+<td class="mono">65,803</td>
+</tr>
+<tr>
+<td class="mono">Ambari</td>
+<td class="mono">0.527</td>
+<td class="mono">0.270</td>
+<td class="mono">66,037</td>
+<td class="mono">24,589</td>
+</tr>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">0.588</td>
+<td class="mono">0.250</td>
+<td class="mono">21,945</td>
+<td class="mono">4,570</td>
+</tr>
+<tr>
+<td class="mono">junit5</td>
+<td class="mono">0.590</td>
+<td class="mono">0.195</td>
+<td class="mono">36,204</td>
+<td class="mono">10,668</td>
+</tr>
+</tbody></table>
+    <p>The two lower-pay-rate projects (tomcat 0.37, camel 0.46) are older Ant-style codebases. RefactoringMiner may detect their pattern less easily — open question for the methodology. Even with that variance, the band is 60% wide, vs failrate at 15×.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Family-member coherence</strong>: across 5 independent Java OSS projects, pay_rate stays in 0.36–0.59. Strongest candidate for a paper-headline universal-Java finding.</li>
+<li><strong>RefactoringMiner is the bottleneck</strong>: more projects = more RefMiner runs (each is multi-minute). Distillation into a smaller artifact would help reproducibility.</li>
+<li><strong>born_rate is weakly modelled</strong>: ≥5-file-commit threshold is a rough proxy. LOC-churn from scc would tighten it.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>pay_rate_median</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
 <tr><td>ambari</td><td class="num mono">0.526700481206919</td><td><span class="ok">in</span></td></tr>
@@ -197,6 +259,18 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/157709.157715" target="_blank" rel="noopener">Cunningham, W. (1992). The WyCash Portfolio Management System. <em>OOPSLA '92 Addendum</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/MS.2012.167" target="_blank" rel="noopener">Kruchten, P., Nord, R. L., &amp; Ozkaya, I. (2012). Technical Debt: From Metaphor to Theory and Practice. <em>IEEE Software</em> 29(6):18–21.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/3180155.3180206" target="_blank" rel="noopener">Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

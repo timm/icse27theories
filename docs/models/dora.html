@@ -25,7 +25,7 @@
 <main>
 
 <h1>dora <span class="dim" style="font-weight:400;">(2018)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Forsgren, N., Humble, J., &amp; Kim, G. (2018). Accelerate.</p>
+<p class="sub-title">Forsgren, Humble, Kim (2018) <em>Accelerate</em>.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,20 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>DORA&#x27;s deploy-cycle dynamic: larger batches → higher change-failure rate (CFR) → longer mean-time-to-recover (MTTR) → bottleneck on the next deploy. Four params: batch_size (ctrl), cfr_coef, arrival_rate, rec_rate.</p>
+    <p>DORA's deploy-cycle dynamic: larger batch sizes drive higher change-failure rate (CFR), which drives longer mean-time-to-recover (MTTR), which bottlenecks the next batch. Four params: <em>batch_size</em> (ctrl), <em>cfr_coef</em> (failure-per-deploy slope), <em>arrival_rate</em> (work intake), <em>rec_rate</em> (incident recovery speed).</p>
+    <p>Forsgren et al.'s empirical claim is that elite-performing teams deploy in small batches because the failure dynamics cascade. The SD form lets us calibrate batch_size and CFR independently per project.</p>
+    <p class="dim"><em>Intuition</em>: Bigger releases break more things. Broken things slow the next release.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Deploys − 2·Incidents at end of run.</p>
+    <p><strong><code>Deploys − 2·Incidents</code> at end of run.</strong></p>
+    <p>Net delivery — counting incidents twice. A team with 50 deploys and 20 incidents scores 10, vs a team with 30 deploys and 5 incidents scoring 20.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>batch_size 5 → 50 hurts net Deploys (incidents grow faster than Deploys).</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_dora.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://itrevolution.com/product/accelerate/" target="_blank" rel="noopener">Forsgren, N., Humble, J., &amp; Kim, G. (2018). <em>Accelerate: The Science of Lean Software and DevOps</em>. IT Revolution.</a></td><td><span class="warn">book</span></td></tr>
-<tr><td><a href="https://cloud.google.com/devops/state-of-devops" target="_blank" rel="noopener">DORA / Google Cloud (2024). <em>State of DevOps Report</em>.</a></td><td><span class="dim">industry</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/ICSE.2009.5070550" target="_blank" rel="noopener">Bird, C., et al. (2009). Does Distributed Development Affect Software Quality? An Empirical Case Study of Windows Vista. <em>ICSE '09</em>. (Methods for batch/CFR analysis.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong><code>batch_size 5 → 50</code> hurts net Deploys.</strong></p>
+    <p>At batch_size=50 the CFR is 10× higher, so the incidents compound faster than the deploys. CONFIRM with gap = −45 at default.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>dora is <span class='ok'>universal</span> — robust to both input and param stress.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -102,7 +99,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_dora.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>Lifted via tag-enumerated deploys + SZZ-based CFR + MTTR. batch_size = total commits / (n_tags − 1). CFR = unique bug-fix-commits / total commits. arrival_rate = commits per day. rec_rate = 1 / median fix-latency-days.</p><p>Full notebook: <code>lifts/lift_dora.Rmd</code>.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
@@ -137,30 +135,100 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">release_tags + date</td><td>deploy event timestamps</td><td>git tag --sort=v:refname + git log -1 --format=%ct</td></tr>
+<tr><td class="mono">commit_hash + date</td><td>arrival_rate denominator</td><td>kaiaulu parse_gitlog</td></tr>
+<tr><td class="mono">fixing_commit_hash</td><td>CFR numerator</td><td>PyDriller B-SZZ output</td></tr>
+<tr><td class="mono">intro_date - fixing_date</td><td>MTTR latency</td><td>SZZ pair table</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>PyDriller 2.9</strong></td><td>B-SZZ + commit walking</td></tr>
+<tr><td><strong>kaiaulu</strong></td><td>tag dates, gitlog</td></tr>
+<tr><td><strong>(no Java tools needed)</strong></td><td>lift is language-agnostic</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: required (CFR + MTTR both bug-driven). <strong>(2) Identity bridging</strong>: not used (project-aggregate).</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -45.35</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 183/200 CONFIRM, params 200/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -45.35</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 183/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    <p>All structural tests PASS. The 4-parameter model holds up under stress.</p>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on 7 projects via tag-deploy + SZZ-CFR-and-MTTR. Helix batch=73.9, MTTR=88d; junit5 batch=38.4, MTTR=73d; openssl batch=54.8, MTTR=686d (huge — old project with infrequent tags). All projects operate above the model&#x27;s batch=50 threshold or with very long MTTR; the predicted-bad regime is the common case.</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>cfr</code>. Bounds: <code>[-, -]</code>.</p>
+    <p>Lifted on 7 projects. Two findings: (a) batch_size varies 9×–74× across projects (smallest airflow 9.1, largest Helix 74), and (b) MTTR varies dramatically (73 days junit5, 686 days openssl). All 7 operate in or above the model's predicted-bad batch=50 regime, or have MTTRs in months/years.</p>
+    <table><thead><tr>
+<th>project</th>
+<th>batch_size</th>
+<th>CFR</th>
+<th>MTTR</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">airflow</td>
+<td class="mono">9.1</td>
+<td class="mono">0.250</td>
+<td class="mono">162d</td>
+</tr>
+<tr>
+<td class="mono">camel</td>
+<td class="mono">8.8</td>
+<td class="mono">0.077</td>
+<td class="mono">108d</td>
+</tr>
+<tr>
+<td class="mono">junit5</td>
+<td class="mono">38.4</td>
+<td class="mono">0.272</td>
+<td class="mono">73d</td>
+</tr>
+<tr>
+<td class="mono">Ambari</td>
+<td class="mono">73.9</td>
+<td class="mono">0.341</td>
+<td class="mono">143d (medium)</td>
+</tr>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">73.9</td>
+<td class="mono">0.049</td>
+<td class="mono">88d</td>
+</tr>
+<tr>
+<td class="mono">openssl</td>
+<td class="mono">54.8</td>
+<td class="mono">0.051</td>
+<td class="mono">686d</td>
+</tr>
+<tr>
+<td class="mono">tomcat</td>
+<td class="mono">65.1</td>
+<td class="mono">0.162</td>
+<td class="mono">742d</td>
+</tr>
+</tbody></table>
+    <p>The MTTR variance is the most surprising result: tomcat 742d means the median tomcat bug from SZZ-introduction to fix takes 2 years. That's not a software-engineering observation — it's a tag-cadence artifact. tomcat releases infrequently, so bugs introduced near a tag and fixed near the next tag span a long span. Continuous-deployment projects would have radically smaller MTTRs.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Old projects can't be DORA-evaluated naively</strong>: tomcat 742d MTTR is not meaningful for an Accelerate-style benchmark. Need to bound the MTTR by something other than tag-cadence.</li>
+<li><strong>CFR varies 5×</strong>: Helix 5% to Ambari 34%. The Accelerate paradigm explains the cluster but doesn't predict the variance well — possibly because OSS projects differ in their issue-tracker discipline.</li>
+<li><strong>Multi-metric coherence</strong>: dora has 4 lifted metrics; all 4 calibrate. Useful demonstration that the framework supports multi-parameter calibration.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>cfr</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">0.250293634014564</td><td><span class="dim">-</span></td></tr>
 <tr><td>ambari</td><td class="num mono">0.341386884217132</td><td><span class="dim">-</span></td></tr>
@@ -173,6 +241,18 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://itrevolution.com/product/accelerate/" target="_blank" rel="noopener">Forsgren, N., Humble, J., &amp; Kim, G. (2018). <em>Accelerate: The Science of Lean Software and DevOps</em>. IT Revolution.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://cloud.google.com/devops/state-of-devops" target="_blank" rel="noopener">DORA / Google Cloud (2024). <em>State of DevOps Report</em>.</a></td><td><span class="dim">industry</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/ICSE.2009.5070550" target="_blank" rel="noopener">Bird, C., Nagappan, N., Murphy, B., Gall, H., &amp; Devanbu, P. (2009). Does Distributed Development Affect Software Quality? <em>ICSE '09</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

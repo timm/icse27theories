@@ -24,7 +24,7 @@
 
 <main>
 
-<h1>diapers <span class="dim" style="font-weight:400;">(2016)</span><span class="tag">dark cell</span></h1>
+<h1>diapers <span class="dim" style="font-weight:400;">(2016)</span><span class="tag">process-conditional cell</span></h1>
 <p class="sub-title">Toy demonstrator (no real-world referent).</p>
 
 <div class="tabs">
@@ -46,15 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Smallest possible compartmental model used to demonstrate the framework&#x27;s machinery. Has no Brooks- or Sterman-style intent — it exists to show the SD harness running end-to-end with one stock and one flow.</p>
+    <p>The simplest possible model the framework can run: one input variable, one output, no dynamics. It exists not to claim anything about software engineering but to demonstrate the engine end-to-end — that the harness can read a Model namedtuple, run it, and produce a verdict.</p>
+    <p>If <code>diapers</code> ever fails to execute, the bug is in the framework, not in any model. It is the canary in the coal mine: the V&amp;V suite runs against <code>diapers</code> first, and a green light there means the harness is healthy.</p>
+    <p class="dim"><em>Intuition</em>: No intuition needed — the model has no physical referent. Think of it as a hello-world for compartmental SD.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Net inflow above a fixed baseline.</p>
+    <p><strong>The output flow at the final step.</strong></p>
+    <p>Trivially defined and trivially measured. The model has one flow; its value at <code>tmax</code> is the success measure.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>A baseline shift hurts net output. Trivially true by construction.</p>
-    <h2>Status</h2>
-    <p><span class="dim">not lifted (data structurally unavailable)</span></p>
-    <h2>References</h2>
-    <p class="dim">No peer-reviewed references — this model is a toy demonstrator.</p>
+    <p><strong>A baseline shift hurts net output.</strong></p>
+    <p>By construction the model produces a CONFIRM verdict because the shift acts directly on the only flow. The rq exists only to exercise the verdict pipeline.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>diapers lands in <span class='warn'>process-conditional</span> because its sole parameter dominates the dynamics — perturbing it neutralises the verdict, while perturbing the (trivial) input does not.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -90,36 +92,61 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>This model has not been lifted on any project.</p><div class="callout"><span class="label">why not</span>Toy by design. No project data corresponds to its abstract stocks.</div><p class="dim">The framework's contribution here is methodological: the SD form expresses the thesis cleanly, but no field data source calibrates it. That gap defines the future-research agenda.</p>
+    <p>Not lifted. diapers has no project data analogue — its stocks are abstract.</p><div class='callout'><span class='label'>why not</span>Toy by design. No project's git log, mbox, or JIRA can supply a value for diapers' parameters because the parameters themselves are placeholders.</div>
+    
   </div>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p class="dim">No lift has run, so there are no attributes to enumerate.</p>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>N/A. diapers is the framework canary, not an empirical hypothesis.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="bad">FAIL</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -24.00</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 45/200 CONFIRM, params 200/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -24.00</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 45/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Used as a sanity check that the engine executes a model. Passes structural V&amp;V on cell stress, fails mr_scale and mr_dt_halving (the toy is not physically faithful — by design).</p>
+    <p>diapers does not produce empirical findings. Its role is purely to confirm that the framework's V&amp;V machinery executes correctly.</p>
+    
+    <p>If diapers fails the 9-test bank, debugging starts with the engine (run, verdict, opt, stress) rather than with any specific model.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li>diapers is a contract test — its continued PASS-PASS-...-PASS pattern means the framework still works.</li>
+<li>Two known FAIL cells (mr_scale, mr_dt_halving) are diagnostic, not problematic — they document where the toy fails to mirror physical SD behaviour.</li>
+    </ul>
     
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://mitpress.mit.edu/9780262560436/industrial-dynamics/" target="_blank" rel="noopener">Forrester, J. W. (1961). <em>Industrial Dynamics</em>. MIT Press.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://web.mit.edu/jsterman/www/Forrester_Senge_1980_Tests.pdf" target="_blank" rel="noopener">Forrester, J. W., &amp; Senge, P. M. (1980). Tests for building confidence in system dynamics models. <em>TIMS Studies in the Management Sciences</em> 14:209–228.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

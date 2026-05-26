@@ -25,7 +25,7 @@
 <main>
 
 <h1>rework <span class="dim" style="font-weight:400;">(1991)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Abdel-Hamid, T. &amp; Madnick, S. E. (1991). Software Project Dynamics.</p>
+<p class="sub-title">Abdel-Hamid &amp; Madnick — hidden rework cycle.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,19 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Hidden rework cycle: Req → Dev → Test branches into pass-or-rework. High failure rate trapping work in the Rew loop dominates output. The ctrl is failrate — the fraction of Test outputs that fall back to Rew rather than passing to Done.</p>
+    <p>Software development has a hidden recirculation: work flows Req → Dev → Test, but at Test the work BRANCHES — passing items go to Done, failing items go back to Rew (rework) and then to Dev again. The Rew → Dev arc is the "hidden" part: it inflates apparent productivity without producing finished work.</p>
+    <p>High failure rate (failrate) traps work in the Rew loop. At some threshold (≈0.5) the recirculating flow dominates the forward flow and Done collapses despite high apparent activity.</p>
+    <p class="dim"><em>Intuition</em>: A team that keeps shipping bugs is doing the same work twice. The third time, three times. Eventually all the activity is rework.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Done minus 0.5·mean(WIP) — finishing matters; piling up WIP penalises.</p>
+    <p><strong><code>Done</code> minus 0.5·mean(WIP) — finishing matters; piling up WIP penalises.</strong></p>
+    <p>Two terms because pure-Done doesn't capture the visible failure mode (giant WIP stacks). Madachy uses similar lossy-y constructs in process-dynamics models.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>failrate 0.1 → 0.7 lets rework dominate; net Done collapses.</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_rework.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1145/76380.76383" target="_blank" rel="noopener">Abdel-Hamid, T. K., &amp; Madnick, S. E. (1989). Lessons Learned from Modeling the Dynamics of Software Development. <em>Communications of the ACM</em> 32(12):1426–1438.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://dl.acm.org/doi/book/10.5555/103906" target="_blank" rel="noopener">Abdel-Hamid, T. K., &amp; Madnick, S. E. (1991). <em>Software Project Dynamics</em>. Prentice-Hall.</a></td><td><span class="warn">book</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong><code>failrate 0.1 → 0.7</code> lets rework dominate; net Done collapses.</strong></p>
+    <p>CONFIRM = elevated failure rate destroys delivery. Default gap is large (−48); the thesis is robust under stress.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>rework is <span class='ok'>universal</span>. Both input and param stress give 200/200 CONFIRM — the rework loop is too dominant to evade.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -103,7 +101,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_rework.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>Lifted via <strong>SZZ-introducing-commit count</strong>. failrate = (unique introducing commits in a 90-day window) / (total commits in the same window). The SZZ pass is PyDriller's B-SZZ over the bug-fix commits found by message-pattern (HELIX-NNNN + bug-word for JIRA projects; #NNN + bug-word for GH projects).</p><p>Full notebook: <code>lifts/lift_rework.Rmd</code>.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
@@ -139,30 +138,91 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">commit_hash</td><td>denominator</td><td>kaiaulu parse_gitlog</td></tr>
+<tr><td class="mono">introducing_commit_hash</td><td>numerator (SZZ B-SZZ)</td><td>PyDriller get_commits_last_modified_lines</td></tr>
+<tr><td class="mono">commit_message_id</td><td>bug-fix seed list</td><td>regex on commit message + bug-word</td></tr>
+<tr><td class="mono">author_datetimetz</td><td>90-day window assignment</td><td>kaiaulu parse_gitlog</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>PyDriller 2.9</strong></td><td>Python git-walking + B-SZZ pass</td></tr>
+<tr><td><strong>Perceval</strong></td><td>kaiaulu gitlog dependency</td></tr>
+<tr><td><strong>kaiaulu</strong></td><td>filtering and identity_match</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: heavy dependency. Commit-message JIRA-key + bug-word heuristic. A clean JIRA Bug-type filter would tighten this. <strong>(2) Identity bridging</strong>: not used.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap -48.32</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">universal <span class="dim">(inputs 200/200 CONFIRM, params 200/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -48.32</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 200/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    <p>All structural tests PASS. The rq() gap is large at default (−48) — a robust universal-cell thesis.</p>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on 7 projects via SZZ-introducing-commit count. failrate values 0.019–0.41 — none cross the 0.5 dominance threshold. Helix (0.019) has most headroom; junit5 (0.27) and Ambari (0.27) approach but don&#x27;t cross. The thesis cannot be falsified on these projects because none operate in its trigger regime.</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>failrate_median</code>. Bounds: <code>[0, 1]</code>.</p>
+    <p>Across 7 lifted projects, no project crosses the 0.5 rework-dominance threshold. The closest are junit5 (0.27) and Ambari (0.27); Helix (0.019) has by far the most headroom. <strong>The thesis cannot be falsified on these projects because none operate in its trigger regime.</strong></p>
+    <table><thead><tr>
+<th>project</th>
+<th>failrate_median</th>
+<th>note</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">0.019</td>
+<td class="mono">n_szz_pairs 1,297</td>
+</tr>
+<tr>
+<td class="mono">openssl</td>
+<td class="mono">0.071</td>
+<td class="mono">5,424</td>
+</tr>
+<tr>
+<td class="mono">camel</td>
+<td class="mono">0.169</td>
+<td class="mono">931</td>
+</tr>
+<tr>
+<td class="mono">tomcat</td>
+<td class="mono">0.179</td>
+<td class="mono">8,855</td>
+</tr>
+<tr>
+<td class="mono">Ambari</td>
+<td class="mono">0.274</td>
+<td class="mono">15,992</td>
+</tr>
+<tr>
+<td class="mono">junit5</td>
+<td class="mono">0.273</td>
+<td class="mono">11,867</td>
+</tr>
+<tr>
+<td class="mono">airflow</td>
+<td class="mono">0.398</td>
+<td class="mono">11,170</td>
+</tr>
+</tbody></table>
+    <p>Order is roughly: older codebases (openssl, Helix) have low failrate, younger codebases (airflow) higher. None at the 0.5 threshold. The thesis prediction is untestable on these because the operating regime is in the safe basin.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Selection bias</strong>: mature OSS projects probably self-select for low failrate (high-failrate projects get abandoned). The thesis would be more interesting on commercial software where Rew can be observed directly.</li>
+<li><strong>SZZ heuristic noise</strong>: PyDriller B-SZZ over-counts when refactor commits look like bug-introductions. RA-SZZ with RefactoringMiner integration would reduce false positives.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>failrate_median</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">0.397626112759644</td><td><span class="ok">in</span></td></tr>
 <tr><td>ambari</td><td class="num mono">0.27405668893302</td><td><span class="ok">in</span></td></tr>
@@ -175,6 +235,18 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/76380.76383" target="_blank" rel="noopener">Abdel-Hamid, T. K., &amp; Madnick, S. E. (1989). Lessons Learned from Modeling the Dynamics of Software Development. <em>Communications of the ACM</em> 32(12):1426–1438.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://dl.acm.org/doi/book/10.5555/103906" target="_blank" rel="noopener">Abdel-Hamid, T. K., &amp; Madnick, S. E. (1991). <em>Software Project Dynamics</em>. Prentice-Hall.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1083142.1083147" target="_blank" rel="noopener">Śliwerski, J., Zimmermann, T., &amp; Zeller, A. (2005). When Do Changes Induce Fixes? <em>MSR '05</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 

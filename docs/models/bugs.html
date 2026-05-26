@@ -24,8 +24,8 @@
 
 <main>
 
-<h1>bugs <span class="dim" style="font-weight:400;">(1979)</span><span class="tag">process-cond. cell</span></h1>
-<p class="sub-title">Goel, A. L. &amp; Okumoto, K. (1979). Time-dependent error-detection rate model.</p>
+<h1>bugs <span class="dim" style="font-weight:400;">(1979)</span><span class="tag">process-conditional cell</span></h1>
+<p class="sub-title">Goel-Okumoto NHPP-style reliability growth.</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -46,18 +46,17 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Software-reliability-growth: cumulative defects discovered N(t) follows an exponential approach to an asymptote a. The discovery rate b decays as Latent bugs are removed from the system.</p>
+    <p>A software system contains an unknown pool <em>a</em> of latent defects. As testing proceeds, defects are discovered at a rate proportional to the remaining latent stock — yielding the canonical exponential <code>N(t) = a·(1 − e<sup>−bt</sup>)</code>. The discovery rate <em>b</em> is per-bug; the asymptote <em>a</em> is the eventual total.</p>
+    <p>Mathematically the same as radioactive decay. Empirically it captures the often-observed pattern that big systems converge on their full bug count: the discovery rate slows because the un-found pool shrinks, not because testing got worse.</p>
+    <p class="dim"><em>Intuition</em>: Each bug is independently exposed by review, testing, or production use. Marginal discovery slows as you exhaust the easy ones.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p>Cumulative Fixed at the end of the run.</p>
+    <p><strong>Cumulative <code>Fixed</code> at the final timestep.</strong></p>
+    <p>Higher is better — more defects resolved. In the SD encoding, <code>Latent</code> is the initial pool, <code>Found</code> drains from it at rate <em>b</em>, and <code>Fixed</code> accumulates from <code>Found</code> at the repair rate.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p>Doubling initial Latent stock approximately doubles eventual Fixed (linearity of recovery process).</p>
-    <h2>Status</h2>
-    <p><span class="ok">lifted</span> &middot; <code>lifts/lift_bugs.Rmd</code></p>
-    <h2>References</h2>
-    <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
-<tr><td><a href="https://doi.org/10.1109/TR.1979.5220566" target="_blank" rel="noopener">Goel, A. L., &amp; Okumoto, K. (1979). Time-Dependent Error-Detection Rate Model for Software Reliability and Other Performance Measures. <em>IEEE Transactions on Reliability</em> R-28(3):206–211.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-</tbody></table>
-<p class="dim" style="font-size:12px;margin-top:6px;"><span class="ok">peer-reviewed</span> = refereed journal or conference. <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally peer-refereed in the same sense. <span class="dim">industry / magazine</span> = trade source, cited for context only.</p>
+    <p><strong>Doubling initial <code>Latent</code> approximately doubles eventual <code>Fixed</code>.</strong></p>
+    <p>A linearity claim: the recovery process is proportional to the input. CONFIRM = linearity holds. REFUTE = recovery saturates (sub-linear) or compounds (super-linear). Goel-Okumoto's integral is mathematically linear in <em>a</em>, so the default config CONFIRMs.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>bugs sits in <span class='warn'>process-conditional</span> because input perturbation (Latent count) cannot break the linearity, but parameter perturbation (find_rate, fix_rate near zero) freezes the system into neutral verdicts.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
@@ -95,7 +94,8 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>End-to-end notebook: <code>lifts/lift_bugs.Rmd</code> (kaiaulu vignette style; knits to HTML; branchable into kaiaulu as a PR). The R chunks below are the substantive lift logic.</p><pre><code class="language-r">rm(list = ls())
+    <p>The lift fits Goel-Okumoto to a project's cumulative bug-close trajectory. Two source variants:</p><ul><li><strong>GitHub issues</strong> — filter on label <code>bug</code>, use <code>closed_at</code>. Works on Helix (170 closed bugs) and kaiaulu (22).</li><li><strong>JIRA</strong> — filter on <code>issuetype = Bug</code>, use <code>resolutiondate</code>. Works on camel (185 resolved).</li></ul><p>Full notebook: <code>lifts/lift_bugs.Rmd</code>. R chunks below show the substantive fit logic.</p>
+    <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
 <pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
@@ -172,30 +172,88 @@ kable(out)</code></pre>
 
   <div id="panel-4" class="tab-content">
     <h2>Lift inputs &amp; sources</h2>
-    <p>The lift inputs vary by model. See the <code>.Rmd</code> notebook listed in the Data-lift tab for the specific (column, source) mapping. Common tools across models: Perceval (gitlog), kaiaulu identity_match, scc (LOC), RefactoringMiner, pattern4 (GoF), Depends, PyDriller B-SZZ.</p>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">labels[]</td><td>bug classifier (GH variant)</td><td>project · GitHub Issues API · JSON dumps under <code>github/&lt;org&gt;_&lt;repo&gt;/issue/</code></td></tr>
+<tr><td class="mono">closed_at</td><td>bug-close timestamp (GH)</td><td>project · GitHub Issues API</td></tr>
+<tr><td class="mono">issuetype</td><td>Bug filter (JIRA variant)</td><td>project · JIRA REST API · <code>fields.issuetype.name</code></td></tr>
+<tr><td class="mono">resolutiondate</td><td>resolution timestamp (JIRA)</td><td>project · JIRA REST API · <code>fields.resolutiondate</code></td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>jsonlite</strong></td><td>R JSON parser (CRAN)</td></tr>
+<tr><td><strong>data.table</strong></td><td>fast in-R aggregation</td></tr>
+<tr><td><strong>(no system calls)</strong></td><td>pure R — the issue JSON dump is the only external dependency</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count dependency</strong>: this lift IS bug-count driven. Projects without an issue tracker cannot support bugs. <strong>(2) Identity bridging</strong>: not required — no per-developer signal.</p>
   </div>
 
   <div id="panel-5" class="tab-content">
     <h2>V&amp;V scorecard</h2>
-    <p class="dim">Auto-generated from <code>outputs/full_audit.csv</code>.</p>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
-<tr><td><code>boundary_adq</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>anomaly_check</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_zero_input</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_monotone</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_dt_halving</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_bound_consist</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td class="num"><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td class="num"><span class="ok">CONFIRM</span> &middot; gap +38.06</td></tr><tr><td><code>stress 2&times;2 cell</code></td><td class="num">process-conditional <span class="dim">(inputs 64/200 CONFIRM, params 200/200)</span></td></tr>
-    </tbody></table>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap +38.06</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 64/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    <div class='callout'><span class='label'>note</span>The <code>mr_scale</code> test PASSES — and that PASS IS the rq() thesis. The integral is linear in Latent, so doubling Latent doubles Fixed by construction. The test catches the linearity, which is the point of the model.</div>
   </div>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on 3 projects with bug-classification data: Helix (170 GH-bug-label closed, a=245, R²=0.62), kaiaulu (22 closed, a=26, R²=0.91), camel (185 JIRA-Bug-type resolved, a=178, R²=0.60). All three are in the early-discovery regime — none have saturated, so the linearity claim cannot be falsified yet.</p>
-    <h3>Per-project lifted value</h3>
-<p>Key metric: <code>gokumoto_a</code>. Bounds: <code>[-, -]</code>.</p>
+    <p>Fits across three projects all conform to Goel-Okumoto shape with moderate to high R². None of the three have saturated — they're all in the early-discovery regime where the linearity thesis cannot be directly falsified.</p>
+    <table><thead><tr>
+<th>project</th>
+<th>n_bugs</th>
+<th>a (asymptote)</th>
+<th>b (rate)</th>
+<th>R²</th>
+<th>span</th>
+<th>source</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">Helix</td>
+<td class="mono">170</td>
+<td class="mono">244.80</td>
+<td class="mono">1.0e-08</td>
+<td class="mono">0.62</td>
+<td class="mono">800d</td>
+<td class="mono">GH bug-label</td>
+</tr>
+<tr>
+<td class="mono">kaiaulu</td>
+<td class="mono">22</td>
+<td class="mono">26.40</td>
+<td class="mono">1.0e-08</td>
+<td class="mono">0.91</td>
+<td class="mono">1600d</td>
+<td class="mono">GH bug-label</td>
+</tr>
+<tr>
+<td class="mono">camel</td>
+<td class="mono">185</td>
+<td class="mono">177.60</td>
+<td class="mono">1.0e-07</td>
+<td class="mono">0.60</td>
+<td class="mono">652d</td>
+<td class="mono">JIRA Bug-type</td>
+</tr>
+</tbody></table>
+    <p>The smaller project (kaiaulu) paradoxically gives the tightest fit — fewer outliers, less seasonality. The asymptote <em>a</em> values exceed the observed counts in each case, projecting future discovery beyond the observed window. <strong>None saturated</strong>: linearity cannot be falsified at these horizons.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Linearity holds but isn't tested</strong>: rq() verifies mathematical linearity; the empirical fit verifies the curve shape; neither tests the saturation-regime breakdown.</li>
+<li><strong>Smaller projects fit better</strong>: kaiaulu R²=0.91. Possibly because small projects have fewer regime changes.</li>
+<li><strong>Source affects answer</strong>: GH label <em>bug</em> and JIRA <code>issuetype=Bug</code> are not identical. Future cross-check on Helix using the cleaned JIRA dump.</li>
+    </ul>
+    <h3>Cross-project (key metric: <code>gokumoto_a</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
 <tr><td>airflow</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
 <tr><td>ambari</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
@@ -208,6 +266,18 @@ kable(out)</code></pre>
 </tbody></table>
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1109/TR.1979.5220566" target="_blank" rel="noopener">Goel, A. L., &amp; Okumoto, K. (1979). Time-Dependent Error-Detection Rate Model for Software Reliability and Other Performance Measures. <em>IEEE Transactions on Reliability</em> R-28(3):206–211.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://dl.acm.org/doi/book/10.5555/40478" target="_blank" rel="noopener">Musa, J. D., Iannino, A., &amp; Okumoto, K. (1987). <em>Software Reliability: Measurement, Prediction, Application</em>. McGraw-Hill.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://www.cse.cuhk.edu.hk/~lyu/book/reliability/" target="_blank" rel="noopener">Lyu, M. R. (ed.) (1996). <em>Handbook of Software Reliability Engineering</em>. IEEE CS Press / McGraw-Hill.</a></td><td><span class="warn">book</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
 
 </main>
 
