@@ -761,9 +761,340 @@ def congruence():
   return Model(init, step, y, rq, 'broker_loss')
 
 
+# --- 15 candidate models lifted from docs/other.html (buildable today) -------
+
+
+def little():
+  """Little 1961: WIP = throughput * cycle_time. Holding arrival
+  constant, doubling cycle_time inflates WIP and depresses Done.
+  RQ: doubling cycle_time hurts throughput."""
+  init = {'WIP':[20,0,500], 'Arrival':[5,0,50], 'Done':[0,0,5000],
+          'cycle_time':[4,1,30], 'wip_cap':[60,5,200]}
+  def step(dt, t, u, v):
+    served = min(u.WIP / max(1, u.cycle_time), u.WIP)
+    accept = min(u.Arrival, max(0, u.wip_cap - u.WIP))
+    v.WIP  = u.WIP  + dt * (accept - served)
+    v.Done = u.Done + dt * served
+    for p in ('Arrival','cycle_time','wip_cap'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("doubling cycle_time hurts throughput",
+                   y(run({**bi, 'cycle_time':[4,1,30]}, step)),
+                   y(run({**bi, 'cycle_time':[12,1,30]}, step)), 'down')
+  return Model(init, step, y, rq, 'cycle_time')
+
+
+def coordn2():
+  """Brooks/Curtis: communication-pair count = N*(N-1)/2.
+  RQ: doubling N more than doubles coordination cost (superlinear)."""
+  init = {'Devs':[5,1,200], 'Done':[0,0,10000],
+          'work_per_dev':[10,0,50], 'comm_coef':[0.02,0,0.5]}
+  def step(dt, t, u, v):
+    pairs = u.Devs * (u.Devs - 1) / 2
+    tax   = min(0.9, u.comm_coef * pairs / max(1, u.Devs))
+    v.Done = u.Done + dt * u.Devs * u.work_per_dev * (1 - tax)
+    for p in ('Devs','work_per_dev','comm_coef'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("doubling team superlinear-taxes throughput",
+                   y(run({**bi, 'Devs':[5,1,200]}, step)),
+                   y(run({**bi, 'Devs':[10,1,200]}, step)), 'down')
+  return Model(init, step, y, rq, 'Devs')
+
+
+def entropy():
+  """Lehman 1980: software entropy grows monotonically unless paid
+  down via refactor. Without refactor effort, defect rate rises.
+  RQ: low refactor_rate inflates terminal Complexity."""
+  init = {'Complexity':[100,0,5000], 'Bugs':[0,0,5000],
+          'work_rate':[10,0,100], 'refactor_rate':[0.05,0,0.5],
+          'entropy_coef':[0.02,0,0.5]}
+  def step(dt, t, u, v):
+    grow    = u.work_rate * u.entropy_coef
+    pay     = u.Complexity * u.refactor_rate
+    bug_in  = u.Complexity * 0.001
+    v.Complexity = max(0, u.Complexity + dt * (grow - pay))
+    v.Bugs       = u.Bugs + dt * bug_in
+    for p in ('work_rate','refactor_rate','entropy_coef'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Complexity - out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("low refactor leaves Complexity high",
+                   y(run({**bi, 'refactor_rate':[0.20,0,0.5]}, step)),
+                   y(run({**bi, 'refactor_rate':[0.02,0,0.5]}, step)), 'down')
+  return Model(init, step, y, rq, 'refactor_rate')
+
+
+def costchange():
+  """Boehm 1981: cost to fix a bug rises ~10x per phase post-discovery.
+  RQ: shifting catch from coding to release hurts net delivered value."""
+  init = {'Bugs':[20,0,1000], 'Cost':[0,0,1e6],
+          'catch_early':[0.6,0,1], 'cost_early':[1,0.1,5],
+          'cost_late':[50,1,500]}
+  def step(dt, t, u, v):
+    e = u.Bugs * u.catch_early
+    l = u.Bugs - e
+    v.Cost = u.Cost + dt * (e * u.cost_early + l * u.cost_late)
+    v.Bugs = max(0, u.Bugs - dt * (e + l) * 0.1)
+    for p in ('catch_early','cost_early','cost_late'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Cost
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("shifting catch late inflates total cost",
+                   y(run({**bi, 'catch_early':[0.8,0,1]}, step)),
+                   y(run({**bi, 'catch_early':[0.2,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'catch_early')
+
+
+def pareto():
+  """Fenton-Ohlsson / Ostrand-Weyuker: ~20% of modules carry ~80%
+  of defects, and that hotspot set persists across releases.
+  RQ: ignoring hotspots inflates total defect rate."""
+  init = {'Hot':[10,0,200], 'Cold':[90,0,2000], 'Bugs':[0,0,5000],
+          'hot_bug_rate':[0.4,0,2], 'cold_bug_rate':[0.02,0,0.5],
+          'fix_share_hot':[0.5,0,1]}
+  def step(dt, t, u, v):
+    new_hot  = u.Hot  * u.hot_bug_rate
+    new_cold = u.Cold * u.cold_bug_rate
+    # Hotspot fixes net more bug-reduction per unit effort (the whole
+    # point of Pareto): a hot fix removes 4x more bugs than a cold fix.
+    fix_hot  = u.fix_share_hot * 8
+    fix_cold = (1 - u.fix_share_hot) * 2
+    v.Bugs = max(0, u.Bugs + dt * (new_hot + new_cold - fix_hot - fix_cold))
+    for p in ('Hot','Cold','hot_bug_rate','cold_bug_rate','fix_share_hot'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("ignoring hotspots inflates bugs",
+                   y(run({**bi, 'fix_share_hot':[0.8,0,1]}, step)),
+                   y(run({**bi, 'fix_share_hot':[0.1,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'fix_share_hot')
+
+
+def linus():
+  """Raymond 1999 + Mockus 2002: 'many eyes' review reduces defect
+  recurrence. RQ: low review_rate inflates Recurring."""
+  init = {'Open':[20,0,500], 'Reviewed':[0,0,5000],
+          'Recurring':[0,0,500], 'review_rate':[0.4,0,1],
+          'recur_rate':[0.3,0,1]}
+  def step(dt, t, u, v):
+    rev = u.Open * u.review_rate
+    rec = rev * u.recur_rate * (1 - u.review_rate)
+    v.Open      = max(0, u.Open - dt * rev + dt * rec)
+    v.Reviewed  = u.Reviewed + dt * rev
+    v.Recurring = u.Recurring + dt * rec
+    for p in ('review_rate','recur_rate'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Reviewed - 3 * out[-1][1].Recurring
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("low review_rate inflates recurrence",
+                   y(run({**bi, 'review_rate':[0.6,0,1]}, step)),
+                   y(run({**bi, 'review_rate':[0.1,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'review_rate')
+
+
+def mirroring():
+  """MacCormack et al 2006: code DSM mirrors org DSM. Higher mirror
+  coefficient predicts cleaner modular boundaries and lower defects.
+  RQ: org/code DSM mismatch (low mirror) elevates Bugs."""
+  init = {'Modules':[20,1,200], 'Teams':[5,1,50], 'Bugs':[0,0,5000],
+          'mirror':[0.7,0,1], 'churn_rate':[2,0,20]}
+  def step(dt, t, u, v):
+    mismatch = (1 - u.mirror)
+    leak     = u.churn_rate * mismatch
+    v.Bugs   = u.Bugs + dt * leak * u.Modules / max(1, u.Teams)
+    for p in ('Modules','Teams','mirror','churn_rate'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("low mirror inflates defects",
+                   y(run({**bi, 'mirror':[0.85,0,1]}, step)),
+                   y(run({**bi, 'mirror':[0.30,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'mirror')
+
+
+def orgchurn():
+  """Nagappan/Murphy/Basili 2010: org churn (departures) predicts
+  defect bursts. RQ: high churn_rate inflates Bugs."""
+  init = {'Devs':[20,1,500], 'Bugs':[0,0,5000],
+          'churn_rate':[0.02,0,0.5], 'knowledge':[100,0,1000]}
+  def step(dt, t, u, v):
+    lost = u.Devs * u.churn_rate
+    v.Devs      = max(1, u.Devs - dt * lost + dt * lost * 0.5)
+    v.knowledge = max(0, u.knowledge - dt * lost * 5)
+    v.Bugs      = u.Bugs + dt * (200 / max(1, u.knowledge)) * 10
+    setattr(v, 'churn_rate', u.churn_rate)
+  def y(out): return -out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("departure spike inflates defect burst",
+                   y(run({**bi, 'churn_rate':[0.02,0,0.5]}, step)),
+                   y(run({**bi, 'churn_rate':[0.20,0,0.5]}, step)), 'down')
+  return Model(init, step, y, rq, 'churn_rate')
+
+
+def ownership():
+  """Bird et al 2011: high minor-author share correlates with
+  defect density. RQ: rising minor_share inflates Bugs."""
+  init = {'Modules':[50,1,500], 'Bugs':[0,0,5000],
+          'minor_share':[0.2,0,1], 'major_quality':[0.95,0,1]}
+  def step(dt, t, u, v):
+    eff_q = u.major_quality * (1 - u.minor_share) + 0.6 * u.minor_share
+    new_b = u.Modules * (1 - eff_q) * 0.5
+    v.Bugs = u.Bugs + dt * new_b
+    for p in ('Modules','minor_share','major_quality'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("high minor_share inflates defects",
+                   y(run({**bi, 'minor_share':[0.10,0,1]}, step)),
+                   y(run({**bi, 'minor_share':[0.60,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'minor_share')
+
+
+def ossfail():
+  """Coelho & Valente 2017: low truck factor predicts project death.
+  RQ: low truck_factor accelerates Abandonment."""
+  init = {'Devs':[5,1,200], 'Activity':[100,0,10000],
+          'truck_factor':[2,1,20], 'attrition':[0.05,0,0.5]}
+  def step(dt, t, u, v):
+    bus_risk = 1 / max(1, u.truck_factor)
+    decay    = u.attrition * (1 + bus_risk)
+    v.Activity = max(0, u.Activity - dt * u.Activity * decay)
+    for p in ('Devs','truck_factor','attrition'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Activity
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("low truck_factor accelerates abandonment",
+                   y(run({**bi, 'truck_factor':[8,1,20]}, step)),
+                   y(run({**bi, 'truck_factor':[1,1,20]}, step)), 'down')
+  return Model(init, step, y, rq, 'truck_factor')
+
+
+def deprot():
+  """Decan/Mens/Constantinou 2018: dep version staleness elevates
+  vulnerability surface. RQ: low update_rate inflates Vulns."""
+  init = {'Deps':[40,1,500], 'Stale':[20,0,500], 'Vulns':[0,0,500],
+          'update_rate':[0.1,0,1], 'vuln_disclose_rate':[0.01,0,0.5]}
+  def step(dt, t, u, v):
+    fresh_flow = u.Stale * u.update_rate
+    new_vuln   = u.Stale * u.vuln_disclose_rate
+    v.Stale = max(0, u.Stale + dt * (u.Deps * 0.05 - fresh_flow))
+    v.Vulns = u.Vulns + dt * new_vuln
+    for p in ('Deps','update_rate','vuln_disclose_rate'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Vulns
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("low update_rate inflates vulnerabilities",
+                   y(run({**bi, 'update_rate':[0.30,0,1]}, step)),
+                   y(run({**bi, 'update_rate':[0.02,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'update_rate')
+
+
+def scope():
+  """Boehm/Jones scope creep: when inflow > outflow, backlog grows
+  without bound. RQ: high inflow_excess hurts net Done."""
+  init = {'Backlog':[100,0,10000], 'Done':[0,0,10000],
+          'inflow':[8,0,100], 'outflow':[6,0,100]}
+  def step(dt, t, u, v):
+    served = min(u.Backlog, u.outflow)
+    v.Backlog = u.Backlog + dt * (u.inflow - served)
+    v.Done    = u.Done    + dt * served
+    for p in ('inflow','outflow'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done - out[-1][1].Backlog * 0.1
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("inflow >> outflow drowns Done",
+                   y(run({**bi, 'inflow':[5,0,100]}, step)),
+                   y(run({**bi, 'inflow':[15,0,100]}, step)), 'down')
+  return Model(init, step, y, rq, 'inflow')
+
+
+def ctxswitch():
+  """Weinberg / Meyer et al 2014: high per-day file-diversity
+  per dev taxes effective throughput.
+  RQ: high diversity hurts Done."""
+  init = {'Devs':[10,1,200], 'Done':[0,0,10000],
+          'work_per_dev':[10,0,50], 'diversity':[2,1,20]}
+  def step(dt, t, u, v):
+    eff = u.work_per_dev / (1 + 0.4 * (u.diversity - 1))
+    v.Done = u.Done + dt * u.Devs * eff
+    for p in ('Devs','work_per_dev','diversity'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("high file-diversity per dev hurts throughput",
+                   y(run({**bi, 'diversity':[2,1,20]}, step)),
+                   y(run({**bi, 'diversity':[8,1,20]}, step)), 'down')
+  return Model(init, step, y, rq, 'diversity')
+
+
+def limits():
+  """Senge limits-to-growth: throughput rises with team size but
+  saturates as coordination overhead bites.
+  RQ: doubling team near asymptote yields diminishing returns."""
+  init = {'Devs':[10,1,500], 'Done':[0,0,1e5],
+          'k_per_dev':[10,0,100], 'cap':[200,10,1000]}
+  def step(dt, t, u, v):
+    raw = u.Devs * u.k_per_dev
+    eff = raw / (1 + raw / max(1, u.cap))
+    v.Done = u.Done + dt * eff
+    for p in ('Devs','k_per_dev','cap'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("doubling Devs near cap yields diminishing returns",
+                   y(run({**bi, 'Devs':[30,1,500]}, step)),
+                   y(run({**bi, 'Devs':[60,1,500]}, step)), 'up')
+  return Model(init, step, y, rq, 'Devs')
+
+
+def successful():
+  """Merton 1968 Matthew effect: attention concentrates on already-
+  attended modules. RQ: high attention_concentration starves the
+  unattended modules until net coverage degrades."""
+  init = {'Pop':[50,1,500], 'Attended':[10,0,500],
+          'Coverage':[0,0,1e5], 'concentration':[0.5,0,1],
+          'attention_rate':[3,0,30]}
+  def step(dt, t, u, v):
+    flow_attn = u.attention_rate * u.concentration
+    flow_pop  = u.attention_rate * (1 - u.concentration)
+    gain      = u.Attended * flow_attn + (u.Pop - u.Attended) * flow_pop
+    starve    = (u.Pop - u.Attended) * u.concentration * 0.5
+    v.Coverage = u.Coverage + dt * (gain - starve)
+    for p in ('Pop','Attended','concentration','attention_rate'):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Coverage
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("extreme concentration starves Coverage",
+                   y(run({**bi, 'concentration':[0.4,0,1]}, step)),
+                   y(run({**bi, 'concentration':[0.9,0,1]}, step)), 'down')
+  return Model(init, step, y, rq, 'concentration')
+
+
 ALL_MODELS = [diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
               defmap, aiwork, flaky, dora, micro, teamtopo, burnout, aidebt,
-              archpat, congruence]
+              archpat, congruence,
+              # 15 newly added from docs/other.html buildable-today list:
+              little, coordn2, entropy, costchange, pareto, linus, mirroring,
+              orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
+              successful]
 
 
 def main():

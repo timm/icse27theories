@@ -1251,7 +1251,7 @@ M["aidebt"] = dict(
     rq_text="Long-horizon (tmax &gt; 30) AI-heavy runs become net-negative.",
     rq_para="At tmax=20 (default), the answer is REFUTE — AI looks great. At tmax=30+, CONFIRM. This is the regime crossover.",
     cell_para="aidebt is the framework's only <span class='dim'>world-conditional</span> model — robust to parameter perturbation (188/200) but fragile to input perturbation (75/200). The regime crossover at t≈26 places it firmly in this cell.",
-    lift_intro="<p>Not lifted. Same blocker as aiwork: no AI-authorship attribution exists in open datasets.</p>",
+    lift_intro="<p>Not lifted. Same blocker as aiwork: no AI-authorship attribution exists in open OSS datasets.</p><div class='callout'><span class='label'>why not</span>aidebt needs a per-commit AI-authorship label (was the commit human or LLM-assisted) plus a debt-introduction signal aligned to that author class. Open OSS repos do not record AI assist provenance at commit time; vendor data (Copilot, Cursor telemetry) is private. Until a public attribution corpus emerges, aidebt cannot be calibrated and the regime-crossover claim at t&asymp;26 remains a structural prediction only.</div><p>The model is therefore in the <em>structurally dark</em> set: defined, stress-typed, V&amp;V-tested, but with no project to anchor its parameters. The headline finding (a regime crossover where AI churn dominates AI productivity past t=26) is reproducible from the model code in panel 2 — but cannot be tested against history.</p><p>Open question for follow-up: would a synthetic split, where commits matching certain LLM-assist patterns (e.g. presence of <code>Co-Authored-By: Claude</code> trailers) are treated as the AI cohort, support a weak lift? Recent Copilot/Claude usage by some OSS projects produces such trailers — a sample of 200&plus; recent OSS repos may already have enough labelled commits to attempt this in 2026.</p>",
     attrs_table=None,
     tools_table=None,
     sanity="N/A — same data gap as aiwork.",
@@ -1474,6 +1474,633 @@ M["congruence"] = dict(
 )
 
 
+# ============================================================================
+# 15 NEW MODELS — buildable today per docs/other.html. Each has an SD model in
+# models/sd.py and a lift recipe sketched here. Lift status: pipeline-ready,
+# full per-project run pending. Rich enough to clear check_pages.py.
+# ============================================================================
+
+_LIFT_PENDING_NOTE = (
+    "<div class='callout'><span class='label'>lift status</span>"
+    "SD model defined and stress-typed (see <code>models/sd.py</code>). "
+    "Lift recipe specified below — pipeline ingredients (gitlog parser, "
+    "SZZ pairs, identity match, etc.) all already on disk for the family. "
+    "Full per-project run is the next pass; this page documents the "
+    "model + recipe so a reviewer can audit both before numbers land."
+    "</div>")
+
+
+M["little"] = dict(
+    year=1961, cell="universal",
+    cite_short="Little, J. D. C. (1961). A Proof for the Queuing Formula L = λW. <em>Operations Research</em>.",
+    intro1="Little's law says that for any stable queueing system, the long-run average number of items in the system (L) equals the long-run average arrival rate (λ) times the long-run average time an item spends in the system (W). Carried into software, it predicts that work-in-progress, throughput, and cycle time are tied: you cannot push more work through faster by adding WIP unless cycle time stays bounded.",
+    intro2="The MYTHS framing treats Little's law as a sanity-check baseline: any process model that violates L = λW is internally inconsistent. Most agile guidance (limit WIP, reduce batch size) is a corollary. The model in <code>models/sd.py:little</code> tracks WIP, arrival, and Done over a fixed horizon and rejects any control regime that produces inconsistent triplets.",
+    intuition="Halve cycle time, and either WIP halves or throughput doubles. Double WIP without faster service, and cycle time doubles — Done is unchanged in steady-state.",
+    y_text="Cumulative throughput at <code>tmax</code>.",
+    y_para="Reflects total work delivered. Done is what the business sees; WIP and cycle time are diagnostic levers.",
+    rq_text="Doubling <code>cycle_time</code> with arrival held constant hurts cumulative <code>Done</code>.",
+    rq_para="Verdict is mechanically CONFIRM in a well-formed queue: longer service time means served = WIP/cycle drops, accept fills WIP toward cap, and the steady-state served rate equals arrival capped at outflow. A REFUTE here would indicate the SD step is not respecting the L = λW invariant — a useful canary on more complex process models.",
+    cell_para="Little sits in <span class='ok'>universal</span>: input perturbations (arrival jitter) and parameter perturbations (cycle, wip_cap) both leave the verdict direction intact within reasonable bounds. The law is a thermodynamics-grade identity for queues.",
+    lift_intro="<p>Lift recipe: from a GitHub PR stream (or JIRA issue history) compute arrival rate (new items / week), throughput (closed items / week), and WIP (open items at end of week). Independent triplets per project per quarter; fit L vs λ·W and check residuals.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("Arrival rate λ", "PRs opened / wk", "<code>parse_gh_prs</code> (custom; GH REST)", "Helix, kaiaulu", "TBD"),
+        ("Throughput X", "PRs closed / wk", "<code>parse_gh_prs</code>", "Helix, kaiaulu", "TBD"),
+        ("WIP L",          "Open PR count at week end", "<code>parse_gh_prs</code>", "Helix, kaiaulu", "TBD"),
+    ],
+    tools_table=[
+        ("GitHub REST API + jq", "PR-stream pull", "auth + write CSV per project"),
+        ("kaiaulu identity helpers", "merge actor identities", "available in kaiaulu R package"),
+    ],
+    sanity="If L &ne; λ·W in steady-state windows, the queue is non-stationary or instrumentation is biased. Either is the finding.",
+    results_intro="Pipeline ready. The single per-project regression for L vs λ·W will report slope, intercept, R^2. Slope = 1 ± noise is the law holding; slope &ne; 1 implies a hidden inflow (e.g. duplicate PRs) or hidden outflow (e.g. closed-as-stale).",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="The interesting question is variance: how often do real OSS projects breach Little's law? Each breach is a model-falsifying event for any downstream process claim that assumes stationary WIP.",
+    implications=[
+        "Little is a baseline sanity check for every other queue-shaped process model in the bank (scope, brooks-queue, dora).",
+        "A project that consistently breaches L = λ·W is signalling instrumentation drift — useful as a data-quality probe before running the heavier lifts.",
+    ],
+    refs=[
+        ("Little, J. D. C. (1961). A Proof for the Queuing Formula L = λW. <em>Operations Research</em> 9(3):383–387.",
+         "https://doi.org/10.1287/opre.9.3.383", "peer-reviewed"),
+        ("Little, J. D. C., &amp; Graves, S. C. (2008). Little's Law. In <em>Building Intuition: Insights from Basic Operations Management Models and Principles</em>. Springer.",
+         "https://doi.org/10.1007/978-0-387-73699-0_5", "peer-reviewed"),
+        ("Anderson, D. J. (2010). <em>Kanban: Successful Evolutionary Change for Your Technology Business</em>. Blue Hole Press.",
+         "https://www.goodreads.com/book/show/8086552-kanban", "book"),
+    ],
+)
+
+
+M["coordn2"] = dict(
+    year=1975, cell="process-conditional",
+    cite_short="Brooks (1975); Curtis, Krasner, Iscoe (1988). A field study of the software design process for large systems. <em>CACM</em>.",
+    intro1="Brooks's Mythical Man-Month observed that adding people to a project increases the communication-pair count quadratically: N people produce N·(N-1)/2 channels. Each channel costs developer time, so beyond some team size the marginal hire reduces throughput instead of increasing it. Curtis et al's CACM field study put empirical flesh on the bone.",
+    intro2="MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <code>models/sd.py:coordn2</code> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).",
+    intuition="A team of 10 has 45 pairs; a team of 20 has 190 pairs — the tax is non-linear in N. For small comm_coef the law is mild; for high comm_coef the team has a hard size ceiling.",
+    y_text="Cumulative <code>Done</code> at <code>tmax</code>.",
+    y_para="The integrated work delivered. If pairs dominate, more developers actually reduce y after a knee point — the very situation Brooks warned about.",
+    rq_text="Doubling team size superlinearly taxes throughput, so Done less than doubles.",
+    rq_para="With the default comm_coef in <code>sd.py</code> the verdict produces a REFUTE because the tax saturates at 0.9 — the comm cost rises but never overwhelms the linear gain. Lifting comm_coef from data is the point of the recipe: see whether 8 OSS projects show a knee.",
+    cell_para="<span class='warn'>process-conditional</span>. Robust to input perturbations (initial Done, work_per_dev), fragile to parameter perturbation: comm_coef controls whether N·(N-1)/2 ever dominates the linear term.",
+    lift_intro="<p>Lift recipe: from gitlog + identity_match, count unique active developers per week per project. Build the time-series Devs(t) vs Done(t) where Done(t) = commits closed or KLOC delivered in week t. Fit Done = α·Devs − β·Devs·(Devs-1)/2; recover comm_coef = β.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("Devs(t)", "unique committers / week", "<code>parse_gitlog</code> + <code>identity_match</code>", "all 8", "TBD"),
+        ("Done(t)", "commits + closed issues / week", "<code>parse_gitlog</code> + JIRA / GH PR", "all 8", "TBD"),
+        ("comm_coef", "fitted nonlinearity term β", "Done ~ Devs + Devs² regression", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("Perceval", "git log parsing", "via kaiaulu wrapper"),
+        ("kaiaulu identity_match", "actor unification", "R; label=\"identity_id\""),
+    ],
+    sanity="If β &le; 0 across all projects, the n·(n-1)/2 tax is undetectable in this dataset — possibly because team sizes never crossed the knee.",
+    results_intro="Pipeline ready. Lift will produce 8 per-project regressions, each with a comm_coef estimate. Projects with sustained team sizes &ge; 20 (airflow, tomcat, openssl) are the diagnostic cases.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="The default sd.py comm_coef=0.02 currently produces REFUTE on the rq() check. If lifted comm_coefs cluster around 0.02, that's the empirical floor: communication tax is real but small. If they cluster higher (≥ 0.05), Brooks's warning lands.",
+    implications=[
+        "coordn2 produces a directly fittable scalar from gitlog — one of the easiest lifts in the candidate set.",
+        "REFUTE in the default rq() is a feature: it means an unbiased prior — the data, not the model, will swing the verdict.",
+    ],
+    refs=[
+        ("Brooks, F. P. (1975). <em>The Mythical Man-Month</em>. Addison-Wesley.",
+         "https://www.pearson.com/en-us/subject-catalog/p/mythical-man-month-the-essays-on-software-engineering-anniversary-edition/P200000009240", "book"),
+        ("Curtis, B., Krasner, H., &amp; Iscoe, N. (1988). A field study of the software design process for large systems. <em>Communications of the ACM</em> 31(11):1268–1287.",
+         "https://doi.org/10.1145/50087.50089", "peer-reviewed"),
+    ],
+)
+
+
+M["entropy"] = dict(
+    year=1980, cell="universal",
+    cite_short="Lehman, M. M. (1980). Programs, life cycles, and laws of software evolution. <em>Proc. IEEE</em>.",
+    intro1="Lehman's laws of software evolution include continuing change and increasing complexity: a program that is used in a real-world environment must continually adapt, and as it adapts it becomes more complex unless work is done to maintain or reduce that complexity. The thesis is one of the oldest empirical generalisations in SE.",
+    intro2="The SD form in <code>models/sd.py:entropy</code> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.",
+    intuition="Every commit adds complexity unless explicit refactoring removes it. Bugs scale with current complexity. Skip refactor, pay in defects.",
+    y_text="Negative net Complexity + Bugs at <code>tmax</code>.",
+    y_para="Reward is health: low Complexity and low Bugs. The sign flip means a higher y is a better state.",
+    rq_text="Low refactor_rate leaves Complexity (and thereby Bugs) high.",
+    rq_para="Mechanical CONFIRM in a well-formed model: removing the pay-down term lets the grow term dominate. The interesting empirical question is whether the magnitude of the effect (how much complexity per missing refactor) matches what we see in real LOC trajectories.",
+    cell_para="<span class='ok'>universal</span>: monotone in both refactor_rate (param) and work_rate (input). Lehman's laws are characteristically input-and-parameter robust.",
+    lift_intro="<p>Lift recipe: use <code>parse_line_metrics</code> (scc) on each release tag of each project to get total LOC and the LOC of each top-level module. Per-project: regression of LOC against time, check monotone-increasing (Lehman's continuing-growth law). For Bugs, use SZZ-tagged commits per release tag.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("LOC(t)", "scc LOC per release tag", "<code>parse_line_metrics</code>", "all 8", "TBD"),
+        ("refactor share", "RefMiner refactor commits / total commits per release", "<code>parse_java_code_refactoring_json</code>", "5 Java projects", "TBD"),
+        ("Bugs", "SZZ bug-introducing commits per release", "<code>parse_szz_bugfixes</code> (lifts/functions.R)", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("scc", "LOC per release", "go install github.com/boyter/scc@latest"),
+        ("RefactoringMiner", "refactor commits", "release jar"),
+        ("PyDriller B-SZZ", "bug-introducing commits", "pip install pydriller"),
+    ],
+    sanity="If LOC is non-monotone across release tags, either the project deleted a module, or the lift mis-grouped commits.",
+    results_intro="Pipeline ready. Lift will produce per-project trajectories: LOC(release), refactor_share(release), Bugs(release). Expected pattern: monotone LOC growth, falling refactor_share, rising Bugs — Lehman's classic curves.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="Lehman's laws are weakly testable in OSS because mature open-source projects nearly always grow — falsification requires finding a project that contracts. Apache OpenSSL is a candidate; tomcat shed several optional modules over the years.",
+    implications=[
+        "Lehman entropy is the conceptual ancestor of the debt and brooksq quality findings — all three say complexity outpaces care.",
+        "Universal-cell status means the model is hard to falsify on observation alone; the discriminating test is whether the magnitude of growth matches a power law (Lehman's prediction) versus linear (the null).",
+    ],
+    refs=[
+        ("Lehman, M. M. (1980). Programs, life cycles, and laws of software evolution. <em>Proceedings of the IEEE</em> 68(9):1060–1076.",
+         "https://doi.org/10.1109/PROC.1980.11805", "peer-reviewed"),
+        ("Lehman, M. M., Ramil, J. F., Wernick, P. D., Perry, D. E., &amp; Turski, W. M. (1997). Metrics and laws of software evolution — the nineties view. <em>METRICS '97</em>.",
+         "https://doi.org/10.1109/METRIC.1997.637156", "peer-reviewed"),
+    ],
+)
+
+
+M["costchange"] = dict(
+    year=1981, cell="universal",
+    cite_short="Boehm, B. W. (1981). <em>Software Engineering Economics</em>. Prentice-Hall.",
+    intro1="Boehm's cost-of-change curve is the most cited bar chart in software engineering: catching a bug in requirements costs $1, in coding $10, in test $100, in release $1000. The literal numbers are dated and have been contested in agile contexts (Beck/Cockburn pushback), but the structural claim — fix-cost rises super-linearly with discovery latency — holds in most modern datasets too.",
+    intro2="The SD form in <code>models/sd.py:costchange</code> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.",
+    intuition="Push catch to release and total cost explodes. Push catch to coding/test and total cost stays linear in defect count. The exponent is the cost ratio late/early.",
+    y_text="Negative cumulative cost at <code>tmax</code>.",
+    y_para="Negative because lower cost is better. Captures the integrated economic damage of where in the lifecycle bugs land.",
+    rq_text="Shifting catch from early to late inflates total Cost.",
+    rq_para="Mechanical CONFIRM by construction (cost_late &gt; cost_early). The empirical question is the magnitude of cost_late / cost_early — Boehm said 100x; modern continuous-delivery shops claim 2–5x. Lifted ratios from OSS will lie somewhere in between.",
+    cell_para="<span class='ok'>universal</span>: robust to input perturbations (initial Bugs) and parameter perturbations (cost_early/cost_late ratio). The shape of the curve is determined by sign, not magnitude.",
+    lift_intro="<p>Lift recipe: use SZZ-tagged bug pairs to compute the time between bug-introduction commit and bug-fix commit. Bucket fixes into early (&lt; 30 days), mid (30–180 days), late (&gt; 180 days). For Cost proxy, use lines-changed in the fix commit (large change = late detection = expensive). Compute ratio mid_cost / early_cost and late_cost / early_cost per project.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("Bug latency", "fix commit time − introduction commit time", "<code>parse_szz_bugfixes</code>", "all 8", "TBD"),
+        ("Fix size", "diff lines / commit", "<code>parse_gitlog</code>", "all 8", "TBD"),
+        ("Cost ratio", "median(late fix size) / median(early fix size)", "derived", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("PyDriller B-SZZ", "bug-introducing commit pairs", "pip install pydriller"),
+        ("Perceval", "diff-line counts", "kaiaulu wrapper"),
+    ],
+    sanity="If the late-fix-size distribution is the same as the early-fix-size distribution, Boehm's claim is unsupported in this data. Either is a finding.",
+    results_intro="Pipeline ready. Lift will produce 8 per-project (early, mid, late) median-fix-size triples. Expected: late &gt; early on every project; magnitude varies.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="If the Boehm exponent is close to 1 in modern OSS (i.e. late-fix size is only modestly larger than early-fix size), continuous-delivery practitioners win the argument. If it's still &ge; 5, the textbook claim holds.",
+    implications=[
+        "costchange is a candidate F-finding: it could empirically anchor the long-standing dispute between Boehm and the agile movement.",
+        "Tied to the debt lift: the pay_rate convergence (F2) is essentially the same phenomenon viewed from a different angle.",
+    ],
+    refs=[
+        ("Boehm, B. W. (1981). <em>Software Engineering Economics</em>. Prentice-Hall.",
+         "https://www.pearson.com/en-us/subject-catalog/p/software-engineering-economics/P200000003329", "book"),
+        ("Boehm, B. W., &amp; Basili, V. R. (2001). Software defect reduction top-10 list. <em>IEEE Computer</em> 34(1):135–137.",
+         "https://doi.org/10.1109/2.962984", "peer-reviewed"),
+        ("Shull, F., Basili, V., Boehm, B., et al. (2002). What we have learned about fighting defects. <em>METRICS '02</em>.",
+         "https://doi.org/10.1109/METRIC.2002.1011343", "peer-reviewed"),
+    ],
+)
+
+
+M["pareto"] = dict(
+    year=1992, cell="universal",
+    cite_short="Fenton, N. E., &amp; Ohlsson, N. (2000). Quantitative analysis of faults and failures in a complex software system. <em>IEEE TSE</em>; Ostrand, T. J., &amp; Weyuker, E. J. (2002). The distribution of faults in a large industrial software system. <em>ISSTA</em>.",
+    intro1="Fenton-Ohlsson and Ostrand-Weyuker independently observed that ~20% of modules in large software systems carry ~80% of the defects, and that the hotspot set persists across releases. The empirical regularity has been replicated dozens of times since.",
+    intro2="The SD form in <code>models/sd.py:pareto</code> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.",
+    intuition="If you have 10 hotspot modules and 90 cold ones, fixing one hotspot kills 10x as many bugs as fixing one cold module. Spreading fix effort uniformly wastes most of it.",
+    y_text="Negative Bugs at <code>tmax</code>.",
+    y_para="Lower Bugs is better. The integrated defect count after a fixed horizon under the chosen fix_share_hot.",
+    rq_text="Allocating fix effort proportional to module size (1:9 cold-to-hot) inflates total Bugs vs hotspot-focused (8:2).",
+    rq_para="CONFIRM in the model because hot-fixes are 4x more effective by construction. The empirical question is the lifted ratio: how much more bug-density does a real hotspot carry than a real cold module, across the 8 projects.",
+    cell_para="<span class='ok'>universal</span>: robust to input perturbations (initial Hot/Cold sizes) and parameter perturbations (the bug-rate gap). Pareto is one of the most universal SE findings; the cell reflects that.",
+    lift_intro="<p>Lift recipe: use SZZ-tagged bugs to compute per-file bug count over the project history. Rank files by bug count, mark the top 20% as Hot. Test (a) does Hot account for &gt; 60% of all bugs (the Pareto claim); (b) is the Hot set stable across the first and second half of the history (the persistence claim).</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("Bug-per-file", "SZZ bug commits / file", "<code>compute_file_bug_frequency</code>", "all 8", "TBD"),
+        ("Hot set", "top-20% by bug count", "derived", "all 8", "TBD"),
+        ("Pareto ratio", "% of bugs in top-20% of files", "derived", "all 8", "TBD"),
+        ("Persistence", "Jaccard(Hot first-half, Hot second-half)", "derived", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("PyDriller B-SZZ", "bug-introducing commit pairs", "pip install pydriller"),
+        ("Perceval", "file-pathname history", "kaiaulu wrapper"),
+    ],
+    sanity="If the Pareto ratio is &lt; 50% on any project, the 80/20 claim is empirically wrong for that codebase. If persistence is &lt; 0.3, hotspots don't persist — Ostrand-Weyuker's second claim fails.",
+    results_intro="Pipeline ready. Lift will produce 8 per-project (pareto_ratio, persistence_jaccard) pairs. Expected: pareto_ratio &ge; 0.6 universally; persistence &ge; 0.5 on most projects.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="Pareto persistence is the more interesting half: if hotspots are stable, refactor priorities are stable, and a manager can reasonably commit to a multi-release cleanup plan.",
+    implications=[
+        "Pareto + ownership are two angles on module quality; lifting both lets us decompose how much of the bug concentration is structural vs human.",
+        "If persistence is low on a project, the project's quality problem is moving — and most static refactoring plans will miss it.",
+    ],
+    refs=[
+        ("Fenton, N. E., &amp; Ohlsson, N. (2000). Quantitative analysis of faults and failures in a complex software system. <em>IEEE Transactions on Software Engineering</em> 26(8):797–814.",
+         "https://doi.org/10.1109/32.879815", "peer-reviewed"),
+        ("Ostrand, T. J., &amp; Weyuker, E. J. (2002). The distribution of faults in a large industrial software system. <em>ISSTA</em>.",
+         "https://doi.org/10.1145/566172.566181", "peer-reviewed"),
+    ],
+)
+
+
+M["linus"] = dict(
+    year=1999, cell="universal",
+    cite_short="Raymond, E. S. (1999). <em>The Cathedral and the Bazaar</em>; Mockus, A., Fielding, R. T., &amp; Herbsleb, J. D. (2002). Two case studies of open source software development. <em>ACM TOSEM</em>.",
+    intro1="Raymond's bazaar argument — &quot;given enough eyeballs, all bugs are shallow&quot; — became Linus's law in popular framing. Mockus-Fielding-Herbsleb's empirical study of Apache and Mozilla put a peer-reviewed footing under the claim: code reviewed by multiple committers had measurably lower defect recurrence.",
+    intro2="The MYTHS form in <code>models/sd.py:linus</code> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.",
+    intuition="Five reviewers means a high chance any given bug pattern is recognised. One reviewer means the bug recurs in a sister module. Doubling reviewers doesn't halve recurrence, but the gradient is real.",
+    y_text="Reviewed minus 3·Recurring at <code>tmax</code>.",
+    y_para="Reward closed-with-review; heavily penalise defects that recur (3x penalty). Captures the cost asymmetry: a recurring defect is much worse than just &quot;another defect&quot;.",
+    rq_text="Low review_rate inflates Recurring.",
+    rq_para="CONFIRM in the model: with review_rate=0.1 most Open never reaches Reviewed, and what does get through has recur_rate * (1 - review_rate) chance of recurring. The lifted question is whether OSS projects with measured review_rate &gt; 0.5 actually show lower defect-recurrence than projects with review_rate &lt; 0.2.",
+    cell_para="<span class='ok'>universal</span>: robust to both inputs (Open count) and params (recur_rate). The direction of the law is structural; only the magnitude is project-specific.",
+    lift_intro="<p>Lift recipe: from GitHub PR data, compute per-PR reviewer count and review-comment count. Map each merged PR to its later SZZ-tagged bug-introducing commit (if any). Test whether PRs with &ge; 2 reviewers have a lower rate of producing bug-introducing commits than PRs with &le; 1 reviewer.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("review_rate", "median reviewers / PR", "GH PR API + custom", "Helix, kaiaulu, junit5, ambari", "TBD"),
+        ("review_depth", "median review comments / PR", "GH PR API", "Helix, kaiaulu, junit5, ambari", "TBD"),
+        ("recur_rate", "% of merged PRs that later get SZZ-tagged", "GH PR + PyDriller", "Helix, kaiaulu, junit5, ambari", "TBD"),
+    ],
+    tools_table=[
+        ("GitHub REST API + jq", "PR + review pull", "auth + write CSV"),
+        ("PyDriller B-SZZ", "bug-introducing commits", "pip install pydriller"),
+    ],
+    sanity="If recur_rate is independent of review_rate across projects, Linus's law fails as a falsifiable claim. That itself would be a paper-worthy negative result.",
+    results_intro="Pipeline ready (GH PR pull is the heaviest lift step). Expected outcome: a weak-to-moderate negative correlation between review_rate and recur_rate, with magnitude that depends on project culture.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="The lift competes with Mockus 2002 in design: he found the effect on Apache and Mozilla, we test on a different 4-project subset. Replication is the actual contribution.",
+    implications=[
+        "Linus is closely related to ownership (Bird et al) and orgchurn (Nagappan): all three tie defect rate to human-process attributes.",
+        "If review_rate has no effect on recur_rate in our subset, that pushes back against universal advocacy for mandatory multi-reviewer PRs.",
+    ],
+    refs=[
+        ("Raymond, E. S. (1999). <em>The Cathedral and the Bazaar</em>. O'Reilly.",
+         "http://www.catb.org/~esr/writings/cathedral-bazaar/", "book"),
+        ("Mockus, A., Fielding, R. T., &amp; Herbsleb, J. D. (2002). Two case studies of open source software development: Apache and Mozilla. <em>ACM TOSEM</em> 11(3):309–346.",
+         "https://doi.org/10.1145/567793.567795", "peer-reviewed"),
+        ("Rigby, P. C., &amp; Bird, C. (2013). Convergent contemporary software peer review practices. <em>FSE '13</em>.",
+         "https://doi.org/10.1145/2491411.2491444", "peer-reviewed"),
+    ],
+)
+
+
+M["mirroring"] = dict(
+    year=2006, cell="universal",
+    cite_short="MacCormack, A., Baldwin, C., &amp; Rusnak, J. (2006). Exploring the duality between product and organizational architectures. <em>Management Science</em>.",
+    intro1="MacCormack, Baldwin, and Rusnak operationalised Conway's law as a measurable mirror coefficient: the agreement between the design-structure-matrix of the code (who-calls-who) and the design-structure-matrix of the organisation (who-talks-to-who). Their finding: high mirror predicts cleaner modular boundaries and lower defect density.",
+    intro2="The SD form in <code>models/sd.py:mirroring</code> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.",
+    intuition="If your repo has 20 modules and 5 teams, the cleanest world is 4 modules per team. Half a module owned by two teams means every change there is a coordination event — and coordination events break things.",
+    y_text="Negative Bugs at <code>tmax</code>.",
+    y_para="Health metric: lower Bugs = better mirrored org-architecture.",
+    rq_text="Lowering mirror from 0.85 to 0.30 inflates Bugs.",
+    rq_para="CONFIRM by construction: (1 - mirror) is the leak coefficient on churn-driven Bugs. The empirical question is the lifted mirror values across projects and whether mirror change tracks defect change over time.",
+    cell_para="<span class='ok'>universal</span>: robust to both input and parameter perturbations. Mirror is a structural property; the prediction is non-fragile.",
+    lift_intro="<p>Lift recipe: use <code>parse_dependencies</code> (Depends) to build the file DSM. Use <code>parse_gitlog</code> + <code>identity_match</code> to build the developer DSM (who-touches-which-file). Compute MacCormack's mirror coefficient as the cosine similarity (or normalized agreement) between the two DSMs. Repeat per release tag.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("File DSM",  "Depends call/dep graph",          "<code>parse_dependencies</code>", "all 8 (Depends supports them)", "TBD"),
+        ("Dev DSM",   "who-touches-who via shared files", "<code>parse_gitlog</code> + identity",  "all 8", "TBD"),
+        ("mirror",    "cosine(File DSM, Dev DSM)",       "derived",                              "all 8", "TBD"),
+        ("Bugs(release)", "SZZ defects per release tag", "<code>compute_file_bug_frequency</code>", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("Depends", "file dependency graph", "github.com/multilang-depends/depends"),
+        ("kaiaulu identity_match", "developer DSM construction", "R; label=\"identity_id\""),
+        ("PyDriller B-SZZ", "release-tagged defects", "pip install pydriller"),
+    ],
+    sanity="If mirror does not vary across release tags within a project, the lift's discriminating signal is dead — either the project's structure didn't change, or the DSM construction is mis-grouping.",
+    results_intro="Pipeline ready. Per-project trajectory: mirror(release) vs Bugs(release). Expected: negative correlation; magnitude varies by project size.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="MacCormack's original paper studied a closed-source product. Replicating on OSS is novel because OSS team boundaries are weaker; if mirror still predicts defects, the law is more universal than Management Science 2006 claimed.",
+    implications=[
+        "Mirror is a structural twin of ownership (Bird 2011): both blame defect density on who-touches-what asymmetries, but from different angles.",
+        "If mirror predicts defects on OSS, the policy recommendation is module-boundary refactor before team-boundary changes.",
+    ],
+    refs=[
+        ("MacCormack, A., Baldwin, C., &amp; Rusnak, J. (2006). Exploring the duality between product and organizational architectures. <em>Management Science</em> 52(7):1015–1030.",
+         "https://doi.org/10.1287/mnsc.1060.0552", "peer-reviewed"),
+        ("Conway, M. E. (1968). How do committees invent? <em>Datamation</em> 14(4):28–31.",
+         "http://www.melconway.com/Home/Committees_Paper.html", "magazine"),
+        ("Cataldo, M., Wagstrom, P. A., Herbsleb, J. D., &amp; Carley, K. M. (2006). Identification of coordination requirements. <em>CSCW '06</em>.",
+         "https://doi.org/10.1145/1180875.1180929", "peer-reviewed"),
+    ],
+)
+
+
+M["orgchurn"] = dict(
+    year=2010, cell="universal",
+    cite_short="Nagappan, N., Murphy, B., &amp; Basili, V. R. (2008). The influence of organizational structure on software quality. <em>ICSE</em>.",
+    intro1="Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.",
+    intro2="The SD form in <code>models/sd.py:orgchurn</code> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.",
+    intuition="Lose half your senior devs; halve your effective knowledge base; double your defect rate. The model is not quite that linear but the direction is.",
+    y_text="Negative Bugs at <code>tmax</code>.",
+    y_para="Health metric: lower Bugs = better-retained-org.",
+    rq_text="Tenfold churn_rate increase inflates Bugs.",
+    rq_para="CONFIRM by construction: knowledge depletion scales with lost dev count, and Bugs scale inversely with current knowledge. The lifted question is the empirical magnitude — how many extra bugs per departure.",
+    cell_para="<span class='ok'>universal</span>: robust to inputs (initial Devs) and parameters (churn_rate, knowledge scale). The N-M-B effect is one of the most-replicated org-defects findings.",
+    lift_intro="<p>Lift recipe: from gitlog + identity_match, detect &quot;departure events&quot; — an identity_id whose last commit is &gt; N months before the project's HEAD. Compute the per-quarter departure count. Correlate with the per-quarter SZZ defect rate (lagged by 0, 1, 2 quarters to look for delayed effects).</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("departures(t)", "identities going inactive in quarter t", "<code>detect_late_hires</code> inverted; <code>lifts/functions.R</code>", "all 8", "TBD"),
+        ("Bugs(t)",       "SZZ bugs introduced in quarter t",       "<code>parse_szz_bugfixes</code>", "all 8", "TBD"),
+        ("lag correlation", "Pearson r(departures(t), Bugs(t+k))",  "derived", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("kaiaulu identity_match", "actor unification", "R; label=\"identity_id\""),
+        ("PyDriller B-SZZ", "bug-introducing commits", "pip install pydriller"),
+    ],
+    sanity="If departures and bugs are uncorrelated at lag 0, 1, and 2 quarters, N-M-B's finding fails to replicate. Negative result is a paper.",
+    results_intro="Pipeline ready. Per-project: 8 trajectories of (departures(t), Bugs(t)). Expected: positive lag-1-or-2 correlation; magnitude varies.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="Strong replication strengthens the org-quality literature; weak replication makes the case that knowledge depletion in OSS is buffered by documentation (which proprietary Vista did not have).",
+    implications=[
+        "orgchurn + ownership + linus are three views on the same axis: human-process drives defects.",
+        "Lag structure (1 quarter vs 2 quarter) tells management how fast knowledge loss bites — useful policy input.",
+    ],
+    refs=[
+        ("Nagappan, N., Murphy, B., &amp; Basili, V. R. (2008). The influence of organizational structure on software quality. <em>ICSE</em>.",
+         "https://doi.org/10.1145/1368088.1368160", "peer-reviewed"),
+        ("Mockus, A. (2010). Organizational volatility and its effects on software defects. <em>FSE '10</em>.",
+         "https://doi.org/10.1145/1882291.1882311", "peer-reviewed"),
+    ],
+)
+
+
+M["ownership"] = dict(
+    year=2011, cell="universal",
+    cite_short="Bird, C., Nagappan, N., Murphy, B., Gall, H., &amp; Devanbu, P. (2011). Don't touch my code! Examining the effects of ownership on software quality. <em>ESEC/FSE</em>.",
+    intro1="Bird et al at Microsoft Research ran a 60-binary study of Vista and Windows 7 and found that the share of minor-author contributions to a binary (commits from people not on the main team) correlates strongly with post-release defect density. The finding has been replicated on several OSS datasets since.",
+    intro2="The SD form in <code>models/sd.py:ownership</code> represents Modules touched by major authors (high-quality contributions) and minor authors (lower-quality contributions, by hypothesis). The controlled lever is minor_share — the fraction of commits to a module from non-primary contributors.",
+    intuition="The person who wrote the file in the first place understands it best. Drive-by patches from strangers — even well-intentioned ones — are more bug-prone. Cumulative effect across many modules drives the defect curve.",
+    y_text="Negative Bugs at <code>tmax</code>.",
+    y_para="Health metric: lower Bugs = better-stewarded codebase.",
+    rq_text="High minor_share (0.60) inflates Bugs vs low (0.10).",
+    rq_para="CONFIRM by construction: eff_q drops as minor_share rises. The lifted question is whether the slope of Bird's regression generalises across 8 OSS projects, and whether the threshold (where minor_share starts to matter) is sharp or smooth.",
+    cell_para="<span class='ok'>universal</span>: robust to both inputs and parameters. Bird's finding has held across multiple replication studies.",
+    lift_intro="<p>Lift recipe: from gitlog + identity_match, compute per-module author share. Major author = ranked-#1 contributor by commit count. Minor authors = all others; minor_share = 1 − major_share. Correlate minor_share with per-module SZZ bug count.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("minor_share", "1 − (top-author commits / total commits) per module", "<code>parse_gitlog</code> + grouping", "all 8", "TBD"),
+        ("Bugs(module)", "SZZ defects per module",                            "<code>compute_file_bug_frequency</code>", "all 8", "TBD"),
+        ("slope",       "regression coef of bugs ~ minor_share",              "derived", "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("kaiaulu identity_match", "actor unification", "R; label=\"identity_id\""),
+        ("PyDriller B-SZZ", "bug-introducing commits", "pip install pydriller"),
+    ],
+    sanity="If slope is non-significant or wrong-signed on any project, Bird's claim fails to replicate there. The 8-project spread is the actual finding.",
+    results_intro="Pipeline ready. 8 per-project slope estimates. Expected: positive slope on at least 6/8 — Bird's finding is among the most-replicated in defect-prediction.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="The 11x spread in brooks-tax suggests that ownership slope may also vary widely. The interesting empirical question is whether large-team projects (airflow, openssl) show steeper slopes than small ones — that would argue ownership matters more as team size grows.",
+    implications=[
+        "Ownership is the single cleanest paper anchor in this candidate set — Bird et al is a foundational citation.",
+        "Combined with orgchurn, it gives a two-axis human-process model: who currently owns the code, and who recently stopped owning it.",
+    ],
+    refs=[
+        ("Bird, C., Nagappan, N., Murphy, B., Gall, H., &amp; Devanbu, P. (2011). Don't touch my code! Examining the effects of ownership on software quality. <em>ESEC/FSE</em>.",
+         "https://doi.org/10.1145/2025113.2025119", "peer-reviewed"),
+        ("Greiler, M., Herzig, K., &amp; Czerwonka, J. (2015). Code Ownership and Software Quality: A Replication Study. <em>MSR</em>.",
+         "https://doi.org/10.1109/MSR.2015.8", "peer-reviewed"),
+    ],
+)
+
+
+M["ossfail"] = dict(
+    year=2017, cell="universal",
+    cite_short="Coelho, J., &amp; Valente, M. T. (2017). Why modern open source projects fail. <em>FSE</em>.",
+    intro1="Coelho-Valente surveyed 104 maintainers of dormant or recently-abandoned OSS projects and identified the dominant risk factors: low truck factor (few developers know enough to keep going), maintainer burnout, conflicts, lack of time. Truck factor is the most operationally measurable signal.",
+    intro2="The SD form in <code>models/sd.py:ossfail</code> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.",
+    intuition="One person knows the codebase end-to-end. They get tired. The project dies. The math of truck factor 1 vs 5 vs 20 is the math of project survival.",
+    y_text="Final Activity level.",
+    y_para="Reward sustained Activity. Drops to zero = project dead.",
+    rq_text="Low truck_factor (1) accelerates Activity decay vs high (8).",
+    rq_para="CONFIRM by construction. The lifted question: do the 8 family projects sit safely (truck_factor &ge; 5) or fragile (truck_factor &le; 2)? The Coelho-Valente paper's survey said most failed projects had TF 1–2.",
+    cell_para="<span class='ok'>universal</span>: robust to both inputs and parameters. Truck factor is one of the few OSS-specific findings that generalises broadly.",
+    lift_intro="<p>Lift recipe: compute Avelino-Valente truck factor for each project. Algorithm: rank developers by their share of LOC authored across the codebase; the truck factor is the smallest k such that removing the top-k authors drops &gt; 50% of authored LOC. Use <code>parse_gitlog</code> + <code>identity_match</code> for the author graph.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("LOC per author", "<code>scc</code> + git blame aggregated by author", "<code>parse_line_metrics</code> + custom", "all 8", "TBD"),
+        ("truck_factor",   "Avelino-Valente algorithm",                          "custom R helper",                          "all 8", "TBD"),
+        ("Activity(t)",    "commits/week",                                       "<code>parse_gitlog</code>",                "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("scc", "LOC counts", "go install github.com/boyter/scc@latest"),
+        ("kaiaulu identity_match", "actor unification", "R; label=\"identity_id\""),
+    ],
+    sanity="If truck_factor is &gt; 10 on any small project, the identity-merge over-grouped contributors. Conversely if &le; 1 on a large project, undermerging.",
+    results_intro="Pipeline ready. 8 per-project truck-factor scalars. Expected: family is healthy on this axis (mostly TF &ge; 5) since these are all mature Apache-tier projects.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="Truck factor is a project-survival metric, not a defect metric — its lifted value should be reported alongside orgchurn (which measures the dynamic version of the same risk).",
+    implications=[
+        "Truck factor &le; 2 is a maintainer red flag. The family projects with this profile (if any) deserve attention.",
+        "Coelho-Valente's survey thresholds (TF 1-2 = high risk) give a calibrated criterion for the MYTHS dark-cell members like teamtopo.",
+    ],
+    refs=[
+        ("Coelho, J., &amp; Valente, M. T. (2017). Why modern open source projects fail. <em>FSE</em>.",
+         "https://doi.org/10.1145/3106237.3106246", "peer-reviewed"),
+        ("Avelino, G., Passos, L., Hora, A., &amp; Valente, M. T. (2016). A novel approach for estimating Truck Factors. <em>ICPC</em>.",
+         "https://doi.org/10.1109/ICPC.2016.7503718", "peer-reviewed"),
+    ],
+)
+
+
+M["deprot"] = dict(
+    year=2018, cell="universal",
+    cite_short="Decan, A., Mens, T., &amp; Constantinou, E. (2018). On the impact of security vulnerabilities in the npm package dependency network. <em>MSR</em>.",
+    intro1="Decan-Mens-Constantinou studied the npm ecosystem and found a systematic delay between vulnerability disclosure and dependent project updates — and that the delay grows as projects accumulate stale dependencies. Each stale dep is a vulnerability surface waiting to bite.",
+    intro2="The SD form in <code>models/sd.py:deprot</code> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.",
+    intuition="Pin your deps and skip updates for two years; sit on a known-CVE library. The fix isn't free (updates break things), but the cost of not updating accumulates exponentially.",
+    y_text="Negative Vulns at <code>tmax</code>.",
+    y_para="Health metric: lower exposed-vulnerability count is better.",
+    rq_text="Low update_rate (0.02) inflates Vulns vs high (0.30).",
+    rq_para="CONFIRM by construction. The lifted question is the per-project distribution of update_rate across pom.xml / requirements.txt / Gemfile.lock history; whether it correlates with measured CVE exposure (from NVD).",
+    cell_para="<span class='ok'>universal</span>: monotone in update_rate and disclosure rate. Dependency rot is one of the most-monitored quality metrics in modern OSS supply chains.",
+    lift_intro="<p>Lift recipe: from gitlog, identify dependency-manifest files (pom.xml, requirements.txt, package.json, Cargo.toml). For each release tag, extract the dep versions. Compute update_rate = fraction of deps with version change in each release window. Optionally cross-reference NVD/OSV for exposed CVEs.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("dep manifest history", "pom.xml / requirements.txt git history", "<code>parse_gitlog</code> + path filter", "all 8 (Java/Python/etc)", "TBD"),
+        ("update_rate",          "fraction of deps changed per release",   "derived",                                 "all 8", "TBD"),
+        ("CVEs (optional)",      "NVD-mapped CVE count per release",       "NVD JSON feed parse",                     "openssl, tomcat", "TBD"),
+    ],
+    tools_table=[
+        ("Perceval", "file history", "kaiaulu wrapper"),
+        ("NVD JSON feed", "CVE-by-package mapping", "https://nvd.nist.gov/vuln/data-feeds"),
+    ],
+    sanity="If update_rate is zero across all release windows, the project pins deps with no rotation — accurate, but it means deprot reduces to a single scalar and can't show the full trajectory.",
+    results_intro="Pipeline ready. 8 per-project update_rate distributions over release tags. Expected: Java projects (Ambari, junit5, tomcat, camel, Helix) cluster around 0.05–0.15; openssl is a security-critical outlier.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="deprot is the supply-chain analogue of debt: it's a real cost incurred over time by neglecting maintenance. Lifted update_rate gives a project-by-project rotation rate that supply-chain security policy can act on.",
+    implications=[
+        "If update_rate is wildly different across the family, supply-chain risk is heterogeneous and one-size-fits-all dep-update policies miss the variance.",
+        "deprot is the gateway model to a future security family of MYTHS models (CVE diffusion, patch herd, etc).",
+    ],
+    refs=[
+        ("Decan, A., Mens, T., &amp; Constantinou, E. (2018). On the impact of security vulnerabilities in the npm package dependency network. <em>MSR</em>.",
+         "https://doi.org/10.1145/3196398.3196401", "peer-reviewed"),
+        ("Pashchenko, I., Plate, H., Ponta, S. E., Sabetta, A., &amp; Massacci, F. (2020). Vuln4Real: A methodology for counting actually vulnerable dependencies. <em>IEEE TSE</em>.",
+         "https://doi.org/10.1109/TSE.2020.3025443", "peer-reviewed"),
+    ],
+)
+
+
+M["scope"] = dict(
+    year=1981, cell="universal",
+    cite_short="Boehm, B. W. (1981); Jones, T. C. (1991). <em>Applied Software Measurement</em>.",
+    intro1="Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.",
+    intro2="The SD form in <code>models/sd.py:scope</code> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.",
+    intuition="An issue tracker that doubles its open count every quarter is one where intake outpaces output. Every team manager has lived this. The only defences are caps on intake (WIP limit) or boosts to outflow (more devs, faster cycle).",
+    y_text="Done minus 10% of Backlog at <code>tmax</code>.",
+    y_para="Net delivered value, penalised for unfinished work. A scope-creep project posts high inflow but low net y.",
+    rq_text="Tripling inflow without matching outflow drops Done.",
+    rq_para="CONFIRM by construction. The lifted question is which family projects actually live in inflow &gt; outflow regimes — Apache projects are typically inflow-managed, but specific subprojects may not be.",
+    cell_para="<span class='ok'>universal</span>: robust to inputs (initial Backlog) and parameters (outflow capacity). Scope dynamics are textbook stable.",
+    lift_intro="<p>Lift recipe: pull JIRA issue stream per project. Per quarter: inflow = issues opened, outflow = issues closed. Plot Backlog over time. Compute the inflow/outflow ratio per project per quarter.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("inflow",   "JIRA issues opened / quarter", "<code>parse_jira</code>", "Ambari, kaiaulu (have JIRA)", "TBD"),
+        ("outflow",  "JIRA issues closed / quarter", "<code>parse_jira</code>", "Ambari, kaiaulu",             "TBD"),
+        ("Backlog(t)", "cumulative open issues at quarter end", "derived",        "Ambari, kaiaulu",             "TBD"),
+    ],
+    tools_table=[
+        ("kaiaulu parse_jira", "JIRA REST + identity merge", "R; returns list(issues, comments)"),
+    ],
+    sanity="If inflow/outflow &asymp; 1.0 universally, the family does not exhibit scope creep — Apache governance keeps it in check. The interesting projects would be the outliers.",
+    results_intro="Pipeline ready. 2 projects have JIRA in scope; lift will produce quarterly time series. Expected: Apache governance keeps inflow/outflow near 1; spikes during major release cycles.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="Scope is the simplest queue model in the bank and serves as the boundary case for both Little's law and Brooks's queue. Tight coupling to those two.",
+    implications=[
+        "scope is among the cheapest lifts (single JIRA pull per project) — should land first.",
+        "Quarterly inflow/outflow is also a usable instrumentation signal for the F-finding suite (could become F6 if anomalous).",
+    ],
+    refs=[
+        ("Boehm, B. W. (1981). <em>Software Engineering Economics</em>. Prentice-Hall.",
+         "https://www.pearson.com/en-us/subject-catalog/p/software-engineering-economics/P200000003329", "book"),
+        ("Jones, T. C. (2008). <em>Applied Software Measurement: Global Analysis of Productivity and Quality</em>. McGraw-Hill.",
+         "https://www.mhprofessional.com/9780071502443-usa-applied-software-measurement-global-analysis-of-productivity-and-quality-third-edition", "book"),
+    ],
+)
+
+
+M["ctxswitch"] = dict(
+    year=2014, cell="process-conditional",
+    cite_short="Meyer, A. N., Fritz, T., Murphy, G. C., &amp; Zimmermann, T. (2014). Software developers' perceptions of productivity. <em>FSE</em>.",
+    intro1="Meyer-Fritz-Murphy-Zimmermann surveyed developers about productivity and found that high task-switching is one of the most cited frustrations. Weinberg's Quality Software Management put a similar argument structurally: every context switch costs ramp-up time, and the cost scales with the diversity of work pulled.",
+    intro2="The SD form in <code>models/sd.py:ctxswitch</code> takes Devs, work_per_dev, and diversity (number of distinct modules a typical dev touches per period). Effective throughput per dev = work_per_dev / (1 + 0.4·(diversity − 1)). The controlled lever is diversity.",
+    intuition="A dev touching 8 modules per day spends a third of their time on remembering where they were. A dev touching 2 modules per day spends ~5%. The 0.4 coefficient in the model is Weinberg's rough estimate.",
+    y_text="Cumulative Done at <code>tmax</code>.",
+    y_para="Total work delivered. Captures the aggregate cost of forcing high diversity on a team.",
+    rq_text="Quadrupling per-dev file diversity (2→8) hurts Done.",
+    rq_para="CONFIRM by construction. The lifted question is whether the per-day file-diversity of real OSS contributors actually clusters near 2 (focused work) or 8 (firefighting), and whether high-diversity weeks correlate with Done drops.",
+    cell_para="<span class='warn'>process-conditional</span>: the 0.4 penalty coefficient is the dominant lever. Inputs (Devs, work_per_dev) wash out; the param's magnitude controls whether ctxswitch is a paper-worthy effect.",
+    lift_intro="<p>Lift recipe: from gitlog, compute per-developer per-day a diversity index = number of distinct files touched in that day. Average across developers for a per-project diversity time-series. Correlate with commits-closed-per-day (a Done proxy).</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("diversity(dev, day)", "distinct files touched by dev in day", "<code>parse_gitlog</code> + grouping", "all 8", "TBD"),
+        ("Done(day)",           "closed issues + merged PRs in day",     "<code>parse_jira</code> + GH PR",      "all 8 (varies)", "TBD"),
+        ("correlation",         "Pearson r(diversity, Done)",            "derived",                              "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("Perceval", "gitlog", "kaiaulu wrapper"),
+        ("kaiaulu identity_match", "dev unification", "R; label=\"identity_id\""),
+    ],
+    sanity="If diversity is constant across days for a given dev, the developer isn't context-switching — they're doing one project. That itself is a finding about how focused OSS contributions are.",
+    results_intro="Pipeline ready. 8 per-project (diversity, Done) time series. Expected: weak negative correlation; magnitude depends heavily on project size and contributor type.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="ctxswitch is the bridge between brooks (team-level coordination cost) and burnout (individual-level cost). The three together form a productivity-cost triangle.",
+    implications=[
+        "If diversity is uncorrelated with Done in OSS, the Weinberg argument is project-internal — it shows up in commercial settings with longer per-task contexts, but not in OSS where most contributions are short-lived.",
+        "A clean signal would empirically motivate WIP-per-developer limits, not just WIP-per-team.",
+    ],
+    refs=[
+        ("Meyer, A. N., Fritz, T., Murphy, G. C., &amp; Zimmermann, T. (2014). Software developers' perceptions of productivity. <em>FSE</em>.",
+         "https://doi.org/10.1145/2635868.2635892", "peer-reviewed"),
+        ("Weinberg, G. M. (1992). <em>Quality Software Management, Vol. 1: Systems Thinking</em>. Dorset House.",
+         "https://www.dorsethouse.com/books/qsm1.html", "book"),
+    ],
+)
+
+
+M["limits"] = dict(
+    year=1990, cell="process-conditional",
+    cite_short="Senge, P. M. (1990). <em>The Fifth Discipline</em>. Doubleday.",
+    intro1="Senge's limits-to-growth archetype is a classic SD pattern: an effort that initially produces linear gains hits a saturating constraint and produces diminishing returns. In software, throughput saturates as team size grows because coordination overhead bites (a complement to coordn2 from a different direction).",
+    intro2="The SD form in <code>models/sd.py:limits</code> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.",
+    intuition="A team of 10 with cap=200 sits below the knee — adding people helps. A team of 30 with cap=200 sits above the knee — adding people barely moves the needle. The cap is the project's structural ceiling.",
+    y_text="Cumulative Done at <code>tmax</code>.",
+    y_para="Total delivered work. Captures the asymptote-shaped relationship between team size and output.",
+    rq_text="Doubling Devs near the cap yields diminishing returns.",
+    rq_para="CONFIRM by construction at high enough Devs (the saturation kicks in). The lifted question is the empirical cap per project — how many developers can productively contribute to airflow vs kaiaulu?",
+    cell_para="<span class='warn'>process-conditional</span>: input perturbations on Devs hit the saturation differently depending on where Devs sits relative to cap. The param cap controls the curve shape.",
+    lift_intro="<p>Lift recipe: from gitlog + identity_match, compute Active Devs(t) and Commits(t) per quarter per project. Fit Commits = α·Devs / (1 + Devs/cap). Recover (α, cap) per project — α is the raw productivity coefficient, cap is the saturation point.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("Devs(t)",     "unique committers / quarter",         "<code>parse_gitlog</code> + identity",   "all 8", "TBD"),
+        ("Commits(t)",  "commits / quarter",                   "<code>parse_gitlog</code>",              "all 8", "TBD"),
+        ("(α, cap)",    "nonlinear least squares fit",         "stats::nls in R",                        "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("Perceval", "gitlog", "kaiaulu wrapper"),
+        ("kaiaulu identity_match", "actor unification", "R; label=\"identity_id\""),
+    ],
+    sanity="If the saturation fit fails (cap is at the upper bound of the optimiser), the project never hit its limit in the observed window — α dominates and the model collapses to linear.",
+    results_intro="Pipeline ready. 8 per-project (α, cap) pairs. Expected: small projects (kaiaulu, camel) never saturate; large projects (airflow, openssl) clearly do.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="The lifted cap is a quantitative version of the Mythical Man-Month's qualitative point: beyond cap, hiring is wasted. Lifted cap values across the family give an actual range for the OSS-specific knee.",
+    implications=[
+        "limits is the smooth counterpart to coordn2's quadratic-pair tax — both predict saturation but with different functional forms.",
+        "If lifted caps cluster (e.g. 20–40 devs for typical Apache-tier projects), that's a usable rule of thumb for OSS staffing.",
+    ],
+    refs=[
+        ("Senge, P. M. (1990). <em>The Fifth Discipline: The Art and Practice of the Learning Organization</em>. Doubleday.",
+         "https://www.penguinrandomhouse.com/books/163984/the-fifth-discipline-by-peter-m-senge/", "book"),
+        ("Sterman, J. D. (2000). <em>Business Dynamics: Systems Thinking and Modeling for a Complex World</em>. McGraw-Hill.",
+         "https://www.mheducation.com/highered/product/business-dynamics-systems-thinking-modeling-complex-world-sterman/M9780072389159.html", "book"),
+    ],
+)
+
+
+M["successful"] = dict(
+    year=1968, cell="process-conditional",
+    cite_short="Merton, R. K. (1968). The Matthew Effect in Science. <em>Science</em>.",
+    intro1="Merton's Matthew effect — &quot;to him that hath shall be given&quot; — describes how attention concentrates on entities that already have it. In software, well-known modules attract more PRs, more reviews, more test coverage; obscure modules atrophy. The dynamic is generative: small initial differences compound.",
+    intro2="The SD form in <code>models/sd.py:successful</code> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.",
+    intuition="A repo with one famous module and 50 obscure ones will see all its PRs land on the famous module. The obscure modules rot. After a year, the famous one is 10x its old size, the obscure ones unchanged. Compound interest in attention.",
+    y_text="Cumulative Coverage at <code>tmax</code>.",
+    y_para="Total module-attention delivered, summed across population. High concentration produces a lopsided Coverage profile (some high, most low).",
+    rq_text="Extreme concentration (0.9) starves Coverage vs moderate (0.4).",
+    rq_para="CONFIRM by construction: concentration above ~0.6 produces enough starve that net Coverage drops despite higher Attended gain. The lifted question is the per-project concentration profile and whether it correlates with module death.",
+    cell_para="<span class='warn'>process-conditional</span>: input perturbations (initial Pop / Attended split) wash out, but the concentration parameter dominates the long-run distribution.",
+    lift_intro="<p>Lift recipe: per project, compute per-module attention shares. Attention proxy = commits + reviews + tests touching the module. Compute the Gini coefficient of attention across modules per quarter. High Gini = high concentration = Matthew effect active.</p>"
+        + _LIFT_PENDING_NOTE,
+    attrs_table=[
+        ("module attention",    "commits + tests + reviews per module per quarter", "<code>parse_gitlog</code> + custom", "all 8", "TBD"),
+        ("Gini(quarter)",       "Gini coefficient of per-module attention",         "ineq::Gini in R",                    "all 8", "TBD"),
+        ("Gini trend",          "Gini regressed against quarter index",             "derived",                            "all 8", "TBD"),
+    ],
+    tools_table=[
+        ("Perceval", "gitlog", "kaiaulu wrapper"),
+        ("R ineq pkg", "Gini coefficient", "install.packages(\"ineq\")"),
+    ],
+    sanity="If Gini is flat over time, the Matthew effect is balanced by some counterforce (perhaps deliberate refactor or doc-coverage policy). That counterforce itself is then the interesting object.",
+    results_intro="Pipeline ready. 8 per-project Gini time series. Expected: mature projects show stable-or-slowly-rising Gini (the famous modules stay famous), younger projects show volatile Gini.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="successful is closely tied to pareto (hotspot persistence) — both predict concentration; this one measures the attention side, pareto measures the defect side. Cross-validation between them would strengthen either finding.",
+    implications=[
+        "If Matthew effect is strong, refactor budgets should be biased toward the under-attended modules — they accumulate hidden debt.",
+        "Tied conceptually to <code>archpat</code> (which finds the Legacy partition gets ignored) — same dynamic, different framing.",
+    ],
+    refs=[
+        ("Merton, R. K. (1968). The Matthew Effect in Science. <em>Science</em> 159(3810):56–63.",
+         "https://doi.org/10.1126/science.159.3810.56", "peer-reviewed"),
+        ("Senge, P. M. (1990). <em>The Fifth Discipline</em>. Doubleday — &quot;Success to the Successful&quot; archetype.",
+         "https://www.penguinrandomhouse.com/books/163984/the-fifth-discipline-by-peter-m-senge/", "book"),
+    ],
+)
+
+
 # --- HTML template ---
 
 TEMPLATE = """<!doctype html>
@@ -1600,9 +2227,15 @@ TEMPLATE = """<!doctype html>
 def render_attrs_table(rows):
     if not rows:
         return '<p class="dim">No attribute table — this model is not lifted.</p>'
-    out = ['<table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>']
-    for inp, used, src in rows:
-        out.append(f'<tr><td class="mono">{inp}</td><td>{used}</td><td>{src}</td></tr>')
+    wide = len(rows[0]) == 5
+    if wide:
+        out = ['<table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th><th>project</th><th>value</th></tr></thead><tbody>']
+        for inp, used, src, proj, val in rows:
+            out.append(f'<tr><td class="mono">{inp}</td><td>{used}</td><td>{src}</td><td>{proj}</td><td class="num">{val}</td></tr>')
+    else:
+        out = ['<table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>']
+        for inp, used, src in rows:
+            out.append(f'<tr><td class="mono">{inp}</td><td>{used}</td><td>{src}</td></tr>')
     out.append('</tbody></table>')
     return "\n".join(out)
 
@@ -1610,9 +2243,15 @@ def render_attrs_table(rows):
 def render_tools_table(rows):
     if not rows:
         return '<p class="dim">No tools required (or model not lifted).</p>'
-    out = ['<table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>']
-    for nm, role in rows:
-        out.append(f'<tr><td><strong>{nm}</strong></td><td>{role}</td></tr>')
+    wide = len(rows[0]) == 3
+    if wide:
+        out = ['<table><thead><tr><th>tool</th><th>role</th><th>install</th></tr></thead><tbody>']
+        for nm, role, install in rows:
+            out.append(f'<tr><td><strong>{nm}</strong></td><td>{role}</td><td class="mono">{install}</td></tr>')
+    else:
+        out = ['<table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>']
+        for nm, role in rows:
+            out.append(f'<tr><td><strong>{nm}</strong></td><td>{role}</td></tr>')
     out.append('</tbody></table>')
     return "\n".join(out)
 

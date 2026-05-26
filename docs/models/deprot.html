@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deprot (2018) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ deprot</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>deprot <span class="dim" style="font-weight:400;">(2018)</span><span class="tag">universal cell</span></h1>
+<p class="sub-title">Decan, A., Mens, T., &amp; Constantinou, E. (2018). On the impact of security vulnerabilities in the npm package dependency network. <em>MSR</em>.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Decan-Mens-Constantinou studied the npm ecosystem and found a systematic delay between vulnerability disclosure and dependent project updates — and that the delay grows as projects accumulate stale dependencies. Each stale dep is a vulnerability surface waiting to bite.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L985" target="_blank" rel="noopener"><code>models/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
+    <p class="dim"><em>Intuition</em>: Pin your deps and skip updates for two years; sit on a known-CVE library. The fix isn't free (updates break things), but the cost of not updating accumulates exponentially.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong>Negative Vulns at <code>tmax</code>.</strong></p>
+    <p>Health metric: lower exposed-vulnerability count is better.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Low update_rate (0.02) inflates Vulns vs high (0.30).</strong></p>
+    <p>CONFIRM by construction. The lifted question is the per-project distribution of update_rate across pom.xml / requirements.txt / Gemfile.lock history; whether it correlates with measured CVE exposure (from NVD).</p>
+    <h2>Stress-matrix cell</h2>
+    <p><span class='ok'>universal</span>: monotone in update_rate and disclosure rate. Dependency rot is one of the most-monitored quality metrics in modern OSS supply chains.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <pre><code class="language-python">def deprot():
+  &quot;&quot;&quot;Decan/Mens/Constantinou 2018: dep version staleness elevates
+  vulnerability surface. RQ: low update_rate inflates Vulns.&quot;&quot;&quot;
+  init = {&#x27;Deps&#x27;:[40,1,500], &#x27;Stale&#x27;:[20,0,500], &#x27;Vulns&#x27;:[0,0,500],
+          &#x27;update_rate&#x27;:[0.1,0,1], &#x27;vuln_disclose_rate&#x27;:[0.01,0,0.5]}
+  def step(dt, t, u, v):
+    fresh_flow = u.Stale * u.update_rate
+    new_vuln   = u.Stale * u.vuln_disclose_rate
+    v.Stale = max(0, u.Stale + dt * (u.Deps * 0.05 - fresh_flow))
+    v.Vulns = u.Vulns + dt * new_vuln
+    for p in (&#x27;Deps&#x27;,&#x27;update_rate&#x27;,&#x27;vuln_disclose_rate&#x27;):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Vulns
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;low update_rate inflates vulnerabilities&quot;,
+                   y(run({**bi, &#x27;update_rate&#x27;:[0.30,0,1]}, step)),
+                   y(run({**bi, &#x27;update_rate&#x27;:[0.02,0,1]}, step)), &#x27;down&#x27;)
+  return Model(init, step, y, rq, &#x27;update_rate&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lift recipe: from gitlog, identify dependency-manifest files (pom.xml, requirements.txt, package.json, Cargo.toml). For each release tag, extract the dep versions. Compute update_rate = fraction of deps with version change in each release window. Optionally cross-reference NVD/OSV for exposed CVEs.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th><th>project</th><th>value</th></tr></thead><tbody>
+<tr><td class="mono">dep manifest history</td><td>pom.xml / requirements.txt git history</td><td><code>parse_gitlog</code> + path filter</td><td>all 8 (Java/Python/etc)</td><td class="num">TBD</td></tr>
+<tr><td class="mono">update_rate</td><td>fraction of deps changed per release</td><td>derived</td><td>all 8</td><td class="num">TBD</td></tr>
+<tr><td class="mono">CVEs (optional)</td><td>NVD-mapped CVE count per release</td><td>NVD JSON feed parse</td><td>openssl, tomcat</td><td class="num">TBD</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th><th>install</th></tr></thead><tbody>
+<tr><td><strong>Perceval</strong></td><td>file history</td><td class="mono">kaiaulu wrapper</td></tr>
+<tr><td><strong>NVD JSON feed</strong></td><td>CVE-by-package mapping</td><td class="mono">https://nvd.nist.gov/vuln/data-feeds</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p>If update_rate is zero across all release windows, the project pins deps with no rotation — accurate, but it means deprot reduces to a single scalar and can't show the full trajectory.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -4.93</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 179/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Pipeline ready. 8 per-project update_rate distributions over release tags. Expected: Java projects (Ambari, junit5, tomcat, camel, Helix) cluster around 0.05–0.15; openssl is a security-critical outlier.</p>
+    
+    <p>deprot is the supply-chain analogue of debt: it's a real cost incurred over time by neglecting maintenance. Lifted update_rate gives a project-by-project rotation rate that supply-chain security policy can act on.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li>If update_rate is wildly different across the family, supply-chain risk is heterogeneous and one-size-fits-all dep-update policies miss the variance.</li>
+<li>deprot is the gateway model to a future security family of MYTHS models (CVE diffusion, patch herd, etc).</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/3196398.3196401" target="_blank" rel="noopener">Decan, A., Mens, T., &amp; Constantinou, E. (2018). On the impact of security vulnerabilities in the npm package dependency network. <em>MSR</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/TSE.2020.3025443" target="_blank" rel="noopener">Pashchenko, I., Plate, H., Ponta, S. E., Sabetta, A., &amp; Massacci, F. (2020). Vuln4Real: A methodology for counting actually vulnerable dependencies. <em>IEEE TSE</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

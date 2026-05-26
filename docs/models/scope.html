@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>scope (1981) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ scope</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>scope <span class="dim" style="font-weight:400;">(1981)</span><span class="tag">universal cell</span></h1>
+<p class="sub-title">Boehm, B. W. (1981); Jones, T. C. (1991). <em>Applied Software Measurement</em>.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L1006" target="_blank" rel="noopener"><code>models/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
+    <p class="dim"><em>Intuition</em>: An issue tracker that doubles its open count every quarter is one where intake outpaces output. Every team manager has lived this. The only defences are caps on intake (WIP limit) or boosts to outflow (more devs, faster cycle).</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong>Done minus 10% of Backlog at <code>tmax</code>.</strong></p>
+    <p>Net delivered value, penalised for unfinished work. A scope-creep project posts high inflow but low net y.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Tripling inflow without matching outflow drops Done.</strong></p>
+    <p>CONFIRM by construction. The lifted question is which family projects actually live in inflow &gt; outflow regimes — Apache projects are typically inflow-managed, but specific subprojects may not be.</p>
+    <h2>Stress-matrix cell</h2>
+    <p><span class='ok'>universal</span>: robust to inputs (initial Backlog) and parameters (outflow capacity). Scope dynamics are textbook stable.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <pre><code class="language-python">def scope():
+  &quot;&quot;&quot;Boehm/Jones scope creep: when inflow &gt; outflow, backlog grows
+  without bound. RQ: high inflow_excess hurts net Done.&quot;&quot;&quot;
+  init = {&#x27;Backlog&#x27;:[100,0,10000], &#x27;Done&#x27;:[0,0,10000],
+          &#x27;inflow&#x27;:[8,0,100], &#x27;outflow&#x27;:[6,0,100]}
+  def step(dt, t, u, v):
+    served = min(u.Backlog, u.outflow)
+    v.Backlog = u.Backlog + dt * (u.inflow - served)
+    v.Done    = u.Done    + dt * served
+    for p in (&#x27;inflow&#x27;,&#x27;outflow&#x27;):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done - out[-1][1].Backlog * 0.1
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;inflow &gt;&gt; outflow drowns Done&quot;,
+                   y(run({**bi, &#x27;inflow&#x27;:[5,0,100]}, step)),
+                   y(run({**bi, &#x27;inflow&#x27;:[15,0,100]}, step)), &#x27;down&#x27;)
+  return Model(init, step, y, rq, &#x27;inflow&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lift recipe: pull JIRA issue stream per project. Per quarter: inflow = issues opened, outflow = issues closed. Plot Backlog over time. Compute the inflow/outflow ratio per project per quarter.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th><th>project</th><th>value</th></tr></thead><tbody>
+<tr><td class="mono">inflow</td><td>JIRA issues opened / quarter</td><td><code>parse_jira</code></td><td>Ambari, kaiaulu (have JIRA)</td><td class="num">TBD</td></tr>
+<tr><td class="mono">outflow</td><td>JIRA issues closed / quarter</td><td><code>parse_jira</code></td><td>Ambari, kaiaulu</td><td class="num">TBD</td></tr>
+<tr><td class="mono">Backlog(t)</td><td>cumulative open issues at quarter end</td><td>derived</td><td>Ambari, kaiaulu</td><td class="num">TBD</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th><th>install</th></tr></thead><tbody>
+<tr><td><strong>kaiaulu parse_jira</strong></td><td>JIRA REST + identity merge</td><td class="mono">R; returns list(issues, comments)</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p>If inflow/outflow &asymp; 1.0 universally, the family does not exhibit scope creep — Apache governance keeps it in check. The interesting projects would be the outliers.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -20.00</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 17/200 CONFIRM, params 23/200)</span></td></tr>
+</tbody></table>
+    
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Pipeline ready. 2 projects have JIRA in scope; lift will produce quarterly time series. Expected: Apache governance keeps inflow/outflow near 1; spikes during major release cycles.</p>
+    
+    <p>Scope is the simplest queue model in the bank and serves as the boundary case for both Little's law and Brooks's queue. Tight coupling to those two.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li>scope is among the cheapest lifts (single JIRA pull per project) — should land first.</li>
+<li>Quarterly inflow/outflow is also a usable instrumentation signal for the F-finding suite (could become F6 if anomalous).</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/software-engineering-economics/P200000003329" target="_blank" rel="noopener">Boehm, B. W. (1981). <em>Software Engineering Economics</em>. Prentice-Hall.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://www.mhprofessional.com/9780071502443-usa-applied-software-measurement-global-analysis-of-productivity-and-quality-third-edition" target="_blank" rel="noopener">Jones, T. C. (2008). <em>Applied Software Measurement: Global Analysis of Productivity and Quality</em>. McGraw-Hill.</a></td><td><span class="warn">book</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

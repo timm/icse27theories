@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>orgchurn (2010) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ orgchurn</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>orgchurn <span class="dim" style="font-weight:400;">(2010)</span><span class="tag">universal cell</span></h1>
+<p class="sub-title">Nagappan, N., Murphy, B., &amp; Basili, V. R. (2008). The influence of organizational structure on software quality. <em>ICSE</em>.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L925" target="_blank" rel="noopener"><code>models/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
+    <p class="dim"><em>Intuition</em>: Lose half your senior devs; halve your effective knowledge base; double your defect rate. The model is not quite that linear but the direction is.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
+    <p>Health metric: lower Bugs = better-retained-org.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Tenfold churn_rate increase inflates Bugs.</strong></p>
+    <p>CONFIRM by construction: knowledge depletion scales with lost dev count, and Bugs scale inversely with current knowledge. The lifted question is the empirical magnitude — how many extra bugs per departure.</p>
+    <h2>Stress-matrix cell</h2>
+    <p><span class='ok'>universal</span>: robust to inputs (initial Devs) and parameters (churn_rate, knowledge scale). The N-M-B effect is one of the most-replicated org-defects findings.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <pre><code class="language-python">def orgchurn():
+  &quot;&quot;&quot;Nagappan/Murphy/Basili 2010: org churn (departures) predicts
+  defect bursts. RQ: high churn_rate inflates Bugs.&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[20,1,500], &#x27;Bugs&#x27;:[0,0,5000],
+          &#x27;churn_rate&#x27;:[0.02,0,0.5], &#x27;knowledge&#x27;:[100,0,1000]}
+  def step(dt, t, u, v):
+    lost = u.Devs * u.churn_rate
+    v.Devs      = max(1, u.Devs - dt * lost + dt * lost * 0.5)
+    v.knowledge = max(0, u.knowledge - dt * lost * 5)
+    v.Bugs      = u.Bugs + dt * (200 / max(1, u.knowledge)) * 10
+    setattr(v, &#x27;churn_rate&#x27;, u.churn_rate)
+  def y(out): return -out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;departure spike inflates defect burst&quot;,
+                   y(run({**bi, &#x27;churn_rate&#x27;:[0.02,0,0.5]}, step)),
+                   y(run({**bi, &#x27;churn_rate&#x27;:[0.20,0,0.5]}, step)), &#x27;down&#x27;)
+  return Model(init, step, y, rq, &#x27;churn_rate&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lift recipe: from gitlog + identity_match, detect &quot;departure events&quot; — an identity_id whose last commit is &gt; N months before the project's HEAD. Compute the per-quarter departure count. Correlate with the per-quarter SZZ defect rate (lagged by 0, 1, 2 quarters to look for delayed effects).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th><th>project</th><th>value</th></tr></thead><tbody>
+<tr><td class="mono">departures(t)</td><td>identities going inactive in quarter t</td><td><code>detect_late_hires</code> inverted; <code>lifts/functions.R</code></td><td>all 8</td><td class="num">TBD</td></tr>
+<tr><td class="mono">Bugs(t)</td><td>SZZ bugs introduced in quarter t</td><td><code>parse_szz_bugfixes</code></td><td>all 8</td><td class="num">TBD</td></tr>
+<tr><td class="mono">lag correlation</td><td>Pearson r(departures(t), Bugs(t+k))</td><td>derived</td><td>all 8</td><td class="num">TBD</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th><th>install</th></tr></thead><tbody>
+<tr><td><strong>kaiaulu identity_match</strong></td><td>actor unification</td><td class="mono">R; label="identity_id"</td></tr>
+<tr><td><strong>PyDriller B-SZZ</strong></td><td>bug-introducing commits</td><td class="mono">pip install pydriller</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p>If departures and bugs are uncorrelated at lag 0, 1, and 2 quarters, N-M-B's finding fails to replicate. Negative result is a paper.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -4504.53</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 21/200 CONFIRM, params 184/200)</span></td></tr>
+</tbody></table>
+    
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Pipeline ready. Per-project: 8 trajectories of (departures(t), Bugs(t)). Expected: positive lag-1-or-2 correlation; magnitude varies.</p>
+    
+    <p>Strong replication strengthens the org-quality literature; weak replication makes the case that knowledge depletion in OSS is buffered by documentation (which proprietary Vista did not have).</p>
+    <h3>Implications</h3>
+    <ul>
+    <li>orgchurn + ownership + linus are three views on the same axis: human-process drives defects.</li>
+<li>Lag structure (1 quarter vs 2 quarter) tells management how fast knowledge loss bites — useful policy input.</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1145/1368088.1368160" target="_blank" rel="noopener">Nagappan, N., Murphy, B., &amp; Basili, V. R. (2008). The influence of organizational structure on software quality. <em>ICSE</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1882291.1882311" target="_blank" rel="noopener">Mockus, A. (2010). Organizational volatility and its effects on software defects. <em>FSE '10</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

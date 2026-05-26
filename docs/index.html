@@ -15,13 +15,14 @@
       <a href="#models">models</a>
       <a href="#findings">findings</a>
       <a href="#typology">typology</a>
+      <a href="data.html">data</a>
     </nav>
   </div>
 </header>
 
 <main>
 
-<h1>MYTHS<span class="tag">18 models</span></h1>
+<h1>MYTHS<span class="tag">33 models</span></h1>
 <p class="sub-title">
   Each card below is one theory: a compartmental model + a falsifiable
   thesis. Click for the model code, the data-lift recipe, the V&amp;V
@@ -30,7 +31,7 @@
 
 <div class="callout">
   <span class="label">scope</span>
-  All 18 model pages are built. Click any card. Dim cards are
+  All 33 model pages are built. Click any card. Dim cards are
   <em>structurally dark</em> — the model is defined but no open
   dataset can calibrate it. Order: the toy demonstrator first, then
   the rest by year (most recent first).
@@ -75,6 +76,18 @@
     <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
   </a>
 
+  <a class="card universal" href="models/deprot.html">
+    <div class="name">deprot <span class="dim" style="font-weight:400;">(2018)</span></div>
+    <div class="desc">Decan/Mens: stale dependencies expose CVE surface.</div>
+    <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card world" href="models/ossfail.html">
+    <div class="name">ossfail <span class="dim" style="font-weight:400;">(2017)</span></div>
+    <div class="desc">Coelho/Valente: low truck factor → project death.</div>
+    <div class="meta"><span class="badge">world-cond.</span><span>pipeline ready</span></div>
+  </a>
+
   <a class="card process dark" href="models/micro.html">
     <div class="name">micro <span class="dim" style="font-weight:400;">(2015)</span></div>
     <div class="desc">Service architecture deploy / failure.</div>
@@ -85,6 +98,24 @@
     <div class="name">flaky <span class="dim" style="font-weight:400;">(2014)</span></div>
     <div class="desc">CI flake rates over time.</div>
     <div class="meta"><span class="badge">dark</span><span>no CI flake logs parsed</span></div>
+  </a>
+
+  <a class="card process" href="models/ctxswitch.html">
+    <div class="name">ctxswitch <span class="dim" style="font-weight:400;">(2014)</span></div>
+    <div class="desc">Meyer/Weinberg: per-dev file-diversity taxes throughput.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card world" href="models/ownership.html">
+    <div class="name">ownership <span class="dim" style="font-weight:400;">(2011)</span></div>
+    <div class="desc">Bird et al: high minor-author share predicts defects.</div>
+    <div class="meta"><span class="badge">world-cond.</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card process" href="models/orgchurn.html">
+    <div class="name">orgchurn <span class="dim" style="font-weight:400;">(2010)</span></div>
+    <div class="desc">Nagappan/Murphy/Basili: departures spike defects.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
   </a>
 
   <a class="card fragile" href="models/brooksq.html">
@@ -99,10 +130,22 @@
     <div class="meta"><span class="badge">universal</span><span>lifted 3/8</span></div>
   </a>
 
+  <a class="card process" href="models/mirroring.html">
+    <div class="name">mirroring <span class="dim" style="font-weight:400;">(2006)</span></div>
+    <div class="desc">MacCormack: org-code DSM mismatch → defects.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
+  </a>
+
   <a class="card process" href="models/learn.html">
     <div class="name">learn <span class="dim" style="font-weight:400;">(2000)</span></div>
     <div class="desc">Sterman: Jr → Tr → Sr workforce flow.</div>
     <div class="meta"><span class="badge">process-cond.</span><span>lifted 8/8</span></div>
+  </a>
+
+  <a class="card universal" href="models/linus.html">
+    <div class="name">linus <span class="dim" style="font-weight:400;">(1999)</span></div>
+    <div class="desc">Raymond/Mockus: many eyes reduce defect recurrence.</div>
+    <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
   </a>
 
   <a class="card fragile" href="models/archpat.html">
@@ -117,6 +160,12 @@
     <div class="meta"><span class="badge">universal</span><span>lifted 5/8</span></div>
   </a>
 
+  <a class="card process" href="models/pareto.html">
+    <div class="name">pareto <span class="dim" style="font-weight:400;">(1992)</span></div>
+    <div class="desc">Fenton-Ohlsson: 20% modules carry 80% defects, hotspots persist.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
+  </a>
+
   <a class="card universal" href="models/rework.html">
     <div class="name">rework <span class="dim" style="font-weight:400;">(1991)</span></div>
     <div class="desc">Abdel-Hamid &amp; Madnick: hidden rework cycle.</div>
@@ -129,16 +178,58 @@
     <div class="meta"><span class="badge">universal</span><span>lifted 7/8</span></div>
   </a>
 
+  <a class="card process" href="models/limits.html">
+    <div class="name">limits <span class="dim" style="font-weight:400;">(1990)</span></div>
+    <div class="desc">Senge limits-to-growth: throughput saturates with team size.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card universal" href="models/costchange.html">
+    <div class="name">costchange <span class="dim" style="font-weight:400;">(1981)</span></div>
+    <div class="desc">Boehm: late-caught bugs cost 10–100× early-caught.</div>
+    <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card fragile" href="models/scope.html">
+    <div class="name">scope <span class="dim" style="font-weight:400;">(1981)</span></div>
+    <div class="desc">Boehm/Jones scope creep: inflow &gt; outflow → unbounded backlog.</div>
+    <div class="meta"><span class="badge">fragile</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card universal" href="models/entropy.html">
+    <div class="name">entropy <span class="dim" style="font-weight:400;">(1980)</span></div>
+    <div class="desc">Lehman: software grows monotone unless refactored.</div>
+    <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
+  </a>
+
   <a class="card process" href="models/bugs.html">
     <div class="name">bugs <span class="dim" style="font-weight:400;">(1979)</span></div>
     <div class="desc">Goel-Okumoto exponential reliability growth.</div>
     <div class="meta"><span class="badge">process-cond.</span><span>lifted 3/8</span></div>
   </a>
 
-  <a class="card universal" href="models/brooks.html">
+  <a class="card fragile" href="models/brooks.html">
     <div class="name">brooks <span class="dim" style="font-weight:400;">(1975)</span></div>
     <div class="desc">Mythical Man-Month: late hires hurt veteran velocity.</div>
-    <div class="meta"><span class="badge">universal</span><span>lifted 8/8</span></div>
+    <div class="meta"><span class="badge">fragile</span><span>lifted 8/8</span></div>
+  </a>
+
+  <a class="card process" href="models/coordn2.html">
+    <div class="name">coordn2 <span class="dim" style="font-weight:400;">(1975)</span></div>
+    <div class="desc">Brooks/Curtis: communication cost = N(N-1)/2 channels.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card process" href="models/successful.html">
+    <div class="name">successful <span class="dim" style="font-weight:400;">(1968)</span></div>
+    <div class="desc">Merton Matthew effect: attention concentrates on famous modules.</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card universal" href="models/little.html">
+    <div class="name">little <span class="dim" style="font-weight:400;">(1961)</span></div>
+    <div class="desc">Little's law: WIP = throughput × cycle_time.</div>
+    <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
   </a>
 
   <a class="card universal" href="models/sir.html">
@@ -148,7 +239,7 @@
   </a>
 
   <a class="card" href="other.html" style="border-style:dashed;">
-    <div class="name">+ 47 more &raquo;</div>
+    <div class="name">+ 32 more &raquo;</div>
     <div class="desc">Candidate models from the SE literature, not yet built. Source-quality + data-on-disk audit per candidate.</div>
     <div class="meta"><span class="badge">other</span><span>21 A &middot; 15 B &middot; 11 C</span></div>
   </a>
@@ -161,12 +252,17 @@
     <tr><th>cell</th><th>meaning</th><th class="num">count</th><th>members</th></tr>
   </thead>
   <tbody>
-    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">10</td><td class="mono dim">brooks, debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence</td></tr>
-    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">5</td><td class="mono dim">diapers, bugs, learn, micro, burnout</td></tr>
-    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">2</td><td class="mono dim">brooksq, archpat</td></tr>
-    <tr><td><span class="dim">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">1</td><td class="mono dim">aidebt (regime crossover at t&asymp;26)</td></tr>
+    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">14</td><td class="mono dim">debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence, little, entropy, costchange, linus, deprot</td></tr>
+    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">12</td><td class="mono dim">diapers, bugs, learn, micro, burnout, coordn2, pareto, mirroring, orgchurn, ctxswitch, limits, successful</td></tr>
+    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">4</td><td class="mono dim">brooks, brooksq, archpat, scope</td></tr>
+    <tr><td><span class="dim">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">3</td><td class="mono dim">aidebt (regime crossover at t&asymp;26), ownership, ossfail</td></tr>
   </tbody>
 </table>
+<p class="dim" style="font-size:12px;margin-top:4px;">
+  Cells auto-derived from <code>outputs/full_audit.csv</code> after the
+  latest <code>scripts/full_audit.py</code> run. Numbers shift as the
+  stress sampler is re-run on new models.
+</p>
 
 <h2 id="findings">Headline findings</h2>
 <ul>
@@ -180,6 +276,10 @@
       (Ambari 0.029 &rarr; airflow 0.311).</li>
   <li><strong>F4</strong> &mdash; brooksq quality thesis split: Ambari supports, Helix neutral,
       junit5 refutes.</li>
+  <li><strong>F5</strong> (pending lift) &mdash; cross-project test of Bird-ownership and
+      MacCormack-mirroring; with the new <code>ownership</code> and <code>mirroring</code>
+      models added 2026-05-25, the framework can now test both on the same 8-project family
+      and report whether the two structural signals reinforce or compete.</li>
 </ul>
 
 </main>

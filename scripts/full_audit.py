@@ -14,7 +14,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
 import sd
 from sd import (diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
                 defmap, aiwork, flaky, dora, micro, teamtopo, burnout, aidebt,
-                archpat, congruence, stress)
+                archpat, congruence, stress,
+                # 15 newly added from docs/other.html buildable-today set:
+                little, coordn2, entropy, costchange, pareto, linus, mirroring,
+                orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
+                successful)
 from tests import (boundary_adq, anomaly_check, extreme_eqn,
                    mr_zero_input, mr_monotone, mr_dt_halving,
                    mr_bound_consist, mr_scale, stress_matrix)
@@ -22,7 +26,10 @@ from tests import (boundary_adq, anomaly_check, extreme_eqn,
 
 MODELS = [diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
           defmap, aiwork, flaky, dora, micro, teamtopo, burnout, aidebt,
-          archpat, congruence]
+          archpat, congruence,
+          little, coordn2, entropy, costchange, pareto, linus, mirroring,
+          orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
+          successful]
 
 TESTS = [boundary_adq, anomaly_check, extreme_eqn,
          mr_zero_input, mr_monotone, mr_dt_halving,

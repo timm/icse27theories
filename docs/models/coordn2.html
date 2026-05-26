@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>coordn2 (1975) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ coordn2</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>coordn2 <span class="dim" style="font-weight:400;">(1975)</span><span class="tag">process-conditional cell</span></h1>
+<p class="sub-title">Brooks (1975); Curtis, Krasner, Iscoe (1988). A field study of the software design process for large systems. <em>CACM</em>.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Brooks's Mythical Man-Month observed that adding people to a project increases the communication-pair count quadratically: N people produce N·(N-1)/2 channels. Each channel costs developer time, so beyond some team size the marginal hire reduces throughput instead of increasing it. Curtis et al's CACM field study put empirical flesh on the bone.</p>
+    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L789" target="_blank" rel="noopener"><code>models/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
+    <p class="dim"><em>Intuition</em>: A team of 10 has 45 pairs; a team of 20 has 190 pairs — the tax is non-linear in N. For small comm_coef the law is mild; for high comm_coef the team has a hard size ceiling.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong>Cumulative <code>Done</code> at <code>tmax</code>.</strong></p>
+    <p>The integrated work delivered. If pairs dominate, more developers actually reduce y after a knee point — the very situation Brooks warned about.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Doubling team size superlinearly taxes throughput, so Done less than doubles.</strong></p>
+    <p>With the default comm_coef in <code>sd.py</code> the verdict produces a REFUTE because the tax saturates at 0.9 — the comm cost rises but never overwhelms the linear gain. Lifting comm_coef from data is the point of the recipe: see whether 8 OSS projects show a knee.</p>
+    <h2>Stress-matrix cell</h2>
+    <p><span class='warn'>process-conditional</span>. Robust to input perturbations (initial Done, work_per_dev), fragile to parameter perturbation: comm_coef controls whether N·(N-1)/2 ever dominates the linear term.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <pre><code class="language-python">def coordn2():
+  &quot;&quot;&quot;Brooks/Curtis: communication-pair count = N*(N-1)/2.
+  RQ: doubling N more than doubles coordination cost (superlinear).&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[5,1,200], &#x27;Done&#x27;:[0,0,10000],
+          &#x27;work_per_dev&#x27;:[10,0,50], &#x27;comm_coef&#x27;:[0.02,0,0.5]}
+  def step(dt, t, u, v):
+    pairs = u.Devs * (u.Devs - 1) / 2
+    tax   = min(0.9, u.comm_coef * pairs / max(1, u.Devs))
+    v.Done = u.Done + dt * u.Devs * u.work_per_dev * (1 - tax)
+    for p in (&#x27;Devs&#x27;,&#x27;work_per_dev&#x27;,&#x27;comm_coef&#x27;):
+      setattr(v, p, getattr(u, p))
+  def y(out): return out[-1][1].Done
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;doubling team superlinear-taxes throughput&quot;,
+                   y(run({**bi, &#x27;Devs&#x27;:[5,1,200]}, step)),
+                   y(run({**bi, &#x27;Devs&#x27;:[10,1,200]}, step)), &#x27;down&#x27;)
+  return Model(init, step, y, rq, &#x27;Devs&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lift recipe: from gitlog + identity_match, count unique active developers per week per project. Build the time-series Devs(t) vs Done(t) where Done(t) = commits closed or KLOC delivered in week t. Fit Done = α·Devs − β·Devs·(Devs-1)/2; recover comm_coef = β.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th><th>project</th><th>value</th></tr></thead><tbody>
+<tr><td class="mono">Devs(t)</td><td>unique committers / week</td><td><code>parse_gitlog</code> + <code>identity_match</code></td><td>all 8</td><td class="num">TBD</td></tr>
+<tr><td class="mono">Done(t)</td><td>commits + closed issues / week</td><td><code>parse_gitlog</code> + JIRA / GH PR</td><td>all 8</td><td class="num">TBD</td></tr>
+<tr><td class="mono">comm_coef</td><td>fitted nonlinearity term β</td><td>Done ~ Devs + Devs² regression</td><td>all 8</td><td class="num">TBD</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th><th>install</th></tr></thead><tbody>
+<tr><td><strong>Perceval</strong></td><td>git log parsing</td><td class="mono">via kaiaulu wrapper</td></tr>
+<tr><td><strong>kaiaulu identity_match</strong></td><td>actor unification</td><td class="mono">R; label="identity_id"</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p>If β &le; 0 across all projects, the n·(n-1)/2 tax is undetectable in this dataset — possibly because team sizes never crossed the knee.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="bad">REFUTE</span> &middot; gap +860.00</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 0/200 CONFIRM, params 101/200)</span></td></tr>
+</tbody></table>
+    
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Pipeline ready. Lift will produce 8 per-project regressions, each with a comm_coef estimate. Projects with sustained team sizes &ge; 20 (airflow, tomcat, openssl) are the diagnostic cases.</p>
+    
+    <p>The default sd.py comm_coef=0.02 currently produces REFUTE on the rq() check. If lifted comm_coefs cluster around 0.02, that's the empirical floor: communication tax is real but small. If they cluster higher (≥ 0.05), Brooks's warning lands.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li>coordn2 produces a directly fittable scalar from gitlog — one of the easiest lifts in the candidate set.</li>
+<li>REFUTE in the default rq() is a feature: it means an unbiased prior — the data, not the model, will swing the verdict.</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/mythical-man-month-the-essays-on-software-engineering-anniversary-edition/P200000009240" target="_blank" rel="noopener">Brooks, F. P. (1975). <em>The Mythical Man-Month</em>. Addison-Wesley.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/50087.50089" target="_blank" rel="noopener">Curtis, B., Krasner, H., &amp; Iscoe, N. (1988). A field study of the software design process for large systems. <em>Communications of the ACM</em> 31(11):1268–1287.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

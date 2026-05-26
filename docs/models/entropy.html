@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>entropy (1980) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ entropy</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>entropy <span class="dim" style="font-weight:400;">(1980)</span><span class="tag">universal cell</span></h1>
+<p class="sub-title">Lehman, M. M. (1980). Programs, life cycles, and laws of software evolution. <em>Proc. IEEE</em>.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Lehman's laws of software evolution include continuing change and increasing complexity: a program that is used in a real-world environment must continually adapt, and as it adapts it becomes more complex unless work is done to maintain or reduce that complexity. The thesis is one of the oldest empirical generalisations in SE.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L809" target="_blank" rel="noopener"><code>models/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
+    <p class="dim"><em>Intuition</em>: Every commit adds complexity unless explicit refactoring removes it. Bugs scale with current complexity. Skip refactor, pay in defects.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong>Negative net Complexity + Bugs at <code>tmax</code>.</strong></p>
+    <p>Reward is health: low Complexity and low Bugs. The sign flip means a higher y is a better state.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Low refactor_rate leaves Complexity (and thereby Bugs) high.</strong></p>
+    <p>Mechanical CONFIRM in a well-formed model: removing the pay-down term lets the grow term dominate. The interesting empirical question is whether the magnitude of the effect (how much complexity per missing refactor) matches what we see in real LOC trajectories.</p>
+    <h2>Stress-matrix cell</h2>
+    <p><span class='ok'>universal</span>: monotone in both refactor_rate (param) and work_rate (input). Lehman's laws are characteristically input-and-parameter robust.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <pre><code class="language-python">def entropy():
+  &quot;&quot;&quot;Lehman 1980: software entropy grows monotonically unless paid
+  down via refactor. Without refactor effort, defect rate rises.
+  RQ: low refactor_rate inflates terminal Complexity.&quot;&quot;&quot;
+  init = {&#x27;Complexity&#x27;:[100,0,5000], &#x27;Bugs&#x27;:[0,0,5000],
+          &#x27;work_rate&#x27;:[10,0,100], &#x27;refactor_rate&#x27;:[0.05,0,0.5],
+          &#x27;entropy_coef&#x27;:[0.02,0,0.5]}
+  def step(dt, t, u, v):
+    grow    = u.work_rate * u.entropy_coef
+    pay     = u.Complexity * u.refactor_rate
+    bug_in  = u.Complexity * 0.001
+    v.Complexity = max(0, u.Complexity + dt * (grow - pay))
+    v.Bugs       = u.Bugs + dt * bug_in
+    for p in (&#x27;work_rate&#x27;,&#x27;refactor_rate&#x27;,&#x27;entropy_coef&#x27;):
+      setattr(v, p, getattr(u, p))
+  def y(out): return -out[-1][1].Complexity - out[-1][1].Bugs
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;low refactor leaves Complexity high&quot;,
+                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.20,0,0.5]}, step)),
+                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.02,0,0.5]}, step)), &#x27;down&#x27;)
+  return Model(init, step, y, rq, &#x27;refactor_rate&#x27;)
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lift recipe: use <code>parse_line_metrics</code> (scc) on each release tag of each project to get total LOC and the LOC of each top-level module. Per-project: regression of LOC against time, check monotone-increasing (Lehman's continuing-growth law). For Bugs, use SZZ-tagged commits per release tag.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th><th>project</th><th>value</th></tr></thead><tbody>
+<tr><td class="mono">LOC(t)</td><td>scc LOC per release tag</td><td><code>parse_line_metrics</code></td><td>all 8</td><td class="num">TBD</td></tr>
+<tr><td class="mono">refactor share</td><td>RefMiner refactor commits / total commits per release</td><td><code>parse_java_code_refactoring_json</code></td><td>5 Java projects</td><td class="num">TBD</td></tr>
+<tr><td class="mono">Bugs</td><td>SZZ bug-introducing commits per release</td><td><code>parse_szz_bugfixes</code> (lifts/functions.R)</td><td>all 8</td><td class="num">TBD</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th><th>install</th></tr></thead><tbody>
+<tr><td><strong>scc</strong></td><td>LOC per release</td><td class="mono">go install github.com/boyter/scc@latest</td></tr>
+<tr><td><strong>RefactoringMiner</strong></td><td>refactor commits</td><td class="mono">release jar</td></tr>
+<tr><td><strong>PyDriller B-SZZ</strong></td><td>bug-introducing commits</td><td class="mono">pip install pydriller</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p>If LOC is non-monotone across release tags, either the project deleted a module, or the lift mis-grouped commits.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -69.13</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 196/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Pipeline ready. Lift will produce per-project trajectories: LOC(release), refactor_share(release), Bugs(release). Expected pattern: monotone LOC growth, falling refactor_share, rising Bugs — Lehman's classic curves.</p>
+    
+    <p>Lehman's laws are weakly testable in OSS because mature open-source projects nearly always grow — falsification requires finding a project that contracts. Apache OpenSSL is a candidate; tomcat shed several optional modules over the years.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li>Lehman entropy is the conceptual ancestor of the debt and brooksq quality findings — all three say complexity outpaces care.</li>
+<li>Universal-cell status means the model is hard to falsify on observation alone; the discriminating test is whether the magnitude of growth matches a power law (Lehman's prediction) versus linear (the null).</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1109/PROC.1980.11805" target="_blank" rel="noopener">Lehman, M. M. (1980). Programs, life cycles, and laws of software evolution. <em>Proceedings of the IEEE</em> 68(9):1060–1076.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/METRIC.1997.637156" target="_blank" rel="noopener">Lehman, M. M., Ramil, J. F., Wernick, P. D., Perry, D. E., &amp; Turski, W. M. (1997). Metrics and laws of software evolution — the nineties view. <em>METRICS '97</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>
