@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Coelho-Valente surveyed 104 maintainers of dormant or recently-abandoned OSS projects and identified the dominant risk factors: low truck factor (few developers know enough to keep going), maintainer burnout, conflicts, lack of time. Truck factor is the most operationally measurable signal.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L988" target="_blank" rel="noopener"><code>paper/sd.py:ossfail</code></a> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1050" target="_blank" rel="noopener"><code>paper/sd.py:ossfail</code></a> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.</p>
     <p class="dim"><em>Intuition</em>: One person knows the codebase end-to-end. They get tired. The project dies. The math of truck factor 1 vs 5 vs 20 is the math of project survival.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Final Activity level.</strong></p>
@@ -120,7 +120,8 @@
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -19.26</td></tr>
+<tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -19.26</td></tr>
+<tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -186.34 (sd0 680.00 / sd1 450.83 / &epsilon; 238.00)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 200/200 CONFIRM, params 130/200)</span></td></tr>
 </tbody></table>
     

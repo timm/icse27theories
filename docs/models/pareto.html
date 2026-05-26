@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Fenton-Ohlsson and Ostrand-Weyuker independently observed that ~20% of modules in large software systems carry ~80% of the defects, and that the hotspot set persists across releases. The empirical regularity has been replicated dozens of times since.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L878" target="_blank" rel="noopener"><code>paper/sd.py:pareto</code></a> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L940" target="_blank" rel="noopener"><code>paper/sd.py:pareto</code></a> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.</p>
     <p class="dim"><em>Intuition</em>: If you have 10 hotspot modules and 90 cold ones, fixing one hotspot kills 10x as many bugs as fixing one cold module. Spreading fix effort uniformly wastes most of it.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -127,7 +127,8 @@
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -64.00</td></tr>
+<tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -64.00</td></tr>
+<tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -47.15 (sd0 1400.92 / sd1 1370.12 / &epsilon; 490.32)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 69/200 CONFIRM, params 198/200)</span></td></tr>
 </tbody></table>
     

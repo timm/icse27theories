@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Decan-Mens-Constantinou studied the npm ecosystem and found a systematic delay between vulnerability disclosure and dependent project updates — and that the delay grows as projects accumulate stale dependencies. Each stale dep is a vulnerability surface waiting to bite.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1008" target="_blank" rel="noopener"><code>paper/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1070" target="_blank" rel="noopener"><code>paper/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
     <p class="dim"><em>Intuition</em>: Pin your deps and skip updates for two years; sit on a known-CVE library. The fix isn't free (updates break things), but the cost of not updating accumulates exponentially.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Vulns at <code>tmax</code>.</strong></p>
@@ -121,7 +121,8 @@
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -4.93</td></tr>
+<tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -4.93</td></tr>
+<tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="ok">CONFIRM</span> &middot; gap -109.28 (sd0 146.45 / sd1 125.72 / &epsilon; 51.26)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 190/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     

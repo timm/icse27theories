@@ -216,7 +216,8 @@ kable(out)</code></pre>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap +38.06</td></tr>
+<tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap +38.06</td></tr>
+<tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="ok">CONFIRM</span> &middot; gap +22.16 (sd0 47.22 / sd1 33.59 / &epsilon; 16.53)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 130/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>note</span>The <code>mr_scale</code> test PASSES — and that PASS IS the rq() thesis. The integral is linear in Latent, so doubling Latent doubles Fixed by construction. The test catches the linearity, which is the point of the model.</div>

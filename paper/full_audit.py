@@ -51,16 +51,22 @@ def cell_label(sm):
 def main():
     rows = []
     for fn in MODELS:
-        m = fn()
-        rq = m.rq()
+        m  = fn()
+        r1 = m.rq()                              # single-shot (heuristic threshold)
+        rn = sd.rq_n(fn, n=100)                  # N-shot stats.same verdict
         sm = stress_matrix(fn, n=200)
         row = {
-            'model':      fn.__name__,
-            'verdict':    rq['verdict'],
-            'gap':        f"{rq['gap']:+.2f}",
-            'cell':       cell_label(sm),
-            'inp_cnt':    sm['inp_counts']['CONFIRM'],
-            'par_cnt':    sm['par_counts']['CONFIRM'],
+            'model':       fn.__name__,
+            'verdict':     r1['verdict'],        # legacy single-shot
+            'gap':         f"{r1['gap']:+.2f}",
+            'verdict_n':   rn['verdict'],        # N=100 + stats.same (Cliff's + KS)
+            'gap_n':       f"{rn['gap']:+.2f}",
+            'sd0_n':       f"{rn['sd0']:.2f}",
+            'sd1_n':       f"{rn['sd1']:.2f}",
+            'eps_n':       f"{rn['eps']:.2f}",
+            'cell':        cell_label(sm),
+            'inp_cnt':     sm['inp_counts']['CONFIRM'],
+            'par_cnt':     sm['par_counts']['CONFIRM'],
         }
         for t in TESTS:
             try:
@@ -76,13 +82,14 @@ def main():
         w.writeheader()
         w.writerows(rows)
     print(f"Wrote {out_path}\n")
-    hdr = ['model', 'verdict', 'gap', 'cell', 'inp', 'par'] + \
+    hdr = ['model', 'verdict', 'gap', 'verdict_n', 'gap_n', 'cell', 'inp', 'par'] + \
           [t.__name__[:10] for t in TESTS]
     print(' | '.join(f"{h:<12}" for h in hdr))
     print('-' * (12 * len(hdr) + 3 * (len(hdr) - 1)))
     for r in rows:
-        vals = [r['model'], r['verdict'], r['gap'], r['cell'],
-                str(r['inp_cnt']), str(r['par_cnt'])] + \
+        vals = [r['model'], r['verdict'], r['gap'],
+                r['verdict_n'], r['gap_n'],
+                r['cell'], str(r['inp_cnt']), str(r['par_cnt'])] + \
                [r[t.__name__] for t in TESTS]
         print(' | '.join(f"{v:<12}" for v in vals))
 

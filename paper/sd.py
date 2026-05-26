@@ -73,17 +73,37 @@ def run(init, step, dt=1, tmax=20, mode='clip'):
     t += dt
   return out
 
-# --- Verdict helper ---------------------------------------------------------
+# --- Verdict helpers --------------------------------------------------------
 
 def verdict(desc, y0, y1, expect='down'):
-  """Compare baseline rx0 (y0) to delta-perturbed rx1 (y1).
-  expect='down' = thesis predicts delta hurts y (y1 < y0 confirms).
-  expect='up'   = thesis predicts delta helps y (y1 > y0 confirms)."""
+  """Single-shot verdict. Compares one y0 vs one y1 with a 5%-of-y0
+  heuristic threshold (floor 0.5). Kept for backward compat; the
+  stats-grade replacement is verdict_n() below."""
   signed = (y0 - y1) if expect == 'down' else (y1 - y0)
   thresh = max(abs(y0) * 0.05, 0.5)
   v = ('CONFIRM' if signed >  thresh else
        'REFUTE'  if signed < -thresh else 'neutral')
   return {'verdict': v, 'y0': y0, 'y1': y1, 'gap': y1 - y0, 'desc': desc}
+
+
+def verdict_n(desc, y0s, y1s, expect='down'):
+  """N-shot verdict using stats.same (Cliff's delta + KS + median-eps).
+  y0s, y1s = lists of y values (one per perturbed run).
+  Returns CONFIRM / REFUTE / neutral plus pooled diagnostics.
+  Same: lists statistically indistinguishable -> neutral.
+  Different: direction by median difference -> CONFIRM / REFUTE."""
+  import stats as st
+  n0 = st.adds(y0s); n1 = st.adds(y1s)
+  eps = st.spread(n0) * st.the.stats.eps      # 0.35 * sd(y0s)
+  if st.same(y0s, y1s, eps):
+    v = 'neutral'
+  else:
+    signed = (n0.mu - n1.mu) if expect == 'down' else (n1.mu - n0.mu)
+    v = 'CONFIRM' if signed > 0 else 'REFUTE'
+  return {'verdict': v, 'y0': n0.mu, 'y1': n1.mu,
+          'gap': n1.mu - n0.mu, 'desc': desc,
+          'sd0': n0.sd, 'sd1': n1.sd, 'eps': eps,
+          'n': len(y0s)}
 
 # --- Distribution sampler --------------------------------------------------
 
@@ -164,6 +184,48 @@ def stress(model_factory, target='all', n=500, seed=1, dist='triangular'):
     if r['verdict'] == 'REFUTE':
       refuters.append((bg, r))
   return {'counts': counts, 'refuters': refuters}
+
+
+# --- Stats-grade verdict (N-shot, perturbed) --------------------------------
+
+def _infer_expect(m):
+  """Derive a model's hypothesis direction from one default rq() call.
+  CONFIRM with gap<0 -> expect='down'. CONFIRM with gap>0 -> 'up'.
+  REFUTE flips. neutral falls back to the sign of the gap that would
+  have been CONFIRM under either direction (default 'down')."""
+  r = m.rq()
+  v, gap = r['verdict'], r['gap']
+  if v == 'CONFIRM':  return 'down' if gap < 0 else 'up'
+  if v == 'REFUTE':   return 'down' if gap > 0 else 'up'
+  return 'down'
+
+
+def rq_n(model_factory, n=100, seed=1, dist='triangular', target='all'):
+  """Run model.rq() n times with perturbed background, collect the
+  resulting y0 / y1 lists, classify via verdict_n (stats.same).
+  Recommended replacement for single-shot rq(). target picks which vars
+  to perturb (same semantics as stress)."""
+  m = model_factory()
+  expect = _infer_expect(m)
+  rng = random.Random(seed)
+
+  def should_perturb(k):
+    if k == m.ctrl: return False
+    if target == 'inputs':  return k[0].isupper()
+    if target == 'params':  return k[0].islower()
+    if target == 'all':     return True
+    raise ValueError(target)
+
+  y0s, y1s, last = [], [], None
+  for _ in range(n):
+    bg = {k: list(v) for k, v in m.init.items()}
+    for k, (default, lo, hi) in m.init.items():
+      if should_perturb(k):
+        bg[k] = [sample(rng, default, lo, hi, dist), lo, hi]
+    r = m.rq(bg=bg)
+    y0s.append(r['y0']); y1s.append(r['y1']); last = r
+  return verdict_n(last['desc'], y0s, y1s, expect=expect)
+
 
 # --- Models -----------------------------------------------------------------
 # Naming: UPPER = input (world state), lower = param (process configuration).
