@@ -41,9 +41,43 @@ doctor: ## check required tools (✓ found, ✗ missing)
 	@printf "\nmacOS: brew install r pandoc gawk a2ps ghostscript scc openjdk\n"
 	@printf   "linux: apt install r-base pandoc gawk a2ps ghostscript default-jdk\n"
 
-## render -------------------------------------------------------
+## inference layer (this dir) ----------------------------------
 
-RmdFiles := $(wildcard lifts/*.Rmd) $(wildcard feasibility/*.Rmd) $(wildcard smells/*.Rmd) $(wildcard models/*.Rmd)
+inference: outputs/full_audit.csv outputs/lifts.csv outputs/cross_project.csv outputs/boundary_check.csv outputs/calibrated_verdicts.csv ## structural V&V + all data-anchored reports
+
+outputs/full_audit.csv: sd.py tests.py full_audit.py
+	python3 full_audit.py
+
+outputs/lifts.csv: scripts/melt_lifts.py ## one row per (model, project, metric); rebuilt from upstream extract/ run
+	python3 scripts/melt_lifts.py
+
+outputs/cross_project.csv: outputs/lifts.csv cross_project.py
+	python3 cross_project.py
+
+outputs/boundary_check.csv: outputs/lifts.csv boundary_check.py
+	python3 boundary_check.py
+
+outputs/calibrated_verdicts.csv: outputs/lifts.csv calibrate.py
+	python3 calibrate.py
+
+findings: inference ## print headline findings F0..F4
+	@echo "==== F0 boundary-adequacy violations ===="
+	@grep -E "out_of_range|at_boundary" outputs/boundary_check.csv | head -20 || true
+	@echo "==== F1 brooksq.leak_rate per project ===="
+	@awk -F, '$$1=="brooksq" && $$3=="leak_rate"' outputs/lifts.csv
+	@echo "==== F2 debt.pay_rate per project ===="
+	@awk -F, '$$1=="debt" && $$3=="pay_rate_median"' outputs/lifts.csv
+	@echo "==== F3 brooks_tax per project ===="
+	@awk -F, '$$1=="brooks" && $$3=="brooks_tax_median"' outputs/lifts.csv
+	@echo "==== F4 brooksq.inj_rate_increase per project ===="
+	@awk -F, '$$1=="brooksq" && $$3=="inj_rate_increase"' outputs/lifts.csv
+
+clean-inference: ## remove generated inference CSVs (keep lifts.csv)
+	rm -f outputs/full_audit.csv outputs/cross_project.csv outputs/boundary_check.csv outputs/calibrated_verdicts.csv
+
+## render (extract-side Rmd notebooks) ----------------------------
+
+RmdFiles := $(wildcard ../extract/lifts/*.Rmd) $(wildcard ../extract/feasibility/*.Rmd) $(wildcard ../extract/smells/*.Rmd)
 HtmlFiles := $(RmdFiles:.Rmd=.html)
 
 render: $(HtmlFiles) ## render all .Rmd -> .html

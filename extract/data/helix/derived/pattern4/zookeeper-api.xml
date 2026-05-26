@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system>
+	<pattern name="Factory Method">
+		<instance>
+			<role name="Creator" element="org.apache.helix.zookeeper.impl.factory.HelixZkClientFactory" />
+			<role name="FactoryMethod()" element="org.apache.helix.zookeeper.impl.factory.HelixZkClientFactory::buildZkClient(org.apache.helix.zookeeper.api.client.HelixZkClient$ZkConnectionConfig, org.apache.helix.zookeeper.api.client.HelixZkClient$ZkClientConfig):org.apache.helix.zookeeper.api.client.HelixZkClient" />
+		</instance>
+	</pattern>
+	<pattern name="Prototype" />
+	<pattern name="Singleton">
+		<instance>
+			<role name="Singleton" element="org.apache.helix.zookeeper.routing.RoutingDataManager" />
+			<role name="uniqueInstance" element="org.apache.helix.zookeeper.routing.RoutingDataManager::_instance:org.apache.helix.zookeeper.routing.RoutingDataManager" />
+		</instance>
+	</pattern>
+	<pattern name="(Object)Adapter">
+		<instance>
+			<role name="Adaptee" element="org.apache.helix.zookeeper.api.client.HelixZkClient" />
+			<role name="Adapter" element="org.apache.helix.zookeeper.impl.client.SharedZkClient" />
+			<role name="adaptee" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::_innerSharedZkClient:org.apache.helix.zookeeper.api.client.HelixZkClient" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::subscribeChildChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkChildListener):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::subscribeChildChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkChildListener, boolean):org.apache.helix.zookeeper.api.client.ChildrenSubscribeResult" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::unsubscribeChildChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkChildListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::subscribeDataChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkDataListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::subscribeDataChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkDataListener, boolean):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::unsubscribeDataChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkDataListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::subscribeStateChanges(org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::unsubscribeStateChanges(org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::unsubscribeAll():void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistent(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistent(java.lang.String, boolean):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistent(java.lang.String, boolean, java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistent(java.lang.String, java.lang.Object):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistent(java.lang.String, java.lang.Object, java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistentWithTTL(java.lang.String, boolean, java.util.List, long):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistentWithTTL(java.lang.String, java.lang.Object, java.util.List, long):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistentSequential(java.lang.String, java.lang.Object):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistentSequential(java.lang.String, java.lang.Object, java.util.List):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createPersistentSequentialWithTTL(java.lang.String, java.lang.Object, java.util.List, long):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createContainer(java.lang.String, boolean, java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::createContainer(java.lang.String, java.lang.Object, java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::create(java.lang.String, java.lang.Object, org.apache.zookeeper.CreateMode, long):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::create(java.lang.String, java.lang.Object, java.util.List, org.apache.zookeeper.CreateMode, long):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::getChildren(java.lang.String):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::countChildren(java.lang.String):int" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::exists(java.lang.String):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::getStat(java.lang.String):org.apache.zookeeper.data.Stat" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::waitUntilExists(java.lang.String, java.util.concurrent.TimeUnit, long):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::deleteRecursively(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::deleteRecursivelyAtomic(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::deleteRecursivelyAtomic(java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::delete(java.lang.String, int):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::readData():java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::readData(, boolean):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::readData(, org.apache.zookeeper.data.Stat):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::readData(, org.apache.zookeeper.data.Stat, boolean):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::readDataAndStat(, org.apache.zookeeper.data.Stat, boolean):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::writeData(java.lang.String, java.lang.Object):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::updateDataSerialized(, org.apache.helix.zookeeper.zkclient.DataUpdater):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::writeData(java.lang.String, java.lang.Object, int):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::writeDataReturnStat(java.lang.String, java.lang.Object, int):org.apache.zookeeper.data.Stat" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::writeDataGetStat(java.lang.String, java.lang.Object, int):org.apache.zookeeper.data.Stat" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::asyncCreate(java.lang.String, java.lang.Object, org.apache.zookeeper.CreateMode, long, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$CreateCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::asyncSetData(java.lang.String, java.lang.Object, int, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$SetDataCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::asyncGetData(java.lang.String, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$GetDataCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::asyncExists(java.lang.String, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$ExistsCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::asyncDelete(java.lang.String, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$DeleteCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::watchForData(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::watchForChilds(java.lang.String):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::getCreationTime(java.lang.String):long" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::multi(java.lang.Iterable):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::waitUntilConnected(long, java.util.concurrent.TimeUnit):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::getServers():java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::getSessionId():long" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::close():void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::isClosed():boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::deserialize(, java.lang.String):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::setZkSerializer(org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::setZkSerializer(org.apache.helix.zookeeper.zkclient.serialize.PathBasedZkSerializer):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.SharedZkClient::getZkSerializer():org.apache.helix.zookeeper.zkclient.serialize.PathBasedZkSerializer" />
+		</instance>
+		<instance>
+			<role name="Adaptee" element="org.apache.helix.zookeeper.impl.client.ZkClient" />
+			<role name="Adapter" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient" />
+			<role name="adaptee" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::_rawZkClient:org.apache.helix.zookeeper.impl.client.ZkClient" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::subscribeChildChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkChildListener):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::subscribeChildChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkChildListener, boolean):org.apache.helix.zookeeper.api.client.ChildrenSubscribeResult" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::unsubscribeChildChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkChildListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::subscribeDataChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkDataListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::subscribeDataChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkDataListener, boolean):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::unsubscribeDataChanges(java.lang.String, org.apache.helix.zookeeper.zkclient.IZkDataListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::subscribeStateChanges(org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::unsubscribeStateChanges(org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::unsubscribeAll():void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createPersistent(java.lang.String, boolean, java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createPersistentWithTTL(java.lang.String, boolean, java.util.List, long):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createContainer(java.lang.String, boolean, java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createEphemeral(java.lang.String, java.util.List, java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::create(java.lang.String, java.lang.Object, java.util.List, org.apache.zookeeper.CreateMode):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::create(java.lang.String, java.lang.Object, java.util.List, org.apache.zookeeper.CreateMode, long):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createEphemeral(java.lang.String, java.lang.Object, java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createEphemeral(java.lang.String, java.lang.Object, java.util.List, java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createEphemeralSequential(java.lang.String, java.lang.Object, java.lang.String):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::createEphemeralSequential(java.lang.String, java.lang.Object, java.util.List, java.lang.String):java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::getChildren(java.lang.String):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::countChildren(java.lang.String):int" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::exists(java.lang.String):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::getStat(java.lang.String):org.apache.zookeeper.data.Stat" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::waitUntilExists(java.lang.String, java.util.concurrent.TimeUnit, long):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::deleteRecursively(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::deleteRecursivelyAtomic(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::deleteRecursivelyAtomic(java.util.List):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::delete(java.lang.String, int):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::readData(, boolean):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::readData(, org.apache.zookeeper.data.Stat):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::readData(, org.apache.zookeeper.data.Stat, boolean):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::readDataAndStat(, org.apache.zookeeper.data.Stat, boolean):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::updateDataSerialized(, org.apache.helix.zookeeper.zkclient.DataUpdater):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::writeDataReturnStat(java.lang.String, java.lang.Object, int):org.apache.zookeeper.data.Stat" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::asyncCreate(java.lang.String, java.lang.Object, org.apache.zookeeper.CreateMode, long, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$CreateCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::asyncCreate(java.lang.String, java.lang.Object, org.apache.zookeeper.CreateMode, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$CreateCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::asyncSetData(java.lang.String, java.lang.Object, int, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$SetDataCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::asyncGetData(java.lang.String, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$GetDataCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::asyncExists(java.lang.String, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$ExistsCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::asyncDelete(java.lang.String, org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$DeleteCallbackHandler):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::watchForData(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::watchForChilds(java.lang.String):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::getCreationTime(java.lang.String):long" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::multi(java.lang.Iterable):java.util.List" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::waitUntilConnected(long, java.util.concurrent.TimeUnit):boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::getServers():java.lang.String" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::getSessionId():long" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::close():void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::isClosed():boolean" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::deserialize(, java.lang.String):java.lang.Object" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::setZkSerializer(org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::setZkSerializer(org.apache.helix.zookeeper.zkclient.serialize.PathBasedZkSerializer):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.client.DedicatedZkClient::getZkSerializer():org.apache.helix.zookeeper.zkclient.serialize.PathBasedZkSerializer" />
+		</instance>
+		<instance>
+			<role name="Adaptee" element="org.apache.helix.zookeeper.zkclient.IZkStateListener" />
+			<role name="Adapter" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl" />
+			<role name="adaptee" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::_listener:org.apache.helix.zookeeper.zkclient.IZkStateListener" />
+			<role name="Request()" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::handleStateChanged(org.apache.zookeeper.Watcher$Event$KeeperState):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::handleNewSession():void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::handleSessionEstablishmentError(java.lang.Throwable):void" />
+		</instance>
+		<instance>
+			<role name="Adaptee" element="org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener" />
+			<role name="Adapter" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl" />
+			<role name="adaptee" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::_listener:org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::handleStateChanged(org.apache.zookeeper.Watcher$Event$KeeperState):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::handleNewSession(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::handleSessionEstablishmentError(java.lang.Throwable):void" />
+		</instance>
+		<instance>
+			<role name="Adaptee" element="org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="Adapter" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer" />
+			<role name="adaptee" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer::_defaultSerializer:org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="Request()" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer::deserialize(byte[], java.lang.String):java.lang.Object" />
+		</instance>
+		<instance>
+			<role name="Adaptee" element="org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="Adapter" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer" />
+			<role name="adaptee" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer::_delegate:org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer::deserialize(byte[], java.lang.String):java.lang.Object" />
+		</instance>
+	</pattern>
+	<pattern name="Command" />
+	<pattern name="Composite" />
+	<pattern name="Decorator" />
+	<pattern name="Observer" />
+	<pattern name="State">
+		<instance>
+			<role name="Context" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl" />
+			<role name="State" element="org.apache.helix.zookeeper.zkclient.IZkStateListener" />
+			<role name="state" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::_listener:org.apache.helix.zookeeper.zkclient.IZkStateListener" />
+			<role name="Request()" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::handleStateChanged(org.apache.zookeeper.Watcher$Event$KeeperState):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::handleNewSession():void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.api.client.RealmAwareZkClient$I0ItecIZkStateListenerImpl::handleSessionEstablishmentError(java.lang.Throwable):void" />
+		</instance>
+		<instance>
+			<role name="Context" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl" />
+			<role name="State" element="org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener" />
+			<role name="state" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::_listener:org.apache.helix.zookeeper.zkclient.deprecated.IZkStateListener" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::handleStateChanged(org.apache.zookeeper.Watcher$Event$KeeperState):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::handleNewSession(java.lang.String):void" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient$IZkStateListenerI0ItecImpl::handleSessionEstablishmentError(java.lang.Throwable):void" />
+		</instance>
+		<instance>
+			<role name="Context" element="org.apache.helix.zookeeper.zkclient.ZkClient" />
+			<role name="State" element="org.apache.helix.zookeeper.zkclient.serialize.PathBasedZkSerializer" />
+			<role name="state" element="org.apache.helix.zookeeper.zkclient.ZkClient::_pathBasedZkSerializer:org.apache.helix.zookeeper.zkclient.serialize.PathBasedZkSerializer" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.ZkClient::deserialize(, java.lang.String):java.lang.Object" />
+		</instance>
+		<instance>
+			<role name="Context" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer" />
+			<role name="State" element="org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="state" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer::_defaultSerializer:org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="Request()" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.datamodel.serializer.ChainedPathZkSerializer::deserialize(byte[], java.lang.String):java.lang.Object" />
+		</instance>
+		<instance>
+			<role name="Context" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer" />
+			<role name="State" element="org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="state" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer::_delegate:org.apache.helix.zookeeper.zkclient.serialize.ZkSerializer" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer::serialize(java.lang.Object, java.lang.String):byte[]" />
+			<role name="Request()" element="org.apache.helix.zookeeper.zkclient.serialize.BasicZkSerializer::deserialize(byte[], java.lang.String):java.lang.Object" />
+		</instance>
+		<instance>
+			<role name="Context" element="org.apache.helix.zookeeper.impl.factory.SharedZkClientFactory$InnerSharedZkClient" />
+			<role name="State" element="org.apache.helix.zookeeper.impl.factory.SharedZkClientFactory$OnCloseCallback" />
+			<role name="state" element="org.apache.helix.zookeeper.impl.factory.SharedZkClientFactory$InnerSharedZkClient::_onCloseCallback:org.apache.helix.zookeeper.impl.factory.SharedZkClientFactory$OnCloseCallback" />
+			<role name="Request()" element="org.apache.helix.zookeeper.impl.factory.SharedZkClientFactory$InnerSharedZkClient::close():void" />
+		</instance>
+	</pattern>
+	<pattern name="Strategy" />
+	<pattern name="Bridge">
+		<instance>
+			<role name="Abstraction" element="org.apache.helix.zookeeper.zkclient.callback.ZkAsyncRetryCallContext" />
+			<role name="Implementor" element="org.apache.helix.zookeeper.zkclient.callback.CancellableZkAsyncCallback" />
+			<role name="implementor" element="org.apache.helix.zookeeper.zkclient.callback.ZkAsyncRetryCallContext::_cancellableCallback:org.apache.helix.zookeeper.zkclient.callback.CancellableZkAsyncCallback" />
+			<role name="Operation()" element="org.apache.helix.zookeeper.zkclient.callback.ZkAsyncRetryCallContext::cancel():void" />
+		</instance>
+	</pattern>
+	<pattern name="Template Method">
+		<instance>
+			<role name="AbstractClass" element="org.apache.helix.zookeeper.impl.factory.HelixZkClientFactory" />
+			<role name="TemplateMethod()" element="org.apache.helix.zookeeper.impl.factory.HelixZkClientFactory::buildZkClient(org.apache.helix.zookeeper.api.client.HelixZkClient$ZkConnectionConfig):org.apache.helix.zookeeper.api.client.HelixZkClient" />
+		</instance>
+		<instance>
+			<role name="AbstractClass" element="org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$DefaultCallback" />
+			<role name="TemplateMethod()" element="org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$DefaultCallback::callback(int, java.lang.String, java.lang.Object):void" />
+			<role name="TemplateMethod()" element="org.apache.helix.zookeeper.zkclient.callback.ZkAsyncCallbacks$DefaultCallback::notifyCallers():void" />
+		</instance>
+	</pattern>
+	<pattern name="Visitor" />
+	<pattern name="Proxy" />
+	<pattern name="Proxy2" />
+	<pattern name="Chain of Responsibility" />
+</system>
+

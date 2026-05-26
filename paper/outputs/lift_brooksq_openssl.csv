@@ -1,2 +1,0 @@
-project,brooks_tax_median,inj_rate_pre_med,inj_rate_post_med,inj_rate_increase,leak_rate,n_hires,n_szz_pairs,window_days,latency_days,seed
-openssl,0.146464646464647,0.344444444444444,0.344444444444444,-0.0222222222222222,0.930678466076696,1019,5424,90,30,1

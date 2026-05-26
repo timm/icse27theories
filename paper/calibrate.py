@@ -19,6 +19,7 @@ from pathlib import Path
 
 HERE    = Path(__file__).resolve().parent
 OUTPUTS = HERE / "outputs"
+LIFTS   = OUTPUTS / "lifts.csv"
 sys.path.insert(0, str(HERE))
 from sd import (brooks, brooksq, debt, rework, defmap, dora, learn,
                 archpat, congruence)
@@ -28,9 +29,22 @@ def _clip(v, lo, hi):
     return max(lo, min(hi, v))
 
 
-def _read_csv(path):
-    with open(path) as f:
-        return next(csv.DictReader(f))
+def _load_lifts():
+    """Read long-form outputs/lifts.csv into {(model, project): {metric: value}}."""
+    by_cell = {}
+    with LIFTS.open() as f:
+        for row in csv.DictReader(f):
+            key = (row["model"], row["project"])
+            by_cell.setdefault(key, {})[row["metric"]] = row["value"]
+    return by_cell
+
+
+_LIFTS_CACHE = None
+def _lift_row(model, project="helix"):
+    global _LIFTS_CACHE
+    if _LIFTS_CACHE is None:
+        _LIFTS_CACHE = _load_lifts()
+    return _LIFTS_CACHE.get((model, project), {})
 
 
 def _override_init(init, overrides, notes):
@@ -188,15 +202,14 @@ def main():
     out_path = OUTPUTS / "calibrated_verdicts.csv"
     rows = []
     for name, fn in MODELS:
-        csv_path = OUTPUTS / f"lift_{name}_helix.csv"
-        if not csv_path.exists():
+        csv_row = _lift_row(name, project="helix")
+        if not csv_row:
             rows.append({'model': name, 'default_verdict': '-',
                          'default_gap': '-', 'calib_verdict': '-',
                          'calib_gap': '-', 'changes_verdict': '-',
-                         'notes': f"missing {csv_path}"})
+                         'notes': f"no lift row for ({name}, helix) in lifts.csv"})
             continue
         try:
-            csv_row = _read_csv(csv_path)
             default_v, calib_v, notes = fn(csv_row)
         except Exception as e:
             rows.append({'model': name, 'default_verdict': 'ERROR',

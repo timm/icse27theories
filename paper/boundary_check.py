@@ -56,11 +56,6 @@ CHECKS = [
 ]
 
 
-def _read_csv(path):
-    with open(path) as f:
-        return next(csv.DictReader(f))
-
-
 def classify(val, lo, hi, eps=1e-9):
     if val < lo - eps or val > hi + eps:
         return 'out_of_range'
@@ -73,14 +68,22 @@ PROJECTS = ['helix', 'junit5', 'ambari', 'kaiaulu', 'airflow',
             'openssl', 'tomcat', 'camel']
 
 
+def _load_lifts():
+    by_cell = {}
+    with (OUTPUTS / "lifts.csv").open() as f:
+        for row in csv.DictReader(f):
+            by_cell.setdefault((row["model"], row["project"]), {})[row["metric"]] = row["value"]
+    return by_cell
+
+
 def main():
+    lifts = _load_lifts()
     rows = []
     for proj in PROJECTS:
         for name, fn, mapping in CHECKS:
-            csv_path = OUTPUTS / f"lift_{name}_{proj}.csv"
-            if not csv_path.exists() or not mapping:
+            csv_row = lifts.get((name, proj), {})
+            if not csv_row or not mapping:
                 continue
-            csv_row = _read_csv(csv_path)
             m = fn()
             for param, col in mapping.items():
                 if param not in m.init:

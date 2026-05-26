@@ -1,0 +1,1062 @@
+file_pathname,pattern_type,role,module
+ambari-server/src/main/java/org/apache/ambari/server/topology/TopologyRequestFactory.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/TopologyRequestFactory.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentHost.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentHost.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementController.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementController.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/ComparisonPredicate.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/ComparisonPredicate.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ExtendedResourceProvider.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ExtendedResourceProvider.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ClusterController.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ClusterController.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperFactory.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperFactory.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/operators/LogicalOperator.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/operators/LogicalOperator.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/util/TreeNode.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/util/TreeNode.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceDefinition.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceDefinition.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceInstanceFactory.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceInstanceFactory.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/Renderer.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/Renderer.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/handlers/RequestHandler.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/handlers/RequestHandler.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/handlers/BaseManagementHandler.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/handlers/BaseManagementHandler.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/Request.java,Factory Method,Creator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/Request.java,Factory Method,FactoryMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/RequestValidator.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/RequestValidator.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/ComponentSSLConfiguration.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/ComponentSSLConfiguration.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/Encryptor.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/Encryptor.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/utils/PasswordUtils.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/utils/PasswordUtils.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/dto/ComponentStatusReport.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/dto/ComponentStatusReport.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/stack/RepoTag.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/stack/RepoTag.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/CommandScriptDefinition.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/CommandScriptDefinition.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/AlwaysPredicate.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/AlwaysPredicate.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/utilities/UsedIdentities.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/utilities/UsedIdentities.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/RootService.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/RootService.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingCookieStore.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingCookieStore.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewRegistry.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewRegistry.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/TransferCoercionType.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/TransferCoercionType.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/jpa/JPAEvent.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/jpa/JPAEvent.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/AgentActionEvent.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/AgentActionEvent.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/DispatchFactory.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/DispatchFactory.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/annotations/TransactionalLock.java,Singleton,Singleton,ambari-server
+ambari-server/src/main/java/org/apache/ambari/annotations/TransactionalLock.java,Singleton,uniqueInstance,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/services/MetricsRetrievalService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXPropertyProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXPropertyProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXPropertyProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/RestMetricsPropertyProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/RestMetricsPropertyProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/RestMetricsPropertyProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/AlertDispatchDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertNoticeResourceProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertNoticeResourceProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertNoticeResourceProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ClusterDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterPrivilegeResourceProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterPrivilegeResourceProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterPrivilegeResourceProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/Configuration.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementControllerImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementControllerImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementControllerImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/AmbariMetaInfo.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/MaintenanceStateHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authorization/Users.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionManager.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stageplanner/RoleGraphFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/HostsMap.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/SettingDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariCustomCommandExecutionHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ExtensionLinkDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/ldap/AmbariLdapDataPopulator.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariActionExecutionHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/STOMPComponentsDeleteHandler.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/CreateKeytabFilesServerAction.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/KerberosPrincipalDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/CreateKeytabFilesServerAction.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/CreateKeytabFilesServerAction.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/AmbariEventPublisher.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/STOMPUpdatePublisher.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/JPAEventPublisher.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContextFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/StackDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ServiceConfigDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostConfigMappingDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/StackId.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/LockFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ClusterStateDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/TopologyRequestDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostStateDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionDBAccessorImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionDBAccessorImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionDBAccessorImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostRoleCommandDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/TaskEventPublisher.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/StageDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ExecutionCommandDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/RequestFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RequestScheduleDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RoleSuccessCriteriaDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/svccomphost/ServiceComponentHostImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/svccomphost/ServiceComponentHostImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/svccomphost/ServiceComponentHostImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostComponentDesiredStateDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostComponentStateDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/Resource.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingSearchPropertyProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LogSearchDataRetrievalService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingSearchPropertyProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingSearchPropertyProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClustersImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClustersImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClustersImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ResourceTypeDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/RequestExecutionImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/Batch.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/RequestExecutionImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/RequestExecutionImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/entities/RequestScheduleEntity.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RequestScheduleBatchRequestDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/stackadvisor/StackAdvisorHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/KerberosKeytabDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ArtifactDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosOperationHandlerFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/kerberos/VariableReplacementHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ServiceDesiredStateDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ServiceComponentDesiredStateDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentHostFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/PersistedStateImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/PersistedStateImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/PersistedStateImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/AmbariContext.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/LogicalRequestFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/TopologyHostInfoDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/TopologyHostRequestDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/TopologyLogicalRequestDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/TopologyLogicalTaskDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/Stack.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/SecurityConfiguration.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/Setting.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/AmbariPerformanceRunnable.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/alert/AlertDefinitionFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/AmbariPerformanceRunnable.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/AmbariPerformanceRunnable.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/JmxServerSideAlert.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/JmxServerSideAlert.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/JmxServerSideAlert.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/StaleAlertRunnable.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/StaleAlertRunnable.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/StaleAlertRunnable.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ConfigGroupHostMappingDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ConfigGroupConfigMappingDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ConfigGroupDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopologyImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopologyImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopologyImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/Configuration.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/UpdateConfigurationPolicy.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosServerAction.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RequestDAO.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RequestDAO.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RequestDAO.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/TopologyHostTaskDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/dispatchers/AlertScriptDispatcher.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/dispatchers/AlertScriptDispatcher.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/dispatchers/AlertScriptDispatcher.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Clusters.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HttpPropertyProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HttpPropertyProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HttpPropertyProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXHostProvider.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsCollectorHAManager.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerConfigurationHandler.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerConfigurationHandler.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerConfigurationHandler.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/LockProfileDelegate.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledReentrantLock.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledReentrantLock.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledReentrantLock.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledReentrantReadWriteLock.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledReentrantReadWriteLock.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledReentrantReadWriteLock.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessorImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessorImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessorImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/MITKerberosOperationHandler.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/MITKerberosOperationHandler.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/MITKerberosOperationHandler.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidatorImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidatorImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidatorImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/helpers/dbms/DbmsHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/users/UserHookService.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/users/UserHookService.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/users/UserHookService.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/AmbariEventFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostGroupImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostGroupImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostGroupImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponent.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/quicklinksprofile/FilterEvaluator.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/quicklinksprofile/DefaultQuickLinkVisibilityController.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/quicklinksprofile/DefaultQuickLinkVisibilityController.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/quicklinksprofile/DefaultQuickLinkVisibilityController.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ResourceProvider.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Cluster.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Service.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementController.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authorization/User.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserDetailsImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserDetailsImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserDetailsImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/AlertsDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertHistoryResourceProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertHistoryResourceProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertHistoryResourceProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertResourceProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertResourceProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertResourceProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertSummaryPropertyProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertSummaryPropertyProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AlertSummaryPropertyProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsServiceImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsConfiguration.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsServiceImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsServiceImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/FileBasedCredentialStore.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialStoreServiceImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialStoreServiceImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialStoreServiceImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/InMemoryCredentialStore.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/ProcessingPredicateVisitor.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/ProcessingPredicateVisitor.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/ProcessingPredicateVisitor.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Host.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/Blueprint.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidator.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RequestDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandlerImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandlerImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandlerImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authorization/PermissionHelper.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/LdapConnectionTemplateFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/DefaultLdapAttributeDetectionService.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/DefaultLdapAttributeDetectionService.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/DefaultLdapAttributeDetectionService.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/detectors/AttributeDetectorFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/DefaultLdapConfigurationService.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/DefaultLdapConfigurationService.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/DefaultLdapConfigurationService.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/MasterKeyService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AESEncryptionService.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AESEncryptionService.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AESEncryptionService.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/Renderer.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperFactoryImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperFactoryImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperFactoryImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SimplifyingPredicateVisitor.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SimplifyingPredicateVisitor.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SimplifyingPredicateVisitor.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/ServiceCheckGrouping.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/ServiceCheckGrouping.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/ServiceCheckGrouping.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/MultipleArcTransition.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/StateMachineFactory.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/StateMachineFactory.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/StateMachineFactory.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/ConnectionFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/JDBCResourceProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/JDBCResourceProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/JDBCResourceProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/AmbariConfigurationDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ClusterController.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/persistence/PersistenceManagerImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/persistence/PersistenceManagerImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/persistence/PersistenceManagerImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostVersionDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/EncryptionService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AmbariServerConfigurationEncryptor.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AmbariServerConfigurationEncryptor.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AmbariServerConfigurationEncryptor.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/Request.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/ResultPostProcessorImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/ResultPostProcessorImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/ResultPostProcessorImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/LdapConfigurationService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/AmbariLdapFacade.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/AmbariLdapFacade.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/AmbariLdapFacade.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/MetricsSink.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/RoleCommandOrderProvider.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/StateMachine.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/action/ActionImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/action/ActionImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/action/ActionImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/AuditLogger.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLoggerImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLoggerImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLoggerImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ArtifactResourceProvider.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ArtifactResourceProvider.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ArtifactResourceProvider.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/LdapAttributeDetectionService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/AgentEncryptionKey.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AgentConfigUpdateEncryptor.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AgentConfigUpdateEncryptor.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AgentConfigUpdateEncryptor.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/HostRoleCommandFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/StageFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/collections/Predicate.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/JwtAuthenticationPropertiesProvider.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/AmbariJwtAuthenticationFilter.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/AmbariJwtAuthenticationFilter.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/AmbariJwtAuthenticationFilter.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStatusImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStatusImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStatusImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SchemaImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SchemaImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SchemaImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/AmbariMetricSinkImpl.java,(Object)Adapter,Adapter,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/AmbariMetricSinkImpl.java,(Object)Adapter,adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/AmbariMetricSinkImpl.java,(Object)Adapter,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/RepositoryVersionDAO.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialStoreService.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/SingleArcTransition.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/kerberos/KerberosDescriptorFactory.java,(Object)Adapter,Adaptee,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Clusters.java,Command,Receiver,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/CachedRoleCommandOrderProvider.java,Command,ConcreteCommand,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/CachedRoleCommandOrderProvider.java,Command,receiver,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/CachedRoleCommandOrderProvider.java,Command,Execute(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ProviderModule.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewProviderModule.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewProviderModule.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewProviderModule.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXHostProvider.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ConfigBasedJmxHostProvider.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ConfigBasedJmxHostProvider.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ConfigBasedJmxHostProvider.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricHostProvider.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/OverriddenMetricsHostProvider.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/OverriddenMetricsHostProvider.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/OverriddenMetricsHostProvider.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/PropertyProvider.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ExtendedResourceProvider.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ResourcePredicateEvaluator.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/Resource.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/Predicate.java,Decorator,Component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/ExtendedResourcePredicateVisitor.java,Decorator,Decorator,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/ExtendedResourcePredicateVisitor.java,Decorator,component,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/ExtendedResourcePredicateVisitor.java,Decorator,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/AmbariMetaInfo.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/mpack/MpackManagerFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/AmbariMetaInfo.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/AmbariMetaInfo.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/StackManagerFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ConfigGroupHostMappingDAO.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ConfigGroupHostMappingDAO.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/ConfigGroupHostMappingDAO.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStageContainer.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/RequestFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStageContainer.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStageContainer.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionManager.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionManager.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionManager.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/HostRoleCommand.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ExecutionCommandWrapperFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/HostRoleCommand.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/HostRoleCommand.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ConfigGroupResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ConfigGroupResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ConfigGroupResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/Stage.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/Stage.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/Stage.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/AmbariContext.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/AmbariContext.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/AmbariContext.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementController.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariCustomCommandExecutionHelper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariCustomCommandExecutionHelper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariCustomCommandExecutionHelper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartbeatMonitor.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartbeatMonitor.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartbeatMonitor.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariActionExecutionHelper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariActionExecutionHelper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariActionExecutionHelper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/StackAdvisorAdapter.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/StackAdvisorAdapter.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/StackAdvisorAdapter.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/AddServiceOrchestrator.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/AddServiceOrchestrator.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/AddServiceOrchestrator.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/users/PostUserCreationHookServerAction.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/users/CollectionPersisterServiceFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/users/PostUserCreationHookServerAction.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/users/PostUserCreationHookServerAction.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Clusters.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartBeatHandler.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartBeatHandler.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartBeatHandler.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ExecutionCommandWrapper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ExecutionCommandWrapper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ExecutionCommandWrapper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionScheduler.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionScheduler.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionScheduler.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/scheduler/ExecutionScheduleManager.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/scheduler/ExecutionScheduleManager.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/scheduler/ExecutionScheduleManager.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartbeatProcessor.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartbeatProcessor.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/HeartbeatProcessor.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigHelper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigHelper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigHelper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/AgentCommandsPublisher.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/AgentCommandsPublisher.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/AgentCommandsPublisher.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelper.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/stageutils/KerberosKeytabController.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/stageutils/KerberosKeytabController.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/stageutils/KerberosKeytabController.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/TopologyManager.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/PersistedState.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/TopologyManager.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/TopologyManager.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/tasks/ConfigureClusterTaskFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/RestMetricsPropertyProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/RestMetricsPropertyProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/RestMetricsPropertyProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ResourcePredicateEvaluator.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterControllerImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/configgroup/ConfigGroupImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopology.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/tasks/ConfigureClusterTask.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/tasks/ConfigureClusterTask.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/tasks/ConfigureClusterTask.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterConfigurationRequest.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterConfigurationRequest.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterConfigurationRequest.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/DispatchRunnable.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/NotificationDispatcher.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/DispatchRunnable.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/notifications/DispatchRunnable.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HttpPropertyProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HttpPropertyProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HttpPropertyProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXPropertyProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXHostProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXPropertyProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jmx/JMXPropertyProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/DestroyPrincipalsServerAction.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/DestroyPrincipalsServerAction.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/DestroyPrincipalsServerAction.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/KerberosKeytabsAction.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/KerberosKeytabsAction.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/KerberosKeytabsAction.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/PreconfigureKerberosAction.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/PreconfigureKerberosAction.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/PreconfigureKerberosAction.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsServiceProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProviderProxy.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProviderProxy.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProviderProxy.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsReportPropertyProviderProxy.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsReportPropertyProviderProxy.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsReportPropertyProviderProxy.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/LockProfileDelegate.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/ProfiledLock.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/LockProfileDelegate.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/logging/LockProfileDelegate.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessor.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/SchemaUpgradeHelper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/SchemaUpgradeHelper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/SchemaUpgradeHelper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/DatabaseConsistencyCheckHelper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/DatabaseConsistencyCheckHelper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/DatabaseConsistencyCheckHelper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/MpackInstallChecker.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/MpackInstallChecker.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/MpackInstallChecker.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/LdapToPamMigrationHelper.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/LdapToPamMigrationHelper.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/LdapToPamMigrationHelper.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessorImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/helpers/dbms/DbmsHelper.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessorImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessorImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClusterImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/svccomphost/ServiceComponentHostImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponent.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/svccomphost/ServiceComponentHostImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/svccomphost/ServiceComponentHostImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ResourceProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/CreateAndConfigureAction.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/CreateAndConfigureAction.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/CreateAndConfigureAction.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Cluster.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/HostLevelParamsHolder.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/HostLevelParamsHolder.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/HostLevelParamsHolder.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/TopologyHolder.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/TopologyHolder.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/TopologyHolder.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/timeline/AMSPropertyProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/TemporalInfo.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/timeline/AMSPropertyProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/timeline/AMSPropertyProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewSubResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewSubResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewSubResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementControllerImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementControllerImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementControllerImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Service.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelperImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserAuthentication.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserDetails.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserAuthentication.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariUserAuthentication.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/HostRoleCommandFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostRoleCommandDAO.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostRoleCommandDAO.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/dao/HostRoleCommandDAO.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ConfigImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/credentialapi/CredentialUtil.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/credentialapi/CredentialUtil.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/credentialapi/CredentialUtil.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/credentialapi/CredentialUtil.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authorization/AmbariAuthorizationFilter.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/AuditLogger.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authorization/AmbariAuthorizationFilter.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authorization/AmbariAuthorizationFilter.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LogoutService.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LogoutService.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LogoutService.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricReportingAdapter.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsDownsamplingMethod.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricReportingAdapter.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricReportingAdapter.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ClusterController.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/QueryImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingSearchPropertyProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingSearchPropertyProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingSearchPropertyProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/UserAuthorizationResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/UserAuthorizationResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/UserAuthorizationResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/host/HostImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Host.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidator.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidatorImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/Blueprint.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidatorImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintValidatorImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/JobResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/JobResourceProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/JobResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/JobResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/HostComponentVersionAdvertisedEvent.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/ServiceComponentHost.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/HostComponentVersionAdvertisedEvent.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/HostComponentVersionAdvertisedEvent.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariBasicAuthenticationFilter.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandler.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariBasicAuthenticationFilter.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariBasicAuthenticationFilter.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/AmbariJwtAuthenticationFilter.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/AmbariJwtAuthenticationFilter.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/jwt/AmbariJwtAuthenticationFilter.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/kerberos/AmbariKerberosAuthenticationFilter.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/kerberos/AmbariKerberosAuthenticationFilter.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/kerberos/AmbariKerberosAuthenticationFilter.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/WorkflowResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/WorkflowResourceProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/WorkflowResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/WorkflowResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialStore.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/StageFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/utils/StageUtils.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/utils/StageUtils.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/utils/StageUtils.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stageplanner/RoleGraph.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stageplanner/RoleGraph.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stageplanner/RoleGraph.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/DeleteIdentityHandler.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/DeleteIdentityHandler.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/DeleteIdentityHandler.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceDefinition.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskAttemptResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskAttemptResourceProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskAttemptResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskAttemptResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackDefinedPropertyProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AESEncryptionService.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/MasterKeyService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AESEncryptionService.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AESEncryptionService.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/MasterKeyServiceImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/EncryptionService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/MasterKeyServiceImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/MasterKeyServiceImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/UpdateKerberosConfigsServerAction.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/UpdateKerberosConfigsServerAction.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/UpdateKerberosConfigsServerAction.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/RequestExecutionImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/RequestExecutionImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/scheduler/RequestExecutionImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/Renderer.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LogSearchDataRetrievalService.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LogSearchDataRetrievalService.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LogSearchDataRetrievalService.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/PageRequest.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SimplifyingPredicateVisitor.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SimplifyingPredicateVisitor.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SimplifyingPredicateVisitor.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/ServiceCheckGrouping.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/ServiceCheckGrouping.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/ServiceCheckGrouping.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/LogicalRequest.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/LogicalRequest.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/LogicalRequest.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/JDBCResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/ConnectionFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/JDBCResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/jdbc/JDBCResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/CredentialResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/CredentialStoreService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/CredentialResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/CredentialResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/persistence/PersistenceManagerImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/persistence/PersistenceManagerImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/persistence/PersistenceManagerImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AmbariServerConfigurationEncryptor.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AmbariServerConfigurationEncryptor.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AmbariServerConfigurationEncryptor.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/PropertiesEncryptor.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/PropertiesEncryptor.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/PropertiesEncryptor.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/RequestValidator.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/StackFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/RequestValidator.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/addservice/RequestValidator.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintFactory.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintFactory.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/BlueprintFactory.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/ResultPostProcessorImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/Request.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/ResultPostProcessorImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/ResultPostProcessorImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AbstractRootServiceResponseFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/RootServiceResponseFactory.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/RootServiceResponseFactory.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/RootServiceResponseFactory.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterStackVersionResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterStackVersionResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterStackVersionResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HostStackVersionResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HostStackVersionResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/HostStackVersionResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ServiceResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ServiceResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ServiceResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerLDAPConfigurationHandler.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/LdapFacade.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerLDAPConfigurationHandler.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerLDAPConfigurationHandler.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/logging/LoggingRequestHelperImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/SortRequest.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/AmbariLdapFacade.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/LdapConfigurationService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/AmbariLdapFacade.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/AmbariLdapFacade.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/LdapConnectionTemplateFactory.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/LdapConnectionConfigService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/LdapConnectionTemplateFactory.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/LdapConnectionTemplateFactory.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsServiceImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/MetricsSink.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsServiceImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/MetricsServiceImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/RoleCommandOrderProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/fsm/StateMachine.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/action/ActionImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/action/ActionImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/action/ActionImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopologyImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopologyImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/ClusterTopologyImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionDBAccessorImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionDBAccessorImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/actionmanager/ActionDBAccessorImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentConfigsHolder.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/Encryptor.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentConfigsHolder.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentConfigsHolder.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LoggingService.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LoggingService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LoggingService.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/LoggingService.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLoggerImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLoggerImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLoggerImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/KerberosAdminPersistedCredentialCheck.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/KerberosAdminPersistedCredentialCheck.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/checks/KerberosAdminPersistedCredentialCheck.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ArtifactResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ArtifactResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ArtifactResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/utilities/StreamProvider.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/ClusterBlueprintRenderer.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintExportType.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/ClusterBlueprintRenderer.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/ClusterBlueprintRenderer.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/ProviderModule.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/LdapAttributeDetectionService.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandlerImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandlerImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/authentication/AmbariAuthenticationEventHandlerImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/users/UserHookService.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/users/UserHookService.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/hooks/users/UserHookService.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/TaskResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterResourceProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/TopologyRequestFactory.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterResourceProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ClusterResourceProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerStackAdvisorAwareConfigurationHandler.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerStackAdvisorAwareConfigurationHandler.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AmbariServerStackAdvisorAwareConfigurationHandler.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStatusImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/Resource.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStatusImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/RequestStatusImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SchemaImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SchemaImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/SchemaImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/AmbariMetricSinkImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/AmbariMetricSinkImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metrics/system/impl/AmbariMetricSinkImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClustersImpl.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/SecurityHelper.java,State,State,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClustersImpl.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/cluster/ClustersImpl.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/CachedRoleCommandOrderProvider.java,State,Context,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/CachedRoleCommandOrderProvider.java,State,state,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/metadata/CachedRoleCommandOrderProvider.java,State,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractControllerResourceProvider.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/ResourceProviderFactory.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractControllerResourceProvider.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractControllerResourceProvider.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/AbstractUpgradeServerAction.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContextFactory.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/AbstractUpgradeServerAction.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/upgrades/AbstractUpgradeServerAction.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/AmbariManagementController.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/orm/DBAccessor.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/ThreadPoolEnabledPropertyProvider.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricHostProvider.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/ThreadPoolEnabledPropertyProvider.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/ThreadPoolEnabledPropertyProvider.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/BaseRenderer.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/SchemaFactory.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/BaseRenderer.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/BaseRenderer.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackAdvisorResourceProvider.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/Clusters.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackAdvisorResourceProvider.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackAdvisorResourceProvider.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/AbstractPrepareKerberosServerAction.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/KerberosHelper.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/AbstractPrepareKerberosServerAction.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/AbstractPrepareKerberosServerAction.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosServerAction.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosServerAction.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosServerAction.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricPropertyProviderFactory.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseService.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceInstanceFactory.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseService.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseService.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/render/Renderer.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/request/RequestAuditLogger.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/resources/ResourceInstance.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfigurationProvider.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/Encryptor.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfigurationProvider.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfigurationProvider.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AbstractCredentialStore.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/MasterKeyService.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AbstractCredentialStore.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AbstractCredentialStore.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/AbstractServerAction.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/AuditLogger.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/AbstractServerAction.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/AbstractServerAction.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/services/MetricsRetrievalService.java,Bridge,Abstraction,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/utilities/StreamProvider.java,Bridge,Implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/services/MetricsRetrievalService.java,Bridge,implementor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/services/MetricsRetrievalService.java,Bridge,Operation(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/tasks/TopologyHostTask.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/tasks/TopologyHostTask.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfigurationProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfigurationProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfiguration.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/configuration/AmbariServerConfiguration.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/upgrade/AbstractUpgradeCatalog.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AbstractCredentialStore.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/encryption/AbstractCredentialStore.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/AbstractSecurityHeaderFilter.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/security/AbstractSecurityHeaderFilter.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/detectors/OccurrenceAndWeightBasedDetector.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/ldap/service/ads/detectors/OccurrenceAndWeightBasedDetector.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/scheduler/AbstractLinearExecutionJob.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/scheduler/AbstractLinearExecutionJob.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/AgentReport.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/AgentReport.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentHostDataHolder.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentHostDataHolder.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentClusterDataHolder.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/agent/stomp/AgentClusterDataHolder.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/services/MetricsRetrievalService.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/services/MetricsRetrievalService.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/AbstractKerberosDataFileWriter.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/AbstractKerberosDataFileWriter.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KDCKerberosOperationHandler.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KDCKerberosOperationHandler.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosOperationHandler.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosOperationHandler.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosServerAction.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/serveraction/kerberos/KerberosServerAction.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/ganglia/GangliaPropertyProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/ganglia/GangliaPropertyProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/UnaryPredicate.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/UnaryPredicate.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/ComparisonPredicate.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/ComparisonPredicate.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/ArrayPredicate.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/predicate/ArrayPredicate.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractResourceProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractResourceProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintConfigurationProcessor.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintResourceProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/BlueprintResourceProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackAdvisorResourceProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/StackAdvisorResourceProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/AbstractProviderModule.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/PrivilegeResourceProvider.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/PrivilegeResourceProvider.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/AlertRunnable.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/alerts/AlertRunnable.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/event/AbstractAuditEvent.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/audit/event/AbstractAuditEvent.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewContextImpl.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/view/ViewContextImpl.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/QueryLexer.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/QueryLexer.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/operators/AbstractOperator.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/operators/AbstractOperator.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/QueryParser.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/predicate/QueryParser.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/JpaPredicateVisitor.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/query/JpaPredicateVisitor.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/handlers/BaseManagementHandler.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/handlers/BaseManagementHandler.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/BaseRequest.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/stackadvisor/commands/StackAdvisorCommand.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/stackadvisor/commands/StackAdvisorCommand.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/PrivilegeService.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/api/services/PrivilegeService.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/Task.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/Task.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/StageWrapperBuilder.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/StageWrapperBuilder.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/ServiceDirectory.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/ServiceDirectory.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/MessageEmitter.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/MessageEmitter.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/BufferedUpdateEventPublisher.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/events/publishers/BufferedUpdateEventPublisher.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/collections/Predicate.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/collections/Predicate.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/collections/functors/OperationPredicate.java,Template Method,AbstractClass,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/collections/functors/OperationPredicate.java,Template Method,TemplateMethod(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProviderProxy.java,Proxy,Proxy,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/timeline/AMSPropertyProvider.java,Proxy,RealSubject,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/metrics/MetricsPropertyProviderProxy.java,Proxy,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,Proxy2,Proxy,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/internal/ResourceImpl.java,Proxy2,RealSubject,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/controller/spi/Resource.java,Proxy2,Subject,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,Proxy2,subject,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/topology/HostRequest.java,Proxy2,Request(),ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/kerberos/AbstractKerberosDescriptor.java,Chain of Responsibility,Handler,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/state/kerberos/AbstractKerberosDescriptor.java,Chain of Responsibility,successor,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,Chain of Responsibility,Handler,ambari-server
+ambari-server/src/main/java/org/apache/ambari/server/stack/upgrade/orchestrate/UpgradeContext.java,Chain of Responsibility,successor,ambari-server
+ambari-views/src/main/java/org/apache/ambari/view/validation/ValidationResult.java,Singleton,Singleton,ambari-views
+ambari-views/src/main/java/org/apache/ambari/view/validation/ValidationResult.java,Singleton,uniqueInstance,ambari-views

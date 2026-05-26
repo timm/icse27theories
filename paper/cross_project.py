@@ -6,7 +6,7 @@ disk and emits outputs/cross_project.csv — one row per model with
 columns per project, plus boundary-status flags.
 """
 
-import csv, glob, re, sys
+import csv, sys
 from pathlib import Path
 
 HERE    = Path(__file__).resolve().parent
@@ -55,26 +55,19 @@ PARAM_FOR_METRIC = {
 }
 
 
-def discover():
-    """Return {(model, project): csv_path}."""
-    pat = re.compile(r"lift_([a-z]+)_([a-z0-9]+)\.csv$")
-    out = {}
-    for p in glob.glob(str(OUTPUTS / "lift_*.csv")):
-        m = pat.search(p)
-        if m:
-            out[(m.group(1), m.group(2))] = p
-    return out
-
-
-def _read(path):
-    with open(path) as f:
-        return next(csv.DictReader(f))
+def _load_lifts():
+    """Read long-form outputs/lifts.csv → {(model, project): {metric: value}}."""
+    by_cell = {}
+    with (OUTPUTS / "lifts.csv").open() as f:
+        for row in csv.DictReader(f):
+            by_cell.setdefault((row["model"], row["project"]), {})[row["metric"]] = row["value"]
+    return by_cell
 
 
 def main():
-    found = discover()
-    projects = sorted({p for (_, p) in found})
-    models = sorted({m for (m, _) in found if m in KEY_METRIC})
+    lifts = _load_lifts()
+    projects = sorted({p for (_, p) in lifts})
+    models   = sorted({m for (m, _) in lifts if m in KEY_METRIC})
     print(f"Projects: {projects}")
     print(f"Models:   {models}")
 
@@ -83,13 +76,8 @@ def main():
         metric = KEY_METRIC[model]
         row = {'model': model, 'key_metric': metric}
         for proj in projects:
-            key = (model, proj)
-            if key in found:
-                d = _read(found[key])
-                val = d.get(metric, '')
-                row[proj] = val
-            else:
-                row[proj] = '—'
+            cell = lifts.get((model, proj), {})
+            row[proj] = cell.get(metric, '—' if not cell else '')
 
         # Boundary check using model.init
         param_key = f"{model}.{metric}"

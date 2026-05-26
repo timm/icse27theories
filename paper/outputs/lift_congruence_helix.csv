@@ -1,2 +1,0 @@
-project,Brokers_n,Clusters_n,n_messages,n_devs,n_devs_main,n_edges,n_incidents,largest_cluster,seed
-helix,3,4,8569,77,77,185,4,33,1
