@@ -27,14 +27,71 @@
 
 <h1>MYTHS<span class="tag">33 models</span></h1>
 <p class="sub-title">
-  Each card below is one theory: a compartmental model + a falsifiable
-  thesis. Click for the model code, the data-lift recipe, the V&amp;V
-  scorecard, the per-project empirical results, and peer-reviewed references.
+  A test-bench for SE theories cast as compartmental system-dynamics
+  models. Each model is a falsifiable conjecture; each is hit by a
+  10-test V&amp;V bank under N=100 stress-matrix perturbation + a
+  non-parametric two-sample verdict (Cliff's &delta; + KS + median-&epsilon;).
+  The whole battery runs in <strong>~1.3 seconds</strong>.
+</p>
+
+<h2 id="findings">Headline findings</h2>
+<ul>
+  <li><strong>F0 — Most published SE theses do not survive proper stats.</strong>
+      Of 33 modelled theses, only <strong>13 produce a CONFIRM verdict</strong>
+      under N=100 perturbation + stats.same (Cliff's &delta; 0.195 + KS conf 1.36
+      + median-&epsilon; 0.35&sigma;). 19 dissolve to neutral; 1 flips to REFUTE.
+      The single-shot threshold heuristic was hiding noise as signal.</li>
+  <li><strong>F1 — Sampler choice changes 3 cell classifications.</strong>
+      Switching the stress sampler from uniform (adversarial) to triangular
+      (author's-prior-weighted) reclassifies <code>ownership</code>,
+      <code>ossfail</code>, <code>ctxswitch</code> across the 2&times;2 grid.
+      Robustness is sampler-conditional &mdash; another paper-worthy gap in the SE
+      literature, which never declares the sampler.</li>
+  <li><strong>F2 — Boundary-adequacy fails on 5 lifted parameters.</strong>
+      Mature OSS projects routinely breach the <code>[lo, hi]</code> ranges declared in
+      sd.py: brooksq.leak_rate exceeds <code>hi=0.5</code> on 7 of 8 projects
+      (monotone 0.42 &rarr; 0.93 across 5 languages); learn.train_rate hits
+      the upper bound on 3 projects. Diagnostic for: bound-tuning is needed.</li>
+  <li><strong>F3 — A few SE theses are project-invariant.</strong>
+      <code>debt.pay_rate</code> converges across 5 Java projects (0.36&ndash;0.59,
+      11% spread). Lehman's <code>entropy</code>, Boehm's <code>costchange</code>,
+      Decan's <code>deprot</code>, and the rework cycle all survive both N=100
+      stats AND the 200-point input/parameter perturbation sweep. These are the
+      few candidates for a universal-law claim in SE.</li>
+  <li><strong>F4 — Brooks's effect is not universal in magnitude.</strong>
+      <code>brooks_tax_median</code> varies <strong>11&times;</strong> across 8
+      projects (Ambari 0.029 &rarr; airflow 0.311); on 3 small-sample projects
+      the sign even flips. Net: Brooks's claim holds in direction but not in
+      magnitude. brooksq's quality side shows a 3-project split (Ambari supports,
+      Helix neutral, junit5 refutes).</li>
+  <li><strong>F5 — One thesis flips under perturbation.</strong>
+      Merton's <code>successful</code> (Matthew effect) flips from CONFIRM
+      (single-shot) to <strong>REFUTE</strong> (N=100 + same). The default-run
+      score was on the wrong side of the noise floor &mdash; sampling
+      uncovered a sign error in the published thesis encoding.</li>
+</ul>
+
+<h2 id="typology">Typology (stress-matrix 2&times;2 cell)</h2>
+<table>
+  <thead>
+    <tr><th>cell</th><th>meaning</th><th class="num">count</th><th>members</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">14</td><td class="mono dim">debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence, little, entropy, costchange, linus, deprot</td></tr>
+    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">12</td><td class="mono dim">diapers, bugs, learn, micro, burnout, coordn2, pareto, mirroring, orgchurn, ctxswitch, limits, successful</td></tr>
+    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">4</td><td class="mono dim">brooks, brooksq, archpat, scope</td></tr>
+    <tr><td><span class="world">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">3</td><td class="mono dim">aidebt (regime crossover at t&asymp;26), ownership, ossfail</td></tr>
+  </tbody>
+</table>
+<p class="dim" style="font-size:12px;margin-top:4px;">
+  Cells auto-derived from <code>paper/outputs/full_audit.csv</code> after the
+  latest <code>paper/full_audit.py</code> run. Numbers shift as the
+  stress sampler is re-run on new models.
 </p>
 
 <div class="callout">
   <span class="label">scope</span>
-  All 33 model pages are built. Click any card. Dim cards are
+  All 33 model pages below are built. Click any card. Dim cards are
   <em>structurally dark</em> — the model is defined but no open
   dataset can calibrate it. Order: the toy demonstrator first, then
   the rest by year (most recent first).
@@ -248,42 +305,6 @@
   </a>
 
 </div>
-
-<h2 id="typology">Typology (stress-matrix 2&times;2 cell)</h2>
-<table>
-  <thead>
-    <tr><th>cell</th><th>meaning</th><th class="num">count</th><th>members</th></tr>
-  </thead>
-  <tbody>
-    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">14</td><td class="mono dim">debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence, little, entropy, costchange, linus, deprot</td></tr>
-    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">12</td><td class="mono dim">diapers, bugs, learn, micro, burnout, coordn2, pareto, mirroring, orgchurn, ctxswitch, limits, successful</td></tr>
-    <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">4</td><td class="mono dim">brooks, brooksq, archpat, scope</td></tr>
-    <tr><td><span class="world">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">3</td><td class="mono dim">aidebt (regime crossover at t&asymp;26), ownership, ossfail</td></tr>
-  </tbody>
-</table>
-<p class="dim" style="font-size:12px;margin-top:4px;">
-  Cells auto-derived from <code>outputs/full_audit.csv</code> after the
-  latest <code>scripts/full_audit.py</code> run. Numbers shift as the
-  stress sampler is re-run on new models.
-</p>
-
-<h2 id="findings">Headline findings</h2>
-<ul>
-  <li><strong>F0</strong> &mdash; 5 model parameters fail boundary-adequacy across multiple projects.
-      Bounds in <code>sd.py</code> too tight for mature OSS scale.</li>
-  <li><strong>F1</strong> &mdash; <code>brooksq.leak_rate</code> exceeds model <code>hi=0.5</code>
-      on 7 of 8 projects (monotonic 0.42 &rarr; 0.93 across 5 languages).</li>
-  <li><strong>F2</strong> &mdash; <code>debt.pay_rate</code> convergent across 5 Java projects
-      (0.36&ndash;0.59). Most family-coherent metric.</li>
-  <li><strong>F3</strong> &mdash; Brooks effect varies 11&times; across 8 projects
-      (Ambari 0.029 &rarr; airflow 0.311).</li>
-  <li><strong>F4</strong> &mdash; brooksq quality thesis split: Ambari supports, Helix neutral,
-      junit5 refutes.</li>
-  <li><strong>F5</strong> (pending lift) &mdash; cross-project test of Bird-ownership and
-      MacCormack-mirroring; with the new <code>ownership</code> and <code>mirroring</code>
-      models added 2026-05-25, the framework can now test both on the same 8-project family
-      and report whether the two structural signals reinforce or compete.</li>
-</ul>
 
 </main>
 
