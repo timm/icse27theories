@@ -105,8 +105,13 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Not lifted. Same blocker as aiwork: no AI-authorship attribution exists in open datasets.</p>
-    
+    <p>Not lifted. Same blocker as aiwork: no AI-authorship attribution exists in open OSS datasets.</p>
+    <div class="callout">
+      <span class="label">why not</span>
+      aidebt needs a per-commit AI-authorship label (was the commit human or LLM-assisted) plus a debt-introduction signal aligned to that author class. Open OSS repos do not record AI assist provenance at commit time; vendor data (Copilot, Cursor telemetry) is private. Until a public attribution corpus emerges, aidebt cannot be calibrated and the regime-crossover claim at t&asymp;26 remains a structural prediction only.
+    </div>
+    <p>The model is therefore in the <em>structurally dark</em> set: defined, stress-typed, V&amp;V-tested, but with no project to anchor its parameters. The headline finding (a regime crossover where AI churn dominates AI productivity past t=26) is reproducible from the model code in panel 2 — but cannot be tested against history.</p>
+    <p>Open question for follow-up: would a synthetic split, where commits matching certain LLM-assist patterns (e.g. presence of <code>Co-Authored-By: Claude</code> trailers) are treated as the AI cohort, support a weak lift? Recent Copilot/Claude usage by some OSS projects produces such trailers — a sample of 200&plus; recent OSS repos may already have enough labelled commits to attempt this in 2026.</p>
   </div>
 
   <div id="panel-4" class="tab-content">
