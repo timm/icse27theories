@@ -302,6 +302,17 @@ footer {
 }
 footer a { color: var(--text-dim); }
 
+/* ---- Mermaid diagram container ----
+   Force non-zero dimensions so mermaid measures correctly even
+   when its panel ancestor is initially display:none. */
+.mermaid {
+  min-width: 500px;
+  min-height: 180px;
+  margin: 16px 0;
+  display: block;
+}
+.mermaid svg { max-width: 100%; height: auto; }
+
 /* ---- Fork-me-on-GitHub ribbon (top-right corner) ----
    Strip before double-blind submission: links to non-anonymous repo. */
 .gh-ribbon {

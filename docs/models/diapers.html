@@ -12,10 +12,11 @@
 <script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
-  mermaid.initialize({ startOnLoad: true, theme: "dark",
+  mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: "dark",
     themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
       primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
       lineColor: "#9aa5b1", fontFamily: "ui-monospace, Menlo, monospace" } });
+  document.addEventListener("DOMContentLoaded", () => mermaid.run());
 </script>
 </head>
 <body>
