@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Merton's Matthew effect — &quot;to him that hath shall be given&quot; — describes how attention concentrates on entities that already have it. In software, well-known modules attract more PRs, more reviews, more test coverage; obscure modules atrophy. The dynamic is generative: small initial differences compound.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1067" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1090" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
     <p class="dim"><em>Intuition</em>: A repo with one famous module and 50 obscure ones will see all its PRs land on the famous module. The obscure modules rot. After a year, the famous one is 10x its old size, the obscure ones unchanged. Compound interest in attention.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Coverage at <code>tmax</code>.</strong></p>
@@ -126,7 +126,7 @@
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -1100.00</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 35/200 CONFIRM, params 197/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 47/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     
   </div>

@@ -85,11 +85,29 @@ def verdict(desc, y0, y1, expect='down'):
        'REFUTE'  if signed < -thresh else 'neutral')
   return {'verdict': v, 'y0': y0, 'y1': y1, 'gap': y1 - y0, 'desc': desc}
 
+# --- Distribution sampler --------------------------------------------------
+
+def sample(rng, default, lo, hi, dist='triangular'):
+  """Draw one value from [lo, hi]. dist='triangular' peaks at default
+  (author's prior); dist='uniform' is equal weight across [lo, hi]
+  (adversarial sweep). Degenerate edges (default==lo or default==hi)
+  collapse the triangular into a half-triangle automatically."""
+  if dist == 'uniform':
+    return rng.uniform(lo, hi)
+  if dist == 'triangular':
+    # random.triangular(low, high, mode); requires lo <= default <= hi
+    mode = max(lo, min(hi, default))
+    return rng.triangular(lo, hi, mode)
+  raise ValueError(f"unknown dist: {dist}")
+
+
 # --- Optimizer (with narrow search to prevent boundary-cheating) ------------
 
-def opt(model_factory, init=None, n=1000, seed=1, dt=1, tmax=20, narrow=0.6):
+def opt(model_factory, init=None, n=1000, seed=1, dt=1, tmax=20, narrow=0.6,
+        dist='triangular'):
   """Sample n random starts. narrow shrinks the sample range to a centered
-  fraction of [lo,hi] (e.g. narrow=0.6 -> middle 60%).
+  fraction of [lo,hi] (e.g. narrow=0.6 -> middle 60%). dist picks the
+  sampler ('triangular' peaks at default; 'uniform' equal weight).
   Returns dict(init=tightened_ranges, best=(score, params), top=[...])."""
   m = model_factory()
   init0 = m.init if init is None else init
@@ -97,10 +115,12 @@ def opt(model_factory, init=None, n=1000, seed=1, dt=1, tmax=20, narrow=0.6):
   rows = []
   for _ in range(n):
     init1 = {}
-    for k, (_, lo, hi) in init0.items():
+    for k, (default, lo, hi) in init0.items():
       mid = (lo + hi) / 2
       half = (hi - lo) / 2 * narrow
-      init1[k] = [rng.uniform(mid - half, mid + half), lo, hi]
+      lo_n = max(lo, mid - half)
+      hi_n = min(hi, mid + half)
+      init1[k] = [sample(rng, default, lo_n, hi_n, dist), lo, hi]
     out = run(init1, m.step, dt, tmax)
     rows.append((m.y(out), {k: init1[k][0] for k in init1}))
   rows.sort(key=lambda r: -r[0])
@@ -113,12 +133,15 @@ def opt(model_factory, init=None, n=1000, seed=1, dt=1, tmax=20, narrow=0.6):
 
 # --- Unified stress: target = inputs | params | all -------------------------
 
-def stress(model_factory, target='all', n=500, seed=1):
+def stress(model_factory, target='all', n=500, seed=1, dist='triangular'):
   """Sample n random backgrounds. target picks which vars to perturb:
     'inputs' : UPPER-cased only
     'params' : lower-cased only (excludes ctrl)
     'all'    : everything except ctrl
-  Returns dict(counts={CONFIRM/REFUTE/neutral counts}, refuters=[...])."""
+  dist='triangular' (default) weights samples near the author's
+  declared default; dist='uniform' is adversarial equal-weight across
+  [lo, hi]. Returns dict(counts={CONFIRM/REFUTE/neutral counts},
+  refuters=[...])."""
   m = model_factory()
   rng = random.Random(seed)
   counts = {'CONFIRM': 0, 'REFUTE': 0, 'neutral': 0}
@@ -133,9 +156,9 @@ def stress(model_factory, target='all', n=500, seed=1):
 
   for _ in range(n):
     bg = {k: list(v) for k, v in m.init.items()}
-    for k, (_, lo, hi) in m.init.items():
+    for k, (default, lo, hi) in m.init.items():
       if perturb(k):
-        bg[k] = [rng.uniform(lo, hi), lo, hi]
+        bg[k] = [sample(rng, default, lo, hi, dist), lo, hi]
     r = m.rq(bg)
     counts[r['verdict']] += 1
     if r['verdict'] == 'REFUTE':

@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Raymond's bazaar argument — &quot;given enough eyeballs, all bugs are shallow&quot; — became Linus's law in popular framing. Mockus-Fielding-Herbsleb's empirical study of Apache and Mozilla put a peer-reviewed footing under the claim: code reviewed by multiple committers had measurably lower defect recurrence.</p>
-    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L881" target="_blank" rel="noopener"><code>paper/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
+    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L904" target="_blank" rel="noopener"><code>paper/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
     <p class="dim"><em>Intuition</em>: Five reviewers means a high chance any given bug pattern is recognised. One reviewer means the bug recurs in a sister module. Doubling reviewers doesn't halve recurrence, but the gradient is real.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Reviewed minus 3·Recurring at <code>tmax</code>.</strong></p>
@@ -124,7 +124,7 @@
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -10.48</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 107/200 CONFIRM, params 200/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 111/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     
   </div>

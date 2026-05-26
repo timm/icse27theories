@@ -146,7 +146,7 @@ out &lt;- data.table(project       = &quot;helix&quot;,
                   total_leaked  = sum(phases$leaked,    na.rm = TRUE),
                   n_phases      = nrow(phases),
                   seed          = seed)
-fwrite(out, &quot;../outputs/lift_defmap_helix.csv&quot;)
+fwrite(out, &quot;../../paper/outputs/lift_defmap_helix.csv&quot;)
 kable(out)</code></pre>
   </div>
 
@@ -179,7 +179,7 @@ kable(out)</code></pre>
 <tr><td><code>mr_bound_consist</code></td><td><span class="bad">FAIL</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="dim">SKIP</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -100.00</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 147/200 CONFIRM, params 163/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 156/200 CONFIRM, params 163/200)</span></td></tr>
 </tbody></table>
     <p>All 8 structural tests PASS. Cell typology is robust (universal).</p>
   </div>

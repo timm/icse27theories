@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1006" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1029" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
     <p class="dim"><em>Intuition</em>: An issue tracker that doubles its open count every quarter is one where intake outpaces output. Every team manager has lived this. The only defences are caps on intake (WIP limit) or boosts to outflow (more devs, faster cycle).</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Done minus 10% of Backlog at <code>tmax</code>.</strong></p>
@@ -120,7 +120,7 @@
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -20.00</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 17/200 CONFIRM, params 23/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 25/200 CONFIRM, params 28/200)</span></td></tr>
 </tbody></table>
     
   </div>

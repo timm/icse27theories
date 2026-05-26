@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>MacCormack, Baldwin, and Rusnak operationalised Conway's law as a measurable mirror coefficient: the agreement between the design-structure-matrix of the code (who-calls-who) and the design-structure-matrix of the organisation (who-talks-to-who). Their finding: high mirror predicts cleaner modular boundaries and lower defect density.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L904" target="_blank" rel="noopener"><code>paper/sd.py:mirroring</code></a> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L927" target="_blank" rel="noopener"><code>paper/sd.py:mirroring</code></a> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.</p>
     <p class="dim"><em>Intuition</em>: If your repo has 20 modules and 5 teams, the cleanest world is 4 modules per team. Half a module owned by two teams means every change there is a coordination event — and coordination events break things.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -124,7 +124,7 @@
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -88.00</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 89/200 CONFIRM, params 200/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 121/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     
   </div>

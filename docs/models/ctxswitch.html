@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Meyer-Fritz-Murphy-Zimmermann surveyed developers about productivity and found that high task-switching is one of the most cited frustrations. Weinberg's Quality Software Management put a similar argument structurally: every context switch costs ramp-up time, and the cost scales with the diversity of work pulled.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1026" target="_blank" rel="noopener"><code>paper/sd.py:ctxswitch</code></a> takes Devs, work_per_dev, and diversity (number of distinct modules a typical dev touches per period). Effective throughput per dev = work_per_dev / (1 + 0.4·(diversity − 1)). The controlled lever is diversity.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1049" target="_blank" rel="noopener"><code>paper/sd.py:ctxswitch</code></a> takes Devs, work_per_dev, and diversity (number of distinct modules a typical dev touches per period). Effective throughput per dev = work_per_dev / (1 + 0.4·(diversity − 1)). The controlled lever is diversity.</p>
     <p class="dim"><em>Intuition</em>: A dev touching 8 modules per day spends a third of their time on remembering where they were. A dev touching 2 modules per day spends ~5%. The 0.4 coefficient in the model is Weinberg's rough estimate.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Done at <code>tmax</code>.</strong></p>
@@ -121,7 +121,7 @@
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -902.26</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 87/200 CONFIRM, params 200/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 156/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     
   </div>

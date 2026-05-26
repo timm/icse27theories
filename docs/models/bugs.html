@@ -182,7 +182,7 @@ out &lt;- data.table(
   span_days       = span_days,
   seed            = seed
 )
-fwrite(out, &quot;../outputs/lift_bugs_helix.csv&quot;)
+fwrite(out, &quot;../../paper/outputs/lift_bugs_helix.csv&quot;)
 kable(out)</code></pre>
   </div>
 
@@ -217,7 +217,7 @@ kable(out)</code></pre>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap +38.06</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 64/200 CONFIRM, params 200/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 130/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>note</span>The <code>mr_scale</code> test PASSES — and that PASS IS the rq() thesis. The integral is linear in Latent, so doubling Latent doubles Fixed by construction. The test catches the linearity, which is the point of the model.</div>
   </div>
@@ -274,7 +274,7 @@ kable(out)</code></pre>
 <tr><td>airflow</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
 <tr><td>ambari</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
 <tr><td>camel</td><td class="num mono">177.60</td><td><span class="dim">-</span></td></tr>
-<tr><td>helix</td><td class="num mono">244.80</td><td><span class="dim">-</span></td></tr>
+<tr><td>helix</td><td class="num mono">244.8</td><td><span class="dim">-</span></td></tr>
 <tr><td>junit5</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>
 <tr><td>kaiaulu</td><td class="num mono">26.40</td><td><span class="dim">-</span></td></tr>
 <tr><td>openssl</td><td class="num mono">—</td><td><span class="dim">-</span></td></tr>

@@ -144,7 +144,7 @@ out &lt;- data.table(project       = &quot;helix&quot;,
                   n_tags        = m$n_tags,
                   span_days     = m$span_days,
                   seed          = seed)
-fwrite(out, &quot;../outputs/lift_dora_helix.csv&quot;)
+fwrite(out, &quot;../../paper/outputs/lift_dora_helix.csv&quot;)
 kable(out)</code></pre>
   </div>
 
@@ -179,7 +179,7 @@ kable(out)</code></pre>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -45.35</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 183/200 CONFIRM, params 200/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 200/200 CONFIRM, params 200/200)</span></td></tr>
 </tbody></table>
     <p>All structural tests PASS. The 4-parameter model holds up under stress.</p>
   </div>

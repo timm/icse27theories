@@ -186,7 +186,7 @@ out &lt;- data.table(
   modules           = paste(unique(pat_dt$module), collapse = &quot;,&quot;),
   seed              = seed
 )
-fwrite(out, &quot;../outputs/lift_archpat_helix.csv&quot;)
+fwrite(out, &quot;../../paper/outputs/lift_archpat_helix.csv&quot;)
 kable(out)</code></pre>
   </div>
 
@@ -222,7 +222,7 @@ kable(out)</code></pre>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap +228.69</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 66/200 CONFIRM, params 89/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 129/200 CONFIRM, params 122/200)</span></td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>boundary violations</span>archpat.Legacy_n hi=200 is exceeded on both lifted projects: Helix 384, Ambari 1890. archpat.Patterned_n hi=200 also exceeded on Ambari (381). The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files in each partition.</div>
   </div>

@@ -178,7 +178,7 @@ out &lt;- data.table(
   largest_cluster  = rs$cluster_sizes[1],
   seed             = seed
 )
-fwrite(out, &quot;../outputs/lift_congruence_helix.csv&quot;)
+fwrite(out, &quot;../../paper/outputs/lift_congruence_helix.csv&quot;)
 kable(out)</code></pre>
   </div>
 
@@ -213,7 +213,7 @@ kable(out)</code></pre>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>rq() verdict</code></td><td><span class="ok">CONFIRM</span> &middot; gap -314.85</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 180/200 CONFIRM, params 169/200)</span></td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 196/200 CONFIRM, params 196/200)</span></td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>boundary violation on tomcat</span>congruence.Brokers hi=20 and Clusters hi=20 are BOTH exceeded by tomcat (39 brokers, 33 clusters in its dev mailing list). The model's bound assumes a moderate project; tomcat's mbox has 232k messages and the graph is much larger.</div>
   </div>
