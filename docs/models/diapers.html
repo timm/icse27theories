@@ -71,8 +71,8 @@
     <p>Two stocks (clean <code>C</code>, dirty <code>D</code>) coupled by flow <code>r</code>. External flow <code>q</code> refills <code>C</code>; external flow <code>s</code> drains <code>D</code>. Both <code>q</code> and <code>s</code> fire only on Saturdays.</p>
     <div class="mermaid">
 flowchart LR
-  q([q: clean inflow]) -->|Saturday: 70| C[/"C — clean stock<br/>init 100"/]
-  C -->|r = 8 / day| D[/"D — dirty stock<br/>init 0"/]
+  q([q: clean inflow]) -->|Saturday: 70| C[C clean stock, init 100]
+  C -->|r = 8 / day| D[D dirty stock, init 0]
   D -->|s: Saturday drain| s([s: laundry outflow])
   classDef stock fill:#1a1f26,stroke:#5fb3b3,color:#e6e6e6;
   classDef flow fill:#2a2f36,stroke:#9aa5b1,color:#e6e6e6;

@@ -1,0 +1,101 @@
+name: diapers
+year: 2016
+cell: process-conditional
+cite_short: "Toy demonstrator (no real-world referent)."
+manual: true
+
+intro1: >-
+  Smallest non-trivial SD model. Two stocks, three flows, one weekly event,
+  one fault. Models a household's diaper logistics: clean diapers arrive in
+  batches, get consumed daily, dirty ones pile up until laundry day clears
+  them — unless laundry day is forgotten.
+intro2: >-
+  Diapers is the canary. If the framework cannot integrate two coupled
+  stocks under an event-driven flow schedule, no richer model will run
+  either. The V&V suite hits diapers first; green here means the harness
+  is healthy.
+intuition: >-
+  Clean stock <code>C</code> drains at constant rate <code>r=8</code>
+  per day (one per child-event), is refilled by <code>q=70</code> every
+  Saturday (big-box restock), and dirty stock <code>D</code> accumulates
+  from the same <code>r</code> outflow, draining via <code>s</code>
+  (washing) only on Saturdays — except on day 27, when laundry was
+  forgotten and <code>s=0</code> regardless.
+
+y_text: "Final dirty-stock level <code>D(tmax)</code>."
+y_para: >-
+  A healthy schedule lands <code>D</code> near zero each week. A missed
+  laundry day spikes <code>D</code> by a full week's accumulation. The
+  success measure is therefore both a level and an alarm.
+
+rq_text: "Skipping one laundry day leaves persistent residue."
+rq_para: >-
+  Verdict mechanics: compare <code>D(tmax)</code> with and without the
+  day-27 forget. Model produces a CONFIRM verdict because the missed clear
+  is never recovered — subsequent Saturdays only drain that Saturday's
+  accumulation. A forgotten event causes durable system drift.
+
+cell_para: >-
+  Diapers sits in <span class='warn'>process-conditional</span>: robust
+  to input perturbation (initial <code>C</code>/<code>D</code> levels
+  wash out within one week), fragile to parameter perturbation (changing
+  <code>q</code> or the saturday cadence breaks the residue verdict).
+
+mermaid: |
+  flowchart LR
+    q([q: clean inflow]) -->|Saturday: 70| C[/"C — clean stock<br/>init 100"/]
+    C -->|r = 8 / day| D[/"D — dirty stock<br/>init 0"/]
+    D -->|s: Saturday drain| s([s: laundry outflow])
+    classDef stock fill:#1a1f26,stroke:#5fb3b3,color:#e6e6e6;
+    classDef flow fill:#2a2f36,stroke:#9aa5b1,color:#e6e6e6;
+    class C,D stock;
+    class q,s flow;
+
+code_commented: |
+  class Diapers(Model):
+
+    def have(i):
+      # Two stocks: C (clean), D (dirty). Three flows: q (in), r (C->D), s (out).
+      return o(C = S(100), D = S(0),
+               q = F(0),   r = F(8), s = F(0))
+
+    def step(i, dt, t, u, v):
+      # Saturday = day index 6 mod 7. Laundry day.
+      def saturday(x): return int(x) % 7 == 6
+
+      # Stock updates from current flows (Euler integration).
+      v.C +=  dt * (u.q - u.r)        # clean fills on q, drains on r
+      v.D +=  dt * (u.r - u.s)        # dirty fills on r, drains on s
+
+      # Flow updates: weekly refresh and weekly clear.
+      v.q  =  70  if saturday(t) else 0     # restock every Sat
+      v.s  =  u.D if saturday(t) else 0     # full drain every Sat
+
+      # The fault: we forgot laundry on day 27. s stays 0.
+      if t == 27:
+        v.s = 0
+
+lift_intro: |
+  Not lifted. Diapers has no project data analogue — its stocks are
+  abstract. By design it is the canary: if the V&V engine runs against
+  diapers, the engine is alive.
+
+sanity: "N/A. Diapers is the framework canary, not an empirical hypothesis."
+
+results_intro: >-
+  Diapers does not produce empirical findings. Its role is purely to
+  confirm that the framework's V&V machinery executes correctly.
+results_discussion: >-
+  If diapers fails the 9-test bank, debugging starts with the engine
+  (run, verdict, opt, stress) rather than with any specific model.
+implications:
+  - "Diapers is a contract test — its continued PASS-PASS-...-PASS pattern means the framework still works."
+  - "Two known FAIL cells (mr_scale, mr_dt_halving) are diagnostic, not problematic — they document where the toy fails to mirror physical SD behaviour."
+
+refs:
+  - cite: "Forrester, J. W. (1961). Industrial Dynamics. MIT Press."
+    url: https://mitpress.mit.edu/9780262560436/industrial-dynamics/
+    kind: book
+  - cite: "Forrester, J. W., & Senge, P. M. (1980). Tests for building confidence in system dynamics models. TIMS Studies in the Management Sciences 14:209–228."
+    url: https://web.mit.edu/jsterman/www/Forrester_Senge_1980_Tests.pdf
+    kind: peer-reviewed

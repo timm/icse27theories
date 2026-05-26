@@ -123,17 +123,21 @@
   </p>
   <div class="mermaid">
 flowchart LR
-  hire([hires]) --> N[/"New<br/>new hires"/]
-  N -->|train_rate| V[/"Vet<br/>veterans"/]
-  Todo[/"Todo<br/>backlog"/] -->|velocity Vet| Done[/"Done<br/>delivered"/]
-  Todo -->|velocity New| Done
-  V -.->|comm-pair tax| V
+  hire([hires]) --> N[New hires]
+  N -->|train_rate| V[Veterans]
+  Todo[Backlog] -->|Vet velocity| Done[Delivered]
+  Todo -->|New velocity| Done
   N -.->|training tax| V
   classDef stock fill:#1a1f26,stroke:#5fb3b3,color:#e6e6e6;
   classDef flow fill:#2a2f36,stroke:#9aa5b1,color:#e6e6e6;
   class V,N,Todo,Done stock;
   class hire flow;
   </div>
+  <p class="dim" style="font-size:12px;">
+    Communication-pair tax (quadratic in Vet) and training tax (linear
+    in New) both reduce Vet velocity — modelled in the equations below,
+    suppressed from the diagram for legibility.
+  </p>
 
   <h2>The SD model</h2>
   <p>
