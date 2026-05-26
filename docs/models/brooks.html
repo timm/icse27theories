@@ -10,6 +10,13 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
 <script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "dark",
+    themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
+      primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
+      lineColor: "#9aa5b1", fontFamily: "ui-monospace, Menlo, monospace" } });
+</script>
 </head>
 <body>
 
@@ -106,6 +113,27 @@
 
   <!-- ============ PANE 2: MODEL CODE ============ -->
   <div id="panel-2" class="tab-content">
+
+  <h2>Stock-and-flow diagram</h2>
+  <p>
+    Two productive stocks (<code>Vet</code>, <code>New</code>) draw work
+    from <code>Todo</code> into <code>Done</code>. The <em>brooks tax</em>
+    is the velocity reduction on <code>Vet</code> caused by communication
+    pairs &amp; training cost when <code>New &gt; 0</code>.
+  </p>
+  <div class="mermaid">
+flowchart LR
+  hire([hires]) --> N[/"New<br/>new hires"/]
+  N -->|train_rate| V[/"Vet<br/>veterans"/]
+  Todo[/"Todo<br/>backlog"/] -->|velocity Vet| Done[/"Done<br/>delivered"/]
+  Todo -->|velocity New| Done
+  V -.->|comm-pair tax| V
+  N -.->|training tax| V
+  classDef stock fill:#1a1f26,stroke:#5fb3b3,color:#e6e6e6;
+  classDef flow fill:#2a2f36,stroke:#9aa5b1,color:#e6e6e6;
+  class V,N,Todo,Done stock;
+  class hire flow;
+  </div>
 
   <h2>The SD model</h2>
   <p>
@@ -621,6 +649,19 @@ compute_velocity_changes <- function(project_git, late_hires,
 
   </div>
 </div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/mythical-man-month-the-essays-on-software-engineering-anniversary-edition/P200000009240" target="_blank" rel="noopener">Brooks, F. P. (1975, 1995). <em>The Mythical Man-Month</em>. Addison-Wesley.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/360248.360252" target="_blank" rel="noopener">Brooks, F. P. (1987). No Silver Bullet: Essence and Accidents of Software Engineering. <em>IEEE Computer</em> 20(4):10–19.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1287624.1287654" target="_blank" rel="noopener">Mockus, A. (2010). Organizational volatility and its effects on software defects. <em>FSE 2010</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1985793.1985860" target="_blank" rel="noopener">Bird, C. et al. (2011). Don't touch my code! Examining the effects of ownership on software quality. <em>ESEC/FSE 2011</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://web.mit.edu/jsterman/www/Forrester_Senge_1980_Tests.pdf" target="_blank" rel="noopener">Forrester, J. W., &amp; Senge, P. M. (1980). Tests for building confidence in system dynamics models. <em>TIMS Studies in the Management Sciences</em> 14:209–228.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+</p>
 
 </main>
 
