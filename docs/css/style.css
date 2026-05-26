@@ -1,14 +1,17 @@
 /* icse27theories — dark, sharp, professional */
 
 :root {
-  --bg:         #0a0d12;
-  --bg-elev:   #11151c;
-  --bg-elev2:  #161b22;
-  --border:    #232a35;
-  --border-strong: #3a4452;
-  --text:      #d6dde6;
-  --text-dim:  #8b949e;
-  --text-faint:#5b6573;
+  /* Lighter page bg + DARKER cards = "black on slate" pop.
+     Pre-2026-05: bg #0a0d12 / cards #11151c (cards lighter than bg).
+     Now:        bg #1a1f29 / cards #0a0d12 (cards darker than bg). */
+  --bg:         #1a1f29;
+  --bg-elev:   #0a0d12;
+  --bg-elev2:  #11151c;
+  --border:    #2d3441;
+  --border-strong: #4a5364;
+  --text:      #e2e8f0;
+  --text-dim:  #a8b1bc;    /* was #8b949e — bump for readability */
+  --text-faint:#8a94a1;    /* was #5b6573 — bigger bump; faint text now passes WCAG AA on bg */
   --accent:    #6aa6ff;
   --accent-dim:#3e7cc7;
   --good:      #7ee787;
