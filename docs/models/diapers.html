@@ -10,8 +10,8 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
 <script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
   mermaid.initialize({ startOnLoad: true, theme: "dark",
     themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
       primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
@@ -95,7 +95,7 @@ flowchart LR
     </ul>
 
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a></a>. <code>S(x)</code> builds a Stock at level <code>x</code>; <code>F(x)</code> builds a Flow at rate <code>x</code>; <code>o(...)</code> packs a namedtuple-like state.</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>. <code>S(x)</code> builds a Stock at level <code>x</code>; <code>F(x)</code> builds a Flow at rate <code>x</code>; <code>o(...)</code> packs a namedtuple-like state.</p>
     <pre><code class="language-python">class Diapers(Model):
 
   def have(i):

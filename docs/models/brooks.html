@@ -10,8 +10,8 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
 <script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
   mermaid.initialize({ startOnLoad: true, theme: "dark",
     themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
       primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
@@ -123,11 +123,11 @@
   </p>
   <div class="mermaid">
 flowchart LR
-  hire([hires]) --> N[New hires]
-  N -->|train_rate| V[Veterans]
-  Todo[Backlog] -->|Vet velocity| Done[Delivered]
-  Todo -->|New velocity| Done
-  N -.->|training tax| V
+  hire[hires] --> N[New hires]
+  N -->|matures at train_rate| V[Veterans]
+  Todo[Backlog] --> Done[Delivered]
+  V -.-> Todo
+  N -.-> Todo
   classDef stock fill:#1a1f26,stroke:#5fb3b3,color:#e6e6e6;
   classDef flow fill:#2a2f36,stroke:#9aa5b1,color:#e6e6e6;
   class V,N,Todo,Done stock;
@@ -141,7 +141,7 @@ flowchart LR
 
   <h2>The SD model</h2>
   <p>
-    From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a></a>, annotated. Every executable line
+    From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>, annotated. Every executable line
     carries a comment.
   </p>
 

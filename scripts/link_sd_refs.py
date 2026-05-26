@@ -35,16 +35,19 @@ def link_for(name=None):
     return GH_BASE
 
 
+UNWRAP = re.compile(
+    r'<a class="src-link"[^>]*>\s*(<code>models/sd\.py(?::\w+)?</code>)\s*</a>')
+
+
 def linkify(html: str) -> str:
-    # already-wrapped fragments: leave alone.
+    # Strip any prior wrappers (possibly nested) so the pass is idempotent.
+    while True:
+        new = UNWRAP.sub(r"\1", html)
+        if new == html:
+            break
+        html = new
+
     def wrap(m):
-        full = m.group(0)
-        if "<a " in m.group(0):
-            return full
-        prev_idx = m.start()
-        # don't double-wrap if preceded by <a ...>
-        if html[max(0, prev_idx-20):prev_idx].rfind("<a ") > html[max(0, prev_idx-20):prev_idx].rfind("</a>"):
-            return full
         name = m.group(1)
         href = link_for(name)
         if name:
