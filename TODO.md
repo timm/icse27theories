@@ -26,11 +26,11 @@ Snapshot 2026-05-25. Repo `github.com/timm/icse27theories` @ `main`.
 ## DONE
 
 ### Framework
-- 18 SD models in `models/sd.py` (added `congruence` as #18 — Newman
-  broker-loss thesis, lands in "universal" cell).
-- `models/tests.py` 9-test V&V bank intact.
-- `outputs/full_audit.csv` — 18 models × stress matrix + 8-test bank
-  (~91% PASS overall).
+- 33 SD models in `paper/sd.py` (was 17 → +1 congruence on 2026-05-24
+  → +15 buildable-today on 2026-05-25).
+- `paper/tests.py` 9-test V&V bank intact.
+- `paper/outputs/full_audit.csv` — 33 models × stress matrix + 8-test
+  bank (~91% PASS overall on the 18 original; new 15 mostly clean).
 
 ### Lifts (10 informable models × 8 projects, ~63 CSVs in `outputs/`)
 - Helix: 10/10 informable lifted (brooks, brooksq, bugs, debt,

@@ -12,11 +12,16 @@ We don't do data collection; we triage what's worth collecting.
 
 ## Where things stand
 
-**SD framework** — 17 models implemented as Model(init,step,y,rq,ctrl)
-namedtuples in `models/sd.py`. 9-test bank in `models/tests.py`. Stress
+**SD framework** — 33 models implemented as Model(init,step,y,rq,ctrl)
+namedtuples in `paper/sd.py`. 9-test bank in `paper/tests.py`. Stress
 matrix classifies each model into universal / process-conditional /
-world-conditional / fragile. Currently aidebt sits in process-conditional
-(live empirical debate); archpat sits in fragile. Run time ~1.5s on all 17.
+world-conditional / fragile. Counts: 14 universal · 12 process-cond ·
+4 fragile · 3 world-cond. Run time ~3 s on all 33 (was 1.5 s on 18).
+History: started at 18 (original Sterman/Forrester catalogue). Added
+15 more on 2026-05-25 from the buildable-today candidates in
+`docs/other.html` (ownership, mirroring, pareto, ossfail, ctxswitch,
+limits, orgchurn, costchange, scope, deprot, linus, entropy, little,
+coordn2, successful).
 
 **Helix data extract** — git_repo (1875+ commits), JIRA (797 issues
 fully extracted), GitHub commits/issues/PRs, 116 mbox files from
@@ -33,11 +38,17 @@ and the two largest clusters (via mahadev and nehzgnahz).
 R/metric.R, R/src.R, R/identity.R, R/smells.R from the uploaded k.zip.
 Definitive parser schemas + known bugs in `kaiaulu_notes/`.
 
-## Feasibility verdict for the 17 models
+## Feasibility verdict (original 18-model catalogue)
 With kaiaulu + 3 open tools (RefactoringMiner, PyDriller-or-SZZ-Unleashed,
-Arcan): **10 of 17 models become fully informable on Helix**, 7 stay
-not informable because the data sources don't exist in any open
-repository. Full table in `feasibility/scorecard.md`.
+Arcan): **10 of 18 are lifted on Helix**, 7 dark because the data
+sources don't exist in any open repository, 1 toy (diapers).
+Full table in `feasibility/scorecard.md`.
+
+The 15 newer models added 2026-05-25 ship as "pipeline-ready":
+SD model defined + V&V cell classified + lift recipe documented, but
+the per-project lift run has not been executed yet. Each pipeline-ready
+model has an attribute table + tools list in its docs/models/&lt;name&gt;.html
+page. See `paper/MODELS_README.md` for the per-model lift-status table.
 
 ## Active blockers — none in our way
 
@@ -119,8 +130,10 @@ data/
 
 ## Update 2026-05-24 → 2026-05-25 (Claude Code session)
 
-**Framework: 18 models** (was 17 — added `congruence` for
-broker-loss → fragmentation thesis, lands in "universal" 2×2 cell).
+**Framework: 33 models** (was 17 → +1 congruence on 2026-05-24 → +15
+buildable-today on 2026-05-25). 14 universal · 12 process-cond ·
+4 fragile · 3 world-cond. See `paper/MODELS_READme.md` for the full
+table.
 
 **Projects lifted: 8 of 8 from Carlos's Drive bundle** (Helix,
 junit5, Ambari, kaiaulu, airflow, openssl, tomcat, camel). Coverage:
