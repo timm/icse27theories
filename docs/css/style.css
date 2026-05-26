@@ -179,10 +179,11 @@ th {
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td.mono { font-family: "JetBrains Mono", "SF Mono", monospace; font-size: 13px; }
 
-.ok   { color: var(--good); }
-.warn { color: var(--warn); }
-.bad  { color: var(--bad); }
-.dim  { color: var(--text-faint); }
+.ok    { color: var(--good); }
+.warn  { color: var(--warn); }
+.bad   { color: var(--bad); }
+.dim   { color: var(--text-faint); }
+.world { color: var(--accent); }
 
 /* ---- Code blocks ---- */
 
