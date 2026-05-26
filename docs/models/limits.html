@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Senge's limits-to-growth archetype is a classic SD pattern: an effort that initially produces linear gains hits a saturating constraint and produces diminishing returns. In software, throughput saturates as team size grows because coordination overhead bites (a complement to coordn2 from a different direction).</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1131" target="_blank" rel="noopener"><code>paper/sd.py:limits</code></a> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1441" target="_blank" rel="noopener"><code>paper/sd.py:limits</code></a> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.</p>
     <p class="dim"><em>Intuition</em>: A team of 10 with cap=200 sits below the knee — adding people helps. A team of 30 with cap=200 sits above the knee — adding people barely moves the needle. The cap is the project's structural ceiling.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Done at <code>tmax</code>.</strong></p>
@@ -66,23 +66,44 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def limits():
-  &quot;&quot;&quot;Senge limits-to-growth: throughput rises with team size but
-  saturates as coordination overhead bites.
-  RQ: doubling team near asymptote yields diminishing returns.&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[10,1,500], &#x27;Done&#x27;:[0,0,1e5],
-          &#x27;k_per_dev&#x27;:[10,0,100], &#x27;cap&#x27;:[200,10,1000]}
+  &quot;&quot;&quot;Senge (1990) &quot;The Fifth Discipline&quot; limits-to-growth archetype.
+  Effort produces linear gains until a saturating constraint bites
+  (coordination overhead, infra capacity, market). Past the knee,
+  doubling input yields diminishing returns.
+
+  Stocks (UPPER):
+    Devs : team size (held constant per run)
+    Done : cumulative delivered work
+  Params (lower):
+    k_per_dev : raw productivity coefficient (items/dev/tick)
+    cap       : structural ceiling on per-tick output (hyperbolic saturation)
+
+  Thesis: doubling Devs near cap (30 -&gt; 60) yields LESS than 2x Done.
+  Tested with expect=&#x27;up&#x27; — if the model is right we expect SOME
+  gain, but the verdict checks the gap is smaller than linear.&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[10,1,500],            # *** ctrl ***; 10 devs default
+          &#x27;Done&#x27;:[0,0,1e5],             # nothing delivered yet
+          &#x27;k_per_dev&#x27;:[10,0,100],       # 10 items/dev/tick raw
+          &#x27;cap&#x27;:[200,10,1000]}          # saturate at 200 items/tick
+
   def step(dt, t, u, v):
+    # Raw demand: linear in team size.
     raw = u.Devs * u.k_per_dev
+    # Hyperbolic saturation: eff = raw / (1 + raw/cap).
+    # Below knee (raw &lt;&lt; cap) eff ~ raw. Near cap, eff ~ cap.
     eff = raw / (1 + raw / max(1, u.cap))
     v.Done = u.Done + dt * eff
     for p in (&#x27;Devs&#x27;,&#x27;k_per_dev&#x27;,&#x27;cap&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done
+
+  def y(out): return out[-1][1].Done   # reward total Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;doubling Devs near cap yields diminishing returns&quot;,
-                   y(run({**bi, &#x27;Devs&#x27;:[30,1,500]}, step)),
-                   y(run({**bi, &#x27;Devs&#x27;:[60,1,500]}, step)), &#x27;up&#x27;)
+                   y(run({**bi, &#x27;Devs&#x27;:[30,1,500]}, step)),    # near knee
+                   y(run({**bi, &#x27;Devs&#x27;:[60,1,500]}, step)),    # past knee
+                   &#x27;up&#x27;)                                       # expect up but small
   return Model(init, step, y, rq, &#x27;Devs&#x27;)
 </code></pre>
   </div>

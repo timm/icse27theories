@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Raymond's bazaar argument — &quot;given enough eyeballs, all bugs are shallow&quot; — became Linus's law in popular framing. Mockus-Fielding-Herbsleb's empirical study of Apache and Mozilla put a peer-reviewed footing under the claim: code reviewed by multiple committers had measurably lower defect recurrence.</p>
-    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L966" target="_blank" rel="noopener"><code>paper/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
+    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1080" target="_blank" rel="noopener"><code>paper/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
     <p class="dim"><em>Intuition</em>: Five reviewers means a high chance any given bug pattern is recognised. One reviewer means the bug recurs in a sister module. Doubling reviewers doesn't halve recurrence, but the gradient is real.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Reviewed minus 3·Recurring at <code>tmax</code>.</strong></p>
@@ -66,25 +66,50 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def linus():
-  &quot;&quot;&quot;Raymond 1999 + Mockus 2002: &#x27;many eyes&#x27; review reduces defect
-  recurrence. RQ: low review_rate inflates Recurring.&quot;&quot;&quot;
-  init = {&#x27;Open&#x27;:[20,0,500], &#x27;Reviewed&#x27;:[0,0,5000],
-          &#x27;Recurring&#x27;:[0,0,500], &#x27;review_rate&#x27;:[0.4,0,1],
-          &#x27;recur_rate&#x27;:[0.3,0,1]}
+  &quot;&quot;&quot;Raymond (1999) &quot;Cathedral and the Bazaar&quot; + Mockus, Fielding,
+  Herbsleb (2002 ACM TOSEM): &quot;given enough eyeballs, all bugs are
+  shallow&quot; — code reviewed by multiple committers shows lower defect
+  recurrence than single-author code.
+
+  Stocks (UPPER):
+    Open      : unreviewed pull-requests still in the queue
+    Reviewed  : merged PRs that received review attention
+    Recurring : defects that re-appear after fix because review missed
+  Params (lower):
+    review_rate : fraction of Open reviewed per tick (policy)
+    recur_rate  : base re-occurrence probability when review fails
+
+  Thesis: dropping review_rate from 0.6 (every PR reviewed) to 0.1
+  (skim-and-merge) inflates Recurring; net Reviewed - 3*Recurring drops.&quot;&quot;&quot;
+  init = {&#x27;Open&#x27;:[20,0,500],            # 20 PRs awaiting review
+          &#x27;Reviewed&#x27;:[0,0,5000],        # nothing reviewed yet
+          &#x27;Recurring&#x27;:[0,0,500],        # no recurrences yet
+          &#x27;review_rate&#x27;:[0.4,0,1],      # *** ctrl ***; 40% reviewed/tick
+          &#x27;recur_rate&#x27;:[0.3,0,1]}       # 30% base re-occurrence
+
   def step(dt, t, u, v):
+    # Reviewed flow: depends on policy (review_rate) and Open queue size.
     rev = u.Open * u.review_rate
+    # Recurrence: scales with reviewed volume but is mitigated by review
+    # depth (multiplied by 1-review_rate).
     rec = rev * u.recur_rate * (1 - u.review_rate)
+    # Open loses what got reviewed, gains recurrences.
     v.Open      = max(0, u.Open - dt * rev + dt * rec)
-    v.Reviewed  = u.Reviewed + dt * rev
+    v.Reviewed  = u.Reviewed  + dt * rev
     v.Recurring = u.Recurring + dt * rec
     for p in (&#x27;review_rate&#x27;,&#x27;recur_rate&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Reviewed - 3 * out[-1][1].Recurring
+
+  def y(out):
+    # Reward reviewed PRs; heavily penalise recurring defects (3x weight).
+    return out[-1][1].Reviewed - 3 * out[-1][1].Recurring
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;low review_rate inflates recurrence&quot;,
-                   y(run({**bi, &#x27;review_rate&#x27;:[0.6,0,1]}, step)),
-                   y(run({**bi, &#x27;review_rate&#x27;:[0.1,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;review_rate&#x27;:[0.6,0,1]}, step)),    # rigorous
+                   y(run({**bi, &#x27;review_rate&#x27;:[0.1,0,1]}, step)),    # rubber-stamp
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;review_rate&#x27;)
 </code></pre>
   </div>

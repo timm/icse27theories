@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1010" target="_blank" rel="noopener"><code>paper/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1173" target="_blank" rel="noopener"><code>paper/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
     <p class="dim"><em>Intuition</em>: Lose half your senior devs; halve your effective knowledge base; double your defect rate. The model is not quite that linear but the direction is.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -66,22 +66,45 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def orgchurn():
-  &quot;&quot;&quot;Nagappan/Murphy/Basili 2010: org churn (departures) predicts
-  defect bursts. RQ: high churn_rate inflates Bugs.&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[20,1,500], &#x27;Bugs&#x27;:[0,0,5000],
-          &#x27;churn_rate&#x27;:[0.02,0,0.5], &#x27;knowledge&#x27;:[100,0,1000]}
+  &quot;&quot;&quot;Nagappan, Murphy, Basili (2008 ICSE) on Windows Vista:
+  organisational churn (developer departures, team reorgs) is a
+  better predictor of post-release defects than code-churn or
+  complexity. Departures carry tacit knowledge with them; gaps
+  surface as defects.
+
+  Stocks (UPPER):
+    Devs      : active developer count
+    Bugs      : cumulative defect count
+    knowledge : tacit code-context (a stock that depletes on departure)
+  Params (lower):
+    churn_rate : per-tick departure fraction (the world&#x27;s input)
+
+  Thesis: 10x churn_rate spike (0.02 -&gt; 0.20) inflates Bugs because
+  knowledge depletes and bug rate scales inversely with knowledge.&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[20,1,500],            # 20-dev team default
+          &#x27;Bugs&#x27;:[0,0,5000],            # no defects yet
+          &#x27;churn_rate&#x27;:[0.02,0,0.5],    # *** ctrl ***; 2% departure/tick
+          &#x27;knowledge&#x27;:[100,0,1000]}     # 100 units of tacit context
+
   def step(dt, t, u, v):
+    # Departures this tick.
     lost = u.Devs * u.churn_rate
+    # Devs: lose departures, partially backfilled (50% replacement rate).
     v.Devs      = max(1, u.Devs - dt * lost + dt * lost * 0.5)
+    # Knowledge depletes 5 units per departed dev (irreplaceable tacit).
     v.knowledge = max(0, u.knowledge - dt * lost * 5)
+    # Bugs scale INVERSELY with current knowledge (low knowledge -&gt; spike).
     v.Bugs      = u.Bugs + dt * (200 / max(1, u.knowledge)) * 10
     setattr(v, &#x27;churn_rate&#x27;, u.churn_rate)
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;departure spike inflates defect burst&quot;,
-                   y(run({**bi, &#x27;churn_rate&#x27;:[0.02,0,0.5]}, step)),
-                   y(run({**bi, &#x27;churn_rate&#x27;:[0.20,0,0.5]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;churn_rate&#x27;:[0.02,0,0.5]}, step)),  # stable
+                   y(run({**bi, &#x27;churn_rate&#x27;:[0.20,0,0.5]}, step)),  # 10x churn
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;churn_rate&#x27;)
 </code></pre>
   </div>

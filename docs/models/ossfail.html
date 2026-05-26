@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Coelho-Valente surveyed 104 maintainers of dormant or recently-abandoned OSS projects and identified the dominant risk factors: low truck factor (few developers know enough to keep going), maintainer burnout, conflicts, lack of time. Truck factor is the most operationally measurable signal.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1050" target="_blank" rel="noopener"><code>paper/sd.py:ossfail</code></a> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1259" target="_blank" rel="noopener"><code>paper/sd.py:ossfail</code></a> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.</p>
     <p class="dim"><em>Intuition</em>: One person knows the codebase end-to-end. They get tired. The project dies. The math of truck factor 1 vs 5 vs 20 is the math of project survival.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Final Activity level.</strong></p>
@@ -66,22 +66,43 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def ossfail():
-  &quot;&quot;&quot;Coelho &amp; Valente 2017: low truck factor predicts project death.
-  RQ: low truck_factor accelerates Abandonment.&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[5,1,200], &#x27;Activity&#x27;:[100,0,10000],
-          &#x27;truck_factor&#x27;:[2,1,20], &#x27;attrition&#x27;:[0.05,0,0.5]}
+  &quot;&quot;&quot;Coelho &amp; Valente (2017 FSE) &quot;Why modern open source projects
+  fail.&quot; Survey of 104 dormant/abandoned OSS projects: low truck
+  factor (the count of devs whose loss would kill the project) is
+  the strongest operational predictor of project death.
+
+  Stocks (UPPER):
+    Devs         : active developer count
+    Activity     : per-tick development pulse (commits + reviews)
+    truck_factor : minimum-k authors who together own &gt;50% of LOC
+  Params (lower):
+    attrition : background rate at which Activity decays per tick
+
+  Thesis: shrinking truck_factor from 8 (healthy) to 1 (single
+  maintainer) accelerates Activity decay; final Activity drops.&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[5,1,200],             # 5 devs
+          &#x27;Activity&#x27;:[100,0,10000],     # 100 units pulse at t=0
+          &#x27;truck_factor&#x27;:[2,1,20],      # *** ctrl ***; TF=2 default
+          &#x27;attrition&#x27;:[0.05,0,0.5]}     # 5%/tick base attrition
+
   def step(dt, t, u, v):
+    # Bus risk = 1 / truck_factor. TF=1 -&gt; risk 1.0; TF=20 -&gt; risk 0.05.
     bus_risk = 1 / max(1, u.truck_factor)
+    # Effective decay scales with attrition * (1 + bus_risk).
     decay    = u.attrition * (1 + bus_risk)
+    # Activity decays exponentially.
     v.Activity = max(0, u.Activity - dt * u.Activity * decay)
     for p in (&#x27;Devs&#x27;,&#x27;truck_factor&#x27;,&#x27;attrition&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Activity
+
+  def y(out): return out[-1][1].Activity   # reward sustained Activity
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;low truck_factor accelerates abandonment&quot;,
-                   y(run({**bi, &#x27;truck_factor&#x27;:[8,1,20]}, step)),
-                   y(run({**bi, &#x27;truck_factor&#x27;:[1,1,20]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;truck_factor&#x27;:[8,1,20]}, step)),   # healthy
+                   y(run({**bi, &#x27;truck_factor&#x27;:[1,1,20]}, step)),   # one-person
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;truck_factor&#x27;)
 </code></pre>
   </div>

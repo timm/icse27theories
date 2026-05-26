@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Fenton-Ohlsson and Ostrand-Weyuker independently observed that ~20% of modules in large software systems carry ~80% of the defects, and that the hotspot set persists across releases. The empirical regularity has been replicated dozens of times since.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L940" target="_blank" rel="noopener"><code>paper/sd.py:pareto</code></a> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1032" target="_blank" rel="noopener"><code>paper/sd.py:pareto</code></a> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.</p>
     <p class="dim"><em>Intuition</em>: If you have 10 hotspot modules and 90 cold ones, fixing one hotspot kills 10x as many bugs as fixing one cold module. Spreading fix effort uniformly wastes most of it.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -66,28 +66,50 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def pareto():
-  &quot;&quot;&quot;Fenton-Ohlsson / Ostrand-Weyuker: ~20% of modules carry ~80%
-  of defects, and that hotspot set persists across releases.
-  RQ: ignoring hotspots inflates total defect rate.&quot;&quot;&quot;
-  init = {&#x27;Hot&#x27;:[10,0,200], &#x27;Cold&#x27;:[90,0,2000], &#x27;Bugs&#x27;:[0,0,5000],
-          &#x27;hot_bug_rate&#x27;:[0.4,0,2], &#x27;cold_bug_rate&#x27;:[0.02,0,0.5],
-          &#x27;fix_share_hot&#x27;:[0.5,0,1]}
+  &quot;&quot;&quot;Fenton &amp; Ohlsson (2000 IEEE TSE) + Ostrand &amp; Weyuker (2002 ISSTA):
+  ~20% of modules carry ~80% of defects, and that hotspot set persists
+  across releases. Implication: allocate fix effort to hotspots, not
+  uniformly across the codebase.
+
+  Stocks (UPPER):
+    Hot  : hotspot modules (small set, high bug rate)
+    Cold : everything else (large set, low bug rate)
+    Bugs : current outstanding defect count
+  Params (lower):
+    hot_bug_rate   : new bugs per hot module per tick
+    cold_bug_rate  : new bugs per cold module per tick
+    fix_share_hot  : fraction of fix effort sent to hotspots (policy)
+
+  Thesis: dropping fix_share_hot from 0.8 (hotspot-focused) to 0.1
+  (proportional/oblivious) inflates Bugs because hot fixes net 4x
+  more bug-reduction per unit effort than cold fixes.&quot;&quot;&quot;
+  init = {&#x27;Hot&#x27;:[10,0,200],                 # 10 hotspot modules
+          &#x27;Cold&#x27;:[90,0,2000],               # 90 cold modules (20/80 mix)
+          &#x27;Bugs&#x27;:[0,0,5000],                # no outstanding defects yet
+          &#x27;hot_bug_rate&#x27;:[0.4,0,2],         # hot module: 0.4 bugs/tick
+          &#x27;cold_bug_rate&#x27;:[0.02,0,0.5],     # cold module: 0.02 bugs/tick
+          &#x27;fix_share_hot&#x27;:[0.5,0,1]}        # *** ctrl ***; 50% effort to hot
+
   def step(dt, t, u, v):
+    # Inflow: bug generation per module class.
     new_hot  = u.Hot  * u.hot_bug_rate
     new_cold = u.Cold * u.cold_bug_rate
-    # Hotspot fixes net more bug-reduction per unit effort (the whole
-    # point of Pareto): a hot fix removes 4x more bugs than a cold fix.
+    # Outflow: hot fixes are 4x more effective per unit effort (whole
+    # point of Pareto allocation).
     fix_hot  = u.fix_share_hot * 8
     fix_cold = (1 - u.fix_share_hot) * 2
     v.Bugs = max(0, u.Bugs + dt * (new_hot + new_cold - fix_hot - fix_cold))
     for p in (&#x27;Hot&#x27;,&#x27;Cold&#x27;,&#x27;hot_bug_rate&#x27;,&#x27;cold_bug_rate&#x27;,&#x27;fix_share_hot&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;ignoring hotspots inflates bugs&quot;,
-                   y(run({**bi, &#x27;fix_share_hot&#x27;:[0.8,0,1]}, step)),
-                   y(run({**bi, &#x27;fix_share_hot&#x27;:[0.1,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;fix_share_hot&#x27;:[0.8,0,1]}, step)),  # focused
+                   y(run({**bi, &#x27;fix_share_hot&#x27;:[0.1,0,1]}, step)),  # oblivious
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;fix_share_hot&#x27;)
 </code></pre>
   </div>

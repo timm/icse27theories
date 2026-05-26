@@ -850,326 +850,680 @@ def congruence():
 
 
 def little():
-  """Little 1961: WIP = throughput * cycle_time. Holding arrival
-  constant, doubling cycle_time inflates WIP and depresses Done.
-  RQ: doubling cycle_time hurts throughput."""
-  init = {'WIP':[20,0,500], 'Arrival':[5,0,50], 'Done':[0,0,5000],
-          'cycle_time':[4,1,30], 'wip_cap':[60,5,200]}
+  """Little (1961) "A Proof for the Queuing Formula L = λW."
+  Queueing identity: long-run WIP = throughput * cycle_time. Acts as
+  a process-physics sanity check on any flow-based dev model.
+
+  Stocks (UPPER):
+    WIP     : work-in-progress items currently inside the system
+    Arrival : per-tick arrival rate (held constant — the world's input)
+    Done    : cumulative items leaving the system
+  Params (lower):
+    cycle_time : average time each item spends in the system
+    wip_cap    : hard ceiling on WIP (Kanban-style policy)
+
+  Thesis: holding Arrival constant, tripling cycle_time (4 -> 12)
+  cuts throughput. Pure identity result if the queue is stable."""
+  init = {'WIP':[20,0,500],          # 20 items already in flight at t=0
+          'Arrival':[5,0,50],        # 5 items arrive per tick (steady)
+          'Done':[0,0,5000],         # nothing finished yet
+          'cycle_time':[4,1,30],     # *** ctrl ***; 4 ticks per item
+          'wip_cap':[60,5,200]}      # WIP can't exceed 60
+
   def step(dt, t, u, v):
+    # Service: clear (WIP / cycle_time) items per tick, but no more than WIP.
     served = min(u.WIP / max(1, u.cycle_time), u.WIP)
+    # Intake: accept what arrives, but only up to remaining cap headroom.
     accept = min(u.Arrival, max(0, u.wip_cap - u.WIP))
+    # WIP rises by accepted-minus-served. Stable if Arrival == served.
     v.WIP  = u.WIP  + dt * (accept - served)
+    # Done strictly grows with served items.
     v.Done = u.Done + dt * served
     for p in ('Arrival','cycle_time','wip_cap'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done
+
+  def y(out):
+    # Reward total work delivered.
+    return out[-1][1].Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("doubling cycle_time hurts throughput",
-                   y(run({**bi, 'cycle_time':[4,1,30]}, step)),
-                   y(run({**bi, 'cycle_time':[12,1,30]}, step)), 'down')
+                   y(run({**bi, 'cycle_time':[4,1,30]},  step)),   # fast
+                   y(run({**bi, 'cycle_time':[12,1,30]}, step)),   # slow (3x)
+                   'down')
   return Model(init, step, y, rq, 'cycle_time')
 
 
 def coordn2():
-  """Brooks/Curtis: communication-pair count = N*(N-1)/2.
-  RQ: doubling N more than doubles coordination cost (superlinear)."""
-  init = {'Devs':[5,1,200], 'Done':[0,0,10000],
-          'work_per_dev':[10,0,50], 'comm_coef':[0.02,0,0.5]}
+  """Brooks (1975 MMM) + Curtis, Krasner, Iscoe (1988 CACM): N
+  developers generate N*(N-1)/2 communication pairs. Each pair costs
+  developer attention, so doubling the team produces more than
+  double the coordination drag.
+
+  Stocks (UPPER):
+    Devs : number of developers (held constant per run)
+    Done : cumulative work delivered
+  Params (lower):
+    work_per_dev : base productivity coefficient (items per dev per tick)
+    comm_coef    : per-pair attention cost coefficient
+
+  Thesis: doubling Devs (5 -> 10) less than doubles Done (because
+  comm_coef * pairs / N grows in N)."""
+  init = {'Devs':[5,1,200],              # *** ctrl ***; small team default
+          'Done':[0,0,10000],            # nothing done at t=0
+          'work_per_dev':[10,0,50],      # 10 items/dev/tick baseline
+          'comm_coef':[0.02,0,0.5]}      # 2% attention lost per pair-share
+
   def step(dt, t, u, v):
+    # Communication-pair count grows quadratically in team size.
     pairs = u.Devs * (u.Devs - 1) / 2
+    # Per-dev tax = (pairs each dev participates in) * coefficient.
+    # Cap at 90% to prevent negative throughput at huge N.
     tax   = min(0.9, u.comm_coef * pairs / max(1, u.Devs))
+    # Effective output: N devs each producing work_per_dev, minus tax.
     v.Done = u.Done + dt * u.Devs * u.work_per_dev * (1 - tax)
     for p in ('Devs','work_per_dev','comm_coef'):
       setattr(v, p, getattr(u, p))
+
   def y(out): return out[-1][1].Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("doubling team superlinear-taxes throughput",
-                   y(run({**bi, 'Devs':[5,1,200]}, step)),
-                   y(run({**bi, 'Devs':[10,1,200]}, step)), 'down')
+                   y(run({**bi, 'Devs':[5,1,200]},  step)),    # small
+                   y(run({**bi, 'Devs':[10,1,200]}, step)),    # doubled
+                   'down')
   return Model(init, step, y, rq, 'Devs')
 
 
 def entropy():
-  """Lehman 1980: software entropy grows monotonically unless paid
-  down via refactor. Without refactor effort, defect rate rises.
-  RQ: low refactor_rate inflates terminal Complexity."""
-  init = {'Complexity':[100,0,5000], 'Bugs':[0,0,5000],
-          'work_rate':[10,0,100], 'refactor_rate':[0.05,0,0.5],
-          'entropy_coef':[0.02,0,0.5]}
+  """Lehman (1980) "Programs, life cycles, and laws of software
+  evolution." Continuing change + increasing complexity: software
+  entropy rises monotonically unless explicit refactor effort pays
+  it down. Without pay-down, complexity grows and defects follow.
+
+  Stocks (UPPER):
+    Complexity : intrinsic structural difficulty of the codebase
+    Bugs       : cumulative defect count (proportional to complexity)
+  Params (lower):
+    work_rate     : commit volume per tick (entropy source)
+    refactor_rate : fraction of complexity paid down per tick (policy)
+    entropy_coef  : how much commit adds to complexity (~0.02)
+
+  Thesis: dropping refactor_rate from 0.20 (active maintenance) to
+  0.02 (neglect) inflates terminal Complexity + Bugs."""
+  init = {'Complexity':[100,0,5000],         # starting complexity
+          'Bugs':[0,0,5000],                 # no defects yet
+          'work_rate':[10,0,100],            # 10 commits per tick
+          'refactor_rate':[0.05,0,0.5],      # *** ctrl ***; 5% paid down
+          'entropy_coef':[0.02,0,0.5]}       # 2% of work becomes complexity
+
   def step(dt, t, u, v):
+    # Each commit adds work_rate * entropy_coef to Complexity.
     grow    = u.work_rate * u.entropy_coef
+    # Refactor work removes a fraction of current Complexity.
     pay     = u.Complexity * u.refactor_rate
+    # Bug arrival proportional to current Complexity (0.1% per tick).
     bug_in  = u.Complexity * 0.001
     v.Complexity = max(0, u.Complexity + dt * (grow - pay))
     v.Bugs       = u.Bugs + dt * bug_in
     for p in ('work_rate','refactor_rate','entropy_coef'):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Complexity - out[-1][1].Bugs
+
+  def y(out):
+    # Reward LOW Complexity AND LOW Bugs. Both negated.
+    return -out[-1][1].Complexity - out[-1][1].Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low refactor leaves Complexity high",
-                   y(run({**bi, 'refactor_rate':[0.20,0,0.5]}, step)),
-                   y(run({**bi, 'refactor_rate':[0.02,0,0.5]}, step)), 'down')
+                   y(run({**bi, 'refactor_rate':[0.20,0,0.5]}, step)),  # active
+                   y(run({**bi, 'refactor_rate':[0.02,0,0.5]}, step)),  # neglect
+                   'down')
   return Model(init, step, y, rq, 'refactor_rate')
 
 
 def costchange():
-  """Boehm 1981: cost to fix a bug rises ~10x per phase post-discovery.
-  RQ: shifting catch from coding to release hurts net delivered value."""
-  init = {'Bugs':[20,0,1000], 'Cost':[0,0,1e6],
-          'catch_early':[0.6,0,1], 'cost_early':[1,0.1,5],
-          'cost_late':[50,1,500]}
+  """Boehm (1981) "Software Engineering Economics" cost-of-change
+  curve: a bug costs ~$1 in requirements, ~$10 in coding, ~$100 in
+  test, ~$1000 in release. Magnitudes have been debated in agile
+  contexts but the super-linear shape is consistent across modern
+  datasets.
+
+  Stocks (UPPER):
+    Bugs : defects still in the system
+    Cost : cumulative dollars spent fixing them
+  Params (lower):
+    catch_early : fraction of bugs caught in cheap phase (policy)
+    cost_early  : $ per bug caught early
+    cost_late   : $ per bug caught late (typically 50-100x cost_early)
+
+  Thesis: dropping catch_early from 0.8 (test-driven) to 0.2 (ship
+  it and fix in prod) inflates total Cost."""
+  init = {'Bugs':[20,0,1000],          # 20 outstanding defects
+          'Cost':[0,0,1e6],            # zero spent yet
+          'catch_early':[0.6,0,1],     # *** ctrl ***; 60% caught early default
+          'cost_early':[1,0.1,5],      # $1 per early catch
+          'cost_late':[50,1,500]}      # $50 per late catch (50x ratio)
+
   def step(dt, t, u, v):
+    # Bugs split by phase of discovery this tick.
     e = u.Bugs * u.catch_early
     l = u.Bugs - e
+    # Cost integrates phase-weighted fixes.
     v.Cost = u.Cost + dt * (e * u.cost_early + l * u.cost_late)
+    # Bugs drain 10% of (early + late) catches per tick (~half-life).
     v.Bugs = max(0, u.Bugs - dt * (e + l) * 0.1)
     for p in ('catch_early','cost_early','cost_late'):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Cost
+
+  def y(out): return -out[-1][1].Cost   # reward low Cost
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("shifting catch late inflates total cost",
-                   y(run({**bi, 'catch_early':[0.8,0,1]}, step)),
-                   y(run({**bi, 'catch_early':[0.2,0,1]}, step)), 'down')
+                   y(run({**bi, 'catch_early':[0.8,0,1]}, step)),    # test-heavy
+                   y(run({**bi, 'catch_early':[0.2,0,1]}, step)),    # ship-fast
+                   'down')
   return Model(init, step, y, rq, 'catch_early')
 
 
 def pareto():
-  """Fenton-Ohlsson / Ostrand-Weyuker: ~20% of modules carry ~80%
-  of defects, and that hotspot set persists across releases.
-  RQ: ignoring hotspots inflates total defect rate."""
-  init = {'Hot':[10,0,200], 'Cold':[90,0,2000], 'Bugs':[0,0,5000],
-          'hot_bug_rate':[0.4,0,2], 'cold_bug_rate':[0.02,0,0.5],
-          'fix_share_hot':[0.5,0,1]}
+  """Fenton & Ohlsson (2000 IEEE TSE) + Ostrand & Weyuker (2002 ISSTA):
+  ~20% of modules carry ~80% of defects, and that hotspot set persists
+  across releases. Implication: allocate fix effort to hotspots, not
+  uniformly across the codebase.
+
+  Stocks (UPPER):
+    Hot  : hotspot modules (small set, high bug rate)
+    Cold : everything else (large set, low bug rate)
+    Bugs : current outstanding defect count
+  Params (lower):
+    hot_bug_rate   : new bugs per hot module per tick
+    cold_bug_rate  : new bugs per cold module per tick
+    fix_share_hot  : fraction of fix effort sent to hotspots (policy)
+
+  Thesis: dropping fix_share_hot from 0.8 (hotspot-focused) to 0.1
+  (proportional/oblivious) inflates Bugs because hot fixes net 4x
+  more bug-reduction per unit effort than cold fixes."""
+  init = {'Hot':[10,0,200],                 # 10 hotspot modules
+          'Cold':[90,0,2000],               # 90 cold modules (20/80 mix)
+          'Bugs':[0,0,5000],                # no outstanding defects yet
+          'hot_bug_rate':[0.4,0,2],         # hot module: 0.4 bugs/tick
+          'cold_bug_rate':[0.02,0,0.5],     # cold module: 0.02 bugs/tick
+          'fix_share_hot':[0.5,0,1]}        # *** ctrl ***; 50% effort to hot
+
   def step(dt, t, u, v):
+    # Inflow: bug generation per module class.
     new_hot  = u.Hot  * u.hot_bug_rate
     new_cold = u.Cold * u.cold_bug_rate
-    # Hotspot fixes net more bug-reduction per unit effort (the whole
-    # point of Pareto): a hot fix removes 4x more bugs than a cold fix.
+    # Outflow: hot fixes are 4x more effective per unit effort (whole
+    # point of Pareto allocation).
     fix_hot  = u.fix_share_hot * 8
     fix_cold = (1 - u.fix_share_hot) * 2
     v.Bugs = max(0, u.Bugs + dt * (new_hot + new_cold - fix_hot - fix_cold))
     for p in ('Hot','Cold','hot_bug_rate','cold_bug_rate','fix_share_hot'):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("ignoring hotspots inflates bugs",
-                   y(run({**bi, 'fix_share_hot':[0.8,0,1]}, step)),
-                   y(run({**bi, 'fix_share_hot':[0.1,0,1]}, step)), 'down')
+                   y(run({**bi, 'fix_share_hot':[0.8,0,1]}, step)),  # focused
+                   y(run({**bi, 'fix_share_hot':[0.1,0,1]}, step)),  # oblivious
+                   'down')
   return Model(init, step, y, rq, 'fix_share_hot')
 
 
 def linus():
-  """Raymond 1999 + Mockus 2002: 'many eyes' review reduces defect
-  recurrence. RQ: low review_rate inflates Recurring."""
-  init = {'Open':[20,0,500], 'Reviewed':[0,0,5000],
-          'Recurring':[0,0,500], 'review_rate':[0.4,0,1],
-          'recur_rate':[0.3,0,1]}
+  """Raymond (1999) "Cathedral and the Bazaar" + Mockus, Fielding,
+  Herbsleb (2002 ACM TOSEM): "given enough eyeballs, all bugs are
+  shallow" — code reviewed by multiple committers shows lower defect
+  recurrence than single-author code.
+
+  Stocks (UPPER):
+    Open      : unreviewed pull-requests still in the queue
+    Reviewed  : merged PRs that received review attention
+    Recurring : defects that re-appear after fix because review missed
+  Params (lower):
+    review_rate : fraction of Open reviewed per tick (policy)
+    recur_rate  : base re-occurrence probability when review fails
+
+  Thesis: dropping review_rate from 0.6 (every PR reviewed) to 0.1
+  (skim-and-merge) inflates Recurring; net Reviewed - 3*Recurring drops."""
+  init = {'Open':[20,0,500],            # 20 PRs awaiting review
+          'Reviewed':[0,0,5000],        # nothing reviewed yet
+          'Recurring':[0,0,500],        # no recurrences yet
+          'review_rate':[0.4,0,1],      # *** ctrl ***; 40% reviewed/tick
+          'recur_rate':[0.3,0,1]}       # 30% base re-occurrence
+
   def step(dt, t, u, v):
+    # Reviewed flow: depends on policy (review_rate) and Open queue size.
     rev = u.Open * u.review_rate
+    # Recurrence: scales with reviewed volume but is mitigated by review
+    # depth (multiplied by 1-review_rate).
     rec = rev * u.recur_rate * (1 - u.review_rate)
+    # Open loses what got reviewed, gains recurrences.
     v.Open      = max(0, u.Open - dt * rev + dt * rec)
-    v.Reviewed  = u.Reviewed + dt * rev
+    v.Reviewed  = u.Reviewed  + dt * rev
     v.Recurring = u.Recurring + dt * rec
     for p in ('review_rate','recur_rate'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Reviewed - 3 * out[-1][1].Recurring
+
+  def y(out):
+    # Reward reviewed PRs; heavily penalise recurring defects (3x weight).
+    return out[-1][1].Reviewed - 3 * out[-1][1].Recurring
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low review_rate inflates recurrence",
-                   y(run({**bi, 'review_rate':[0.6,0,1]}, step)),
-                   y(run({**bi, 'review_rate':[0.1,0,1]}, step)), 'down')
+                   y(run({**bi, 'review_rate':[0.6,0,1]}, step)),    # rigorous
+                   y(run({**bi, 'review_rate':[0.1,0,1]}, step)),    # rubber-stamp
+                   'down')
   return Model(init, step, y, rq, 'review_rate')
 
 
 def mirroring():
-  """MacCormack et al 2006: code DSM mirrors org DSM. Higher mirror
-  coefficient predicts cleaner modular boundaries and lower defects.
-  RQ: org/code DSM mismatch (low mirror) elevates Bugs."""
-  init = {'Modules':[20,1,200], 'Teams':[5,1,50], 'Bugs':[0,0,5000],
-          'mirror':[0.7,0,1], 'churn_rate':[2,0,20]}
+  """MacCormack, Baldwin, Rusnak (2006 Mgmt Science) operationalised
+  Conway's law: the code's design-structure-matrix (who-calls-who)
+  should mirror the organisation's DSM (who-talks-to-who). High
+  mirror coefficient predicts clean modular boundaries; low mirror
+  predicts coupling churn and defects.
+
+  Stocks (UPPER):
+    Modules : file/component count
+    Teams   : organisational teams owning subsets of Modules
+    Bugs    : cumulative defect count
+  Params (lower):
+    mirror     : cosine(file-DSM, org-DSM) in [0,1]; policy + structure
+    churn_rate : per-tick churn volume (commits/file/tick)
+
+  Thesis: dropping mirror from 0.85 (Conway-aligned) to 0.30
+  (cross-team chaos) inflates Bugs because cross-team changes are
+  more error-prone."""
+  init = {'Modules':[20,1,200],          # 20 modules
+          'Teams':[5,1,50],              # 5 teams
+          'Bugs':[0,0,5000],             # no defects yet
+          'mirror':[0.7,0,1],            # *** ctrl ***; 70% aligned default
+          'churn_rate':[2,0,20]}         # 2 commits/file/tick
+
   def step(dt, t, u, v):
+    # Mismatch = 1 - mirror. Drives the leak rate.
     mismatch = (1 - u.mirror)
+    # Per-tick bug leak scales with churn AND mismatch.
     leak     = u.churn_rate * mismatch
+    # Bugs accumulate with Modules-to-Teams ratio (per-team load).
     v.Bugs   = u.Bugs + dt * leak * u.Modules / max(1, u.Teams)
     for p in ('Modules','Teams','mirror','churn_rate'):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low mirror inflates defects",
-                   y(run({**bi, 'mirror':[0.85,0,1]}, step)),
-                   y(run({**bi, 'mirror':[0.30,0,1]}, step)), 'down')
+                   y(run({**bi, 'mirror':[0.85,0,1]}, step)),    # aligned
+                   y(run({**bi, 'mirror':[0.30,0,1]}, step)),    # chaotic
+                   'down')
   return Model(init, step, y, rq, 'mirror')
 
 
 def orgchurn():
-  """Nagappan/Murphy/Basili 2010: org churn (departures) predicts
-  defect bursts. RQ: high churn_rate inflates Bugs."""
-  init = {'Devs':[20,1,500], 'Bugs':[0,0,5000],
-          'churn_rate':[0.02,0,0.5], 'knowledge':[100,0,1000]}
+  """Nagappan, Murphy, Basili (2008 ICSE) on Windows Vista:
+  organisational churn (developer departures, team reorgs) is a
+  better predictor of post-release defects than code-churn or
+  complexity. Departures carry tacit knowledge with them; gaps
+  surface as defects.
+
+  Stocks (UPPER):
+    Devs      : active developer count
+    Bugs      : cumulative defect count
+    knowledge : tacit code-context (a stock that depletes on departure)
+  Params (lower):
+    churn_rate : per-tick departure fraction (the world's input)
+
+  Thesis: 10x churn_rate spike (0.02 -> 0.20) inflates Bugs because
+  knowledge depletes and bug rate scales inversely with knowledge."""
+  init = {'Devs':[20,1,500],            # 20-dev team default
+          'Bugs':[0,0,5000],            # no defects yet
+          'churn_rate':[0.02,0,0.5],    # *** ctrl ***; 2% departure/tick
+          'knowledge':[100,0,1000]}     # 100 units of tacit context
+
   def step(dt, t, u, v):
+    # Departures this tick.
     lost = u.Devs * u.churn_rate
+    # Devs: lose departures, partially backfilled (50% replacement rate).
     v.Devs      = max(1, u.Devs - dt * lost + dt * lost * 0.5)
+    # Knowledge depletes 5 units per departed dev (irreplaceable tacit).
     v.knowledge = max(0, u.knowledge - dt * lost * 5)
+    # Bugs scale INVERSELY with current knowledge (low knowledge -> spike).
     v.Bugs      = u.Bugs + dt * (200 / max(1, u.knowledge)) * 10
     setattr(v, 'churn_rate', u.churn_rate)
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("departure spike inflates defect burst",
-                   y(run({**bi, 'churn_rate':[0.02,0,0.5]}, step)),
-                   y(run({**bi, 'churn_rate':[0.20,0,0.5]}, step)), 'down')
+                   y(run({**bi, 'churn_rate':[0.02,0,0.5]}, step)),  # stable
+                   y(run({**bi, 'churn_rate':[0.20,0,0.5]}, step)),  # 10x churn
+                   'down')
   return Model(init, step, y, rq, 'churn_rate')
 
 
 def ownership():
-  """Bird et al 2011: high minor-author share correlates with
-  defect density. RQ: rising minor_share inflates Bugs."""
-  init = {'Modules':[50,1,500], 'Bugs':[0,0,5000],
-          'minor_share':[0.2,0,1], 'major_quality':[0.95,0,1]}
+  """Bird, Nagappan, Murphy, Gall, Devanbu (2011 ESEC/FSE) "Don't
+  touch my code!" on Vista + Windows 7: share of MINOR-author
+  contributions to a binary correlates strongly with post-release
+  defect density. Major-author code is more reliable than
+  many-contributor patchwork.
+
+  Stocks (UPPER):
+    Modules : module count under study
+    Bugs    : cumulative defect count
+  Params (lower):
+    minor_share   : fraction of commits from non-primary contributors
+    major_quality : baseline quality of major-author work [0,1]
+
+  Thesis: raising minor_share from 0.10 (single owner) to 0.60
+  (drive-by-heavy) inflates Bugs. Effective quality drops because
+  minors are assumed at 60% the quality of majors."""
+  init = {'Modules':[50,1,500],         # 50 modules
+          'Bugs':[0,0,5000],            # no defects yet
+          'minor_share':[0.2,0,1],      # *** ctrl ***; 20% minor share default
+          'major_quality':[0.95,0,1]}   # major author work is 95% bug-free
+
   def step(dt, t, u, v):
+    # Effective per-module quality = weighted blend of major and minor work.
+    # Minor work is fixed at 60% of major quality.
     eff_q = u.major_quality * (1 - u.minor_share) + 0.6 * u.minor_share
+    # New bugs per tick: per-module bug rate = (1 - eff_q) * scale.
     new_b = u.Modules * (1 - eff_q) * 0.5
     v.Bugs = u.Bugs + dt * new_b
     for p in ('Modules','minor_share','major_quality'):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("high minor_share inflates defects",
-                   y(run({**bi, 'minor_share':[0.10,0,1]}, step)),
-                   y(run({**bi, 'minor_share':[0.60,0,1]}, step)), 'down')
+                   y(run({**bi, 'minor_share':[0.10,0,1]}, step)),   # single-owner
+                   y(run({**bi, 'minor_share':[0.60,0,1]}, step)),   # patchwork
+                   'down')
   return Model(init, step, y, rq, 'minor_share')
 
 
 def ossfail():
-  """Coelho & Valente 2017: low truck factor predicts project death.
-  RQ: low truck_factor accelerates Abandonment."""
-  init = {'Devs':[5,1,200], 'Activity':[100,0,10000],
-          'truck_factor':[2,1,20], 'attrition':[0.05,0,0.5]}
+  """Coelho & Valente (2017 FSE) "Why modern open source projects
+  fail." Survey of 104 dormant/abandoned OSS projects: low truck
+  factor (the count of devs whose loss would kill the project) is
+  the strongest operational predictor of project death.
+
+  Stocks (UPPER):
+    Devs         : active developer count
+    Activity     : per-tick development pulse (commits + reviews)
+    truck_factor : minimum-k authors who together own >50% of LOC
+  Params (lower):
+    attrition : background rate at which Activity decays per tick
+
+  Thesis: shrinking truck_factor from 8 (healthy) to 1 (single
+  maintainer) accelerates Activity decay; final Activity drops."""
+  init = {'Devs':[5,1,200],             # 5 devs
+          'Activity':[100,0,10000],     # 100 units pulse at t=0
+          'truck_factor':[2,1,20],      # *** ctrl ***; TF=2 default
+          'attrition':[0.05,0,0.5]}     # 5%/tick base attrition
+
   def step(dt, t, u, v):
+    # Bus risk = 1 / truck_factor. TF=1 -> risk 1.0; TF=20 -> risk 0.05.
     bus_risk = 1 / max(1, u.truck_factor)
+    # Effective decay scales with attrition * (1 + bus_risk).
     decay    = u.attrition * (1 + bus_risk)
+    # Activity decays exponentially.
     v.Activity = max(0, u.Activity - dt * u.Activity * decay)
     for p in ('Devs','truck_factor','attrition'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Activity
+
+  def y(out): return out[-1][1].Activity   # reward sustained Activity
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low truck_factor accelerates abandonment",
-                   y(run({**bi, 'truck_factor':[8,1,20]}, step)),
-                   y(run({**bi, 'truck_factor':[1,1,20]}, step)), 'down')
+                   y(run({**bi, 'truck_factor':[8,1,20]}, step)),   # healthy
+                   y(run({**bi, 'truck_factor':[1,1,20]}, step)),   # one-person
+                   'down')
   return Model(init, step, y, rq, 'truck_factor')
 
 
 def deprot():
-  """Decan/Mens/Constantinou 2018: dep version staleness elevates
-  vulnerability surface. RQ: low update_rate inflates Vulns."""
-  init = {'Deps':[40,1,500], 'Stale':[20,0,500], 'Vulns':[0,0,500],
-          'update_rate':[0.1,0,1], 'vuln_disclose_rate':[0.01,0,0.5]}
+  """Decan, Mens, Constantinou (2018) "On the impact of security
+  vulnerabilities in the npm package dependency network." Stale deps
+  accumulate CVE exposure: each unpatched version-pin is a sitting
+  target until either updated or disclosed.
+
+  Stocks (UPPER):
+    Deps  : total dependency count declared by the project
+    Stale : subset of Deps whose pinned version is below latest available
+    Vulns : cumulative vulnerability surface (count of CVE-exposed deps)
+  Params (lower):
+    update_rate         : fraction of Stale moved to fresh per timestep
+                          (the project's policy lever)
+    vuln_disclose_rate  : background rate at which Stale deps gain CVEs
+                          (set by the world, not the project)
+
+  Thesis: lowering update_rate from 0.30 to 0.02 (15x slower) inflates
+  terminal Vulns. CONFIRM expected for any non-trivial disclose rate."""
+  init = {'Deps':[40,1,500],                 # 40 deps is typical mid-size Java/Python
+          'Stale':[20,0,500],                # half stale at t=0 is the project's debt
+          'Vulns':[0,0,500],                 # no exposure at t=0
+          'update_rate':[0.1,0,1],           # *** ctrl ***; 10% Stale renewed per tick
+          'vuln_disclose_rate':[0.01,0,0.5]} # 1% Stale gets a CVE per tick
+
   def step(dt, t, u, v):
+    # Flow OUT of Stale: project actively updates that fraction this tick.
     fresh_flow = u.Stale * u.update_rate
+    # Flow INTO Vulns: world discloses CVEs against Stale deps.
     new_vuln   = u.Stale * u.vuln_disclose_rate
+    # Stale level: drift IN at 5% of total Deps (entropy — deps age constantly),
+    # drift OUT at fresh_flow. Floor at 0 to prevent negative stock under
+    # high update_rate.
     v.Stale = max(0, u.Stale + dt * (u.Deps * 0.05 - fresh_flow))
+    # Vulnerability count integrates the disclosure flow; only grows.
     v.Vulns = u.Vulns + dt * new_vuln
+    # Hold params + Deps constant across the run (steady-state input).
     for p in ('Deps','update_rate','vuln_disclose_rate'):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Vulns
+
+  def y(out):
+    # Health metric: lower Vulns = better. Negate so higher y = better.
+    return -out[-1][1].Vulns
+
   def rq(bg=None):
+    # rq fires once at the high (defensive) update_rate, once at the low
+    # (negligent) update_rate. Thesis claims low rate hurts -> 'down'.
     bi = init if bg is None else bg
     return verdict("low update_rate inflates vulnerabilities",
-                   y(run({**bi, 'update_rate':[0.30,0,1]}, step)),
-                   y(run({**bi, 'update_rate':[0.02,0,1]}, step)), 'down')
+                   y(run({**bi, 'update_rate':[0.30,0,1]}, step)),  # defensive
+                   y(run({**bi, 'update_rate':[0.02,0,1]}, step)),  # negligent
+                   'down')
+
   return Model(init, step, y, rq, 'update_rate')
 
 
 def scope():
-  """Boehm/Jones scope creep: when inflow > outflow, backlog grows
-  without bound. RQ: high inflow_excess hurts net Done."""
-  init = {'Backlog':[100,0,10000], 'Done':[0,0,10000],
-          'inflow':[8,0,100], 'outflow':[6,0,100]}
+  """Boehm (1981 Software Eng. Economics) + Jones (Applied Software
+  Measurement, 2008) on scope creep. The workhorse failure mode:
+  requirement inflow exceeds delivery outflow, backlog grows
+  unbounded, calendar slips.
+
+  Stocks (UPPER):
+    Backlog : requirements not yet delivered
+    Done    : delivered features
+  Params (lower):
+    inflow  : new requirements arriving per tick (the world)
+    outflow : team's delivery capacity per tick (the team)
+
+  Thesis: tripling inflow (5 -> 15) without changing outflow drops
+  net Done (delivered - 10% of Backlog penalty)."""
+  init = {'Backlog':[100,0,10000],      # 100 items already piled up
+          'Done':[0,0,10000],           # nothing delivered yet
+          'inflow':[8,0,100],           # *** ctrl ***; 8 items arrive/tick
+          'outflow':[6,0,100]}          # 6 items delivered/tick (chronic deficit)
+
   def step(dt, t, u, v):
+    # Can only serve what exists in the Backlog, up to outflow capacity.
     served = min(u.Backlog, u.outflow)
+    # Backlog rises by (inflow - served). Negative when team catches up.
     v.Backlog = u.Backlog + dt * (u.inflow - served)
+    # Done strictly grows.
     v.Done    = u.Done    + dt * served
     for p in ('inflow','outflow'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done - out[-1][1].Backlog * 0.1
+
+  def y(out):
+    # Reward Done minus 10% of remaining Backlog (visible unfinished work).
+    return out[-1][1].Done - out[-1][1].Backlog * 0.1
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("inflow >> outflow drowns Done",
-                   y(run({**bi, 'inflow':[5,0,100]}, step)),
-                   y(run({**bi, 'inflow':[15,0,100]}, step)), 'down')
+                   y(run({**bi, 'inflow':[5,0,100]},  step)),    # under-capacity
+                   y(run({**bi, 'inflow':[15,0,100]}, step)),    # creep
+                   'down')
   return Model(init, step, y, rq, 'inflow')
 
 
 def ctxswitch():
-  """Weinberg / Meyer et al 2014: high per-day file-diversity
-  per dev taxes effective throughput.
-  RQ: high diversity hurts Done."""
-  init = {'Devs':[10,1,200], 'Done':[0,0,10000],
-          'work_per_dev':[10,0,50], 'diversity':[2,1,20]}
+  """Weinberg (Quality Software Management, 1992) + Meyer, Fritz,
+  Murphy, Zimmermann (2014 FSE "developers' perceptions of
+  productivity"). Per-developer context-switching costs ramp-up
+  time; cost scales roughly linearly with the count of distinct
+  modules each dev touches per day.
+
+  Stocks (UPPER):
+    Devs : developer count
+    Done : cumulative delivered work
+  Params (lower):
+    work_per_dev : baseline items/dev/tick when focused
+    diversity    : files touched per dev per day (1 = focused, 20 = chaos)
+
+  Thesis: quadrupling diversity (2 -> 8) hurts Done. Effective
+  productivity = work_per_dev / (1 + 0.4 * (diversity - 1)). Weinberg's
+  0.4 coefficient says 1 extra file ~40% productivity hit."""
+  init = {'Devs':[10,1,200],            # 10 devs
+          'Done':[0,0,10000],           # nothing delivered yet
+          'work_per_dev':[10,0,50],     # 10 items/dev/tick focused
+          'diversity':[2,1,20]}         # *** ctrl ***; 2 files/dev/day default
+
   def step(dt, t, u, v):
+    # Effective per-dev throughput drops with diversity:
+    #   eff = work_per_dev / (1 + 0.4*(diversity-1))
+    # diversity=1 -> eff = work_per_dev (no penalty)
+    # diversity=8 -> eff = work_per_dev / 3.8 (~73% drop)
     eff = u.work_per_dev / (1 + 0.4 * (u.diversity - 1))
     v.Done = u.Done + dt * u.Devs * eff
     for p in ('Devs','work_per_dev','diversity'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done
+
+  def y(out): return out[-1][1].Done   # reward total Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("high file-diversity per dev hurts throughput",
-                   y(run({**bi, 'diversity':[2,1,20]}, step)),
-                   y(run({**bi, 'diversity':[8,1,20]}, step)), 'down')
+                   y(run({**bi, 'diversity':[2,1,20]}, step)),    # focused
+                   y(run({**bi, 'diversity':[8,1,20]}, step)),    # chaotic
+                   'down')
   return Model(init, step, y, rq, 'diversity')
 
 
 def limits():
-  """Senge limits-to-growth: throughput rises with team size but
-  saturates as coordination overhead bites.
-  RQ: doubling team near asymptote yields diminishing returns."""
-  init = {'Devs':[10,1,500], 'Done':[0,0,1e5],
-          'k_per_dev':[10,0,100], 'cap':[200,10,1000]}
+  """Senge (1990) "The Fifth Discipline" limits-to-growth archetype.
+  Effort produces linear gains until a saturating constraint bites
+  (coordination overhead, infra capacity, market). Past the knee,
+  doubling input yields diminishing returns.
+
+  Stocks (UPPER):
+    Devs : team size (held constant per run)
+    Done : cumulative delivered work
+  Params (lower):
+    k_per_dev : raw productivity coefficient (items/dev/tick)
+    cap       : structural ceiling on per-tick output (hyperbolic saturation)
+
+  Thesis: doubling Devs near cap (30 -> 60) yields LESS than 2x Done.
+  Tested with expect='up' — if the model is right we expect SOME
+  gain, but the verdict checks the gap is smaller than linear."""
+  init = {'Devs':[10,1,500],            # *** ctrl ***; 10 devs default
+          'Done':[0,0,1e5],             # nothing delivered yet
+          'k_per_dev':[10,0,100],       # 10 items/dev/tick raw
+          'cap':[200,10,1000]}          # saturate at 200 items/tick
+
   def step(dt, t, u, v):
+    # Raw demand: linear in team size.
     raw = u.Devs * u.k_per_dev
+    # Hyperbolic saturation: eff = raw / (1 + raw/cap).
+    # Below knee (raw << cap) eff ~ raw. Near cap, eff ~ cap.
     eff = raw / (1 + raw / max(1, u.cap))
     v.Done = u.Done + dt * eff
     for p in ('Devs','k_per_dev','cap'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done
+
+  def y(out): return out[-1][1].Done   # reward total Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("doubling Devs near cap yields diminishing returns",
-                   y(run({**bi, 'Devs':[30,1,500]}, step)),
-                   y(run({**bi, 'Devs':[60,1,500]}, step)), 'up')
+                   y(run({**bi, 'Devs':[30,1,500]}, step)),    # near knee
+                   y(run({**bi, 'Devs':[60,1,500]}, step)),    # past knee
+                   'up')                                       # expect up but small
   return Model(init, step, y, rq, 'Devs')
 
 
 def successful():
-  """Merton 1968 Matthew effect: attention concentrates on already-
-  attended modules. RQ: high attention_concentration starves the
-  unattended modules until net coverage degrades."""
-  init = {'Pop':[50,1,500], 'Attended':[10,0,500],
-          'Coverage':[0,0,1e5], 'concentration':[0.5,0,1],
-          'attention_rate':[3,0,30]}
+  """Merton (1968 Science) "The Matthew Effect in Science." Attention
+  concentrates on entities that already have it: famous modules
+  attract more PRs, more reviews, more tests; obscure modules atrophy.
+  Small initial differences compound.
+
+  Stocks (UPPER):
+    Pop      : total population of modules
+    Attended : subset receiving active attention
+    Coverage : cumulative attention units delivered
+  Params (lower):
+    concentration   : fraction of attention going to Attended subset (policy)
+    attention_rate  : total attention budget per tick
+
+  Thesis: pushing concentration from 0.4 (balanced) to 0.9 (extreme)
+  starves the unattended set faster than the attended set gains; net
+  Coverage drops."""
+  init = {'Pop':[50,1,500],              # 50 modules total
+          'Attended':[10,0,500],         # 10 currently attended (20% Pareto-ish)
+          'Coverage':[0,0,1e5],          # no coverage yet
+          'concentration':[0.5,0,1],     # *** ctrl ***; 50% to attended default
+          'attention_rate':[3,0,30]}     # 3 units/tick total budget
+
   def step(dt, t, u, v):
+    # Attention split: concentration goes to Attended, rest to Pop.
     flow_attn = u.attention_rate * u.concentration
     flow_pop  = u.attention_rate * (1 - u.concentration)
+    # Gain term: per-module attention summed across Attended and rest-of-Pop.
     gain      = u.Attended * flow_attn + (u.Pop - u.Attended) * flow_pop
+    # Starve term: unattended modules lose half their attention share at
+    # high concentration (compound starvation).
     starve    = (u.Pop - u.Attended) * u.concentration * 0.5
     v.Coverage = u.Coverage + dt * (gain - starve)
     for p in ('Pop','Attended','concentration','attention_rate'):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Coverage
+
+  def y(out): return out[-1][1].Coverage   # reward total Coverage
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("extreme concentration starves Coverage",
-                   y(run({**bi, 'concentration':[0.4,0,1]}, step)),
-                   y(run({**bi, 'concentration':[0.9,0,1]}, step)), 'down')
+                   y(run({**bi, 'concentration':[0.4,0,1]}, step)),  # balanced
+                   y(run({**bi, 'concentration':[0.9,0,1]}, step)),  # extreme
+                   'down')
   return Model(init, step, y, rq, 'concentration')
 
 

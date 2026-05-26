@@ -66,24 +66,48 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def little():
-  &quot;&quot;&quot;Little 1961: WIP = throughput * cycle_time. Holding arrival
-  constant, doubling cycle_time inflates WIP and depresses Done.
-  RQ: doubling cycle_time hurts throughput.&quot;&quot;&quot;
-  init = {&#x27;WIP&#x27;:[20,0,500], &#x27;Arrival&#x27;:[5,0,50], &#x27;Done&#x27;:[0,0,5000],
-          &#x27;cycle_time&#x27;:[4,1,30], &#x27;wip_cap&#x27;:[60,5,200]}
+  &quot;&quot;&quot;Little (1961) &quot;A Proof for the Queuing Formula L = λW.&quot;
+  Queueing identity: long-run WIP = throughput * cycle_time. Acts as
+  a process-physics sanity check on any flow-based dev model.
+
+  Stocks (UPPER):
+    WIP     : work-in-progress items currently inside the system
+    Arrival : per-tick arrival rate (held constant — the world&#x27;s input)
+    Done    : cumulative items leaving the system
+  Params (lower):
+    cycle_time : average time each item spends in the system
+    wip_cap    : hard ceiling on WIP (Kanban-style policy)
+
+  Thesis: holding Arrival constant, tripling cycle_time (4 -&gt; 12)
+  cuts throughput. Pure identity result if the queue is stable.&quot;&quot;&quot;
+  init = {&#x27;WIP&#x27;:[20,0,500],          # 20 items already in flight at t=0
+          &#x27;Arrival&#x27;:[5,0,50],        # 5 items arrive per tick (steady)
+          &#x27;Done&#x27;:[0,0,5000],         # nothing finished yet
+          &#x27;cycle_time&#x27;:[4,1,30],     # *** ctrl ***; 4 ticks per item
+          &#x27;wip_cap&#x27;:[60,5,200]}      # WIP can&#x27;t exceed 60
+
   def step(dt, t, u, v):
+    # Service: clear (WIP / cycle_time) items per tick, but no more than WIP.
     served = min(u.WIP / max(1, u.cycle_time), u.WIP)
+    # Intake: accept what arrives, but only up to remaining cap headroom.
     accept = min(u.Arrival, max(0, u.wip_cap - u.WIP))
+    # WIP rises by accepted-minus-served. Stable if Arrival == served.
     v.WIP  = u.WIP  + dt * (accept - served)
+    # Done strictly grows with served items.
     v.Done = u.Done + dt * served
     for p in (&#x27;Arrival&#x27;,&#x27;cycle_time&#x27;,&#x27;wip_cap&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done
+
+  def y(out):
+    # Reward total work delivered.
+    return out[-1][1].Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;doubling cycle_time hurts throughput&quot;,
-                   y(run({**bi, &#x27;cycle_time&#x27;:[4,1,30]}, step)),
-                   y(run({**bi, &#x27;cycle_time&#x27;:[12,1,30]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;cycle_time&#x27;:[4,1,30]},  step)),   # fast
+                   y(run({**bi, &#x27;cycle_time&#x27;:[12,1,30]}, step)),   # slow (3x)
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;cycle_time&#x27;)
 </code></pre>
   </div>

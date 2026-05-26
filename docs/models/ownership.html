@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Bird et al at Microsoft Research ran a 60-binary study of Vista and Windows 7 and found that the share of minor-author contributions to a binary (commits from people not on the main team) correlates strongly with post-release defect density. The finding has been replicated on several OSS datasets since.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1030" target="_blank" rel="noopener"><code>paper/sd.py:ownership</code></a> represents Modules touched by major authors (high-quality contributions) and minor authors (lower-quality contributions, by hypothesis). The controlled lever is minor_share — the fraction of commits to a module from non-primary contributors.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1216" target="_blank" rel="noopener"><code>paper/sd.py:ownership</code></a> represents Modules touched by major authors (high-quality contributions) and minor authors (lower-quality contributions, by hypothesis). The controlled lever is minor_share — the fraction of commits to a module from non-primary contributors.</p>
     <p class="dim"><em>Intuition</em>: The person who wrote the file in the first place understands it best. Drive-by patches from strangers — even well-intentioned ones — are more bug-prone. Cumulative effect across many modules drives the defect curve.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -66,22 +66,45 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def ownership():
-  &quot;&quot;&quot;Bird et al 2011: high minor-author share correlates with
-  defect density. RQ: rising minor_share inflates Bugs.&quot;&quot;&quot;
-  init = {&#x27;Modules&#x27;:[50,1,500], &#x27;Bugs&#x27;:[0,0,5000],
-          &#x27;minor_share&#x27;:[0.2,0,1], &#x27;major_quality&#x27;:[0.95,0,1]}
+  &quot;&quot;&quot;Bird, Nagappan, Murphy, Gall, Devanbu (2011 ESEC/FSE) &quot;Don&#x27;t
+  touch my code!&quot; on Vista + Windows 7: share of MINOR-author
+  contributions to a binary correlates strongly with post-release
+  defect density. Major-author code is more reliable than
+  many-contributor patchwork.
+
+  Stocks (UPPER):
+    Modules : module count under study
+    Bugs    : cumulative defect count
+  Params (lower):
+    minor_share   : fraction of commits from non-primary contributors
+    major_quality : baseline quality of major-author work [0,1]
+
+  Thesis: raising minor_share from 0.10 (single owner) to 0.60
+  (drive-by-heavy) inflates Bugs. Effective quality drops because
+  minors are assumed at 60% the quality of majors.&quot;&quot;&quot;
+  init = {&#x27;Modules&#x27;:[50,1,500],         # 50 modules
+          &#x27;Bugs&#x27;:[0,0,5000],            # no defects yet
+          &#x27;minor_share&#x27;:[0.2,0,1],      # *** ctrl ***; 20% minor share default
+          &#x27;major_quality&#x27;:[0.95,0,1]}   # major author work is 95% bug-free
+
   def step(dt, t, u, v):
+    # Effective per-module quality = weighted blend of major and minor work.
+    # Minor work is fixed at 60% of major quality.
     eff_q = u.major_quality * (1 - u.minor_share) + 0.6 * u.minor_share
+    # New bugs per tick: per-module bug rate = (1 - eff_q) * scale.
     new_b = u.Modules * (1 - eff_q) * 0.5
     v.Bugs = u.Bugs + dt * new_b
     for p in (&#x27;Modules&#x27;,&#x27;minor_share&#x27;,&#x27;major_quality&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Bugs
+
+  def y(out): return -out[-1][1].Bugs   # reward low Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;high minor_share inflates defects&quot;,
-                   y(run({**bi, &#x27;minor_share&#x27;:[0.10,0,1]}, step)),
-                   y(run({**bi, &#x27;minor_share&#x27;:[0.60,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;minor_share&#x27;:[0.10,0,1]}, step)),   # single-owner
+                   y(run({**bi, &#x27;minor_share&#x27;:[0.60,0,1]}, step)),   # patchwork
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;minor_share&#x27;)
 </code></pre>
   </div>

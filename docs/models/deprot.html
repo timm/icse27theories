@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Decan-Mens-Constantinou studied the npm ecosystem and found a systematic delay between vulnerability disclosure and dependent project updates — and that the delay grows as projects accumulate stale dependencies. Each stale dep is a vulnerability surface waiting to bite.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1070" target="_blank" rel="noopener"><code>paper/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1300" target="_blank" rel="noopener"><code>paper/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
     <p class="dim"><em>Intuition</em>: Pin your deps and skip updates for two years; sit on a known-CVE library. The fix isn't free (updates break things), but the cost of not updating accumulates exponentially.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Vulns at <code>tmax</code>.</strong></p>
@@ -66,23 +66,57 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def deprot():
-  &quot;&quot;&quot;Decan/Mens/Constantinou 2018: dep version staleness elevates
-  vulnerability surface. RQ: low update_rate inflates Vulns.&quot;&quot;&quot;
-  init = {&#x27;Deps&#x27;:[40,1,500], &#x27;Stale&#x27;:[20,0,500], &#x27;Vulns&#x27;:[0,0,500],
-          &#x27;update_rate&#x27;:[0.1,0,1], &#x27;vuln_disclose_rate&#x27;:[0.01,0,0.5]}
+  &quot;&quot;&quot;Decan, Mens, Constantinou (2018) &quot;On the impact of security
+  vulnerabilities in the npm package dependency network.&quot; Stale deps
+  accumulate CVE exposure: each unpatched version-pin is a sitting
+  target until either updated or disclosed.
+
+  Stocks (UPPER):
+    Deps  : total dependency count declared by the project
+    Stale : subset of Deps whose pinned version is below latest available
+    Vulns : cumulative vulnerability surface (count of CVE-exposed deps)
+  Params (lower):
+    update_rate         : fraction of Stale moved to fresh per timestep
+                          (the project&#x27;s policy lever)
+    vuln_disclose_rate  : background rate at which Stale deps gain CVEs
+                          (set by the world, not the project)
+
+  Thesis: lowering update_rate from 0.30 to 0.02 (15x slower) inflates
+  terminal Vulns. CONFIRM expected for any non-trivial disclose rate.&quot;&quot;&quot;
+  init = {&#x27;Deps&#x27;:[40,1,500],                 # 40 deps is typical mid-size Java/Python
+          &#x27;Stale&#x27;:[20,0,500],                # half stale at t=0 is the project&#x27;s debt
+          &#x27;Vulns&#x27;:[0,0,500],                 # no exposure at t=0
+          &#x27;update_rate&#x27;:[0.1,0,1],           # *** ctrl ***; 10% Stale renewed per tick
+          &#x27;vuln_disclose_rate&#x27;:[0.01,0,0.5]} # 1% Stale gets a CVE per tick
+
   def step(dt, t, u, v):
+    # Flow OUT of Stale: project actively updates that fraction this tick.
     fresh_flow = u.Stale * u.update_rate
+    # Flow INTO Vulns: world discloses CVEs against Stale deps.
     new_vuln   = u.Stale * u.vuln_disclose_rate
+    # Stale level: drift IN at 5% of total Deps (entropy — deps age constantly),
+    # drift OUT at fresh_flow. Floor at 0 to prevent negative stock under
+    # high update_rate.
     v.Stale = max(0, u.Stale + dt * (u.Deps * 0.05 - fresh_flow))
+    # Vulnerability count integrates the disclosure flow; only grows.
     v.Vulns = u.Vulns + dt * new_vuln
+    # Hold params + Deps constant across the run (steady-state input).
     for p in (&#x27;Deps&#x27;,&#x27;update_rate&#x27;,&#x27;vuln_disclose_rate&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Vulns
+
+  def y(out):
+    # Health metric: lower Vulns = better. Negate so higher y = better.
+    return -out[-1][1].Vulns
+
   def rq(bg=None):
+    # rq fires once at the high (defensive) update_rate, once at the low
+    # (negligent) update_rate. Thesis claims low rate hurts -&gt; &#x27;down&#x27;.
     bi = init if bg is None else bg
     return verdict(&quot;low update_rate inflates vulnerabilities&quot;,
-                   y(run({**bi, &#x27;update_rate&#x27;:[0.30,0,1]}, step)),
-                   y(run({**bi, &#x27;update_rate&#x27;:[0.02,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;update_rate&#x27;:[0.30,0,1]}, step)),  # defensive
+                   y(run({**bi, &#x27;update_rate&#x27;:[0.02,0,1]}, step)),  # negligent
+                   &#x27;down&#x27;)
+
   return Model(init, step, y, rq, &#x27;update_rate&#x27;)
 </code></pre>
   </div>

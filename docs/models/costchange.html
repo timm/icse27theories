@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Boehm's cost-of-change curve is the most cited bar chart in software engineering: catching a bug in requirements costs $1, in coding $10, in test $100, in release $1000. The literal numbers are dated and have been contested in agile contexts (Beck/Cockburn pushback), but the structural claim — fix-cost rises super-linearly with discovery latency — holds in most modern datasets too.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L918" target="_blank" rel="noopener"><code>paper/sd.py:costchange</code></a> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L987" target="_blank" rel="noopener"><code>paper/sd.py:costchange</code></a> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.</p>
     <p class="dim"><em>Intuition</em>: Push catch to release and total cost explodes. Push catch to coding/test and total cost stays linear in defect count. The exponent is the cost ratio late/early.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative cumulative cost at <code>tmax</code>.</strong></p>
@@ -66,24 +66,47 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def costchange():
-  &quot;&quot;&quot;Boehm 1981: cost to fix a bug rises ~10x per phase post-discovery.
-  RQ: shifting catch from coding to release hurts net delivered value.&quot;&quot;&quot;
-  init = {&#x27;Bugs&#x27;:[20,0,1000], &#x27;Cost&#x27;:[0,0,1e6],
-          &#x27;catch_early&#x27;:[0.6,0,1], &#x27;cost_early&#x27;:[1,0.1,5],
-          &#x27;cost_late&#x27;:[50,1,500]}
+  &quot;&quot;&quot;Boehm (1981) &quot;Software Engineering Economics&quot; cost-of-change
+  curve: a bug costs ~$1 in requirements, ~$10 in coding, ~$100 in
+  test, ~$1000 in release. Magnitudes have been debated in agile
+  contexts but the super-linear shape is consistent across modern
+  datasets.
+
+  Stocks (UPPER):
+    Bugs : defects still in the system
+    Cost : cumulative dollars spent fixing them
+  Params (lower):
+    catch_early : fraction of bugs caught in cheap phase (policy)
+    cost_early  : $ per bug caught early
+    cost_late   : $ per bug caught late (typically 50-100x cost_early)
+
+  Thesis: dropping catch_early from 0.8 (test-driven) to 0.2 (ship
+  it and fix in prod) inflates total Cost.&quot;&quot;&quot;
+  init = {&#x27;Bugs&#x27;:[20,0,1000],          # 20 outstanding defects
+          &#x27;Cost&#x27;:[0,0,1e6],            # zero spent yet
+          &#x27;catch_early&#x27;:[0.6,0,1],     # *** ctrl ***; 60% caught early default
+          &#x27;cost_early&#x27;:[1,0.1,5],      # $1 per early catch
+          &#x27;cost_late&#x27;:[50,1,500]}      # $50 per late catch (50x ratio)
+
   def step(dt, t, u, v):
+    # Bugs split by phase of discovery this tick.
     e = u.Bugs * u.catch_early
     l = u.Bugs - e
+    # Cost integrates phase-weighted fixes.
     v.Cost = u.Cost + dt * (e * u.cost_early + l * u.cost_late)
+    # Bugs drain 10% of (early + late) catches per tick (~half-life).
     v.Bugs = max(0, u.Bugs - dt * (e + l) * 0.1)
     for p in (&#x27;catch_early&#x27;,&#x27;cost_early&#x27;,&#x27;cost_late&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Cost
+
+  def y(out): return -out[-1][1].Cost   # reward low Cost
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;shifting catch late inflates total cost&quot;,
-                   y(run({**bi, &#x27;catch_early&#x27;:[0.8,0,1]}, step)),
-                   y(run({**bi, &#x27;catch_early&#x27;:[0.2,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;catch_early&#x27;:[0.8,0,1]}, step)),    # test-heavy
+                   y(run({**bi, &#x27;catch_early&#x27;:[0.2,0,1]}, step)),    # ship-fast
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;catch_early&#x27;)
 </code></pre>
   </div>

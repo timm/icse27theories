@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Merton's Matthew effect — &quot;to him that hath shall be given&quot; — describes how attention concentrates on entities that already have it. In software, well-known modules attract more PRs, more reviews, more test coverage; obscure modules atrophy. The dynamic is generative: small initial differences compound.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1152" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1483" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
     <p class="dim"><em>Intuition</em>: A repo with one famous module and 50 obscure ones will see all its PRs land on the famous module. The obscure modules rot. After a year, the famous one is 10x its old size, the obscure ones unchanged. Compound interest in attention.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Coverage at <code>tmax</code>.</strong></p>
@@ -66,26 +66,49 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def successful():
-  &quot;&quot;&quot;Merton 1968 Matthew effect: attention concentrates on already-
-  attended modules. RQ: high attention_concentration starves the
-  unattended modules until net coverage degrades.&quot;&quot;&quot;
-  init = {&#x27;Pop&#x27;:[50,1,500], &#x27;Attended&#x27;:[10,0,500],
-          &#x27;Coverage&#x27;:[0,0,1e5], &#x27;concentration&#x27;:[0.5,0,1],
-          &#x27;attention_rate&#x27;:[3,0,30]}
+  &quot;&quot;&quot;Merton (1968 Science) &quot;The Matthew Effect in Science.&quot; Attention
+  concentrates on entities that already have it: famous modules
+  attract more PRs, more reviews, more tests; obscure modules atrophy.
+  Small initial differences compound.
+
+  Stocks (UPPER):
+    Pop      : total population of modules
+    Attended : subset receiving active attention
+    Coverage : cumulative attention units delivered
+  Params (lower):
+    concentration   : fraction of attention going to Attended subset (policy)
+    attention_rate  : total attention budget per tick
+
+  Thesis: pushing concentration from 0.4 (balanced) to 0.9 (extreme)
+  starves the unattended set faster than the attended set gains; net
+  Coverage drops.&quot;&quot;&quot;
+  init = {&#x27;Pop&#x27;:[50,1,500],              # 50 modules total
+          &#x27;Attended&#x27;:[10,0,500],         # 10 currently attended (20% Pareto-ish)
+          &#x27;Coverage&#x27;:[0,0,1e5],          # no coverage yet
+          &#x27;concentration&#x27;:[0.5,0,1],     # *** ctrl ***; 50% to attended default
+          &#x27;attention_rate&#x27;:[3,0,30]}     # 3 units/tick total budget
+
   def step(dt, t, u, v):
+    # Attention split: concentration goes to Attended, rest to Pop.
     flow_attn = u.attention_rate * u.concentration
     flow_pop  = u.attention_rate * (1 - u.concentration)
+    # Gain term: per-module attention summed across Attended and rest-of-Pop.
     gain      = u.Attended * flow_attn + (u.Pop - u.Attended) * flow_pop
+    # Starve term: unattended modules lose half their attention share at
+    # high concentration (compound starvation).
     starve    = (u.Pop - u.Attended) * u.concentration * 0.5
     v.Coverage = u.Coverage + dt * (gain - starve)
     for p in (&#x27;Pop&#x27;,&#x27;Attended&#x27;,&#x27;concentration&#x27;,&#x27;attention_rate&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Coverage
+
+  def y(out): return out[-1][1].Coverage   # reward total Coverage
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;extreme concentration starves Coverage&quot;,
-                   y(run({**bi, &#x27;concentration&#x27;:[0.4,0,1]}, step)),
-                   y(run({**bi, &#x27;concentration&#x27;:[0.9,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;concentration&#x27;:[0.4,0,1]}, step)),  # balanced
+                   y(run({**bi, &#x27;concentration&#x27;:[0.9,0,1]}, step)),  # extreme
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;concentration&#x27;)
 
 </code></pre>

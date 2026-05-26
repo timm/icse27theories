@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1091" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1355" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
     <p class="dim"><em>Intuition</em>: An issue tracker that doubles its open count every quarter is one where intake outpaces output. Every team manager has lived this. The only defences are caps on intake (WIP limit) or boosts to outflow (more devs, faster cycle).</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Done minus 10% of Backlog at <code>tmax</code>.</strong></p>
@@ -66,22 +66,45 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def scope():
-  &quot;&quot;&quot;Boehm/Jones scope creep: when inflow &gt; outflow, backlog grows
-  without bound. RQ: high inflow_excess hurts net Done.&quot;&quot;&quot;
-  init = {&#x27;Backlog&#x27;:[100,0,10000], &#x27;Done&#x27;:[0,0,10000],
-          &#x27;inflow&#x27;:[8,0,100], &#x27;outflow&#x27;:[6,0,100]}
+  &quot;&quot;&quot;Boehm (1981 Software Eng. Economics) + Jones (Applied Software
+  Measurement, 2008) on scope creep. The workhorse failure mode:
+  requirement inflow exceeds delivery outflow, backlog grows
+  unbounded, calendar slips.
+
+  Stocks (UPPER):
+    Backlog : requirements not yet delivered
+    Done    : delivered features
+  Params (lower):
+    inflow  : new requirements arriving per tick (the world)
+    outflow : team&#x27;s delivery capacity per tick (the team)
+
+  Thesis: tripling inflow (5 -&gt; 15) without changing outflow drops
+  net Done (delivered - 10% of Backlog penalty).&quot;&quot;&quot;
+  init = {&#x27;Backlog&#x27;:[100,0,10000],      # 100 items already piled up
+          &#x27;Done&#x27;:[0,0,10000],           # nothing delivered yet
+          &#x27;inflow&#x27;:[8,0,100],           # *** ctrl ***; 8 items arrive/tick
+          &#x27;outflow&#x27;:[6,0,100]}          # 6 items delivered/tick (chronic deficit)
+
   def step(dt, t, u, v):
+    # Can only serve what exists in the Backlog, up to outflow capacity.
     served = min(u.Backlog, u.outflow)
+    # Backlog rises by (inflow - served). Negative when team catches up.
     v.Backlog = u.Backlog + dt * (u.inflow - served)
+    # Done strictly grows.
     v.Done    = u.Done    + dt * served
     for p in (&#x27;inflow&#x27;,&#x27;outflow&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return out[-1][1].Done - out[-1][1].Backlog * 0.1
+
+  def y(out):
+    # Reward Done minus 10% of remaining Backlog (visible unfinished work).
+    return out[-1][1].Done - out[-1][1].Backlog * 0.1
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;inflow &gt;&gt; outflow drowns Done&quot;,
-                   y(run({**bi, &#x27;inflow&#x27;:[5,0,100]}, step)),
-                   y(run({**bi, &#x27;inflow&#x27;:[15,0,100]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;inflow&#x27;:[5,0,100]},  step)),    # under-capacity
+                   y(run({**bi, &#x27;inflow&#x27;:[15,0,100]}, step)),    # creep
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;inflow&#x27;)
 </code></pre>
   </div>

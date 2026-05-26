@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Brooks's Mythical Man-Month observed that adding people to a project increases the communication-pair count quadratically: N people produce N·(N-1)/2 channels. Each channel costs developer time, so beyond some team size the marginal hire reduces throughput instead of increasing it. Curtis et al's CACM field study put empirical flesh on the bone.</p>
-    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L874" target="_blank" rel="noopener"><code>paper/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
+    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L898" target="_blank" rel="noopener"><code>paper/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
     <p class="dim"><em>Intuition</em>: A team of 10 has 45 pairs; a team of 20 has 190 pairs — the tax is non-linear in N. For small comm_coef the law is mild; for high comm_coef the team has a hard size ceiling.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative <code>Done</code> at <code>tmax</code>.</strong></p>
@@ -66,22 +66,44 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def coordn2():
-  &quot;&quot;&quot;Brooks/Curtis: communication-pair count = N*(N-1)/2.
-  RQ: doubling N more than doubles coordination cost (superlinear).&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[5,1,200], &#x27;Done&#x27;:[0,0,10000],
-          &#x27;work_per_dev&#x27;:[10,0,50], &#x27;comm_coef&#x27;:[0.02,0,0.5]}
+  &quot;&quot;&quot;Brooks (1975 MMM) + Curtis, Krasner, Iscoe (1988 CACM): N
+  developers generate N*(N-1)/2 communication pairs. Each pair costs
+  developer attention, so doubling the team produces more than
+  double the coordination drag.
+
+  Stocks (UPPER):
+    Devs : number of developers (held constant per run)
+    Done : cumulative work delivered
+  Params (lower):
+    work_per_dev : base productivity coefficient (items per dev per tick)
+    comm_coef    : per-pair attention cost coefficient
+
+  Thesis: doubling Devs (5 -&gt; 10) less than doubles Done (because
+  comm_coef * pairs / N grows in N).&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[5,1,200],              # *** ctrl ***; small team default
+          &#x27;Done&#x27;:[0,0,10000],            # nothing done at t=0
+          &#x27;work_per_dev&#x27;:[10,0,50],      # 10 items/dev/tick baseline
+          &#x27;comm_coef&#x27;:[0.02,0,0.5]}      # 2% attention lost per pair-share
+
   def step(dt, t, u, v):
+    # Communication-pair count grows quadratically in team size.
     pairs = u.Devs * (u.Devs - 1) / 2
+    # Per-dev tax = (pairs each dev participates in) * coefficient.
+    # Cap at 90% to prevent negative throughput at huge N.
     tax   = min(0.9, u.comm_coef * pairs / max(1, u.Devs))
+    # Effective output: N devs each producing work_per_dev, minus tax.
     v.Done = u.Done + dt * u.Devs * u.work_per_dev * (1 - tax)
     for p in (&#x27;Devs&#x27;,&#x27;work_per_dev&#x27;,&#x27;comm_coef&#x27;):
       setattr(v, p, getattr(u, p))
+
   def y(out): return out[-1][1].Done
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;doubling team superlinear-taxes throughput&quot;,
-                   y(run({**bi, &#x27;Devs&#x27;:[5,1,200]}, step)),
-                   y(run({**bi, &#x27;Devs&#x27;:[10,1,200]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;Devs&#x27;:[5,1,200]},  step)),    # small
+                   y(run({**bi, &#x27;Devs&#x27;:[10,1,200]}, step)),    # doubled
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;Devs&#x27;)
 </code></pre>
   </div>

@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Lehman's laws of software evolution include continuing change and increasing complexity: a program that is used in a real-world environment must continually adapt, and as it adapts it becomes more complex unless work is done to maintain or reduce that complexity. The thesis is one of the oldest empirical generalisations in SE.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L894" target="_blank" rel="noopener"><code>paper/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L940" target="_blank" rel="noopener"><code>paper/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
     <p class="dim"><em>Intuition</em>: Every commit adds complexity unless explicit refactoring removes it. Bugs scale with current complexity. Skip refactor, pay in defects.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative net Complexity + Bugs at <code>tmax</code>.</strong></p>
@@ -66,26 +66,49 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def entropy():
-  &quot;&quot;&quot;Lehman 1980: software entropy grows monotonically unless paid
-  down via refactor. Without refactor effort, defect rate rises.
-  RQ: low refactor_rate inflates terminal Complexity.&quot;&quot;&quot;
-  init = {&#x27;Complexity&#x27;:[100,0,5000], &#x27;Bugs&#x27;:[0,0,5000],
-          &#x27;work_rate&#x27;:[10,0,100], &#x27;refactor_rate&#x27;:[0.05,0,0.5],
-          &#x27;entropy_coef&#x27;:[0.02,0,0.5]}
+  &quot;&quot;&quot;Lehman (1980) &quot;Programs, life cycles, and laws of software
+  evolution.&quot; Continuing change + increasing complexity: software
+  entropy rises monotonically unless explicit refactor effort pays
+  it down. Without pay-down, complexity grows and defects follow.
+
+  Stocks (UPPER):
+    Complexity : intrinsic structural difficulty of the codebase
+    Bugs       : cumulative defect count (proportional to complexity)
+  Params (lower):
+    work_rate     : commit volume per tick (entropy source)
+    refactor_rate : fraction of complexity paid down per tick (policy)
+    entropy_coef  : how much commit adds to complexity (~0.02)
+
+  Thesis: dropping refactor_rate from 0.20 (active maintenance) to
+  0.02 (neglect) inflates terminal Complexity + Bugs.&quot;&quot;&quot;
+  init = {&#x27;Complexity&#x27;:[100,0,5000],         # starting complexity
+          &#x27;Bugs&#x27;:[0,0,5000],                 # no defects yet
+          &#x27;work_rate&#x27;:[10,0,100],            # 10 commits per tick
+          &#x27;refactor_rate&#x27;:[0.05,0,0.5],      # *** ctrl ***; 5% paid down
+          &#x27;entropy_coef&#x27;:[0.02,0,0.5]}       # 2% of work becomes complexity
+
   def step(dt, t, u, v):
+    # Each commit adds work_rate * entropy_coef to Complexity.
     grow    = u.work_rate * u.entropy_coef
+    # Refactor work removes a fraction of current Complexity.
     pay     = u.Complexity * u.refactor_rate
+    # Bug arrival proportional to current Complexity (0.1% per tick).
     bug_in  = u.Complexity * 0.001
     v.Complexity = max(0, u.Complexity + dt * (grow - pay))
     v.Bugs       = u.Bugs + dt * bug_in
     for p in (&#x27;work_rate&#x27;,&#x27;refactor_rate&#x27;,&#x27;entropy_coef&#x27;):
       setattr(v, p, getattr(u, p))
-  def y(out): return -out[-1][1].Complexity - out[-1][1].Bugs
+
+  def y(out):
+    # Reward LOW Complexity AND LOW Bugs. Both negated.
+    return -out[-1][1].Complexity - out[-1][1].Bugs
+
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;low refactor leaves Complexity high&quot;,
-                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.20,0,0.5]}, step)),
-                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.02,0,0.5]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.20,0,0.5]}, step)),  # active
+                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.02,0,0.5]}, step)),  # neglect
+                   &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;refactor_rate&#x27;)
 </code></pre>
   </div>
