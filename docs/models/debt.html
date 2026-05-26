@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>debt (1992) — SD-Theses</title>
+<title>debt (1992) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ debt</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ debt</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -64,29 +64,44 @@
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def debt():
   &quot;&quot;&quot;Cunningham [3]: shipping fast incurs debt; debt slows shipping.
-  RQ: starting Debt=50 hurts net feature delivery.&quot;&quot;&quot;
+     RQ: starting Debt=50 hurts net feature delivery.&quot;&quot;&quot;
+
+  # init: Feat (cumulative features), Debt (carried), Vel (current velocity)
   init = {&#x27;Feat&#x27;:[1,0,200], &#x27;Debt&#x27;:[0,0,100], &#x27;Vel&#x27;:[10,0,20],
-          &#x27;born_rate&#x27;:[0.3,0,1], &#x27;intr_rate&#x27;:[0.10,0,0.5],
-          &#x27;pay_rate&#x27;:[0.15,0,1]}
+          &#x27;born_rate&#x27;:[0.3,0,1],   # debt born per ship
+          &#x27;intr_rate&#x27;:[0.10,0,0.5],# compounding interest on existing debt
+          &#x27;pay_rate&#x27;:[0.15,0,1]}   # debt paid down by refactoring
 
   def step(dt, t, u, v):
+    # Speed declines as debt accumulates (linear penalty, floor 0)
     speed = max(0, 1 - u.Debt / 100)
+    # Shipping rate: base output (1+Feat*0.1) scaled by current speed
     ship  = (1 + u.Feat * 0.1) * speed
+    # New debt born per shipped feature
     born  = ship * u.born_rate
+    # Interest compounds existing debt
     intr  = u.Debt * u.intr_rate
+    # Refactoring pays debt down at pay_rate * current Debt
     pay   = u.Debt * u.pay_rate
+    # Feat grows monotonically by the ship flow
     v.Feat = u.Feat + dt * ship
+    # Debt is net of (born + interest) inflows minus pay outflow
     v.Debt = u.Debt + dt * (born + intr - pay)
+    # Velocity exposed for inspection (10 = baseline, scaled by speed)
     v.Vel  = 10 * speed
+    # Rate params carry forward
     v.born_rate, v.intr_rate, v.pay_rate = u.born_rate, u.intr_rate, u.pay_rate
 
   def y(out):
     end = out[-1][1]
+    # Net delivery: final Feat minus mean carried Debt
     md = sum(r.Debt for _, r in out) / len(out)
     return end.Feat - md
 
   def rq(bg=None):
     bi = init if bg is None else bg
+    # Starting debt=50 (already indebted) vs debt=0 (clean slate).
+    # Thesis: starting indebted hurts net delivery (expect=&#x27;down&#x27;).
     return verdict(&quot;starting Debt=50 slows delivery&quot;,
                    y(run({**bi, &#x27;Debt&#x27;:[ 0,0,100]}, step)),
                    y(run({**bi, &#x27;Debt&#x27;:[50,0,100]}, step)), &#x27;down&#x27;)

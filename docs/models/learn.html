@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>learn (2000) — SD-Theses</title>
+<title>learn (2000) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ learn</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ learn</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -64,28 +64,34 @@
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def learn():
   &quot;&quot;&quot;Sterman [6]: jr -&gt; tr -&gt; sr workforce flow.
-  RQ: removing seniors (Sr=0) starves training.&quot;&quot;&quot;
+     RQ: removing seniors (Sr=0) starves training.&quot;&quot;&quot;
+  # init: 4 stocks (Jr/Tr/Sr/Ment) + 3 rate params
   init = {&#x27;Jr&#x27;:[20,0,100], &#x27;Tr&#x27;:[5,0,100], &#x27;Sr&#x27;:[5,0,100], &#x27;Ment&#x27;:[0,0,100],
-          &#x27;train_rate&#x27;:[0.10,0,1], &#x27;promote_rate&#x27;:[0.05,0,1],
-          &#x27;mentor_rate&#x27;:[0.02,0,1]}
+          &#x27;train_rate&#x27;:[0.10,0,1],    # Jr -&gt; Tr per unit time
+          &#x27;promote_rate&#x27;:[0.05,0,1],  # Tr -&gt; Sr per unit time
+          &#x27;mentor_rate&#x27;:[0.02,0,1]}   # Sr -&gt; Ment per unit time
 
   def step(dt, t, u, v):
+    # Three transitions; each draws proportionally from upstream stock
     train   = u.Jr * u.train_rate
     promote = u.Tr * u.promote_rate
     mentor  = u.Sr * u.mentor_rate
+    # Jr replenishes via mentor backflow (mentors recruit new juniors)
     v.Jr   = u.Jr   - dt * train + dt * mentor
     v.Tr   = u.Tr   + dt * (train - promote)
     v.Sr   = u.Sr   + dt * (promote - mentor)
-    v.Ment = u.Ment + dt * mentor
+    v.Ment = u.Ment + dt * mentor          # Ment is sink for cumulative mentoring
     for p in (&#x27;train_rate&#x27;,&#x27;promote_rate&#x27;,&#x27;mentor_rate&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
+    # Success = senior + mentor stock at end (pipeline health)
     return end.Sr + end.Ment
 
   def rq(bg=None):
     bi = init if bg is None else bg
+    # Sr=5 (baseline) vs Sr=0 (starvation)
     return verdict(&quot;Sr=0 starves training pipeline&quot;,
                    y(run({**bi, &#x27;Sr&#x27;:[5,0,100]}, step)),
                    y(run({**bi, &#x27;Sr&#x27;:[0,0,100]}, step)), &#x27;down&#x27;)

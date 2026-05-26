@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>sir (1927) — SD-Theses</title>
+<title>sir (1927) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ sir</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ sir</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -64,28 +64,33 @@
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def sir():
   &quot;&quot;&quot;Kermack-McKendrick [4]: bad-pattern spread.
-  RQ: 3x initial I raises peak (-y drops).&quot;&quot;&quot;
-  init = {&#x27;S&#x27;:[90,0,100], &#x27;I&#x27;:[10,0,100], &#x27;R&#x27;:[0,0,100],
-          &#x27;beta&#x27;:[0.0051,0,0.05], &#x27;gamma&#x27;:[0.15,0,1]}
+     RQ: 3x initial I raises peak (-y drops).&quot;&quot;&quot;
+  # init: three classic SIR stocks + two rate params
+  init = {&#x27;S&#x27;:[100,0,100], &#x27;I&#x27;:[10,0,100], &#x27;R&#x27;:[0,0,100],
+          &#x27;beta&#x27;:[0.01,0,0.1],   # *** ctrl *** infection rate per S-I contact
+          &#x27;gamma&#x27;:[0.05,0,0.5]}  # recovery rate (refactor-out rate)
 
   def step(dt, t, u, v):
-    inf = u.beta  * u.S * u.I
-    rec = u.gamma * u.I
-    v.S = u.S - dt * inf
-    v.I = u.I + dt * (inf - rec)
-    v.R = u.R + dt * rec
+    # Standard SIR equations
+    inf = u.beta  * u.S * u.I    # new infections (S becomes I)
+    rec = u.gamma * u.I          # recoveries (I becomes R)
+    v.S = u.S - dt * inf         # S shrinks by new infections
+    v.I = u.I + dt * (inf - rec) # I = arrivals minus departures
+    v.R = u.R + dt * rec         # R grows monotonically
     v.beta, v.gamma = u.beta, u.gamma
 
   def y(out):
-    return -max(r.I for _, r in out)
+    # Peak Infected — public-health metric for outbreak severity
+    return -max(r.I for _, r in out)  # negative because high peak = bad
 
   def rq(bg=None):
     bi = init if bg is None else bg
+    # Triple initial Infected -&gt; raise peak -&gt; drop y
     return verdict(&quot;3x initial I raises peak&quot;,
                    y(run({**bi, &#x27;I&#x27;:[10,0,100]}, step)),
                    y(run({**bi, &#x27;I&#x27;:[30,0,100]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;I&#x27;)
+  return Model(init, step, y, rq, &#x27;beta&#x27;)
 </code></pre>
   </div>
 

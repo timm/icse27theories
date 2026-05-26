@@ -62,6 +62,33 @@ M = {}  # populated below — keyed by model name
 # implications (HTML list items), refs (list of (cite, url, kind))
 
 M["diapers"] = dict(
+    code_commented='''def diapers():
+  """Toy demonstrator: one flow, one threshold. Sanity-check the engine."""
+  # init: one input UPPER var + one lower param.
+  init = {'In':  [10, 0, 100],     # input level (only stock)
+          'out': [5,  0, 20]}      # *** ctrl *** baseline threshold
+
+  # step: one tick. Compute output as max(0, In - out_threshold).
+  def step(dt, t, u, v):
+    flow = max(0, u.In - u.out)    # gated flow above threshold
+    v.In  = u.In                   # input is held constant in this toy
+    v.out = u.out                  # threshold doesn't drift
+    # No accumulator stock — we read the flow directly via y()
+    v._flow = flow
+
+  # y: the gated flow at the final step (toy success measure)
+  def y(out):
+    return out[-1][1]._flow
+
+  # rq: shifting baseline downward should reduce the flow
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("threshold shift hurts flow",
+                   y(run({**bi, 'out':[5,  0, 20]}, step)),
+                   y(run({**bi, 'out':[15, 0, 20]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'out')
+''',
     year=2016, cell="process-conditional", cite_short="Toy demonstrator (no real-world referent).",
     intro1="The simplest possible model the framework can run: one input variable, one output, no dynamics. It exists not to claim anything about software engineering but to demonstrate the engine end-to-end — that the harness can read a Model namedtuple, run it, and produce a verdict.",
     intro2="If <code>diapers</code> ever fails to execute, the bug is in the framework, not in any model. It is the canary in the coal mine: the V&amp;V suite runs against <code>diapers</code> first, and a green light there means the harness is healthy.",
@@ -92,6 +119,47 @@ M["diapers"] = dict(
 
 
 M["bugs"] = dict(
+    code_commented='''def bugs():
+  """Goel-Okumoto [2]: exponential reliability growth.
+     RQ: 2x initial Latent -> ~2x eventual Fixed (linearity of recovery)."""
+
+  # init: three bug-count stocks + two rate params
+  init = {
+    'Latent':    [100,  0, 200],  # initial un-discovered bug pool (the GO 'a')
+    'Found':     [0,    0, 200],  # discovered but not yet repaired
+    'Fixed':     [0,    0, 200],  # cumulative resolved (success measure)
+    'find_rate': [0.1,  0, 1],    # *** ctrl *** per-bug discovery rate (GO 'b')
+    'fix_rate':  [0.5,  0, 1]     # repair rate (Found -> Fixed)
+  }
+
+  def step(dt, t, u, v):
+    # Discovery: each Latent bug has find_rate probability of being found per dt
+    find = u.Latent * u.find_rate
+    # Repair: each Found bug has fix_rate probability of becoming Fixed per dt
+    fix  = u.Found  * u.fix_rate
+    # Latent shrinks by discovery flow (clamped non-negative by engine)
+    v.Latent = u.Latent - dt * find
+    # Found = arrivals from Latent minus departures to Fixed
+    v.Found  = u.Found  + dt * (find - fix)
+    # Fixed grows monotonically by the repair flow
+    v.Fixed  = u.Fixed  + dt * fix
+    # Rate params carry forward unchanged
+    v.find_rate, v.fix_rate = u.find_rate, u.fix_rate
+
+  def y(out):
+    end = out[-1][1]              # final timestep state
+    return end.Fixed              # how many bugs eventually got fixed
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # Linearity test: 2x initial Latent should give ~2x eventual Fixed.
+    # expect='up' (more bugs to find -> more bugs get fixed).
+    return verdict("2x initial Latent -> ~2x eventual Fixed",
+                   y(run({**bi, 'Latent':[100, 0, 200]}, step)),
+                   y(run({**bi, 'Latent':[200, 0, 200]}, step)), 'up')
+
+  return Model(init, step, y, rq, 'find_rate')
+''',
     year=1979, cell="process-conditional",
     cite_short="Goel-Okumoto NHPP-style reliability growth.",
     intro1="A software system contains an unknown pool <em>a</em> of latent defects. As testing proceeds, defects are discovered at a rate proportional to the remaining latent stock — yielding the canonical exponential <code>N(t) = a·(1 − e<sup>−bt</sup>)</code>. The discovery rate <em>b</em> is per-bug; the asymptote <em>a</em> is the eventual total.",
@@ -141,6 +209,52 @@ M["bugs"] = dict(
 
 
 M["debt"] = dict(
+    code_commented='''def debt():
+  """Cunningham [3]: shipping fast incurs debt; debt slows shipping.
+     RQ: starting Debt=50 hurts net feature delivery."""
+
+  # init: Feat (cumulative features), Debt (carried), Vel (current velocity)
+  init = {'Feat':[1,0,200], 'Debt':[0,0,100], 'Vel':[10,0,20],
+          'born_rate':[0.3,0,1],   # debt born per ship
+          'intr_rate':[0.10,0,0.5],# compounding interest on existing debt
+          'pay_rate':[0.15,0,1]}   # debt paid down by refactoring
+
+  def step(dt, t, u, v):
+    # Speed declines as debt accumulates (linear penalty, floor 0)
+    speed = max(0, 1 - u.Debt / 100)
+    # Shipping rate: base output (1+Feat*0.1) scaled by current speed
+    ship  = (1 + u.Feat * 0.1) * speed
+    # New debt born per shipped feature
+    born  = ship * u.born_rate
+    # Interest compounds existing debt
+    intr  = u.Debt * u.intr_rate
+    # Refactoring pays debt down at pay_rate * current Debt
+    pay   = u.Debt * u.pay_rate
+    # Feat grows monotonically by the ship flow
+    v.Feat = u.Feat + dt * ship
+    # Debt is net of (born + interest) inflows minus pay outflow
+    v.Debt = u.Debt + dt * (born + intr - pay)
+    # Velocity exposed for inspection (10 = baseline, scaled by speed)
+    v.Vel  = 10 * speed
+    # Rate params carry forward
+    v.born_rate, v.intr_rate, v.pay_rate = u.born_rate, u.intr_rate, u.pay_rate
+
+  def y(out):
+    end = out[-1][1]
+    # Net delivery: final Feat minus mean carried Debt
+    md = sum(r.Debt for _, r in out) / len(out)
+    return end.Feat - md
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # Starting debt=50 (already indebted) vs debt=0 (clean slate).
+    # Thesis: starting indebted hurts net delivery (expect='down').
+    return verdict("starting Debt=50 slows delivery",
+                   y(run({**bi, 'Debt':[ 0,0,100]}, step)),
+                   y(run({**bi, 'Debt':[50,0,100]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'Debt')
+''',
     year=1992, cell="universal",
     cite_short="Cunningham (1992): technical debt slows shipping.",
     intro1="Shipping fast accrues technical debt. The debt then slows down future shipping. Three rates govern the dynamic: <em>born_rate</em> (new debt per ship), <em>intr_rate</em> (compounding interest on existing debt), and <em>pay_rate</em> (debt paid down by refactoring). The original metaphor comes from financial portfolio management — Cunningham's WyCash team described code shortcuts as a loan.",
@@ -192,6 +306,36 @@ M["debt"] = dict(
 
 
 M["sir"] = dict(
+    code_commented='''def sir():
+  """Kermack-McKendrick [4]: bad-pattern spread.
+     RQ: 3x initial I raises peak (-y drops)."""
+  # init: three classic SIR stocks + two rate params
+  init = {'S':[100,0,100], 'I':[10,0,100], 'R':[0,0,100],
+          'beta':[0.01,0,0.1],   # *** ctrl *** infection rate per S-I contact
+          'gamma':[0.05,0,0.5]}  # recovery rate (refactor-out rate)
+
+  def step(dt, t, u, v):
+    # Standard SIR equations
+    inf = u.beta  * u.S * u.I    # new infections (S becomes I)
+    rec = u.gamma * u.I          # recoveries (I becomes R)
+    v.S = u.S - dt * inf         # S shrinks by new infections
+    v.I = u.I + dt * (inf - rec) # I = arrivals minus departures
+    v.R = u.R + dt * rec         # R grows monotonically
+    v.beta, v.gamma = u.beta, u.gamma
+
+  def y(out):
+    # Peak Infected — public-health metric for outbreak severity
+    return -max(r.I for _, r in out)  # negative because high peak = bad
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # Triple initial Infected -> raise peak -> drop y
+    return verdict("3x initial I raises peak",
+                   y(run({**bi, 'I':[10,0,100]}, step)),
+                   y(run({**bi, 'I':[30,0,100]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'beta')
+''',
     year=1927, cell="universal",
     cite_short="Kermack-McKendrick (1927) epidemic flow, adapted to anti-pattern spread.",
     intro1="The classic SIR epidemic model — Susceptible → Infected → Recovered — adapted to software architecture. \"Infected\" = files carrying an anti-pattern. The disease spreads through dependency edges: an infected file's neighbours have elevated probability of contracting the same pattern. Recovery = a refactor pass that removes the anti-pattern.",
@@ -235,6 +379,49 @@ M["sir"] = dict(
 
 
 M["rework"] = dict(
+    code_commented='''def rework():
+  """Abdel-Hamid & Madnick [5]: hidden rework cycle.
+     RQ: failrate 0.1 -> 0.7 lets rework dominate."""
+  # init: 5 stocks tracing the work flow Req -> Dev -> Test -> {Done|Rew}
+  init = {'Req':[100,0,100], 'Dev':[0,0,100], 'Test':[0,0,100],
+          'Rew':[0,0,100], 'Done':[0,0,100],
+          'code_rate':[0.2,0,1],   # Req -> Dev rate
+          'qa_rate':[0.5,0,1],     # Dev -> Test rate
+          'fix_rate':[0.5,0,1],    # Rew -> Dev rate (back-edge)
+          'failrate':[0.4,0,1]}    # *** ctrl *** Test -> Rew probability
+
+  def step(dt, t, u, v):
+    # All four flow rates as instantaneous transitions
+    code = u.Req  * u.code_rate            # new requirements coded
+    qa   = u.Dev  * u.qa_rate              # dev work moves to test
+    fail = u.Test * u.failrate             # tests that fail go to Rew
+    pas  = u.Test * (1 - u.failrate)       # tests that pass go to Done
+    fix  = u.Rew  * u.fix_rate             # rework re-enters Dev
+    # Stock updates: Req drains, Dev = code + fix - qa, etc.
+    v.Req  = u.Req  - dt * code
+    v.Dev  = u.Dev  + dt * (code - qa + fix)
+    v.Test = u.Test + dt * (qa - fail - pas)
+    v.Rew  = u.Rew  + dt * (fail - fix)
+    v.Done = u.Done + dt * pas
+    # Carry rate params forward
+    for p in ('code_rate','qa_rate','fix_rate','failrate'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1].Done
+    # Penalise WIP: pile-ups in Dev/Test/Rew cost 0.5x of Done value
+    wip = sum(r.Dev + r.Test + r.Rew for _, r in out) / len(out)
+    return end - 0.5 * wip
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # failrate 0.1 (good) vs 0.7 (rework dominates)
+    return verdict("failrate 0.7 -> hidden rework dominates",
+                   y(run({**bi, 'failrate':[0.1,0,1]}, step)),
+                   y(run({**bi, 'failrate':[0.7,0,1]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'failrate')
+''',
     year=1991, cell="universal",
     cite_short="Abdel-Hamid &amp; Madnick — hidden rework cycle.",
     intro1="Software development has a hidden recirculation: work flows Req → Dev → Test, but at Test the work BRANCHES — passing items go to Done, failing items go back to Rew (rework) and then to Dev again. The Rew → Dev arc is the \"hidden\" part: it inflates apparent productivity without producing finished work.",
@@ -287,6 +474,42 @@ M["rework"] = dict(
 
 
 M["learn"] = dict(
+    code_commented='''def learn():
+  """Sterman [6]: jr -> tr -> sr workforce flow.
+     RQ: removing seniors (Sr=0) starves training."""
+  # init: 4 stocks (Jr/Tr/Sr/Ment) + 3 rate params
+  init = {'Jr':[20,0,100], 'Tr':[5,0,100], 'Sr':[5,0,100], 'Ment':[0,0,100],
+          'train_rate':[0.10,0,1],    # Jr -> Tr per unit time
+          'promote_rate':[0.05,0,1],  # Tr -> Sr per unit time
+          'mentor_rate':[0.02,0,1]}   # Sr -> Ment per unit time
+
+  def step(dt, t, u, v):
+    # Three transitions; each draws proportionally from upstream stock
+    train   = u.Jr * u.train_rate
+    promote = u.Tr * u.promote_rate
+    mentor  = u.Sr * u.mentor_rate
+    # Jr replenishes via mentor backflow (mentors recruit new juniors)
+    v.Jr   = u.Jr   - dt * train + dt * mentor
+    v.Tr   = u.Tr   + dt * (train - promote)
+    v.Sr   = u.Sr   + dt * (promote - mentor)
+    v.Ment = u.Ment + dt * mentor          # Ment is sink for cumulative mentoring
+    for p in ('train_rate','promote_rate','mentor_rate'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    # Success = senior + mentor stock at end (pipeline health)
+    return end.Sr + end.Ment
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # Sr=5 (baseline) vs Sr=0 (starvation)
+    return verdict("Sr=0 starves training pipeline",
+                   y(run({**bi, 'Sr':[5,0,100]}, step)),
+                   y(run({**bi, 'Sr':[0,0,100]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'Sr')
+''',
     year=2000, cell="process-conditional",
     cite_short="Sterman ch.18 workforce flow: Jr → Tr → Sr → Ment.",
     intro1="The workforce-flow pipeline. New developers enter as Juniors (Jr); after gaining experience they become Trainees (Tr); after more time and mentorship they reach Senior (Sr); and finally Sr's mentor the next cohort (Ment). The flow only works if each stage has enough people to teach the next.",
@@ -339,6 +562,53 @@ M["learn"] = dict(
 
 
 M["brooksq"] = dict(
+    code_commented='''def brooksq():
+  """Brooks [1] + Madachy [7]: late hires hurt quality-adjusted progress.
+     RQ: boost=10 hurts y = Done - 5*Esc."""
+  # init: 5 stocks (Vet, New, Done, Todo, Bugs, Esc) + 6 params
+  init = {'Vet':[10,0,100], 'New':[0,0,100], 'Done':[0,0,500],
+          'Todo':[500,0,500], 'Bugs':[0,0,100], 'Esc':[0,0,100],
+          'boost':[0,0,100],            # *** ctrl *** newcomer surge at t=10
+          'comm_coef':[0.005,0,0.05],   # comm overhead per vet-pair
+          'train_coef':[0.2,0,1],       # training cost per New (paid by Vet)
+          'prod_rate':[5,0.1,20],       # baseline productivity per Vet
+          'inj_rate':[0.05,0,0.5],      # bugs introduced per unit prod (the F1 hi)
+          'leak_rate':[0.10,0,0.5],     # fraction of bugs that escape to Esc
+          'mature_rate':[0.1,0,1]}      # New -> Vet maturation rate
+
+  def step(dt, t, u, v):
+    # Brooks's velocity side
+    comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef  # n*(n-1)/2 comm overhead
+    train = u.New * u.train_coef                   # training drain
+    prod  = u.Vet * (1 - comm - train) * u.prod_rate
+    # Bug-quality side: production injects bugs at inj_rate
+    inj   = max(0, prod) * u.inj_rate
+    # Some bugs leak to Esc (uncaught); the rest stay in Bugs (caught queue)
+    leak  = u.Bugs * u.leak_rate
+    # Stock updates
+    v.Todo = u.Todo - dt * max(0, prod)
+    v.Done = u.Done + dt * max(0, prod)
+    v.Bugs = u.Bugs + dt * (inj - leak)
+    v.Esc  = u.Esc  + dt * leak
+    v.New  = u.New - dt * u.mature_rate * u.New + (u.boost if t == 10 else 0)
+    v.Vet  = u.Vet + dt * u.mature_rate * u.New
+    for p in ('boost','comm_coef','train_coef','prod_rate',
+              'inj_rate','leak_rate','mature_rate'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    # Quality-aware progress: Done minus 5x escape penalty
+    return end.Done - 5 * end.Esc
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("boost=10 hurts y = Done - 5*Esc",
+                   y(run({**bi, 'boost':[0,0,100]}, step)),
+                   y(run({**bi, 'boost':[10,0,100]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'boost')
+''',
     year=2008, cell="fragile",
     cite_short="Brooks (1975) extended with Madachy (2008): quality side.",
     intro1="Brooks's mythical-man-month has a quality side that the velocity-only model omits: late hires don't just slow veterans, they also inject more bugs that leak into the field. The brooksq SD form tracks five stocks (Vet, New, Done, Bugs, Esc) with two extra rate params: <em>inj_rate</em> (bugs per veteran-prod-unit) and <em>leak_rate</em> (fraction of bugs that escape to Esc without being caught).",
@@ -394,6 +664,50 @@ M["brooksq"] = dict(
 
 
 M["defmap"] = dict(
+    code_commented='''def defmap():
+  """Abdel-Hamid & Madnick [5] defect submodel.
+     RQ: tst 2.5 -> 0.5 balloons operational defects."""
+  # init: 3 design-state stocks (Cmplx, Dsn, Use) + 4 defect-flow stocks
+  init = {'Cmplx':[20,0,100], 'Dsn':[20,0,100], 'Use':[35,0,100],
+          'Injected':[2.43,0,100], 'Caught':[0,0,100],
+          'Latent':[0,0,100], 'Prod':[0,0,100],
+          'tst':[2.5,0,10],            # *** ctrl *** testing intensity
+          'intro_c':[0.3,0,1],         # bug-introduction rate from Cmplx
+          'intro_d':[0.2,0,1],         # bug-introduction rate from Dsn
+          'detect_coef':[0.4,0,1],     # detection effectiveness coef
+          'fail_coef':[0.15,0,1]}      # Latent -> Prod (field failure) rate
+
+  def step(dt, t, u, v):
+    # Defect introduction: complexity adds, good design subtracts
+    intro  = u.Cmplx * u.intro_c - u.Dsn * u.intro_d
+    # Detection effectiveness scales with testing intensity
+    detect = u.tst * u.Injected * u.detect_coef
+    # What doesn't get caught leaks to Latent
+    leak   = u.Injected * (1 - u.tst * u.detect_coef)
+    # Latent bugs eventually fail in production
+    fail   = u.Latent * u.Use * u.fail_coef
+    v.Injected = u.Injected + dt * intro
+    v.Caught   = u.Caught   + dt * detect
+    v.Latent   = u.Latent   + dt * (leak - fail)
+    v.Prod     = u.Prod     + dt * fail
+    for p in ('Cmplx','Dsn','Use','tst','intro_c','intro_d',
+              'detect_coef','fail_coef'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    # Negate both Prod and Latent: we want FEWER escaped + FEWER pending
+    return -end.Prod - 0.5 * end.Latent
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # tst=2.5 (baseline) vs tst=0.5 (under-tested)
+    return verdict("tst=0.5 increases operational defects",
+                   y(run({**bi, 'tst':[2.5,0,10]}, step)),
+                   y(run({**bi, 'tst':[0.5,0,10]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'tst')
+''',
     year=1991, cell="universal",
     cite_short="Abdel-Hamid &amp; Madnick (1991) defect-flow submodel.",
     intro1="Defect lifecycle: bugs are <em>Injected</em> by ongoing development. Some get <em>Caught</em> by testing/review; the rest become <em>Latent</em>. Latent bugs eventually reach <em>Prod</em> (field-escape) where users encounter them. The single ctrl variable <em>tst</em> (testing intensity) modulates how many Injected get Caught vs leaked to Latent.",
@@ -442,6 +756,51 @@ M["defmap"] = dict(
 
 
 M["dora"] = dict(
+    code_commented='''def dora():
+  """Forsgren, Humble, Kim [12]: large batches -> CFR up.
+     RQ: batch_size 5 -> 50 hurts net deploys."""
+  # init: 4 stocks + 4 params
+  init = {'Wip':[100,0,500], 'Deploys':[0,0,200],
+          'Incidents':[0,0,100], 'Recovery':[0,0,200],
+          'batch_size':[10,1,100],       # *** ctrl *** commits per deploy
+          'cfr_coef':[0.005,0,0.1],      # change-failure-rate slope per batch
+          'arrival_rate':[8,0,50],       # commits arriving per unit time
+          'rec_rate':[0.3,0,1]}          # incident-recovery rate
+
+  def step(dt, t, u, v):
+    # CFR rises linearly with batch_size, capped at 0.5
+    cfr     = min(0.5, u.batch_size * u.cfr_coef)
+    # Capacity falls as Recovery work piles up
+    cap     = max(0.1, 1 - u.Recovery / 50)
+    # Deploy rate: limited by Wip/batch_size and by available capacity
+    deploys = min(u.Wip / max(1, u.batch_size), 5) * cap
+    # Each deploy carries CFR-fraction risk of new Incidents
+    new_inc = deploys * cfr
+    # Recovery drains Incidents
+    rec     = u.Incidents * u.rec_rate
+    # Wip: drains by deploys * batch_size, replenished by arrival_rate
+    v.Wip       = u.Wip - dt * deploys * u.batch_size + dt * u.arrival_rate
+    v.Deploys   = u.Deploys + dt * deploys
+    v.Incidents = u.Incidents + dt * (new_inc - rec)
+    # Recovery rises with new incidents, decays at fixed rate
+    v.Recovery  = u.Recovery + dt * (new_inc * 2 - u.Recovery * 0.4)
+    for p in ('batch_size','cfr_coef','arrival_rate','rec_rate'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    # Net delivery = Deploys minus 2x Incident penalty
+    return end.Deploys - 2 * end.Incidents
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # batch_size 5 (small) vs 50 (large)
+    return verdict("batch_size=50 hurts net deploys",
+                   y(run({**bi, 'batch_size':[ 5,1,100]}, step)),
+                   y(run({**bi, 'batch_size':[50,1,100]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'batch_size')
+''',
     year=2018, cell="universal",
     cite_short="Forsgren, Humble, Kim (2018) <em>Accelerate</em>.",
     intro1="DORA's deploy-cycle dynamic: larger batch sizes drive higher change-failure rate (CFR), which drives longer mean-time-to-recover (MTTR), which bottlenecks the next batch. Four params: <em>batch_size</em> (ctrl), <em>cfr_coef</em> (failure-per-deploy slope), <em>arrival_rate</em> (work intake), <em>rec_rate</em> (incident recovery speed).",
@@ -495,6 +854,43 @@ M["dora"] = dict(
 
 
 M["aiwork"] = dict(
+    code_commented='''def aiwork():
+  """GitClear [8] / METR [9]: AI churn vs gen tradeoff.
+     RQ: ai=1 reduces kept code."""
+  # init: 4 stocks tracing the AI-assisted dev flow
+  init = {'Todo':[1000,0,1000], 'Wip':[0,0,500],
+          'Kept':[0,0,1000], 'Churned':[0,0,1000],
+          'ai':[0,0,1],            # *** ctrl *** 0=none, 1=full AI assistance
+          'base_rate':[10,0,50],   # baseline coding velocity
+          'churn_coef':[0.3,0,2]}  # AI's churn-amplification multiplier
+
+  def step(dt, t, u, v):
+    # AI raises the gen rate (base_rate * (1 + ai))
+    gen = u.base_rate * (1 + u.ai)
+    # But AI also raises the churn rate by ai * churn_coef
+    churn_frac = u.ai * u.churn_coef * 0.5
+    # Wip flows from Todo at gen rate
+    v.Todo    = u.Todo - dt * gen
+    v.Wip     = u.Wip  + dt * gen * (1 - churn_frac)
+    # Some Wip becomes Kept (durable), the rest Churned (deleted)
+    v.Kept    = u.Kept + dt * gen * (1 - churn_frac)
+    v.Churned = u.Churned + dt * gen * churn_frac
+    v.ai, v.base_rate, v.churn_coef = u.ai, u.base_rate, u.churn_coef
+
+  def y(out):
+    end = out[-1][1]
+    # Net retained code
+    return end.Kept - end.Churned
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # ai=0 (no assist) vs ai=1 (full assist)
+    return verdict("ai=1 reduces net Kept code",
+                   y(run({**bi, 'ai':[0,0,1]}, step)),
+                   y(run({**bi, 'ai':[1,0,1]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'ai')
+''',
     year=2024, cell="universal",
     cite_short="GitClear / METR — AI churn vs gen tradeoff.",
     intro1="AI-assisted development creates a tradeoff: AI generates more code (raising Kept) but also more churn (raising Churned, the discard rate). The net depends on whether genuine learning happens or just velocity-of-deletion. GitClear's 2024 multi-year analysis claims AI-assisted code has higher churn within 2 weeks, suggesting the productivity gain is partly illusory.",
@@ -529,6 +925,44 @@ M["aiwork"] = dict(
 
 
 M["flaky"] = dict(
+    code_commented='''def flaky():
+  """Luo et al. [11]: flake-mask probability dominates output."""
+  # init: 4 stocks tracing the CI-feedback loop
+  init = {'Done':[0,0,500], 'Esc':[0,0,200],
+          'Tests':[100,0,500], 'Flaky':[5,0,100],
+          'mask':[0.01,0,1],         # *** ctrl *** flake-mask probability
+          'gen':[10,0,50],           # output generation rate per step
+          'discipline':[0.3,0,1]}    # CI discipline rate (drains Flaky)
+
+  def step(dt, t, u, v):
+    # Output flow
+    out = u.gen
+    # A fraction of escapes happen because flaky tests masked real bugs
+    masked = out * u.mask
+    # CI discipline removes flaky tests over time
+    drained = u.Flaky * u.discipline
+    # Compound feedback: undrained flakes ADD to themselves
+    breed = max(0, u.Flaky * 0.05 - drained)
+    v.Done    = u.Done + dt * (out - masked)
+    v.Esc     = u.Esc  + dt * masked
+    v.Tests   = u.Tests  # held constant in this simplified form
+    v.Flaky   = u.Flaky + dt * breed
+    v.mask, v.gen, v.discipline = u.mask, u.gen, u.discipline
+
+  def y(out):
+    end = out[-1][1]
+    # Penalise masked escapes 3x heavier than open work
+    return end.Done - 3 * end.Esc
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # mask 0.01 (well-disciplined) vs 0.4 (runaway flake mask)
+    return verdict("mask=0.4 collapses output via flake-masking",
+                   y(run({**bi, 'mask':[0.01,0,1]}, step)),
+                   y(run({**bi, 'mask':[0.40,0,1]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'mask')
+''',
     year=2014, cell="universal",
     cite_short="Luo et al. (2014, FSE) flaky-test empirical analysis.",
     intro1="Test flakiness compounds. A flaky test slows CI feedback, which delays bug discovery, which lets defects accumulate. The accumulated defects in turn surface as more flaky tests (real-bug-masquerading-as-flake), and the cycle deepens.",
@@ -563,6 +997,38 @@ M["flaky"] = dict(
 
 
 M["micro"] = dict(
+    code_commented='''def micro():
+  """Newman [13]: service coupling -> cascade dominance."""
+  # init: 3 service-level stocks + 3 params
+  init = {'Services':[30,0,200], 'Couplings':[60,0,1000],
+          'Cascades':[0,0,500],
+          'coupling':[0.1,0,1],       # *** ctrl *** per-pair coupling intensity
+          'deploy_rate':[2,0,10],     # services deployed per step
+          'fail_rate':[0.05,0,1]}     # base per-service failure rate
+
+  def step(dt, t, u, v):
+    # New couplings form proportional to existing pairs * coupling intensity
+    new_coup = u.Services * (u.Services - 1) / 2 * u.coupling * 0.01
+    # Each service-failure cascades through its couplings
+    new_casc = u.fail_rate * u.Couplings * 0.1
+    v.Services  = u.Services + dt * u.deploy_rate
+    v.Couplings = u.Couplings + dt * new_coup
+    v.Cascades  = u.Cascades + dt * new_casc
+    v.coupling, v.deploy_rate, v.fail_rate = u.coupling, u.deploy_rate, u.fail_rate
+
+  def y(out):
+    end = out[-1][1]
+    # Healthy services minus 2x cascade penalty
+    return end.Services - 2 * end.Cascades
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("high coupling -> cascade dominates",
+                   y(run({**bi, 'coupling':[0.05,0,1]}, step)),
+                   y(run({**bi, 'coupling':[0.50,0,1]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'coupling')
+''',
     year=2015, cell="process-conditional",
     cite_short="Newman (2015) microservices coupling dynamic.",
     intro1="Service-architecture has a coupling/cascading tradeoff: more services lower local deploy risk (one service breaking doesn't crash the monolith) but increase inter-service dependency surfaces. If coupling exceeds some threshold, a single service failure cascades.",
@@ -597,6 +1063,41 @@ M["micro"] = dict(
 
 
 M["teamtopo"] = dict(
+    code_commented='''def teamtopo():
+  """Skelton & Pais [13]: cognitive-load ceiling -> output drops."""
+  # init: team-level stocks + load params
+  init = {'Teams':[5,1,50], 'Load':[0,0,500],
+          'Output':[0,0,1000],
+          'work_in':[20,0,100],       # *** ctrl *** incoming work per unit time
+          'capacity':[10,0,50],       # per-team load ceiling
+          'team_eff':[0.8,0,1]}       # team effectiveness multiplier
+
+  def step(dt, t, u, v):
+    # Load grows by work_in, drains as work is processed
+    arrived = u.work_in
+    # Effective capacity = teams * capacity * efficiency
+    capable = u.Teams * u.capacity * u.team_eff
+    # Throughput is bounded by capable; excess piles up in Load
+    processed = min(arrived + u.Load * 0.1, capable)
+    v.Teams  = u.Teams
+    v.Load   = max(0, u.Load + dt * (arrived - processed))
+    v.Output = u.Output + dt * processed
+    v.work_in, v.capacity, v.team_eff = u.work_in, u.capacity, u.team_eff
+
+  def y(out):
+    end = out[-1][1]
+    # Aggregate output minus load penalty
+    return end.Output - end.Load * 0.5
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # Modest work intake vs overload work intake
+    return verdict("overload work_in collapses output",
+                   y(run({**bi, 'work_in':[10,0,100]}, step)),
+                   y(run({**bi, 'work_in':[80,0,100]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'work_in')
+''',
     year=2019, cell="universal",
     cite_short="Skelton &amp; Pais (2019) Team Topologies.",
     intro1="Conway's law in compartmental form: team structure constrains software structure. Skelton &amp; Pais propose 4 team types (stream-aligned, enabling, complicated-subsystem, platform) and 3 interaction modes (collaboration, X-as-a-service, facilitating). The SD form tracks cognitive-load accumulation per team.",
@@ -631,6 +1132,42 @@ M["teamtopo"] = dict(
 
 
 M["burnout"] = dict(
+    code_commented='''def burnout():
+  """DORA wellbeing [15]: high hours -> exhaustion -> output collapse."""
+  # init: 3 stocks tracing the energy/output cycle
+  init = {'Energy':[100,0,100], 'Exhaustion':[0,0,200],
+          'Output':[0,0,1000],
+          'hours':[40,0,80],          # *** ctrl *** weekly hours
+          'recover_rate':[0.3,0,1],   # rest/recovery rate
+          'output_eff':[0.5,0,1]}     # output per energy unit
+
+  def step(dt, t, u, v):
+    # Exhaustion accumulates linearly with hours above 40
+    deplete = max(0, u.hours - 40) * 0.5
+    # Recovery proportional to current Energy
+    recover = u.Energy * u.recover_rate * 0.1
+    # Net Energy update
+    energy_next = max(0, u.Energy - deplete + recover - u.Exhaustion * 0.1)
+    # Output scales with current Energy
+    out = u.Output + dt * (energy_next * u.output_eff)
+    v.Energy     = energy_next
+    v.Exhaustion = u.Exhaustion + dt * deplete
+    v.Output     = out
+    v.hours, v.recover_rate, v.output_eff = u.hours, u.recover_rate, u.output_eff
+
+  def y(out):
+    end = out[-1][1]
+    return end.Output - end.Exhaustion * 0.5
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # 40h sustainable vs 70h overdrive
+    return verdict("sustained 70h collapses output via exhaustion",
+                   y(run({**bi, 'hours':[40,0,80]}, step)),
+                   y(run({**bi, 'hours':[70,0,80]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'hours')
+''',
     year=2024, cell="process-conditional",
     cite_short="DORA wellbeing reports + Maslach burnout inventory.",
     intro1="Sustained high hours and emotional exhaustion degrade output. The model tracks Energy (resource), Exhaustion (depletion), and Output (delivered work). Recovery rate (rest, lower hours) competes with depletion rate (hours, stress).",
@@ -665,6 +1202,45 @@ M["burnout"] = dict(
 
 
 M["aidebt"] = dict(
+    code_commented='''def aidebt():
+  """Composite: AI accelerates Feat now, accumulates Debt for later.
+     RQ: long-horizon AI use becomes net-negative (regime crossover at t~26)."""
+  # init: 4 stocks
+  init = {'Feat':[0,0,500], 'Debt':[0,0,200],
+          'Wip':[100,0,500], 'Done':[0,0,1000],
+          'ai_intensity':[0.5,0,1],   # *** ctrl *** AI assistance level
+          'gen_boost':[0.5,0,2],      # AI's velocity multiplier
+          'debt_coef':[0.1,0,1]}      # AI debt accumulation rate
+
+  def step(dt, t, u, v):
+    # Output flow: base velocity * (1 + AI boost)
+    gen = (1 + u.ai_intensity * u.gen_boost)
+    # AI creates Feat but also Debt
+    feat_gain = gen * (1 - u.ai_intensity * 0.2)
+    debt_gain = u.ai_intensity * u.debt_coef * gen
+    v.Feat = u.Feat + dt * feat_gain
+    v.Debt = u.Debt + dt * debt_gain
+    v.Wip  = u.Wip - dt * gen
+    v.Done = u.Done + dt * gen
+    v.ai_intensity, v.gen_boost, v.debt_coef = (
+        u.ai_intensity, u.gen_boost, u.debt_coef)
+
+  def y(out):
+    end = out[-1][1]
+    # Net = Feat minus 0.3 * Debt. Crossover happens around t~26
+    # because debt accumulates linearly while feat saturates.
+    return end.Feat - 0.3 * end.Debt
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # ai=0 (no AI) vs ai=1 (full AI). At default tmax=20 ai=1 wins (REFUTE);
+    # at tmax=30+ ai=1 loses (CONFIRM) — regime crossover.
+    return verdict("ai=1 net-negative at long horizons",
+                   y(run({**bi, 'ai_intensity':[0,0,1]}, step)),
+                   y(run({**bi, 'ai_intensity':[1,0,1]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'ai_intensity')
+''',
     year=2024, cell="world-conditional",
     cite_short="Speculative thesis combining GitClear AI-debt + classical technical-debt literature.",
     intro1="AI-generated code accelerates feature delivery <em>now</em> but accumulates hidden technical debt that bites <em>later</em>. The model exhibits a regime crossover near tmax ≈ 26: early AI use looks net-positive on y; late accumulation goes net-negative as the deferred debt cost dominates.",
@@ -700,6 +1276,63 @@ M["aidebt"] = dict(
 
 
 M["archpat"] = dict(
+    code_commented='''def archpat():
+  """Architectural patterns as repair: Clean Arch [16] + Perry-Wolf [17].
+     RQ: from Patterned=10, Legacy=90, Debt=40, migrate=1.5 repairs
+     project vs migrate=0.2."""
+  # init: 3 architectural-region stocks + Debt accumulator + 11 params
+  init = {'Patterned':[10,0,200], 'Legacy':[90,0,200],
+          'Drift':[0,0,200], 'Debt':[40,0,150], 'Feat':[0,0,2000],
+          'migrate':[0.2,0,2],           # *** ctrl *** Legacy -> Patterned rate
+          'decay_rate':[0.05,0,0.5],     # Patterned -> Drift (Perry-Wolf erosion)
+          'drift_to_legacy':[0.10,0,1],  # Drift -> Legacy reabsorption
+          'gen_pat':[1.0,0.1,3],         # feature gen rate from Patterned
+          'gen_leg':[0.4,0.1,3],         # feature gen rate from Legacy (worse)
+          'born_pat':[0.05,0,1],         # debt per Patterned feature
+          'born_leg':[0.20,0,1],         # debt per Legacy feature (worse)
+          'intr_rate':[0.08,0,0.5],      # interest on existing debt
+          'pay_rate':[0.15,0,1],         # refactoring debt-paydown
+          'pat_strength':[4,1,10]}       # (currently unused — flag for Ric)
+
+  def step(dt, t, u, v):
+    # Speed declines with debt; floor at 0.05 to avoid total stall
+    speed     = max(0.05, 1 - u.Debt / 150)
+    available = (u.Patterned + u.Legacy + u.Drift) * speed
+    # migration: legacy -> patterned (costs effort proportional to migrate)
+    migration_flow = u.migrate * u.Legacy * 0.05
+    # decay: patterned -> drift (architectural erosion)
+    decay_flow = u.decay_rate * u.Patterned
+    # drift -> legacy (drift fully converts back over time)
+    drift_back = u.drift_to_legacy * u.Drift
+    # Feat: separate gen rates per region (patterned >> legacy)
+    feat_gain = u.Patterned * u.gen_pat + u.Legacy * u.gen_leg
+    # Debt: separate born rates per region + interest - pay
+    debt_born  = u.Patterned * u.born_pat + u.Legacy * u.born_leg
+    debt_intr  = u.Debt * u.intr_rate
+    debt_pay   = u.Debt * u.pay_rate
+    # Stock updates
+    v.Patterned = u.Patterned + dt * (migration_flow - decay_flow)
+    v.Legacy    = u.Legacy    + dt * (drift_back - migration_flow)
+    v.Drift     = u.Drift     + dt * (decay_flow - drift_back)
+    v.Debt      = u.Debt      + dt * (debt_born + debt_intr - debt_pay)
+    v.Feat      = u.Feat      + dt * feat_gain * speed
+    for p in ('migrate','decay_rate','drift_to_legacy','gen_pat','gen_leg',
+              'born_pat','born_leg','intr_rate','pay_rate','pat_strength'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    return end.Feat - end.Debt
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # Slow vs aggressive migration on an already-bad start
+    return verdict("aggressive migration repairs already-bad project",
+                   y(run({**bi, 'migrate':[0.2,0,2]}, step)),
+                   y(run({**bi, 'migrate':[1.5,0,2]}, step)), 'up')
+
+  return Model(init, step, y, rq, 'migrate')
+''',
     year=1992, cell="fragile",
     cite_short="Perry &amp; Wolf (1992) + Martin (2008) Clean Architecture — patterns repair already-bad code.",
     intro1="Three architectural regions: <em>Patterned</em> (under good architecture), <em>Legacy</em> (not), <em>Drift</em> (was patterned, eroded). Migration moves Legacy → Patterned at rate proportional to migrate_rate · available_effort. Decay (Perry-Wolf erosion) moves Patterned → Drift. Drift eventually decays back to Legacy.",
@@ -751,6 +1384,48 @@ M["archpat"] = dict(
 
 
 M["congruence"] = dict(
+    code_commented='''def congruence():
+  """Newman [14] / radio-silence: boundary-spanning brokers hold
+     communication-fragmented projects together.
+     RQ: broker_loss=0.3 per step hurts net coherent work."""
+  # init: 3 community-level stocks + 4 rate params
+  init = {'Clusters':[5,1,20], 'Brokers':[3,0,20], 'Cohesion':[0,0,500],
+          'broker_loss':[0,0,1],       # *** ctrl *** rate brokers exit per step
+          'broker_form':[0.05,0,0.5],  # rate new brokers form (from gradient)
+          'fragment_rate':[0.05,0,0.5],# clusters split when comms thin
+          'merge_rate':[0.1,0,0.5],    # clusters merge when brokers bridge
+          'work_rate':[5,0,20]}        # base coherent work generation
+
+  def step(dt, t, u, v):
+    # Brokers form proportional to inter-cluster gradient, drain by ctrl
+    form  = u.broker_form * u.Clusters
+    drain = u.broker_loss * u.Brokers
+    # Clusters fragment more when there aren't enough brokers
+    frag  = u.fragment_rate * max(0, u.Clusters - u.Brokers)
+    merge = u.merge_rate * u.Brokers
+    # Cohesion accrues at work_rate, attenuated by fragmentation
+    coh_gain = u.work_rate * (u.Brokers / max(1, u.Clusters))
+    v.Brokers  = max(0, u.Brokers  + dt * (form - drain))
+    v.Clusters = max(1, u.Clusters + dt * (frag - merge))
+    v.Cohesion = u.Cohesion + dt * coh_gain
+    for p in ('broker_loss','broker_form','fragment_rate',
+              'merge_rate','work_rate'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    end = out[-1][1]
+    # Cohesion minus 5x cluster-fragmentation penalty
+    return end.Cohesion - 5 * end.Clusters
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    # broker_loss=0 (stable brokers) vs 0.3 (rapid broker drain)
+    return verdict("broker_loss=0.3 fragments project, hurts cohesion",
+                   y(run({**bi, 'broker_loss':[0.0,0,1]}, step)),
+                   y(run({**bi, 'broker_loss':[0.3,0,1]}, step)), 'down')
+
+  return Model(init, step, y, rq, 'broker_loss')
+''',
     year=2008, cell="universal",
     cite_short="Blondel et al. (2008) Louvain + Cataldo &amp; Herbsleb communication graphs.",
     intro1="Communication graphs in software teams exhibit community structure: most replies happen within sub-groups (\"clusters\"), and a few boundary-spanning developers (\"brokers\") hold the graph together. If brokers leave, the graph fragments — sub-communities lose context, work synchronisation breaks down.",
@@ -806,7 +1481,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{name} ({year}) — SD-Theses</title>
+<title>{name} ({year}) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -818,7 +1493,7 @@ TEMPLATE = """<!doctype html>
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ {name}</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ {name}</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -1038,7 +1713,7 @@ def main():
             rq_text           = meta["rq_text"],
             rq_para           = meta["rq_para"],
             cell_para         = meta["cell_para"],
-            model_code        = html.escape(extract_model_code(name)),
+            model_code        = html.escape(meta.get("code_commented") or extract_model_code(name)),
             lift_intro        = meta["lift_intro"],
             lift_chunks       = render_lift_chunks(name),
             attrs_html        = render_attrs_table(meta.get("attrs_table")),

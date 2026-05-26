@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>congruence (2008) — SD-Theses</title>
+<title>congruence (2008) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ congruence</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ congruence</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -63,21 +63,25 @@
     <h2>The SD model</h2>
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def congruence():
-  &quot;&quot;&quot;Newman [14] / radio-silence (Tim et al.): boundary-spanning
-  brokers hold communication-fragmented projects together.
-  RQ: broker_loss=0.3 (per step) hurts net coherent work.&quot;&quot;&quot;
+  &quot;&quot;&quot;Newman [14] / radio-silence: boundary-spanning brokers hold
+     communication-fragmented projects together.
+     RQ: broker_loss=0.3 per step hurts net coherent work.&quot;&quot;&quot;
+  # init: 3 community-level stocks + 4 rate params
   init = {&#x27;Clusters&#x27;:[5,1,20], &#x27;Brokers&#x27;:[3,0,20], &#x27;Cohesion&#x27;:[0,0,500],
-          &#x27;broker_loss&#x27;:[0,0,1], &#x27;broker_form&#x27;:[0.05,0,0.5],
-          &#x27;fragment_rate&#x27;:[0.05,0,0.5], &#x27;merge_rate&#x27;:[0.1,0,0.5],
-          &#x27;work_rate&#x27;:[5,0,20]}
+          &#x27;broker_loss&#x27;:[0,0,1],       # *** ctrl *** rate brokers exit per step
+          &#x27;broker_form&#x27;:[0.05,0,0.5],  # rate new brokers form (from gradient)
+          &#x27;fragment_rate&#x27;:[0.05,0,0.5],# clusters split when comms thin
+          &#x27;merge_rate&#x27;:[0.1,0,0.5],    # clusters merge when brokers bridge
+          &#x27;work_rate&#x27;:[5,0,20]}        # base coherent work generation
 
   def step(dt, t, u, v):
-    # Brokers form proportional to inter-cluster gradient, drain by ctrl.
+    # Brokers form proportional to inter-cluster gradient, drain by ctrl
     form  = u.broker_form * u.Clusters
     drain = u.broker_loss * u.Brokers
+    # Clusters fragment more when there aren&#x27;t enough brokers
     frag  = u.fragment_rate * max(0, u.Clusters - u.Brokers)
     merge = u.merge_rate * u.Brokers
-    # Cohesion accrues at work_rate, attenuated by fragmentation.
+    # Cohesion accrues at work_rate, attenuated by fragmentation
     coh_gain = u.work_rate * (u.Brokers / max(1, u.Clusters))
     v.Brokers  = max(0, u.Brokers  + dt * (form - drain))
     v.Clusters = max(1, u.Clusters + dt * (frag - merge))
@@ -88,16 +92,17 @@
 
   def y(out):
     end = out[-1][1]
+    # Cohesion minus 5x cluster-fragmentation penalty
     return end.Cohesion - 5 * end.Clusters
 
   def rq(bg=None):
     bi = init if bg is None else bg
+    # broker_loss=0 (stable brokers) vs 0.3 (rapid broker drain)
     return verdict(&quot;broker_loss=0.3 fragments project, hurts cohesion&quot;,
                    y(run({**bi, &#x27;broker_loss&#x27;:[0.0,0,1]}, step)),
                    y(run({**bi, &#x27;broker_loss&#x27;:[0.3,0,1]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;broker_loss&#x27;)
-
 </code></pre>
   </div>
 

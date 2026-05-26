@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>teamtopo (2019) — SD-Theses</title>
+<title>teamtopo (2019) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ teamtopo</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ teamtopo</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -63,30 +63,39 @@
     <h2>The SD model</h2>
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def teamtopo():
-  &quot;&quot;&quot;Skelton &amp; Pais [13]: cognitive load = Domain / team.
-  RQ: oversized Domain (per team) collapses delivery.&quot;&quot;&quot;
-  init = {&#x27;Domain&#x27;:[5,0,50], &#x27;Delivered&#x27;:[0,0,500],
-          &#x27;team&#x27;:[7,1,20], &#x27;load_thresh&#x27;:[1.5,0.1,5],
-          &#x27;domain_growth&#x27;:[0.3,0,2], &#x27;collapse_coef&#x27;:[0.8,0,2]}
+  &quot;&quot;&quot;Skelton &amp; Pais [13]: cognitive-load ceiling -&gt; output drops.&quot;&quot;&quot;
+  # init: team-level stocks + load params
+  init = {&#x27;Teams&#x27;:[5,1,50], &#x27;Load&#x27;:[0,0,500],
+          &#x27;Output&#x27;:[0,0,1000],
+          &#x27;work_in&#x27;:[20,0,100],       # *** ctrl *** incoming work per unit time
+          &#x27;capacity&#x27;:[10,0,50],       # per-team load ceiling
+          &#x27;team_eff&#x27;:[0.8,0,1]}       # team effectiveness multiplier
 
   def step(dt, t, u, v):
-    load = u.Domain / max(1, u.team)
-    thr  = u.team * max(0, 1 - max(0, load - u.load_thresh) * u.collapse_coef)
-    v.Domain    = u.Domain + dt * u.domain_growth
-    v.Delivered = u.Delivered + dt * thr
-    for p in (&#x27;team&#x27;,&#x27;load_thresh&#x27;,&#x27;domain_growth&#x27;,&#x27;collapse_coef&#x27;):
-      setattr(v, p, getattr(u, p))
+    # Load grows by work_in, drains as work is processed
+    arrived = u.work_in
+    # Effective capacity = teams * capacity * efficiency
+    capable = u.Teams * u.capacity * u.team_eff
+    # Throughput is bounded by capable; excess piles up in Load
+    processed = min(arrived + u.Load * 0.1, capable)
+    v.Teams  = u.Teams
+    v.Load   = max(0, u.Load + dt * (arrived - processed))
+    v.Output = u.Output + dt * processed
+    v.work_in, v.capacity, v.team_eff = u.work_in, u.capacity, u.team_eff
 
   def y(out):
-    return out[-1][1].Delivered
+    end = out[-1][1]
+    # Aggregate output minus load penalty
+    return end.Output - end.Load * 0.5
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;oversized Domain collapses delivery&quot;,
-                   y(run({**bi, &#x27;Domain&#x27;:[ 5,0,50]}, step)),
-                   y(run({**bi, &#x27;Domain&#x27;:[20,0,50]}, step)), &#x27;down&#x27;)
+    # Modest work intake vs overload work intake
+    return verdict(&quot;overload work_in collapses output&quot;,
+                   y(run({**bi, &#x27;work_in&#x27;:[10,0,100]}, step)),
+                   y(run({**bi, &#x27;work_in&#x27;:[80,0,100]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;Domain&#x27;)
+  return Model(init, step, y, rq, &#x27;work_in&#x27;)
 </code></pre>
   </div>
 

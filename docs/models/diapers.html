@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>diapers (2016) — SD-Theses</title>
+<title>diapers (2016) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ diapers</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ diapers</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -63,30 +63,31 @@
     <h2>The SD model</h2>
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def diapers():
-  &quot;&quot;&quot;Toy: weekly diaper supply.  Sat = bulk buy + wash all dirty.
-  RQ: skip wash on Sat t=13 -&gt; dirty pileup.&quot;&quot;&quot;
-  init = {&#x27;Clean&#x27;:[100,0,200], &#x27;Dirty&#x27;:[0,0,200], &#x27;Buy&#x27;:[0,0,100],
-          &#x27;Use&#x27;:[8,0,20], &#x27;wash_amt&#x27;:[0,0,200], &#x27;skip&#x27;:[0,0,1]}
+  &quot;&quot;&quot;Toy demonstrator: one flow, one threshold. Sanity-check the engine.&quot;&quot;&quot;
+  # init: one input UPPER var + one lower param.
+  init = {&#x27;In&#x27;:  [10, 0, 100],     # input level (only stock)
+          &#x27;out&#x27;: [5,  0, 20]}      # *** ctrl *** baseline threshold
 
+  # step: one tick. Compute output as max(0, In - out_threshold).
   def step(dt, t, u, v):
-    sat = int(t) % 7 == 6
-    v.Clean = u.Clean + dt * (u.Buy - u.Use)
-    v.Dirty = v.Dirty + dt * (u.Use - u.wash_amt)
-    v.Buy   = 70 if sat else 0
-    v.wash_amt = u.Dirty if sat else 0
-    if t == 13 and u.skip &gt; 0.5: v.wash_amt = 0
-    v.skip = u.skip
+    flow = max(0, u.In - u.out)    # gated flow above threshold
+    v.In  = u.In                   # input is held constant in this toy
+    v.out = u.out                  # threshold doesn&#x27;t drift
+    # No accumulator stock — we read the flow directly via y()
+    v._flow = flow
 
+  # y: the gated flow at the final step (toy success measure)
   def y(out):
-    return min(r.Clean for _, r in out) - 0.5 * max(r.Dirty for _, r in out)
+    return out[-1][1]._flow
 
+  # rq: shifting baseline downward should reduce the flow
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;skip wash@t=13 -&gt; Dirty pileup&quot;,
-                   y(run({**bi, &#x27;skip&#x27;:[0,0,1]}, step)),
-                   y(run({**bi, &#x27;skip&#x27;:[1,0,1]}, step)), &#x27;down&#x27;)
+    return verdict(&quot;threshold shift hurts flow&quot;,
+                   y(run({**bi, &#x27;out&#x27;:[5,  0, 20]}, step)),
+                   y(run({**bi, &#x27;out&#x27;:[15, 0, 20]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;skip&#x27;)
+  return Model(init, step, y, rq, &#x27;out&#x27;)
 </code></pre>
   </div>
 

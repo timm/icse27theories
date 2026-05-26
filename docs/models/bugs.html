@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bugs (1979) — SD-Theses</title>
+<title>bugs (1979) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ bugs</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ bugs</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -64,31 +64,44 @@
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def bugs():
   &quot;&quot;&quot;Goel-Okumoto [2]: exponential reliability growth.
-  RQ: 2x initial Latent -&gt; ~2x eventual Fixed (linearity of recovery).&quot;&quot;&quot;
-  init = {&#x27;Latent&#x27;:[100,0,200], &#x27;Found&#x27;:[0,0,200], &#x27;Fixed&#x27;:[0,0,200],
-          &#x27;find_rate&#x27;:[0.15,0.01,0.5], &#x27;fix_rate&#x27;:[0.5,0.05,1]}
+     RQ: 2x initial Latent -&gt; ~2x eventual Fixed (linearity of recovery).&quot;&quot;&quot;
+
+  # init: three bug-count stocks + two rate params
+  init = {
+    &#x27;Latent&#x27;:    [100,  0, 200],  # initial un-discovered bug pool (the GO &#x27;a&#x27;)
+    &#x27;Found&#x27;:     [0,    0, 200],  # discovered but not yet repaired
+    &#x27;Fixed&#x27;:     [0,    0, 200],  # cumulative resolved (success measure)
+    &#x27;find_rate&#x27;: [0.1,  0, 1],    # *** ctrl *** per-bug discovery rate (GO &#x27;b&#x27;)
+    &#x27;fix_rate&#x27;:  [0.5,  0, 1]     # repair rate (Found -&gt; Fixed)
+  }
 
   def step(dt, t, u, v):
+    # Discovery: each Latent bug has find_rate probability of being found per dt
     find = u.Latent * u.find_rate
+    # Repair: each Found bug has fix_rate probability of becoming Fixed per dt
     fix  = u.Found  * u.fix_rate
+    # Latent shrinks by discovery flow (clamped non-negative by engine)
     v.Latent = u.Latent - dt * find
+    # Found = arrivals from Latent minus departures to Fixed
     v.Found  = u.Found  + dt * (find - fix)
+    # Fixed grows monotonically by the repair flow
     v.Fixed  = u.Fixed  + dt * fix
+    # Rate params carry forward unchanged
     v.find_rate, v.fix_rate = u.find_rate, u.fix_rate
 
   def y(out):
-    &quot;&quot;&quot;Mid-curve recovery (t=10 of 20): tests scaling, not asymptote.
-    Asymptote is always ~1.0 by construction (exponential decay).&quot;&quot;&quot;
-    mid_idx = len(out) // 2
-    return out[mid_idx][1].Fixed
+    end = out[-1][1]              # final timestep state
+    return end.Fixed              # how many bugs eventually got fixed
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;2x initial Latent -&gt; ~2x mid-curve Fixed&quot;,
-                   y(run({**bi, &#x27;Latent&#x27;:[ 50,0,200]}, step)),
-                   y(run({**bi, &#x27;Latent&#x27;:[100,0,200]}, step)), &#x27;up&#x27;)
+    # Linearity test: 2x initial Latent should give ~2x eventual Fixed.
+    # expect=&#x27;up&#x27; (more bugs to find -&gt; more bugs get fixed).
+    return verdict(&quot;2x initial Latent -&gt; ~2x eventual Fixed&quot;,
+                   y(run({**bi, &#x27;Latent&#x27;:[100, 0, 200]}, step)),
+                   y(run({**bi, &#x27;Latent&#x27;:[200, 0, 200]}, step)), &#x27;up&#x27;)
 
-  return Model(init, step, y, rq, &#x27;Latent&#x27;)
+  return Model(init, step, y, rq, &#x27;find_rate&#x27;)
 </code></pre>
   </div>
 

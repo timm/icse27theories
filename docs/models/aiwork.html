@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>aiwork (2024) — SD-Theses</title>
+<title>aiwork (2024) — MYTHS</title>
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -15,7 +15,7 @@
 
 <header class="nav">
   <div class="inner">
-    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">SD-Theses</a><span class="sub">/ aiwork</span></span>
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ aiwork</span></span>
     <nav>
       <a href="../index.html">all models</a>
     </nav>
@@ -64,35 +64,36 @@
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def aiwork():
   &quot;&quot;&quot;GitClear [8] / METR [9]: AI churn vs gen tradeoff.
-  RQ: ai=1 reduces kept code.&quot;&quot;&quot;
+     RQ: ai=1 reduces kept code.&quot;&quot;&quot;
+  # init: 4 stocks tracing the AI-assisted dev flow
   init = {&#x27;Todo&#x27;:[1000,0,1000], &#x27;Wip&#x27;:[0,0,500],
           &#x27;Kept&#x27;:[0,0,1000], &#x27;Churned&#x27;:[0,0,1000],
-          &#x27;ai&#x27;:[0,0,1], &#x27;gen_boost&#x27;:[0.3,0,2], &#x27;churn_mult&#x27;:[2.0,0,5],
-          &#x27;verify_drag&#x27;:[0.4,0,1], &#x27;mature_rate&#x27;:[0.2,0,1],
-          &#x27;churn_base&#x27;:[0.05,0,1]}
+          &#x27;ai&#x27;:[0,0,1],            # *** ctrl *** 0=none, 1=full AI assistance
+          &#x27;base_rate&#x27;:[10,0,50],   # baseline coding velocity
+          &#x27;churn_coef&#x27;:[0.3,0,2]}  # AI&#x27;s churn-amplification multiplier
 
   def step(dt, t, u, v):
-    gen_boost   = 1 + u.gen_boost * u.ai
-    churn_mult  = 1 + u.churn_mult * u.ai
-    verify_drag = u.verify_drag * u.ai
-    gen   = 10 * gen_boost * (1 - verify_drag)
-    add   = min(gen, u.Todo)
-    mature = u.Wip * u.mature_rate
-    churn  = u.Wip * u.churn_base * churn_mult
-    v.Todo    = u.Todo - dt * add
-    v.Wip     = u.Wip + dt * (add - mature - churn)
-    v.Kept    = u.Kept + dt * mature
-    v.Churned = u.Churned + dt * churn
-    for p in (&#x27;ai&#x27;,&#x27;gen_boost&#x27;,&#x27;churn_mult&#x27;,&#x27;verify_drag&#x27;,
-              &#x27;mature_rate&#x27;,&#x27;churn_base&#x27;):
-      setattr(v, p, getattr(u, p))
+    # AI raises the gen rate (base_rate * (1 + ai))
+    gen = u.base_rate * (1 + u.ai)
+    # But AI also raises the churn rate by ai * churn_coef
+    churn_frac = u.ai * u.churn_coef * 0.5
+    # Wip flows from Todo at gen rate
+    v.Todo    = u.Todo - dt * gen
+    v.Wip     = u.Wip  + dt * gen * (1 - churn_frac)
+    # Some Wip becomes Kept (durable), the rest Churned (deleted)
+    v.Kept    = u.Kept + dt * gen * (1 - churn_frac)
+    v.Churned = u.Churned + dt * gen * churn_frac
+    v.ai, v.base_rate, v.churn_coef = u.ai, u.base_rate, u.churn_coef
 
   def y(out):
-    return out[-1][1].Kept
+    end = out[-1][1]
+    # Net retained code
+    return end.Kept - end.Churned
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;ai=1 reduces Kept (METR/GitClear)&quot;,
+    # ai=0 (no assist) vs ai=1 (full assist)
+    return verdict(&quot;ai=1 reduces net Kept code&quot;,
                    y(run({**bi, &#x27;ai&#x27;:[0,0,1]}, step)),
                    y(run({**bi, &#x27;ai&#x27;:[1,0,1]}, step)), &#x27;down&#x27;)
 
