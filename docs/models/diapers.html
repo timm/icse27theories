@@ -16,7 +16,21 @@
     themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
       primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
       lineColor: "#9aa5b1", fontFamily: "ui-monospace, Menlo, monospace" } });
-  document.addEventListener("DOMContentLoaded", () => mermaid.run());
+  // Render only after panel-2 becomes visible. display:none ancestors
+  // return zero width => mermaid emits translate(NaN). Wait for tab-2
+  // selection so layout has real dimensions.
+  let mermaidRendered = false;
+  function renderMermaidOnce() {
+    if (mermaidRendered) return;
+    mermaidRendered = true;
+    requestAnimationFrame(() => mermaid.run().catch(e => console.error(e)));
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const t2 = document.getElementById("tab-2");
+    if (t2) t2.addEventListener("change", renderMermaidOnce);
+    const lbl = document.querySelector('label[for="tab-2"]');
+    if (lbl) lbl.addEventListener("mouseenter", renderMermaidOnce);
+  });
 </script>
 </head>
 <body>

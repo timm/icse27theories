@@ -16,7 +16,21 @@
     themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
       primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
       lineColor: "#9aa5b1", fontFamily: "ui-monospace, Menlo, monospace" } });
-  document.addEventListener("DOMContentLoaded", () => mermaid.run());
+  // Render only after panel-2 becomes visible. display:none ancestors
+  // return zero width => mermaid emits translate(NaN). Wait for tab-2
+  // selection so layout has real dimensions.
+  let mermaidRendered = false;
+  function renderMermaidOnce() {
+    if (mermaidRendered) return;
+    mermaidRendered = true;
+    requestAnimationFrame(() => mermaid.run().catch(e => console.error(e)));
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const t2 = document.getElementById("tab-2");
+    if (t2) t2.addEventListener("change", renderMermaidOnce);
+    const lbl = document.querySelector('label[for="tab-2"]');
+    if (lbl) lbl.addEventListener("mouseenter", renderMermaidOnce);
+  });
 </script>
 </head>
 <body>
@@ -234,93 +248,93 @@ flowchart LR
 <pre><code class="language-r"># lifts/lift_brooks.Rmd — core chunks
 
 library(kaiaulu); library(data.table); library(magrittr); library(stringi)
-source("functions.R")
-seed <- 1; set.seed(seed)
+source(&quot;functions.R&quot;)
+seed &lt;- 1; set.seed(seed)
 
-tool <- parse_config("../tools.yml")        # perceval, scc, refminer, ...
-conf <- parse_config("../conf/helix.yml")   # project paths + filters
+tool &lt;- parse_config(&quot;../tools.yml&quot;)        # perceval, scc, refminer, ...
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)   # project paths + filters
 
-# ---- 1. parse the gitlog via kaiaulu's Perceval wrapper ----
-project_git <- parse_gitlog(
-  get_tool_project("perceval", tool),
+# ---- 1. parse the gitlog via kaiaulu&#x27;s Perceval wrapper ----
+project_git &lt;- parse_gitlog(
+  get_tool_project(&quot;perceval&quot;, tool),
   get_git_repo_path(conf)
-) %>%
-  filter_by_file_extension(get_file_extensions(conf), "file_pathname") %>%
-  filter_by_filepath_substring(get_substring_filepath(conf), "file_pathname")
+) %&gt;%
+  filter_by_file_extension(get_file_extensions(conf), &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(get_substring_filepath(conf), &quot;file_pathname&quot;)
 
-# Perceval emits "Tue Jun 21 18:56:46 2011 -0700"; parse to POSIXct
-project_git$author_datetimetz <- as.POSIXct(
+# Perceval emits &quot;Tue Jun 21 18:56:46 2011 -0700&quot;; parse to POSIXct
+project_git$author_datetimetz &lt;- as.POSIXct(
   project_git$author_datetimetz,
-  format = "%a %b %d %H:%M:%S %Y %z", tz = "UTC"
+  format = &quot;%a %b %d %H:%M:%S %Y %z&quot;, tz = &quot;UTC&quot;
 )
 
 # ---- 2. merge developer aliases via identity_match ----
-# kaiaulu's identity_match folds "Foo <foo@a.com>" + "Foo <foo@b.com>"
+# kaiaulu&#x27;s identity_match folds &quot;Foo &lt;foo@a.com&gt;&quot; + &quot;Foo &lt;foo@b.com&gt;&quot;
 # into one identity_id, so downstream cohort math is per-human not
 # per-email.
-project_log <- list(git_log = project_git)
-project_log <- identity_match(
+project_log &lt;- list(git_log = project_git)
+project_log &lt;- identity_match(
   project_log,
-  c("author_name_email"),
+  c(&quot;author_name_email&quot;),
   assign_identity_function = assign_exact_identity,
   use_name_only = FALSE,
-  label = "identity_id"
+  label = &quot;identity_id&quot;
 )
-project_git <- project_log$git_log
+project_git &lt;- project_log$git_log
 
 # ---- 3. detect late-hire events ----
-# A "late hire" = developer whose first commit is >= 365 days after
-# the project's first commit. (lifts/functions.R)
-late_hires <- detect_late_hires(project_git, min_project_age_days = 365)
+# A &quot;late hire&quot; = developer whose first commit is &gt;= 365 days after
+# the project&#x27;s first commit. (lifts/functions.R)
+late_hires &lt;- detect_late_hires(project_git, min_project_age_days = 365)
 
 # ---- 4. compute pre/post veteran velocity per hire ----
 # For each late hire, count veteran commits in symmetric 90-day windows.
-window_days <- 90
-vc <- compute_velocity_changes(project_git, late_hires, window_days)
+window_days &lt;- 90
+vc &lt;- compute_velocity_changes(project_git, late_hires, window_days)
 vc[, brooks_tax := (pre_velocity - post_velocity) / pre_velocity]
 
 # ---- 5. write calibrated value to outputs/ for the SD framework ----
 fwrite(data.table(
-  project           = "helix",
+  project           = &quot;helix&quot;,
   brooks_tax_median = median(vc$brooks_tax, na.rm = TRUE),
   brooks_tax_mean   = mean(vc$brooks_tax,   na.rm = TRUE),
   n_hires           = nrow(vc),
   window_days       = window_days,
   seed              = seed
-), "../outputs/lift_brooks_helix.csv")
+), &quot;../outputs/lift_brooks_helix.csv&quot;)
 </code></pre>
 
   <h3>Helper functions (lifts/functions.R)</h3>
 
 <pre><code class="language-r"># detect_late_hires: first-commit at least N days after project start
-detect_late_hires <- function(project_git, min_project_age_days = 365) {
-  id_col <- if ("identity_id" %in% names(project_git)) "identity_id"
-            else "author_name_email"
-  first_commits <- project_git[, .(first_commit_at = min(author_datetimetz)),
+detect_late_hires &lt;- function(project_git, min_project_age_days = 365) {
+  id_col &lt;- if (&quot;identity_id&quot; %in% names(project_git)) &quot;identity_id&quot;
+            else &quot;author_name_email&quot;
+  first_commits &lt;- project_git[, .(first_commit_at = min(author_datetimetz)),
                                 by = id_col]
-  project_start <- min(project_git$author_datetimetz)
+  project_start &lt;- min(project_git$author_datetimetz)
   first_commits[, days_after_project_start :=
-    as.numeric(difftime(first_commit_at, project_start, units = "days"))]
-  first_commits[days_after_project_start >= min_project_age_days]
+    as.numeric(difftime(first_commit_at, project_start, units = &quot;days&quot;))]
+  first_commits[days_after_project_start &gt;= min_project_age_days]
 }
 
 # compute_velocity_changes: pre/post commit rate of veterans per hire
-compute_velocity_changes <- function(project_git, late_hires,
+compute_velocity_changes &lt;- function(project_git, late_hires,
                                      window_days = 90) {
-  id_col <- if ("identity_id" %in% names(late_hires)) "identity_id"
-            else "author_name_email"
+  id_col &lt;- if (&quot;identity_id&quot; %in% names(late_hires)) &quot;identity_id&quot;
+            else &quot;author_name_email&quot;
   rbindlist(lapply(seq_len(nrow(late_hires)), function(i) {
-    hire_id   <- late_hires[i, get(id_col)]
-    hire_at   <- late_hires[i, first_commit_at]
-    win_start <- hire_at - as.difftime(window_days, units = "days")
-    win_end   <- hire_at + as.difftime(window_days, units = "days")
-    veterans  <- project_git[author_datetimetz < hire_at, unique(get(id_col))]
-    pre_n  <- project_git[get(id_col) %in% veterans &
-                          author_datetimetz >= win_start &
-                          author_datetimetz <  hire_at, uniqueN(commit_hash)]
-    post_n <- project_git[get(id_col) %in% veterans &
-                          author_datetimetz >  hire_at &
-                          author_datetimetz <= win_end, uniqueN(commit_hash)]
+    hire_id   &lt;- late_hires[i, get(id_col)]
+    hire_at   &lt;- late_hires[i, first_commit_at]
+    win_start &lt;- hire_at - as.difftime(window_days, units = &quot;days&quot;)
+    win_end   &lt;- hire_at + as.difftime(window_days, units = &quot;days&quot;)
+    veterans  &lt;- project_git[author_datetimetz &lt; hire_at, unique(get(id_col))]
+    pre_n  &lt;- project_git[get(id_col) %in% veterans &amp;
+                          author_datetimetz &gt;= win_start &amp;
+                          author_datetimetz &lt;  hire_at, uniqueN(commit_hash)]
+    post_n &lt;- project_git[get(id_col) %in% veterans &amp;
+                          author_datetimetz &gt;  hire_at &amp;
+                          author_datetimetz &lt;= win_end, uniqueN(commit_hash)]
     data.table(id = hire_id, hire_at = hire_at,
                pre_velocity  = pre_n  / window_days,
                post_velocity = post_n / window_days)
