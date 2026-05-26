@@ -150,23 +150,30 @@ analysis:
   Each row is one observation (one late-hire event, one release tag,
   one SZZ pair, depending on the model).
 </p>
+<p class="dim" style="font-size:12px;">
+  Every entry below links to the file or folder on GitHub. Wildcard
+  rows (<code>*</code>) point at the parent <a href="https://github.com/timm/icse27theories/tree/main/outputs" target="_blank" rel="noopener"><code>outputs/</code></a> directory; specific
+  filenames link directly. Folder listing has all 65 CSVs.
+</p>
 <table>
   <thead>
     <tr><th>CSV family</th><th>contents</th><th>row count (typ)</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>lift_brooks_*.csv</code></td><td>late-hire events with pre/post veteran velocity</td><td>5–1285 per project</td></tr>
-    <tr><td><code>lift_debt_*.csv</code></td><td>RefactoringMiner pay-rate per release</td><td>10–80</td></tr>
-    <tr><td><code>lift_brooksq_*.csv</code></td><td>SZZ pairs around late-hire events, inj_rate &amp; leak_rate</td><td>1–1019 per project</td></tr>
-    <tr><td><code>lift_archpat_*.csv</code></td><td>GoF-pattern density per snapshot</td><td>1–5 per project</td></tr>
-    <tr><td><code>lift_dora_*.csv</code></td><td>per-week DORA metrics (lead time, deploy freq, CFR, MTTR)</td><td>40–500</td></tr>
-    <tr><td><code>lift_rework_*.csv</code></td><td>SZZ-derived rework cycles per release</td><td>5–100</td></tr>
-    <tr><td><code>lift_defmap_*.csv</code></td><td>defect map (Active vs Latent vs Fixed)</td><td>1 per project</td></tr>
-    <tr><td><code>lift_bugs_*.csv</code></td><td>per-week bug-arrival counts for Goel-Okumoto fit</td><td>50–500</td></tr>
-    <tr><td><code>lift_learn_*.csv</code></td><td>90-day Jr → Tr → Sr transition rates</td><td>4–40</td></tr>
-    <tr><td><code>lift_congruence_*.csv</code></td><td>mbox-derived broker counts and radio-silence events</td><td>5–50</td></tr>
-    <tr><td><code>full_audit.csv</code></td><td>per-model V&amp;V verdict + 2&times;2 cell + 8 test results</td><td>33 rows (1 per model)</td></tr>
-    <tr><td><code>cross_project.csv</code></td><td>cross-project comparison of lifted scalars</td><td>8 rows (1 per project)</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_brooks_helix.csv" target="_blank" rel="noopener"><code>lift_brooks_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(8 files)</span></td><td>late-hire events with pre/post veteran velocity</td><td>5–1285 per project</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_debt_helix.csv" target="_blank" rel="noopener"><code>lift_debt_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(5 files)</span></td><td>RefactoringMiner pay-rate per release</td><td>10–80</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_brooksq_helix.csv" target="_blank" rel="noopener"><code>lift_brooksq_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(8 files)</span></td><td>SZZ pairs around late-hire events, inj_rate &amp; leak_rate</td><td>1–1019 per project</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_archpat_helix.csv" target="_blank" rel="noopener"><code>lift_archpat_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(2 files)</span></td><td>GoF-pattern density per snapshot</td><td>1–5 per project</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_dora_helix.csv" target="_blank" rel="noopener"><code>lift_dora_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(8 files)</span></td><td>per-week DORA metrics (lead time, deploy freq, CFR, MTTR)</td><td>40–500</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_rework_helix.csv" target="_blank" rel="noopener"><code>lift_rework_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(8 files)</span></td><td>SZZ-derived rework cycles per release</td><td>5–100</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_defmap_helix.csv" target="_blank" rel="noopener"><code>lift_defmap_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(8 files)</span></td><td>defect map (Active vs Latent vs Fixed)</td><td>1 per project</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_bugs_helix.csv" target="_blank" rel="noopener"><code>lift_bugs_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(3 files)</span></td><td>per-week bug-arrival counts for Goel-Okumoto fit</td><td>50–500</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_learn_helix.csv" target="_blank" rel="noopener"><code>lift_learn_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(8 files)</span></td><td>90-day Jr → Tr → Sr transition rates</td><td>4–40</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/lift_congruence_helix.csv" target="_blank" rel="noopener"><code>lift_congruence_*.csv</code></a> &nbsp;<span class="dim" style="font-size:11px;">(3 files)</span></td><td>mbox-derived broker counts and radio-silence events</td><td>5–50</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/full_audit.csv" target="_blank" rel="noopener"><code>full_audit.csv</code></a></td><td>per-model V&amp;V verdict + 2&times;2 cell + 8 test results</td><td>33 rows (1 per model)</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/cross_project.csv" target="_blank" rel="noopener"><code>cross_project.csv</code></a></td><td>cross-project comparison of lifted scalars</td><td>8 rows (1 per project)</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/boundary_check.csv" target="_blank" rel="noopener"><code>boundary_check.csv</code></a></td><td>per-param boundary-adequacy verdicts across lifted projects (F0 source)</td><td>~40 rows</td></tr>
+    <tr><td><a href="https://github.com/timm/icse27theories/blob/main/outputs/calibrated_verdicts.csv" target="_blank" rel="noopener"><code>calibrated_verdicts.csv</code></a></td><td>rq() re-evaluated with lifted parameters substituted in</td><td>1 row per (model, project)</td></tr>
   </tbody>
 </table>
 
