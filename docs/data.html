@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data — MYTHS</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ data</span></span>
+    <nav>
+      <a href="index.html#models">models</a>
+      <a href="index.html#findings">findings</a>
+      <a href="index.html#typology">typology</a>
+      <a href="data.html">data</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>Data<span class="tag">8 projects · 5 tool pipelines</span></h1>
+<p class="sub-title">
+  The empirical anchor for MYTHS. Every &quot;lifted N/8&quot; claim on
+  the model pages traces back to a CSV in this data layer, produced
+  from one of the parsers below over one of the 8 projects.
+</p>
+
+<div class="callout">
+  <span class="label">audit</span>
+  All lifts are reproducible. Each <code>lifts/lift_&lt;model&gt;.Rmd</code>
+  reads from <code>conf/&lt;project&gt;.yml</code> and writes a CSV to
+  <code>outputs/lift_&lt;model&gt;_&lt;project&gt;.csv</code>.
+  Total: 65 outputs/ CSVs across 18 lifted models &times; 8 projects.
+</div>
+
+<h2>The 8-project family</h2>
+<p>
+  All 8 are mature Apache- or Apache-adjacent open-source projects with
+  long git history, accessible issue trackers, and stable identity records.
+  They were chosen for language diversity, age range, and team size spread —
+  not for any prior expectation about the V&amp;V outcome.
+</p>
+<table>
+  <thead>
+    <tr><th>project</th><th>language</th><th>repo</th><th>issue tracker</th><th>role in family</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Apache Helix</strong></td><td>Java</td><td>github.com/apache/helix</td><td>JIRA</td><td>headline target — first project lifted, used to sanity-check most models</td></tr>
+    <tr><td><strong>junit5</strong></td><td>Java</td><td>github.com/junit-team/junit5</td><td>GitHub Issues</td><td>large-team Java baseline; brooksq refute case</td></tr>
+    <tr><td><strong>Apache Ambari</strong></td><td>Java</td><td>github.com/apache/ambari</td><td>JIRA</td><td>large-team Java with rich JIRA; F1 + F4 source project</td></tr>
+    <tr><td><strong>kaiaulu</strong></td><td>R</td><td>github.com/sailuh/kaiaulu</td><td>GitHub Issues</td><td>small-team R baseline; tools' own host project</td></tr>
+    <tr><td><strong>Apache Airflow</strong></td><td>Python</td><td>github.com/apache/airflow</td><td>JIRA → GitHub</td><td>large-team Python; F3 strongest-positive case</td></tr>
+    <tr><td><strong>OpenSSL</strong></td><td>C</td><td>github.com/openssl/openssl</td><td>GitHub Issues</td><td>security-critical C baseline</td></tr>
+    <tr><td><strong>Apache Tomcat</strong></td><td>Java</td><td>github.com/apache/tomcat</td><td>Bugzilla</td><td>long-history Java; checks generalization to ancient codebases</td></tr>
+    <tr><td><strong>Apache Camel</strong></td><td>Java</td><td>github.com/apache/camel</td><td>JIRA</td><td>integration-framework Java; tested as Helix sibling</td></tr>
+  </tbody>
+</table>
+
+<h2>The tool pipeline</h2>
+<p>
+  Five binaries do the heavy lifting. Each is called from the kaiaulu R
+  package; the <code>tools.yml</code> file at the repo root tells kaiaulu
+  where to find each binary on disk.
+</p>
+<table>
+  <thead>
+    <tr><th>tool</th><th>role</th><th>kaiaulu wrapper</th><th>install</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Perceval</strong></td>
+      <td>parses git logs and mbox archives into structured CSV/JSON</td>
+      <td><code>parse_gitlog</code>, <code>parse_mbox</code></td>
+      <td><a href="https://github.com/chaoss/grimoirelab-perceval" target="_blank" rel="noopener">chaoss/grimoirelab-perceval</a></td>
+    </tr>
+    <tr>
+      <td><strong>Depends</strong></td>
+      <td>extracts file-to-file dependency graph from source</td>
+      <td><code>parse_dependencies</code></td>
+      <td><a href="https://github.com/multilang-depends/depends" target="_blank" rel="noopener">multilang-depends/depends</a></td>
+    </tr>
+    <tr>
+      <td><strong>scc</strong></td>
+      <td>counts LOC, comments, complexity per file</td>
+      <td><code>parse_line_metrics</code></td>
+      <td><a href="https://github.com/boyter/scc" target="_blank" rel="noopener">boyter/scc</a></td>
+    </tr>
+    <tr>
+      <td><strong>RefactoringMiner</strong></td>
+      <td>detects refactoring commits in Java repos</td>
+      <td><code>parse_java_code_refactoring_json</code></td>
+      <td><a href="https://github.com/tsantalis/RefactoringMiner" target="_blank" rel="noopener">tsantalis/RefactoringMiner</a></td>
+    </tr>
+    <tr>
+      <td><strong>pattern4.jar</strong></td>
+      <td>detects 23 Gang-of-Four design patterns in compiled bytecode</td>
+      <td><code>parse_gof_patterns</code></td>
+      <td><a href="https://users.encs.concordia.ca/~nikolaos/files/pattern_detection/pattern4.jar" target="_blank" rel="noopener">pattern4.jar (Concordia)</a></td>
+    </tr>
+    <tr>
+      <td><strong>PyDriller B-SZZ</strong></td>
+      <td>maps bug-fix commits back to bug-introducing commits</td>
+      <td>(direct Python call; not yet wrapped by kaiaulu)</td>
+      <td><a href="https://github.com/ishepard/pydriller" target="_blank" rel="noopener">ishepard/pydriller</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Per-project data dictionary</h2>
+<p>
+  Every project has a <code>conf/&lt;project&gt;.yml</code> that defines
+  where its raw data lives on disk and how to extract structured CSVs.
+  A typical entry:
+</p>
+<pre><code class="language-yaml">project:
+  website: https://helix.apache.org
+
+repository:
+  git: /opt/data/helix.git
+  vcs: git
+
+mailing_list:
+  mbox: /opt/data/helix-dev.mbox
+
+issue_tracker:
+  jira:
+    domain: issues.apache.org
+    project_key: HELIX
+    issue_jsons: /opt/data/helix_jira/
+
+analysis:
+  cveps:
+    - identity_id        # kaiaulu identity_match output column
+    - file_pathname      # gitlog file column
+</code></pre>
+<p>
+  The conf file is the contract between the project's raw data and the
+  parsers. Once it is filled out for a project, every lift in the bank
+  is in principle runnable on that project.
+</p>
+
+<h2>The outputs/ layer</h2>
+<p>
+  Lifts write structured CSVs to <code>outputs/</code>. The naming
+  convention is <code>lift_&lt;model&gt;_&lt;project&gt;.csv</code>.
+  Each row is one observation (one late-hire event, one release tag,
+  one SZZ pair, depending on the model).
+</p>
+<table>
+  <thead>
+    <tr><th>CSV family</th><th>contents</th><th>row count (typ)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>lift_brooks_*.csv</code></td><td>late-hire events with pre/post veteran velocity</td><td>5–1285 per project</td></tr>
+    <tr><td><code>lift_debt_*.csv</code></td><td>RefactoringMiner pay-rate per release</td><td>10–80</td></tr>
+    <tr><td><code>lift_brooksq_*.csv</code></td><td>SZZ pairs around late-hire events, inj_rate &amp; leak_rate</td><td>1–1019 per project</td></tr>
+    <tr><td><code>lift_archpat_*.csv</code></td><td>GoF-pattern density per snapshot</td><td>1–5 per project</td></tr>
+    <tr><td><code>lift_dora_*.csv</code></td><td>per-week DORA metrics (lead time, deploy freq, CFR, MTTR)</td><td>40–500</td></tr>
+    <tr><td><code>lift_rework_*.csv</code></td><td>SZZ-derived rework cycles per release</td><td>5–100</td></tr>
+    <tr><td><code>lift_defmap_*.csv</code></td><td>defect map (Active vs Latent vs Fixed)</td><td>1 per project</td></tr>
+    <tr><td><code>lift_bugs_*.csv</code></td><td>per-week bug-arrival counts for Goel-Okumoto fit</td><td>50–500</td></tr>
+    <tr><td><code>lift_learn_*.csv</code></td><td>90-day Jr → Tr → Sr transition rates</td><td>4–40</td></tr>
+    <tr><td><code>lift_congruence_*.csv</code></td><td>mbox-derived broker counts and radio-silence events</td><td>5–50</td></tr>
+    <tr><td><code>full_audit.csv</code></td><td>per-model V&amp;V verdict + 2&times;2 cell + 8 test results</td><td>33 rows (1 per model)</td></tr>
+    <tr><td><code>cross_project.csv</code></td><td>cross-project comparison of lifted scalars</td><td>8 rows (1 per project)</td></tr>
+  </tbody>
+</table>
+
+<h2>Anonymity note</h2>
+<p>
+  This site is configured for double-blind submission. The 8 project
+  names are public Apache projects whose data is itself public. No
+  team-internal data is used; no contributor name appears on this site
+  except as found in public git history. The hyperlinks above point to
+  the canonical repos hosted by Apache / GitHub.
+</p>
+<p>
+  Source links on every model page point to <code>github.com/timm/icse27theories</code> —
+  a placeholder location for the working copy. A double-blind mirror
+  will be set up for submission, and the <code>scripts/link_sd_refs.py</code>
+  module's <code>GH_BASE</code> constant gets the anonymous URL swapped
+  in pre-build.
+</p>
+
+<h2>Reproducibility</h2>
+<p>
+  Each lift is an <code>.Rmd</code> notebook in <code>lifts/</code>
+  with a companion <code>.R</code> for reusable helpers. Carlos's
+  convention. The notebooks run end-to-end given the project's
+  <code>conf/&lt;project&gt;.yml</code> and the 5 binaries installed.
+  Failures are documented in <code>kaiaulu_notes/known_bugs.md</code>.
+</p>
+<p>
+  Total reproducibility cost from a clean machine:
+</p>
+<ul>
+  <li>~2 hours: install R + CRAN packages + kaiaulu</li>
+  <li>~1 hour: install Perceval, Depends, scc, RefactoringMiner, pattern4, PyDriller</li>
+  <li>~6 hours: clone the 8 git repos + pull issue-tracker dumps</li>
+  <li>~20 hours: run all lifts end-to-end (most projects, most models)</li>
+</ul>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>
