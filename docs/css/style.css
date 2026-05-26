@@ -301,3 +301,34 @@ footer {
   text-align: center;
 }
 footer a { color: var(--text-dim); }
+
+/* ---- Fork-me-on-GitHub ribbon (top-right corner) ----
+   Strip before double-blind submission: links to non-anonymous repo. */
+.gh-ribbon {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.gh-ribbon a {
+  position: absolute;
+  top: 35px;
+  right: -45px;
+  transform: rotate(45deg);
+  background: #b91c1c;
+  color: #fff;
+  font: 600 12px/1 -apple-system, "Helvetica Neue", sans-serif;
+  letter-spacing: 0.5px;
+  padding: 8px 50px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(255,255,255,0.25);
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+  text-decoration: none;
+  pointer-events: auto;
+}
+.gh-ribbon a:hover { background: #dc2626; }
+@media (max-width: 640px) { .gh-ribbon { display: none; } }
