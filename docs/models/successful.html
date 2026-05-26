@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Merton's Matthew effect — &quot;to him that hath shall be given&quot; — describes how attention concentrates on entities that already have it. In software, well-known modules attract more PRs, more reviews, more test coverage; obscure modules atrophy. The dynamic is generative: small initial differences compound.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L1067" target="_blank" rel="noopener"><code>models/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1067" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
     <p class="dim"><em>Intuition</em>: A repo with one famous module and 50 obscure ones will see all its PRs land on the famous module. The obscure modules rot. After a year, the famous one is 10x its old size, the obscure ones unchanged. Compound interest in attention.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Coverage at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def successful():
   &quot;&quot;&quot;Merton 1968 Matthew effect: attention concentrates on already-
   attended modules. RQ: high attention_concentration starves the
@@ -93,7 +93,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: per project, compute per-module attention shares. Attention proxy = commits + reviews + tests touching the module. Compute the Gini coefficient of attention across modules per quarter. High Gini = high concentration = Matthew effect active.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: per project, compute per-module attention shares. Attention proxy = commits + reviews + tests touching the module. Compute the Gini coefficient of attention across modules per quarter. High Gini = high concentration = Matthew effect active.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Decan-Mens-Constantinou studied the npm ecosystem and found a systematic delay between vulnerability disclosure and dependent project updates — and that the delay grows as projects accumulate stale dependencies. Each stale dep is a vulnerability surface waiting to bite.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L985" target="_blank" rel="noopener"><code>models/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L985" target="_blank" rel="noopener"><code>paper/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
     <p class="dim"><em>Intuition</em>: Pin your deps and skip updates for two years; sit on a known-CVE library. The fix isn't free (updates break things), but the cost of not updating accumulates exponentially.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Vulns at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def deprot():
   &quot;&quot;&quot;Decan/Mens/Constantinou 2018: dep version staleness elevates
   vulnerability surface. RQ: low update_rate inflates Vulns.&quot;&quot;&quot;
@@ -89,7 +89,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog, identify dependency-manifest files (pom.xml, requirements.txt, package.json, Cargo.toml). For each release tag, extract the dep versions. Compute update_rate = fraction of deps with version change in each release window. Optionally cross-reference NVD/OSV for exposed CVEs.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog, identify dependency-manifest files (pom.xml, requirements.txt, package.json, Cargo.toml). For each release tag, extract the dep versions. Compute update_rate = fraction of deps with version change in each release window. Optionally cross-reference NVD/OSV for exposed CVEs.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

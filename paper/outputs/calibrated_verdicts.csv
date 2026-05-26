@@ -1,0 +1,10 @@
+model,default_verdict,default_gap,calib_verdict,calib_gap,changes_verdict,notes
+brooks,CONFIRM,-148,CONFIRM,-148,False,"brooks_tax_median is derived (post-hire velocity drop), not a direct input to brooks(); comm_coef/train_coef not lifted; no calib applied"
+brooksq,CONFIRM,-45.9,CONFIRM,-58.7,False,"clipped leak_rate: 0.571 -> [0,0.5] => 0.5"
+debt,CONFIRM,-56.7,CONFIRM,-8.83,False,intr_rate left at default; would need sd.opt() to fit
+rework,CONFIRM,-48.3,CONFIRM,-48.3,False,"failrate_median = 0.0188394652785993 (Helix safe regime, below thesis-trigger 0.5); rq() ctrl is failrate so bg override moot"
+defmap,CONFIRM,-100,CONFIRM,-100,False,"tst_proxy is ratio (caught/injected) in [0,1]; model's tst is multiplicative coef in [0,10]; unit mismatch, no calib applied"
+dora,CONFIRM,-45.4,CONFIRM,-20,False,batch_size in lift = 73.9069767441861 (Helix operating point); rq() ctrl is batch_size so override is moot; cfr_coef not lifted
+learn,CONFIRM,-5.28,CONFIRM,-6.36,False,mentor_rate left at default; not lifted from gitlog alone
+archpat,CONFIRM,+229,CONFIRM,+390,False,"Drift = NA (no recent-churn data); rate params not lifted | clipped Legacy: 384 -> [0,200] => 200"
+congruence,CONFIRM,-315,CONFIRM,-311,False,"rate params (broker_form, fragment_rate, merge_rate, work_rate) not lifted"

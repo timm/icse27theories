@@ -1,0 +1,11 @@
+model,key_metric,airflow,ambari,camel,helix,junit5,kaiaulu,openssl,tomcat,lo,hi,boundary_status
+archpat,Legacy_n,—,1890,—,384,—,—,—,—,0,200,airflow:- ambari:OUT camel:- helix:OUT junit5:- kaiaulu:- openssl:- tomcat:-
+brooks,brooks_tax_median,0.310991957104558,0.0294384057971015,-0.144230769230769,0.112676056338028,0.222222222222222,-1.13392857142857,0.146464646464647,0.0551530533764037,-,-,n/a
+brooksq,leak_rate,0.825335720680394,0.697098549274637,0.712137486573577,0.571318427139553,0.604449313221539,0.417808219178082,0.930678466076696,0.876115189158668,0,0.5,airflow:OUT ambari:OUT camel:OUT helix:OUT junit5:OUT kaiaulu:in openssl:OUT tomcat:OUT
+bugs,gokumoto_a,—,—,177.60,244.8,—,26.40,—,—,-,-,n/a
+congruence,Brokers_n,4,—,—,3,—,—,—,39,0,20,airflow:in ambari:- camel:- helix:in junit5:- kaiaulu:- openssl:- tomcat:OUT
+debt,pay_rate_median,—,0.526700481206919,0.461300100132608,0.588235294117647,0.589595375722543,—,—,0.365,0,1,airflow:- ambari:in camel:in helix:in junit5:in kaiaulu:- openssl:- tomcat:in
+defmap,tst_median,0,0.0983606557377049,0.987368421052632,0.375,0.15,0,0,0.0851449275362319,-,-,n/a
+dora,cfr,0.250293634014564,0.341386884217132,0.0772727272727273,0.0494021397105098,0.271923703186788,0.243697478991597,0.0512527992563485,0.161696793772266,-,-,n/a
+learn,train_rate,0.853848114169215,0.698209198209198,0,0.811111111111111,0.885141093474427,0,0.506944444444445,0,0,1,airflow:in ambari:in camel:BOUND helix:in junit5:in kaiaulu:BOUND openssl:in tomcat:BOUND
+rework,failrate_median,0.397626112759644,0.27405668893302,0.169182980567796,0.0188394652785993,0.272727272727273,0.410714285714286,0.0705505279034691,0.179425837320574,0,1,airflow:in ambari:in camel:in helix:in junit5:in kaiaulu:in openssl:in tomcat:in

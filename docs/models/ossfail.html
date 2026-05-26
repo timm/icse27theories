@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Coelho-Valente surveyed 104 maintainers of dormant or recently-abandoned OSS projects and identified the dominant risk factors: low truck factor (few developers know enough to keep going), maintainer burnout, conflicts, lack of time. Truck factor is the most operationally measurable signal.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L965" target="_blank" rel="noopener"><code>models/sd.py:ossfail</code></a> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L965" target="_blank" rel="noopener"><code>paper/sd.py:ossfail</code></a> tracks Activity over time and applies decay that scales with bus risk = 1/truck_factor. Low truck_factor means high bus risk means accelerated decay. The model lets you read off project half-life as a function of structural concentration.</p>
     <p class="dim"><em>Intuition</em>: One person knows the codebase end-to-end. They get tired. The project dies. The math of truck factor 1 vs 5 vs 20 is the math of project survival.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Final Activity level.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def ossfail():
   &quot;&quot;&quot;Coelho &amp; Valente 2017: low truck factor predicts project death.
   RQ: low truck_factor accelerates Abandonment.&quot;&quot;&quot;
@@ -88,7 +88,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: compute Avelino-Valente truck factor for each project. Algorithm: rank developers by their share of LOC authored across the codebase; the truck factor is the smallest k such that removing the top-k authors drops &gt; 50% of authored LOC. Use <code>parse_gitlog</code> + <code>identity_match</code> for the author graph.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: compute Avelino-Valente truck factor for each project. Algorithm: rank developers by their share of LOC authored across the codebase; the truck factor is the smallest k such that removing the top-k authors drops &gt; 50% of authored LOC. Use <code>parse_gitlog</code> + <code>identity_match</code> for the author graph.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

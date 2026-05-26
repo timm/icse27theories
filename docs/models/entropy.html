@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Lehman's laws of software evolution include continuing change and increasing complexity: a program that is used in a real-world environment must continually adapt, and as it adapts it becomes more complex unless work is done to maintain or reduce that complexity. The thesis is one of the oldest empirical generalisations in SE.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L809" target="_blank" rel="noopener"><code>models/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L809" target="_blank" rel="noopener"><code>paper/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
     <p class="dim"><em>Intuition</em>: Every commit adds complexity unless explicit refactoring removes it. Bugs scale with current complexity. Skip refactor, pay in defects.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative net Complexity + Bugs at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def entropy():
   &quot;&quot;&quot;Lehman 1980: software entropy grows monotonically unless paid
   down via refactor. Without refactor effort, defect rate rises.
@@ -92,7 +92,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: use <code>parse_line_metrics</code> (scc) on each release tag of each project to get total LOC and the LOC of each top-level module. Per-project: regression of LOC against time, check monotone-increasing (Lehman's continuing-growth law). For Bugs, use SZZ-tagged commits per release tag.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: use <code>parse_line_metrics</code> (scc) on each release tag of each project to get total LOC and the LOC of each top-level module. Per-project: regression of LOC against time, check monotone-increasing (Lehman's continuing-growth law). For Bugs, use SZZ-tagged commits per release tag.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

@@ -7,28 +7,28 @@ __pycache__/
 *.pyc
 
 # External tool installs (large, re-clone/download per README)
-tools/
+extract/tools/
 
 # Cloned datasets (large, public — re-clone from upstream)
-data/helix/git_repo/
-data/*/git_repo/
-data/helix_clean/
-data/*/mod_mbox/
-data/*/bk_mod_mbox/
-data/*/pipermail/
-data/*/jira/
-data/*/github/
+extract/data/helix/git_repo/
+extract/data/*/git_repo/
+extract/data/helix_clean/
+extract/data/*/mod_mbox/
+extract/data/*/bk_mod_mbox/
+extract/data/*/pipermail/
+extract/data/*/jira/
+extract/data/*/github/
 
 # Large derived artifacts (re-generate via scripts/szz_*.py + RefactoringMiner)
-data/*/derived/refminer*.json
+extract/data/*/derived/refminer*.json
 
 # Source zips from Carlos's Drive bundle (large; re-download manually)
-data/_zips/
+extract/data/_zips/
 
 # Large mbox files (some Apache projects have multi-GB mbox archives)
-data/*/mbox/*.mbox
-data/*/bk_mod_mbox/
-data/*/mod_mbox/
+extract/data/*/mbox/*.mbox
+extract/data/*/bk_mod_mbox/
+extract/data/*/mod_mbox/
 
 # Editor / IDE
 *.swp

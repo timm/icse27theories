@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L925" target="_blank" rel="noopener"><code>models/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L925" target="_blank" rel="noopener"><code>paper/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
     <p class="dim"><em>Intuition</em>: Lose half your senior devs; halve your effective knowledge base; double your defect rate. The model is not quite that linear but the direction is.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def orgchurn():
   &quot;&quot;&quot;Nagappan/Murphy/Basili 2010: org churn (departures) predicts
   defect bursts. RQ: high churn_rate inflates Bugs.&quot;&quot;&quot;
@@ -88,7 +88,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog + identity_match, detect &quot;departure events&quot; — an identity_id whose last commit is &gt; N months before the project's HEAD. Compute the per-quarter departure count. Correlate with the per-quarter SZZ defect rate (lagged by 0, 1, 2 quarters to look for delayed effects).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog + identity_match, detect &quot;departure events&quot; — an identity_id whose last commit is &gt; N months before the project's HEAD. Compute the per-quarter departure count. Correlate with the per-quarter SZZ defect rate (lagged by 0, 1, 2 quarters to look for delayed effects).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

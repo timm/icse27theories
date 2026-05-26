@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Raymond's bazaar argument — &quot;given enough eyeballs, all bugs are shallow&quot; — became Linus's law in popular framing. Mockus-Fielding-Herbsleb's empirical study of Apache and Mozilla put a peer-reviewed footing under the claim: code reviewed by multiple committers had measurably lower defect recurrence.</p>
-    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L881" target="_blank" rel="noopener"><code>models/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
+    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L881" target="_blank" rel="noopener"><code>paper/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
     <p class="dim"><em>Intuition</em>: Five reviewers means a high chance any given bug pattern is recognised. One reviewer means the bug recurs in a sister module. Doubling reviewers doesn't halve recurrence, but the gradient is real.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Reviewed minus 3·Recurring at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def linus():
   &quot;&quot;&quot;Raymond 1999 + Mockus 2002: &#x27;many eyes&#x27; review reduces defect
   recurrence. RQ: low review_rate inflates Recurring.&quot;&quot;&quot;
@@ -91,7 +91,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from GitHub PR data, compute per-PR reviewer count and review-comment count. Map each merged PR to its later SZZ-tagged bug-introducing commit (if any). Test whether PRs with &ge; 2 reviewers have a lower rate of producing bug-introducing commits than PRs with &le; 1 reviewer.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from GitHub PR data, compute per-PR reviewer count and review-comment count. Map each merged PR to its later SZZ-tagged bug-introducing commit (if any). Test whether PRs with &ge; 2 reviewers have a lower rate of producing bug-introducing commits than PRs with &le; 1 reviewer.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L1006" target="_blank" rel="noopener"><code>models/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1006" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
     <p class="dim"><em>Intuition</em>: An issue tracker that doubles its open count every quarter is one where intake outpaces output. Every team manager has lived this. The only defences are caps on intake (WIP limit) or boosts to outflow (more devs, faster cycle).</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Done minus 10% of Backlog at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def scope():
   &quot;&quot;&quot;Boehm/Jones scope creep: when inflow &gt; outflow, backlog grows
   without bound. RQ: high inflow_excess hurts net Done.&quot;&quot;&quot;
@@ -88,7 +88,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: pull JIRA issue stream per project. Per quarter: inflow = issues opened, outflow = issues closed. Plot Backlog over time. Compute the inflow/outflow ratio per project per quarter.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: pull JIRA issue stream per project. Per quarter: inflow = issues opened, outflow = issues closed. Plot Backlog over time. Compute the inflow/outflow ratio per project per quarter.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

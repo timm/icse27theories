@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Bird et al at Microsoft Research ran a 60-binary study of Vista and Windows 7 and found that the share of minor-author contributions to a binary (commits from people not on the main team) correlates strongly with post-release defect density. The finding has been replicated on several OSS datasets since.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L945" target="_blank" rel="noopener"><code>models/sd.py:ownership</code></a> represents Modules touched by major authors (high-quality contributions) and minor authors (lower-quality contributions, by hypothesis). The controlled lever is minor_share — the fraction of commits to a module from non-primary contributors.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L945" target="_blank" rel="noopener"><code>paper/sd.py:ownership</code></a> represents Modules touched by major authors (high-quality contributions) and minor authors (lower-quality contributions, by hypothesis). The controlled lever is minor_share — the fraction of commits to a module from non-primary contributors.</p>
     <p class="dim"><em>Intuition</em>: The person who wrote the file in the first place understands it best. Drive-by patches from strangers — even well-intentioned ones — are more bug-prone. Cumulative effect across many modules drives the defect curve.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def ownership():
   &quot;&quot;&quot;Bird et al 2011: high minor-author share correlates with
   defect density. RQ: rising minor_share inflates Bugs.&quot;&quot;&quot;
@@ -88,7 +88,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog + identity_match, compute per-module author share. Major author = ranked-#1 contributor by commit count. Minor authors = all others; minor_share = 1 − major_share. Correlate minor_share with per-module SZZ bug count.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog + identity_match, compute per-module author share. Major author = ranked-#1 contributor by commit count. Minor authors = all others; minor_share = 1 − major_share. Correlate minor_share with per-module SZZ bug count.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

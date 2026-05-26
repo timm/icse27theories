@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Brooks's Mythical Man-Month observed that adding people to a project increases the communication-pair count quadratically: N people produce N·(N-1)/2 channels. Each channel costs developer time, so beyond some team size the marginal hire reduces throughput instead of increasing it. Curtis et al's CACM field study put empirical flesh on the bone.</p>
-    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L789" target="_blank" rel="noopener"><code>models/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
+    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L789" target="_blank" rel="noopener"><code>paper/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
     <p class="dim"><em>Intuition</em>: A team of 10 has 45 pairs; a team of 20 has 190 pairs — the tax is non-linear in N. For small comm_coef the law is mild; for high comm_coef the team has a hard size ceiling.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative <code>Done</code> at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def coordn2():
   &quot;&quot;&quot;Brooks/Curtis: communication-pair count = N*(N-1)/2.
   RQ: doubling N more than doubles coordination cost (superlinear).&quot;&quot;&quot;
@@ -88,7 +88,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog + identity_match, count unique active developers per week per project. Build the time-series Devs(t) vs Done(t) where Done(t) = commits closed or KLOC delivered in week t. Fit Done = α·Devs − β·Devs·(Devs-1)/2; recover comm_coef = β.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog + identity_match, count unique active developers per week per project. Build the time-series Devs(t) vs Done(t) where Done(t) = commits closed or KLOC delivered in week t. Fit Done = α·Devs − β·Devs·(Devs-1)/2; recover comm_coef = β.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 

@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Senge's limits-to-growth archetype is a classic SD pattern: an effort that initially produces linear gains hits a saturating constraint and produces diminishing returns. In software, throughput saturates as team size grows because coordination overhead bites (a complement to coordn2 from a different direction).</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py#L1046" target="_blank" rel="noopener"><code>models/sd.py:limits</code></a> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1046" target="_blank" rel="noopener"><code>paper/sd.py:limits</code></a> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.</p>
     <p class="dim"><em>Intuition</em>: A team of 10 with cap=200 sits below the knee — adding people helps. A team of 30 with cap=200 sits above the knee — adding people barely moves the needle. The cap is the project's structural ceiling.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Done at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>:</p>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def limits():
   &quot;&quot;&quot;Senge limits-to-growth: throughput rises with team size but
   saturates as coordination overhead bites.
@@ -89,7 +89,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog + identity_match, compute Active Devs(t) and Commits(t) per quarter per project. Fit Commits = α·Devs / (1 + Devs/cap). Recover (α, cap) per project — α is the raw productivity coefficient, cap is the saturation point.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/models/sd.py" target="_blank" rel="noopener"><code>models/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog + identity_match, compute Active Devs(t) and Commits(t) per quarter per project. Fit Commits = α·Devs / (1 + Devs/cap). Recover (α, cap) per project — α is the raw productivity coefficient, cap is the saturation point.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
