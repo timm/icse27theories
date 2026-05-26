@@ -10,6 +10,13 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
 <script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "dark",
+    themeVariables: { background: "#0b0d10", primaryColor: "#1a1f26",
+      primaryBorderColor: "#5fb3b3", primaryTextColor: "#e6e6e6",
+      lineColor: "#9aa5b1", fontFamily: "ui-monospace, Menlo, monospace" } });
+</script>
 </head>
 <body>
 
@@ -46,49 +53,73 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>The simplest possible model the framework can run: one input variable, one output, no dynamics. It exists not to claim anything about software engineering but to demonstrate the engine end-to-end — that the harness can read a Model namedtuple, run it, and produce a verdict.</p>
-    <p>If <code>diapers</code> ever fails to execute, the bug is in the framework, not in any model. It is the canary in the coal mine: the V&amp;V suite runs against <code>diapers</code> first, and a green light there means the harness is healthy.</p>
-    <p class="dim"><em>Intuition</em>: No intuition needed — the model has no physical referent. Think of it as a hello-world for compartmental SD.</p>
+    <p>Smallest non-trivial SD model. Two stocks, three flows, one weekly event, one fault. Models a household's diaper logistics: clean diapers arrive in batches, get consumed daily, dirty ones pile up until laundry day clears them — unless laundry day is forgotten.</p>
+    <p>Diapers is the canary. If the framework cannot integrate two coupled stocks under an event-driven flow schedule, no richer model will run either. The V&amp;V suite hits diapers first; green here means the harness is healthy.</p>
+    <p class="dim"><em>Intuition</em>: clean stock <code>C</code> drains at constant rate <code>r=8</code> per day (one per child-event), is refilled by <code>q=70</code> every Saturday (big-box restock), and dirty stock <code>D</code> accumulates from the same <code>r</code> outflow, draining via <code>s</code> (washing) only on Saturdays — except on day 27, when laundry was forgotten and <code>s=0</code> regardless.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
-    <p><strong>The output flow at the final step.</strong></p>
-    <p>Trivially defined and trivially measured. The model has one flow; its value at <code>tmax</code> is the success measure.</p>
+    <p><strong>Final dirty-stock level <code>D(tmax)</code>.</strong></p>
+    <p>A healthy schedule lands <code>D</code> near zero each week. A missed laundry day spikes <code>D</code> by a full week's accumulation. The success measure is therefore both a level and an alarm.</p>
     <h2>Conjecture <span class="dim">(model.rq)</span></h2>
-    <p><strong>A baseline shift hurts net output.</strong></p>
-    <p>By construction the model produces a CONFIRM verdict because the shift acts directly on the only flow. The rq exists only to exercise the verdict pipeline.</p>
+    <p><strong>Skipping one laundry day leaves persistent residue.</strong></p>
+    <p>Verdict mechanics: compare <code>D(tmax)</code> with and without the day-27 forget. The model produces a CONFIRM verdict because the missed clear is never recovered — subsequent Saturdays only drain that Saturday's accumulation. A forgotten event causes durable system drift.</p>
     <h2>Stress-matrix cell</h2>
-    <p>diapers lands in <span class='warn'>process-conditional</span> because its sole parameter dominates the dynamics — perturbing it neutralises the verdict, while perturbing the (trivial) input does not.</p>
+    <p>Diapers sits in <span class='warn'>process-conditional</span>: robust to input perturbation (initial <code>C</code>/<code>D</code> levels wash out within one week), fragile to parameter perturbation (changing <code>q</code> or the saturday cadence breaks the residue verdict).</p>
   </div>
 
   <div id="panel-2" class="tab-content">
-    <h2>The SD model</h2>
-    <p>From <code>models/sd.py</code>:</p>
-    <pre><code class="language-python">def diapers():
-  &quot;&quot;&quot;Toy demonstrator: one flow, one threshold. Sanity-check the engine.&quot;&quot;&quot;
-  # init: one input UPPER var + one lower param.
-  init = {&#x27;In&#x27;:  [10, 0, 100],     # input level (only stock)
-          &#x27;out&#x27;: [5,  0, 20]}      # *** ctrl *** baseline threshold
-
-  # step: one tick. Compute output as max(0, In - out_threshold).
-  def step(dt, t, u, v):
-    flow = max(0, u.In - u.out)    # gated flow above threshold
-    v.In  = u.In                   # input is held constant in this toy
-    v.out = u.out                  # threshold doesn&#x27;t drift
-    # No accumulator stock — we read the flow directly via y()
-    v._flow = flow
-
-  # y: the gated flow at the final step (toy success measure)
-  def y(out):
-    return out[-1][1]._flow
-
-  # rq: shifting baseline downward should reduce the flow
-  def rq(bg=None):
-    bi = init if bg is None else bg
-    return verdict(&quot;threshold shift hurts flow&quot;,
-                   y(run({**bi, &#x27;out&#x27;:[5,  0, 20]}, step)),
-                   y(run({**bi, &#x27;out&#x27;:[15, 0, 20]}, step)), &#x27;down&#x27;)
-
-  return Model(init, step, y, rq, &#x27;out&#x27;)
+    <h2>Stock-and-flow diagram</h2>
+    <p>Two stocks (clean <code>C</code>, dirty <code>D</code>) coupled by flow <code>r</code>. External flow <code>q</code> refills <code>C</code>; external flow <code>s</code> drains <code>D</code>. Both <code>q</code> and <code>s</code> fire only on Saturdays.</p>
+    <div class="mermaid">
+flowchart LR
+  q([q: clean inflow]) -->|Saturday: 70| C[/"C — clean stock<br/>init 100"/]
+  C -->|r = 8 / day| D[/"D — dirty stock<br/>init 0"/]
+  D -->|s: Saturday drain| s([s: laundry outflow])
+  classDef stock fill:#1a1f26,stroke:#5fb3b3,color:#e6e6e6;
+  classDef flow fill:#2a2f36,stroke:#9aa5b1,color:#e6e6e6;
+  class C,D stock;
+  class q,s flow;
+    </div>
+    <p class="dim">ASCII source:</p>
+<pre><code> q   +-----+  r  +-----+
+----&gt;|  C  |----&gt;|  D  |--&gt; s
+ ^   +-----+     +-+---+
+ |                 |
+ +-----------------+
 </code></pre>
+    <ul>
+      <li><code>C</code> — stock of clean diapers (initial 100)</li>
+      <li><code>D</code> — stock of dirty diapers (initial 0)</li>
+      <li><code>q</code> — clean inflow (0 except Saturdays, when 70)</li>
+      <li><code>r</code> — flow clean → dirty (constant 8/day)</li>
+      <li><code>s</code> — dirty outflow (0 except Saturdays, when <code>D</code>; 0 on day 27 — the day we forgot)</li>
+    </ul>
+
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>. <code>S(x)</code> builds a Stock at level <code>x</code>; <code>F(x)</code> builds a Flow at rate <code>x</code>; <code>o(...)</code> packs a namedtuple-like state.</p>
+    <pre><code class="language-python">class Diapers(Model):
+
+  def have(i):
+    # Two stocks: C (clean), D (dirty). Three flows: q (in), r (C->D), s (out).
+    return o(C = S(100), D = S(0),
+             q = F(0),   r = F(8), s = F(0))
+
+  def step(i, dt, t, u, v):
+    # Saturday = day index 6 mod 7. Laundry day.
+    def saturday(x): return int(x) % 7 == 6
+
+    # Stock updates from current flows (Euler integration).
+    v.C +=  dt * (u.q - u.r)        # clean fills on q, drains on r
+    v.D +=  dt * (u.r - u.s)        # dirty fills on r, drains on s
+
+    # Flow updates: weekly refresh and weekly clear.
+    v.q  =  70  if saturday(t) else 0     # restock every Sat
+    v.s  =  u.D if saturday(t) else 0     # full drain every Sat
+
+    # The fault: we forgot laundry on day 27. s stays 0.
+    if t == 27:
+      v.s = 0
+</code></pre>
+    <p>The day-27 condition is what makes this model interesting: it injects a single missed event into an otherwise periodic system. The <code>rq</code> conjecture asks whether one forgotten Saturday produces a measurable, persistent change in <code>D(tmax)</code> versus the no-fault counterfactual.</p>
   </div>
 
   <div id="panel-3" class="tab-content">

@@ -179,6 +179,7 @@ def render_refs(name):
 MODELS = {
     "diapers": dict(
         year=2016,
+        manual=True,  # hand-tuned page in docs/models/diapers.html; generator skips
         cite="Toy demonstrator (no real-world referent).",
         cell="dark",
         intro="Smallest possible compartmental model used to demonstrate the framework's machinery. Has no Brooks- or Sterman-style intent — it exists to show the SD harness running end-to-end with one stock and one flow.",

@@ -1693,7 +1693,7 @@ def render_lift_chunks(name):
 
 
 def main():
-    SKIP = {"brooks"}  # hand-tuned; do not overwrite
+    SKIP = {"brooks", "diapers"}  # hand-tuned; do not overwrite
     written = 0
     for name, meta in M.items():
         if name in SKIP:
