@@ -1534,13 +1534,81 @@ def successful():
   return Model(init, step, y, rq, 'concentration')
 
 
+def maturity():
+  """Humphrey (1989) "Managing the Software Process" + Paulk et al (1993)
+  Capability Maturity Model + Harter, Krishnan, Slaughter (2000 Mgmt
+  Science) "Effects of process maturity on quality, cycle time, and
+  effort": higher institutionalised-process maturity reduces both
+  defect injection AND defect dwell-time. The Harter et al regression
+  put a quantitative footing under the SEI CMM claims.
+
+  Stocks (UPPER):
+    Bugs    : outstanding defects at any moment
+    BugTime : cumulative defect-time integral (sum of Bugs(t) over t)
+              — a Little's-law-style 'bug-dwell' measure: low BugTime
+              means defects don't sit around.
+    Done    : cumulative work delivered
+  Params (lower):
+    work_rate     : commits per tick (constant)
+    inj_rate_base : base bug-injection rate (bugs per commit) at maturity=0
+    fix_rate_base : base bug-fix rate (frac of Bugs per tick) at maturity=0
+    maturity      : process maturity in [0,1] mapping loosely to CMMI
+                    levels 1-5; the ctrl lever (policy).
+
+  Effects of maturity:
+    - injection scales by (1 - 0.7*maturity)  : higher maturity injects fewer
+    - fix      scales by (1 + 1.5*maturity)  : higher maturity fixes faster
+  Combined: BugTime drops as maturity rises.
+
+  Thesis: raising maturity from 0.1 (CMMI L1 chaos) to 0.9 (CMMI L5
+  optimising) sharply reduces total BugTime."""
+  init = {'Bugs':[10,0,500,'bugs'],                  # 10 outstanding at t=0
+          'BugTime':[0,0,1e5,'bug-ticks'],            # nothing accumulated yet
+          'Done':[0,0,5000,'items'],                  # no delivery yet
+          'work_rate':[10,0,100,'items/tick'],        # 10 commits/tick base
+          'inj_rate_base':[0.5,0,3,'bugs/item'],      # base 0.5 bugs/commit
+          'fix_rate_base':[0.05,0,1,'frac/tick'],     # 5% Bugs fixed/tick base
+          'maturity':[0.3,0,1,'frac']}                # *** ctrl ***; CMMI L2-3 default
+
+  def step(dt, t, u, v):
+    # Injection: base rate, lowered by maturity (up to 70% reduction).
+    bugs_in = u.work_rate * u.inj_rate_base * (1 - 0.7 * u.maturity)
+    # Fixing: base rate, raised by maturity (up to 2.5x).
+    fix_eff = u.fix_rate_base * (1 + 1.5 * u.maturity)
+    bugs_out = u.Bugs * fix_eff
+    # Bug stock: net of injection and fixing. Floor at 0.
+    v.Bugs    = max(0, u.Bugs + dt * (bugs_in - bugs_out))
+    # Bug-time integral: tracks dwell. Higher = bugs lived longer in
+    # the system. Like person-days but for defects.
+    v.BugTime = u.BugTime + dt * u.Bugs
+    # Delivered work; mature processes don't ship faster directly, but
+    # spend less time on rework — track for context.
+    v.Done    = u.Done    + dt * u.work_rate
+    for p in ('work_rate','inj_rate_base','fix_rate_base','maturity'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    # Health: low BugTime is the prize. Negate so higher y = better.
+    return -out[-1][1].BugTime
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict("higher maturity reduces total BugTime",
+                   y(run({**bi, 'maturity':[0.9,0,1,'frac']}, step)),  # CMMI L5
+                   y(run({**bi, 'maturity':[0.1,0,1,'frac']}, step)),  # CMMI L1
+                   'down')
+  return Model(init, step, y, rq, 'maturity')
+
+
 ALL_MODELS = [diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
               defmap, aiwork, flaky, dora, micro, teamtopo, burnout, aidebt,
               archpat, congruence,
-              # 15 newly added from docs/other.html buildable-today list:
+              # 15 added 2026-05-25 from docs/other.html buildable-today list:
               little, coordn2, entropy, costchange, pareto, linus, mirroring,
               orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
-              successful]
+              successful,
+              # 1 added 2026-05-26 per domain-expert request:
+              maturity]
 
 
 def main():

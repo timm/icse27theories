@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Brooks's Mythical Man-Month observed that adding people to a project increases the communication-pair count quadratically: N people produce N·(N-1)/2 channels. Each channel costs developer time, so beyond some team size the marginal hire reduces throughput instead of increasing it. Curtis et al's CACM field study put empirical flesh on the bone.</p>
-    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L898" target="_blank" rel="noopener"><code>paper/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
+    <p>MYTHS models the effect as a Done-flow with a tax = comm_coef · pairs / N applied to per-developer productivity. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L905" target="_blank" rel="noopener"><code>paper/sd.py:coordn2</code></a> exposes Devs as the controlled input and tests whether doubling N more than doubles Done (refute) or less than doubles Done (confirm).</p>
     <p class="dim"><em>Intuition</em>: A team of 10 has 45 pairs; a team of 20 has 190 pairs — the tax is non-linear in N. For small comm_coef the law is mild; for high comm_coef the team has a hard size ceiling.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative <code>Done</code> at <code>tmax</code>.</strong></p>
@@ -80,10 +80,10 @@
 
   Thesis: doubling Devs (5 -&gt; 10) less than doubles Done (because
   comm_coef * pairs / N grows in N).&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[5,1,200],              # *** ctrl ***; small team default
-          &#x27;Done&#x27;:[0,0,10000],            # nothing done at t=0
-          &#x27;work_per_dev&#x27;:[10,0,50],      # 10 items/dev/tick baseline
-          &#x27;comm_coef&#x27;:[0.02,0,0.5]}      # 2% attention lost per pair-share
+  init = {&#x27;Devs&#x27;:[5,1,200,&#x27;devs&#x27;],              # *** ctrl ***; small team default
+          &#x27;Done&#x27;:[0,0,10000,&#x27;items&#x27;],            # nothing done at t=0
+          &#x27;work_per_dev&#x27;:[10,0,50,&#x27;items/dev/tick&#x27;],      # 10 items/dev/tick baseline
+          &#x27;comm_coef&#x27;:[0.02,0,0.5,&#x27;frac/pair&#x27;]}      # 2% attention lost per pair-share
 
   def step(dt, t, u, v):
     # Communication-pair count grows quadratically in team size.
@@ -101,8 +101,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;doubling team superlinear-taxes throughput&quot;,
-                   y(run({**bi, &#x27;Devs&#x27;:[5,1,200]},  step)),    # small
-                   y(run({**bi, &#x27;Devs&#x27;:[10,1,200]}, step)),    # doubled
+                   y(run({**bi, &#x27;Devs&#x27;:[5,1,200,&#x27;devs&#x27;]},  step)),    # small
+                   y(run({**bi, &#x27;Devs&#x27;:[10,1,200,&#x27;devs&#x27;]}, step)),    # doubled
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;Devs&#x27;)
 </code></pre>
@@ -136,12 +136,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="bad">REFUTE</span> &middot; gap +860.00</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap +181.90 (sd0 2498.37 / sd1 2648.27 / &epsilon; 874.43)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 0/200 CONFIRM, params 91/200)</span></td></tr>

@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Little's law says that for any stable queueing system, the long-run average number of items in the system (L) equals the long-run average arrival rate (λ) times the long-run average time an item spends in the system (W). Carried into software, it predicts that work-in-progress, throughput, and cycle time are tied: you cannot push more work through faster by adding WIP unless cycle time stays bounded.</p>
-    <p>The MYTHS framing treats Little's law as a sanity-check baseline: any process model that violates L = λW is internally inconsistent. Most agile guidance (limit WIP, reduce batch size) is a corollary. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L852" target="_blank" rel="noopener"><code>paper/sd.py:little</code></a> tracks WIP, arrival, and Done over a fixed horizon and rejects any control regime that produces inconsistent triplets.</p>
+    <p>The MYTHS framing treats Little's law as a sanity-check baseline: any process model that violates L = λW is internally inconsistent. Most agile guidance (limit WIP, reduce batch size) is a corollary. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L859" target="_blank" rel="noopener"><code>paper/sd.py:little</code></a> tracks WIP, arrival, and Done over a fixed horizon and rejects any control regime that produces inconsistent triplets.</p>
     <p class="dim"><em>Intuition</em>: Halve cycle time, and either WIP halves or throughput doubles. Double WIP without faster service, and cycle time doubles — Done is unchanged in steady-state.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative throughput at <code>tmax</code>.</strong></p>
@@ -80,11 +80,11 @@
 
   Thesis: holding Arrival constant, tripling cycle_time (4 -&gt; 12)
   cuts throughput. Pure identity result if the queue is stable.&quot;&quot;&quot;
-  init = {&#x27;WIP&#x27;:[20,0,500],          # 20 items already in flight at t=0
-          &#x27;Arrival&#x27;:[5,0,50],        # 5 items arrive per tick (steady)
-          &#x27;Done&#x27;:[0,0,5000],         # nothing finished yet
-          &#x27;cycle_time&#x27;:[4,1,30],     # *** ctrl ***; 4 ticks per item
-          &#x27;wip_cap&#x27;:[60,5,200]}      # WIP can&#x27;t exceed 60
+  init = {&#x27;WIP&#x27;:[20,0,500,&#x27;items&#x27;],          # 20 items already in flight at t=0
+          &#x27;Arrival&#x27;:[5,0,50,&#x27;items/tick&#x27;],        # 5 items arrive per tick (steady)
+          &#x27;Done&#x27;:[0,0,5000,&#x27;items&#x27;],         # nothing finished yet
+          &#x27;cycle_time&#x27;:[4,1,30,&#x27;ticks&#x27;],     # *** ctrl ***; 4 ticks per item
+          &#x27;wip_cap&#x27;:[60,5,200,&#x27;items&#x27;]}      # WIP can&#x27;t exceed 60
 
   def step(dt, t, u, v):
     # Service: clear (WIP / cycle_time) items per tick, but no more than WIP.
@@ -105,8 +105,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;doubling cycle_time hurts throughput&quot;,
-                   y(run({**bi, &#x27;cycle_time&#x27;:[4,1,30]},  step)),   # fast
-                   y(run({**bi, &#x27;cycle_time&#x27;:[12,1,30]}, step)),   # slow (3x)
+                   y(run({**bi, &#x27;cycle_time&#x27;:[4,1,30,&#x27;ticks&#x27;]},  step)),   # fast
+                   y(run({**bi, &#x27;cycle_time&#x27;:[12,1,30,&#x27;ticks&#x27;]}, step)),   # slow (3x)
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;cycle_time&#x27;)
 </code></pre>
@@ -140,12 +140,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -32.98</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -147.49 (sd0 1234.11 / sd1 1240.73 / &epsilon; 431.94)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 145/200 CONFIRM, params 200/200)</span></td></tr>

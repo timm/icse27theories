@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Merton's Matthew effect — &quot;to him that hath shall be given&quot; — describes how attention concentrates on entities that already have it. In software, well-known modules attract more PRs, more reviews, more test coverage; obscure modules atrophy. The dynamic is generative: small initial differences compound.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1483" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1490" target="_blank" rel="noopener"><code>paper/sd.py:successful</code></a> tracks a population of modules (Pop) split into Attended and unattended. Attention flow rate splits into attended-bound (concentration) and population-bound (1 - concentration). High concentration starves the unattended set; low concentration spreads attention thin.</p>
     <p class="dim"><em>Intuition</em>: A repo with one famous module and 50 obscure ones will see all its PRs land on the famous module. The obscure modules rot. After a year, the famous one is 10x its old size, the obscure ones unchanged. Compound interest in attention.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Coverage at <code>tmax</code>.</strong></p>
@@ -82,11 +82,11 @@
   Thesis: pushing concentration from 0.4 (balanced) to 0.9 (extreme)
   starves the unattended set faster than the attended set gains; net
   Coverage drops.&quot;&quot;&quot;
-  init = {&#x27;Pop&#x27;:[50,1,500],              # 50 modules total
-          &#x27;Attended&#x27;:[10,0,500],         # 10 currently attended (20% Pareto-ish)
-          &#x27;Coverage&#x27;:[0,0,1e5],          # no coverage yet
-          &#x27;concentration&#x27;:[0.5,0,1],     # *** ctrl ***; 50% to attended default
-          &#x27;attention_rate&#x27;:[3,0,30]}     # 3 units/tick total budget
+  init = {&#x27;Pop&#x27;:[50,1,500,&#x27;modules&#x27;],              # 50 modules total
+          &#x27;Attended&#x27;:[10,0,500,&#x27;modules&#x27;],         # 10 currently attended (20% Pareto-ish)
+          &#x27;Coverage&#x27;:[0,0,1e5,&#x27;attention-units&#x27;],          # no coverage yet
+          &#x27;concentration&#x27;:[0.5,0,1,&#x27;frac&#x27;],     # *** ctrl ***; 50% to attended default
+          &#x27;attention_rate&#x27;:[3,0,30,&#x27;attention/tick&#x27;]}     # 3 units/tick total budget
 
   def step(dt, t, u, v):
     # Attention split: concentration goes to Attended, rest to Pop.
@@ -106,11 +106,10 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;extreme concentration starves Coverage&quot;,
-                   y(run({**bi, &#x27;concentration&#x27;:[0.4,0,1]}, step)),  # balanced
-                   y(run({**bi, &#x27;concentration&#x27;:[0.9,0,1]}, step)),  # extreme
+                   y(run({**bi, &#x27;concentration&#x27;:[0.4,0,1,&#x27;frac&#x27;]}, step)),  # balanced
+                   y(run({**bi, &#x27;concentration&#x27;:[0.9,0,1,&#x27;frac&#x27;]}, step)),  # extreme
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;concentration&#x27;)
-
 </code></pre>
   </div>
 
@@ -142,12 +141,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -1100.00</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="bad">REFUTE</span> &middot; gap +10532.43 (sd0 28514.61 / sd1 28923.46 / &epsilon; 9980.11)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 47/200 CONFIRM, params 200/200)</span></td></tr>

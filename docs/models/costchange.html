@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Boehm's cost-of-change curve is the most cited bar chart in software engineering: catching a bug in requirements costs $1, in coding $10, in test $100, in release $1000. The literal numbers are dated and have been contested in agile contexts (Beck/Cockburn pushback), but the structural claim — fix-cost rises super-linearly with discovery latency — holds in most modern datasets too.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L987" target="_blank" rel="noopener"><code>paper/sd.py:costchange</code></a> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L994" target="_blank" rel="noopener"><code>paper/sd.py:costchange</code></a> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.</p>
     <p class="dim"><em>Intuition</em>: Push catch to release and total cost explodes. Push catch to coding/test and total cost stays linear in defect count. The exponent is the cost ratio late/early.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative cumulative cost at <code>tmax</code>.</strong></p>
@@ -82,11 +82,11 @@
 
   Thesis: dropping catch_early from 0.8 (test-driven) to 0.2 (ship
   it and fix in prod) inflates total Cost.&quot;&quot;&quot;
-  init = {&#x27;Bugs&#x27;:[20,0,1000],          # 20 outstanding defects
-          &#x27;Cost&#x27;:[0,0,1e6],            # zero spent yet
-          &#x27;catch_early&#x27;:[0.6,0,1],     # *** ctrl ***; 60% caught early default
-          &#x27;cost_early&#x27;:[1,0.1,5],      # $1 per early catch
-          &#x27;cost_late&#x27;:[50,1,500]}      # $50 per late catch (50x ratio)
+  init = {&#x27;Bugs&#x27;:[20,0,1000,&#x27;bugs&#x27;],          # 20 outstanding defects
+          &#x27;Cost&#x27;:[0,0,1e6,&#x27;$&#x27;],            # zero spent yet
+          &#x27;catch_early&#x27;:[0.6,0,1,&#x27;frac&#x27;],     # *** ctrl ***; 60% caught early default
+          &#x27;cost_early&#x27;:[1,0.1,5,&#x27;$/bug&#x27;],      # $1 per early catch
+          &#x27;cost_late&#x27;:[50,1,500,&#x27;$/bug&#x27;]}      # $50 per late catch (50x ratio)
 
   def step(dt, t, u, v):
     # Bugs split by phase of discovery this tick.
@@ -104,8 +104,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;shifting catch late inflates total cost&quot;,
-                   y(run({**bi, &#x27;catch_early&#x27;:[0.8,0,1]}, step)),    # test-heavy
-                   y(run({**bi, &#x27;catch_early&#x27;:[0.2,0,1]}, step)),    # ship-fast
+                   y(run({**bi, &#x27;catch_early&#x27;:[0.8,0,1,&#x27;frac&#x27;]}, step)),    # test-heavy
+                   y(run({**bi, &#x27;catch_early&#x27;:[0.2,0,1,&#x27;frac&#x27;]}, step)),    # ship-fast
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;catch_early&#x27;)
 </code></pre>
@@ -139,12 +139,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -5165.13</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="ok">CONFIRM</span> &middot; gap -187185.02 (sd0 245668.73 / sd1 303956.33 / &epsilon; 85984.05)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 183/200 CONFIRM, params 200/200)</span></td></tr>

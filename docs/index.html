@@ -25,7 +25,7 @@
 
 <main>
 
-<h1>MYTHS<span class="tag">33 models</span></h1>
+<h1>MYTHS<span class="tag">34 models</span></h1>
 <p class="sub-title">
   A test-bench for SE theories cast as compartmental system-dynamics
   models. Each model is a falsifiable conjecture; each is hit by a
@@ -37,7 +37,7 @@
 <h2 id="findings">Headline findings</h2>
 <ul>
   <li><strong>F0 — Most published SE theses do not survive proper stats.</strong>
-      Of 33 modelled theses, only <strong>13 produce a CONFIRM verdict</strong>
+      Of 34 modelled theses, only <strong>13 produce a CONFIRM verdict</strong>
       under N=100 perturbation + stats.same (Cliff's &delta; 0.195 + KS conf 1.36
       + median-&epsilon; 0.35&sigma;). 19 dissolve to neutral; 1 flips to REFUTE.
       The single-shot threshold heuristic was hiding noise as signal.</li>
@@ -78,7 +78,7 @@
   </thead>
   <tbody>
     <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">14</td><td class="mono dim">debt, sir, rework, defmap, aiwork, flaky, dora, teamtopo, congruence, little, entropy, costchange, linus, deprot</td></tr>
-    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">12</td><td class="mono dim">diapers, bugs, learn, micro, burnout, coordn2, pareto, mirroring, orgchurn, ctxswitch, limits, successful</td></tr>
+    <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">13</td><td class="mono dim">diapers, bugs, learn, micro, burnout, coordn2, pareto, mirroring, orgchurn, ctxswitch, limits, successful, maturity</td></tr>
     <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">4</td><td class="mono dim">brooks, brooksq, archpat, scope</td></tr>
     <tr><td><span class="world">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">3</td><td class="mono dim">aidebt (regime crossover at t&asymp;26), ownership, ossfail</td></tr>
   </tbody>
@@ -91,7 +91,7 @@
 
 <div class="callout">
   <span class="label">scope</span>
-  All 33 model pages below are built. Click any card. Dim cards are
+  All 34 model pages below are built. Click any card. Dim cards are
   <em>structurally dark</em> — the model is defined but no open
   dataset can calibrate it. Order: the toy demonstrator first, then
   the rest by year (most recent first).
@@ -206,6 +206,12 @@
     <div class="name">linus <span class="dim" style="font-weight:400;">(1999)</span></div>
     <div class="desc">Raymond/Mockus: many eyes reduce defect recurrence.</div>
     <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
+  </a>
+
+  <a class="card process" href="models/maturity.html">
+    <div class="name">maturity <span class="dim" style="font-weight:400;">(1989)</span></div>
+    <div class="desc">Humphrey/CMMI: process maturity reduces bug dwell-time (Harter et al 2000).</div>
+    <div class="meta"><span class="badge">process-cond.</span><span>pipeline ready</span></div>
   </a>
 
   <a class="card fragile" href="models/archpat.html">

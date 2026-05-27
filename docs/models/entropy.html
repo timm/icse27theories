@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Lehman's laws of software evolution include continuing change and increasing complexity: a program that is used in a real-world environment must continually adapt, and as it adapts it becomes more complex unless work is done to maintain or reduce that complexity. The thesis is one of the oldest empirical generalisations in SE.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L940" target="_blank" rel="noopener"><code>paper/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L947" target="_blank" rel="noopener"><code>paper/sd.py:entropy</code></a> couples a Complexity stock (grows with work_rate, paid down by refactor_rate) to a Bugs stock (whose inflow is proportional to Complexity). A low refactor_rate leaves Complexity high and Bugs accumulating — the empirical signature Lehman documented.</p>
     <p class="dim"><em>Intuition</em>: Every commit adds complexity unless explicit refactoring removes it. Bugs scale with current complexity. Skip refactor, pay in defects.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative net Complexity + Bugs at <code>tmax</code>.</strong></p>
@@ -81,11 +81,11 @@
 
   Thesis: dropping refactor_rate from 0.20 (active maintenance) to
   0.02 (neglect) inflates terminal Complexity + Bugs.&quot;&quot;&quot;
-  init = {&#x27;Complexity&#x27;:[100,0,5000],         # starting complexity
-          &#x27;Bugs&#x27;:[0,0,5000],                 # no defects yet
-          &#x27;work_rate&#x27;:[10,0,100],            # 10 commits per tick
-          &#x27;refactor_rate&#x27;:[0.05,0,0.5],      # *** ctrl ***; 5% paid down
-          &#x27;entropy_coef&#x27;:[0.02,0,0.5]}       # 2% of work becomes complexity
+  init = {&#x27;Complexity&#x27;:[100,0,5000,&#x27;complexity-units&#x27;],         # starting complexity
+          &#x27;Bugs&#x27;:[0,0,5000,&#x27;bugs&#x27;],                 # no defects yet
+          &#x27;work_rate&#x27;:[10,0,100,&#x27;items/tick&#x27;],            # 10 commits per tick
+          &#x27;refactor_rate&#x27;:[0.05,0,0.5,&#x27;frac/tick&#x27;],      # *** ctrl ***; 5% paid down
+          &#x27;entropy_coef&#x27;:[0.02,0,0.5,&#x27;complexity/item&#x27;]}       # 2% of work becomes complexity
 
   def step(dt, t, u, v):
     # Each commit adds work_rate * entropy_coef to Complexity.
@@ -106,8 +106,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;low refactor leaves Complexity high&quot;,
-                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.20,0,0.5]}, step)),  # active
-                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.02,0,0.5]}, step)),  # neglect
+                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.20,0,0.5,&#x27;frac/tick&#x27;]}, step)),  # active
+                   y(run({**bi, &#x27;refactor_rate&#x27;:[0.02,0,0.5,&#x27;frac/tick&#x27;]}, step)),  # neglect
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;refactor_rate&#x27;)
 </code></pre>
@@ -142,12 +142,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -69.13</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="ok">CONFIRM</span> &middot; gap -1183.16 (sd0 1107.23 / sd1 1435.52 / &epsilon; 387.53)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 197/200 CONFIRM, params 200/200)</span></td></tr>

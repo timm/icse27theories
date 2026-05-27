@@ -19,7 +19,9 @@ from sd import (diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
                 # 15 newly added from docs/other.html buildable-today set:
                 little, coordn2, entropy, costchange, pareto, linus, mirroring,
                 orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
-                successful)
+                successful,
+                # 1 added 2026-05-26 per domain-expert request:
+                maturity)
 from tests import (boundary_adq, anomaly_check, extreme_eqn,
                    mr_zero_input, mr_monotone, mr_dt_halving,
                    mr_bound_consist, mr_scale, stress_matrix)
@@ -30,7 +32,7 @@ MODELS = [diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
           archpat, congruence,
           little, coordn2, entropy, costchange, pareto, linus, mirroring,
           orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
-          successful]
+          successful, maturity]
 
 TESTS = [boundary_adq, anomaly_check, extreme_eqn,
          mr_zero_input, mr_monotone, mr_dt_halving,

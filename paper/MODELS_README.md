@@ -12,7 +12,7 @@ five F-findings in <30 seconds. No R, no Perceval, no kaiaulu.
   `extreme_eqn`, `mr_zero_input`, `mr_monotone`, `mr_dt_halving`,
   `mr_bound_consist`, `mr_scale`. Plus `stress_matrix()` for 2×2 cell
   classification.
-- `full_audit.py` — runs the stress matrix + 9-test bank across all 33
+- `full_audit.py` — runs the stress matrix + 9-test bank across all 34
   models. Writes `outputs/full_audit.csv`.
 - `calibrate.py` — CSV-anchored verdicts. Reads `outputs/lift_<model>_<project>.csv`,
   substitutes lifted values into `model.init`, re-runs `rq()`, writes
@@ -24,7 +24,7 @@ five F-findings in <30 seconds. No R, no Perceval, no kaiaulu.
   upstream extraction lives in `extract/`.
 - `Makefile` — targets to run all of the above + per-finding reports.
 
-## The 33 models
+## The 34 models
 
 Year-tagged. Diapers is the toy demonstrator.
 

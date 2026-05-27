@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maturity (1989) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<!-- gh-ribbon: REMOVE for double-blind submission -->
+<div class="gh-ribbon"><a href="https://github.com/timm/icse27theories" target="_blank" rel="noopener">Fork me on GitHub</a></div>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ maturity</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>maturity <span class="dim" style="font-weight:400;">(1989)</span><span class="tag">process-conditional cell</span></h1>
+<p class="sub-title">Humphrey, W. S. (1989). Managing the Software Process. SEI/Addison-Wesley.</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Watts Humphrey's process-maturity thesis (institutionalised at SEI as the Capability Maturity Model, Paulk et al 1993) says that organisations whose software processes are measured + repeatable + optimising (CMM/CMMI levels 3-5) deliver software with measurably fewer defects and shorter defect dwell time than organisations at level 1 (chaos). The Management Science empirical replication by Harter, Krishnan, Slaughter (2000) put a quantitative footing under the SEI claims: each CMM level was associated with roughly halved cycle time + halved defect density.</p>
+    <p>The MYTHS form encodes process maturity as a scalar in [0, 1] mapping loosely to CMMI levels 1-5. Maturity affects two channels simultaneously: (a) it reduces base bug-injection rate (up to 70% cut at maturity=1), and (b) it raises base bug-fix rate (up to 2.5x speedup at maturity=1). The success measure is total bug-time integral — bug-ticks accumulated across the simulation — which is the Little's-law-style dwell measure that maps closest to the &quot;effort spent dealing with old bugs&quot; metric Humphrey's audits target.</p>
+    <p class="dim"><em>Intuition</em>: Mature shops inject fewer bugs AND clear them faster. The compound effect on cumulative bug-time is multiplicative.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong>Negative total BugTime (bug-ticks) at <code>tmax</code>.</strong></p>
+    <p>BugTime = &sum;<sub>t</sub> Bugs(t)·dt — the integral of outstanding defect count over time. Low values mean defects don't sit around. Negated so higher y = better.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Raising maturity from 0.1 (CMMI L1 chaos) to 0.9 (CMMI L5 optimising) reduces total BugTime.</strong></p>
+    <p>Mechanical CONFIRM at default params (gap ~&minus;490: low maturity inflates BugTime ~2.8x). The interesting empirical question is whether real OSS projects show this gradient across observed process-discipline proxies (test-coverage, CI usage, review density).</p>
+    <h2>Stress-matrix cell</h2>
+    <p><span class='warn'>process-conditional</span>: parameter perturbation rarely breaks the verdict (200/200 CONFIRM under N=200 sweep), but input perturbation flips it ~63% of the time. The maturity effect depends on world conditions (initial Bugs, work_rate, injection rate) more than on the maturity coefficients themselves. Under N=100 + stats.same the verdict drifts to <span class='warn'>neutral</span> — the spread of perturbed inj_rate_base + fix_rate_base + work_rate values washes out the maturity signal. A finding worth reporting: process-maturity claims survive single-shot inspection but dissolve under realistic stats.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <pre><code class="language-python">def maturity():
+  &quot;&quot;&quot;Humphrey (1989) &quot;Managing the Software Process&quot; + Paulk et al (1993)
+  Capability Maturity Model + Harter, Krishnan, Slaughter (2000 Mgmt
+  Science) &quot;Effects of process maturity on quality, cycle time, and
+  effort&quot;: higher institutionalised-process maturity reduces both
+  defect injection AND defect dwell-time. The Harter et al regression
+  put a quantitative footing under the SEI CMM claims.
+
+  Stocks (UPPER):
+    Bugs    : outstanding defects at any moment
+    BugTime : cumulative defect-time integral (sum of Bugs(t) over t)
+              — a Little&#x27;s-law-style &#x27;bug-dwell&#x27; measure: low BugTime
+              means defects don&#x27;t sit around.
+    Done    : cumulative work delivered
+  Params (lower):
+    work_rate     : commits per tick (constant)
+    inj_rate_base : base bug-injection rate (bugs per commit) at maturity=0
+    fix_rate_base : base bug-fix rate (frac of Bugs per tick) at maturity=0
+    maturity      : process maturity in [0,1] mapping loosely to CMMI
+                    levels 1-5; the ctrl lever (policy).
+
+  Effects of maturity:
+    - injection scales by (1 - 0.7*maturity)  : higher maturity injects fewer
+    - fix      scales by (1 + 1.5*maturity)  : higher maturity fixes faster
+  Combined: BugTime drops as maturity rises.
+
+  Thesis: raising maturity from 0.1 (CMMI L1 chaos) to 0.9 (CMMI L5
+  optimising) sharply reduces total BugTime.&quot;&quot;&quot;
+  init = {&#x27;Bugs&#x27;:[10,0,500,&#x27;bugs&#x27;],                  # 10 outstanding at t=0
+          &#x27;BugTime&#x27;:[0,0,1e5,&#x27;bug-ticks&#x27;],            # nothing accumulated yet
+          &#x27;Done&#x27;:[0,0,5000,&#x27;items&#x27;],                  # no delivery yet
+          &#x27;work_rate&#x27;:[10,0,100,&#x27;items/tick&#x27;],        # 10 commits/tick base
+          &#x27;inj_rate_base&#x27;:[0.5,0,3,&#x27;bugs/item&#x27;],      # base 0.5 bugs/commit
+          &#x27;fix_rate_base&#x27;:[0.05,0,1,&#x27;frac/tick&#x27;],     # 5% Bugs fixed/tick base
+          &#x27;maturity&#x27;:[0.3,0,1,&#x27;frac&#x27;]}                # *** ctrl ***; CMMI L2-3 default
+
+  def step(dt, t, u, v):
+    # Injection: base rate, lowered by maturity (up to 70% reduction).
+    bugs_in = u.work_rate * u.inj_rate_base * (1 - 0.7 * u.maturity)
+    # Fixing: base rate, raised by maturity (up to 2.5x).
+    fix_eff = u.fix_rate_base * (1 + 1.5 * u.maturity)
+    bugs_out = u.Bugs * fix_eff
+    # Bug stock: net of injection and fixing. Floor at 0.
+    v.Bugs    = max(0, u.Bugs + dt * (bugs_in - bugs_out))
+    # Bug-time integral: tracks dwell. Higher = bugs lived longer in
+    # the system. Like person-days but for defects.
+    v.BugTime = u.BugTime + dt * u.Bugs
+    # Delivered work; mature processes don&#x27;t ship faster directly, but
+    # spend less time on rework — track for context.
+    v.Done    = u.Done    + dt * u.work_rate
+    for p in (&#x27;work_rate&#x27;,&#x27;inj_rate_base&#x27;,&#x27;fix_rate_base&#x27;,&#x27;maturity&#x27;):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    # Health: low BugTime is the prize. Negate so higher y = better.
+    return -out[-1][1].BugTime
+
+  def rq(bg=None):
+    bi = init if bg is None else bg
+    return verdict(&quot;higher maturity reduces total BugTime&quot;,
+                   y(run({**bi, &#x27;maturity&#x27;:[0.9,0,1,&#x27;frac&#x27;]}, step)),  # CMMI L5
+                   y(run({**bi, &#x27;maturity&#x27;:[0.1,0,1,&#x27;frac&#x27;]}, step)),  # CMMI L1
+                   &#x27;down&#x27;)
+  return Model(init, step, y, rq, &#x27;maturity&#x27;)
+
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lift recipe: use CI-richness as a maturity proxy. Per project, compute:</p><ul><li><strong>test_ratio</strong>: ratio of test-file commits to all commits (CMMI-3 expectation: ~30%+)</li><li><strong>review_density</strong>: median reviewer count per merged PR (CMMI-4 expectation: 2+)</li><li><strong>release_cadence</strong>: median time between tagged releases (CMMI-5 expectation: weeks not months)</li></ul><p>Combine into a 0-1 maturity score and correlate with median bug dwell-time from SZZ pairs. Pipeline-ready on the 8-project family: gitlog gives test_ratio, GitHub PR data gives review_density, git tags give release_cadence, SZZ pairs give dwell.</p><div class='callout'><span class='label'>lift status</span>SD model defined; lift recipe specified above; full per-project run pending. The framework will report whether the Harter-Krishnan-Slaughter gradient replicates on OSS — note that OSS projects don't have CMMI assessments, so the lift IS the proxy.</div>
+    
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <p class="dim">No attribute table — this model is not lifted.</p>
+    <h2>Tools</h2>
+    <p class="dim">No tools required (or model not lifted).</p>
+    <h2>Sanity checks</h2>
+    <p>If the lifted maturity proxy is uncorrelated with bug-dwell, that's a finding: either OSS process discipline is uniformly low (CMMI L1-2 across the board) or the SEI gradient doesn't generalize from defence-contractor settings.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
+<tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -491.93</td></tr>
+<tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -1968.60 (sd0 22831.47 / sd1 22815.96 / &epsilon; 7991.02)</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 73/200 CONFIRM, params 200/200)</span></td></tr>
+</tbody></table>
+    
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>Pipeline ready (CI-richness extractor not yet run). Expected per-project: a (maturity_proxy, median_dwell) pair; correlation across the 8 projects gives the empirical answer to the Harter-Krishnan-Slaughter claim on open-source.</p>
+    
+    <p>The single most interesting outcome would be a NEGATIVE correlation (high CI-discipline projects show LONGER dwell) — that would suggest the SEI gradient is specific to closed-source contexts where process is the only way to coordinate. A positive correlation replicates Harter et al on a much different population.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Maturity is the SEI/CMMI claim</strong>: institutionalised process discipline reduces defect dwell. We can test this on OSS for the first time.</li>
+<li>If the lift shows the gradient is OSS-invariant, it joins debt.pay_rate as a candidate universal-law in F3.</li>
+<li>If the lift breaks the gradient, that itself is a paper-worthy result: process-maturity benefits don't generalize beyond the contexts where it was first measured.</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/managing-the-software-process/P200000003324" target="_blank" rel="noopener">Humphrey, W. S. (1989). <em>Managing the Software Process</em>. SEI/Addison-Wesley.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/52.219617" target="_blank" rel="noopener">Paulk, M. C., Curtis, B., Chrissis, M. B., &amp; Weber, C. V. (1993). Capability Maturity Model for Software, Version 1.1. <em>IEEE Software</em> 10(4):18&ndash;27.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1287/mnsc.46.4.451.12056" target="_blank" rel="noopener">Harter, D. E., Krishnan, M. S., &amp; Slaughter, S. A. (2000). Effects of process maturity on quality, cycle time, and effort in software product development. <em>Management Science</em> 46(4):451&ndash;466.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1287/mnsc.46.6.745.11941" target="_blank" rel="noopener">Krishnan, M. S., Kriebel, C. H., Kekre, S., &amp; Mukhopadhyay, T. (2000). An empirical analysis of productivity and quality in software products. <em>Management Science</em> 46(6):745&ndash;759.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/52.605934" target="_blank" rel="noopener">Diaz, M., &amp; Sligo, J. (1997). How software process improvement helped Motorola. <em>IEEE Software</em> 14(5):75&ndash;81.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

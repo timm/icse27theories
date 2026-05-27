@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1355" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1362" target="_blank" rel="noopener"><code>paper/sd.py:scope</code></a> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.</p>
     <p class="dim"><em>Intuition</em>: An issue tracker that doubles its open count every quarter is one where intake outpaces output. Every team manager has lived this. The only defences are caps on intake (WIP limit) or boosts to outflow (more devs, faster cycle).</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Done minus 10% of Backlog at <code>tmax</code>.</strong></p>
@@ -80,10 +80,10 @@
 
   Thesis: tripling inflow (5 -&gt; 15) without changing outflow drops
   net Done (delivered - 10% of Backlog penalty).&quot;&quot;&quot;
-  init = {&#x27;Backlog&#x27;:[100,0,10000],      # 100 items already piled up
-          &#x27;Done&#x27;:[0,0,10000],           # nothing delivered yet
-          &#x27;inflow&#x27;:[8,0,100],           # *** ctrl ***; 8 items arrive/tick
-          &#x27;outflow&#x27;:[6,0,100]}          # 6 items delivered/tick (chronic deficit)
+  init = {&#x27;Backlog&#x27;:[100,0,10000,&#x27;items&#x27;],      # 100 items already piled up
+          &#x27;Done&#x27;:[0,0,10000,&#x27;items&#x27;],           # nothing delivered yet
+          &#x27;inflow&#x27;:[8,0,100,&#x27;items/tick&#x27;],           # *** ctrl ***; 8 items arrive/tick
+          &#x27;outflow&#x27;:[6,0,100,&#x27;items/tick&#x27;]}          # 6 items delivered/tick (chronic deficit)
 
   def step(dt, t, u, v):
     # Can only serve what exists in the Backlog, up to outflow capacity.
@@ -102,8 +102,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;inflow &gt;&gt; outflow drowns Done&quot;,
-                   y(run({**bi, &#x27;inflow&#x27;:[5,0,100]},  step)),    # under-capacity
-                   y(run({**bi, &#x27;inflow&#x27;:[15,0,100]}, step)),    # creep
+                   y(run({**bi, &#x27;inflow&#x27;:[5,0,100,&#x27;items/tick&#x27;]},  step)),    # under-capacity
+                   y(run({**bi, &#x27;inflow&#x27;:[15,0,100,&#x27;items/tick&#x27;]}, step)),    # creep
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;inflow&#x27;)
 </code></pre>
@@ -136,12 +136,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -20.00</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -2.15 (sd0 2691.41 / sd1 2692.24 / &epsilon; 941.99)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>fragile <span class="dim">(inputs 25/200 CONFIRM, params 28/200)</span></td></tr>

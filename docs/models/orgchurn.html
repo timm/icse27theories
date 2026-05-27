@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1173" target="_blank" rel="noopener"><code>paper/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1180" target="_blank" rel="noopener"><code>paper/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
     <p class="dim"><em>Intuition</em>: Lose half your senior devs; halve your effective knowledge base; double your defect rate. The model is not quite that linear but the direction is.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -81,10 +81,10 @@
 
   Thesis: 10x churn_rate spike (0.02 -&gt; 0.20) inflates Bugs because
   knowledge depletes and bug rate scales inversely with knowledge.&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[20,1,500],            # 20-dev team default
-          &#x27;Bugs&#x27;:[0,0,5000],            # no defects yet
-          &#x27;churn_rate&#x27;:[0.02,0,0.5],    # *** ctrl ***; 2% departure/tick
-          &#x27;knowledge&#x27;:[100,0,1000]}     # 100 units of tacit context
+  init = {&#x27;Devs&#x27;:[20,1,500,&#x27;devs&#x27;],            # 20-dev team default
+          &#x27;Bugs&#x27;:[0,0,5000,&#x27;bugs&#x27;],            # no defects yet
+          &#x27;churn_rate&#x27;:[0.02,0,0.5,&#x27;frac/tick&#x27;],    # *** ctrl ***; 2% departure/tick
+          &#x27;knowledge&#x27;:[100,0,1000,&#x27;knowledge-units&#x27;]}     # 100 units of tacit context
 
   def step(dt, t, u, v):
     # Departures this tick.
@@ -102,8 +102,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;departure spike inflates defect burst&quot;,
-                   y(run({**bi, &#x27;churn_rate&#x27;:[0.02,0,0.5]}, step)),  # stable
-                   y(run({**bi, &#x27;churn_rate&#x27;:[0.20,0,0.5]}, step)),  # 10x churn
+                   y(run({**bi, &#x27;churn_rate&#x27;:[0.02,0,0.5,&#x27;frac/tick&#x27;]}, step)),  # stable
+                   y(run({**bi, &#x27;churn_rate&#x27;:[0.20,0,0.5,&#x27;frac/tick&#x27;]}, step)),  # 10x churn
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;churn_rate&#x27;)
 </code></pre>
@@ -137,12 +137,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -4504.53</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -1025.21 (sd0 1700.55 / sd1 1130.87 / &epsilon; 595.19)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 38/200 CONFIRM, params 197/200)</span></td></tr>

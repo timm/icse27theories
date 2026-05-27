@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>MacCormack, Baldwin, and Rusnak operationalised Conway's law as a measurable mirror coefficient: the agreement between the design-structure-matrix of the code (who-calls-who) and the design-structure-matrix of the organisation (who-talks-to-who). Their finding: high mirror predicts cleaner modular boundaries and lower defect density.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1128" target="_blank" rel="noopener"><code>paper/sd.py:mirroring</code></a> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1135" target="_blank" rel="noopener"><code>paper/sd.py:mirroring</code></a> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.</p>
     <p class="dim"><em>Intuition</em>: If your repo has 20 modules and 5 teams, the cleanest world is 4 modules per team. Half a module owned by two teams means every change there is a coordination event — and coordination events break things.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -83,11 +83,11 @@
   Thesis: dropping mirror from 0.85 (Conway-aligned) to 0.30
   (cross-team chaos) inflates Bugs because cross-team changes are
   more error-prone.&quot;&quot;&quot;
-  init = {&#x27;Modules&#x27;:[20,1,200],          # 20 modules
-          &#x27;Teams&#x27;:[5,1,50],              # 5 teams
-          &#x27;Bugs&#x27;:[0,0,5000],             # no defects yet
-          &#x27;mirror&#x27;:[0.7,0,1],            # *** ctrl ***; 70% aligned default
-          &#x27;churn_rate&#x27;:[2,0,20]}         # 2 commits/file/tick
+  init = {&#x27;Modules&#x27;:[20,1,200,&#x27;modules&#x27;],          # 20 modules
+          &#x27;Teams&#x27;:[5,1,50,&#x27;teams&#x27;],              # 5 teams
+          &#x27;Bugs&#x27;:[0,0,5000,&#x27;bugs&#x27;],             # no defects yet
+          &#x27;mirror&#x27;:[0.7,0,1,&#x27;frac&#x27;],            # *** ctrl ***; 70% aligned default
+          &#x27;churn_rate&#x27;:[2,0,20,&#x27;commits/file/tick&#x27;]}         # 2 commits/file/tick
 
   def step(dt, t, u, v):
     # Mismatch = 1 - mirror. Drives the leak rate.
@@ -104,8 +104,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;low mirror inflates defects&quot;,
-                   y(run({**bi, &#x27;mirror&#x27;:[0.85,0,1]}, step)),    # aligned
-                   y(run({**bi, &#x27;mirror&#x27;:[0.30,0,1]}, step)),    # chaotic
+                   y(run({**bi, &#x27;mirror&#x27;:[0.85,0,1,&#x27;frac&#x27;]}, step)),    # aligned
+                   y(run({**bi, &#x27;mirror&#x27;:[0.30,0,1,&#x27;frac&#x27;]}, step)),    # chaotic
                    &#x27;down&#x27;)
   return Model(init, step, y, rq, &#x27;mirror&#x27;)
 </code></pre>
@@ -141,12 +141,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="bad">FAIL</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -88.00</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -364.21 (sd0 1287.71 / sd1 1387.20 / &epsilon; 450.70)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 121/200 CONFIRM, params 200/200)</span></td></tr>

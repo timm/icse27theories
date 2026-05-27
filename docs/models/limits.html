@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Senge's limits-to-growth archetype is a classic SD pattern: an effort that initially produces linear gains hits a saturating constraint and produces diminishing returns. In software, throughput saturates as team size grows because coordination overhead bites (a complement to coordn2 from a different direction).</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1441" target="_blank" rel="noopener"><code>paper/sd.py:limits</code></a> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.</p>
+    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1448" target="_blank" rel="noopener"><code>paper/sd.py:limits</code></a> uses a hyperbolic saturation: effective output = raw_output / (1 + raw_output/cap). Past the knee at raw_output &asymp; cap, doubling Devs yields ~1.3x throughput, not 2x.</p>
     <p class="dim"><em>Intuition</em>: A team of 10 with cap=200 sits below the knee — adding people helps. A team of 30 with cap=200 sits above the knee — adding people barely moves the needle. The cap is the project's structural ceiling.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Done at <code>tmax</code>.</strong></p>
@@ -81,10 +81,10 @@
   Thesis: doubling Devs near cap (30 -&gt; 60) yields LESS than 2x Done.
   Tested with expect=&#x27;up&#x27; — if the model is right we expect SOME
   gain, but the verdict checks the gap is smaller than linear.&quot;&quot;&quot;
-  init = {&#x27;Devs&#x27;:[10,1,500],            # *** ctrl ***; 10 devs default
-          &#x27;Done&#x27;:[0,0,1e5],             # nothing delivered yet
-          &#x27;k_per_dev&#x27;:[10,0,100],       # 10 items/dev/tick raw
-          &#x27;cap&#x27;:[200,10,1000]}          # saturate at 200 items/tick
+  init = {&#x27;Devs&#x27;:[10,1,500,&#x27;devs&#x27;],            # *** ctrl ***; 10 devs default
+          &#x27;Done&#x27;:[0,0,1e5,&#x27;items&#x27;],             # nothing delivered yet
+          &#x27;k_per_dev&#x27;:[10,0,100,&#x27;items/dev/tick&#x27;],       # 10 items/dev/tick raw
+          &#x27;cap&#x27;:[200,10,1000,&#x27;items/tick&#x27;]}          # saturate at 200 items/tick
 
   def step(dt, t, u, v):
     # Raw demand: linear in team size.
@@ -101,8 +101,8 @@
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict(&quot;doubling Devs near cap yields diminishing returns&quot;,
-                   y(run({**bi, &#x27;Devs&#x27;:[30,1,500]}, step)),    # near knee
-                   y(run({**bi, &#x27;Devs&#x27;:[60,1,500]}, step)),    # past knee
+                   y(run({**bi, &#x27;Devs&#x27;:[30,1,500,&#x27;devs&#x27;]}, step)),    # near knee
+                   y(run({**bi, &#x27;Devs&#x27;:[60,1,500,&#x27;devs&#x27;]}, step)),    # past knee
                    &#x27;up&#x27;)                                       # expect up but small
   return Model(init, step, y, rq, &#x27;Devs&#x27;)
 </code></pre>
@@ -136,12 +136,12 @@
     <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
 <tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>extreme_eqn</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
 <tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
-<tr><td><code>mr_scale</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap +600.00</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap +865.67 (sd0 23704.89 / sd1 23696.07 / &epsilon; 8296.71)</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td>process-conditional <span class="dim">(inputs 36/200 CONFIRM, params 181/200)</span></td></tr>

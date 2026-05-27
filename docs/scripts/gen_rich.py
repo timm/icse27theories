@@ -2101,6 +2101,43 @@ M["successful"] = dict(
 )
 
 
+M["maturity"] = dict(
+    year=1989, cell="process-conditional",
+    cite_short="Humphrey, W. S. (1989). Managing the Software Process. SEI/Addison-Wesley.",
+    intro1="Watts Humphrey's process-maturity thesis (institutionalised at SEI as the Capability Maturity Model, Paulk et al 1993) says that organisations whose software processes are measured + repeatable + optimising (CMM/CMMI levels 3-5) deliver software with measurably fewer defects and shorter defect dwell time than organisations at level 1 (chaos). The Management Science empirical replication by Harter, Krishnan, Slaughter (2000) put a quantitative footing under the SEI claims: each CMM level was associated with roughly halved cycle time + halved defect density.",
+    intro2="The MYTHS form encodes process maturity as a scalar in [0, 1] mapping loosely to CMMI levels 1-5. Maturity affects two channels simultaneously: (a) it reduces base bug-injection rate (up to 70% cut at maturity=1), and (b) it raises base bug-fix rate (up to 2.5x speedup at maturity=1). The success measure is total bug-time integral — bug-ticks accumulated across the simulation — which is the Little's-law-style dwell measure that maps closest to the &quot;effort spent dealing with old bugs&quot; metric Humphrey's audits target.",
+    intuition="Mature shops inject fewer bugs AND clear them faster. The compound effect on cumulative bug-time is multiplicative.",
+    y_text="Negative total BugTime (bug-ticks) at <code>tmax</code>.",
+    y_para="BugTime = &sum;<sub>t</sub> Bugs(t)·dt — the integral of outstanding defect count over time. Low values mean defects don't sit around. Negated so higher y = better.",
+    rq_text="Raising maturity from 0.1 (CMMI L1 chaos) to 0.9 (CMMI L5 optimising) reduces total BugTime.",
+    rq_para="Mechanical CONFIRM at default params (gap ~&minus;490: low maturity inflates BugTime ~2.8x). The interesting empirical question is whether real OSS projects show this gradient across observed process-discipline proxies (test-coverage, CI usage, review density).",
+    cell_para="<span class='warn'>process-conditional</span>: parameter perturbation rarely breaks the verdict (200/200 CONFIRM under N=200 sweep), but input perturbation flips it ~63% of the time. The maturity effect depends on world conditions (initial Bugs, work_rate, injection rate) more than on the maturity coefficients themselves. Under N=100 + stats.same the verdict drifts to <span class='warn'>neutral</span> — the spread of perturbed inj_rate_base + fix_rate_base + work_rate values washes out the maturity signal. A finding worth reporting: process-maturity claims survive single-shot inspection but dissolve under realistic stats.",
+    lift_intro="<p>Lift recipe: use CI-richness as a maturity proxy. Per project, compute:</p><ul><li><strong>test_ratio</strong>: ratio of test-file commits to all commits (CMMI-3 expectation: ~30%+)</li><li><strong>review_density</strong>: median reviewer count per merged PR (CMMI-4 expectation: 2+)</li><li><strong>release_cadence</strong>: median time between tagged releases (CMMI-5 expectation: weeks not months)</li></ul><p>Combine into a 0-1 maturity score and correlate with median bug dwell-time from SZZ pairs. Pipeline-ready on the 8-project family: gitlog gives test_ratio, GitHub PR data gives review_density, git tags give release_cadence, SZZ pairs give dwell.</p><div class='callout'><span class='label'>lift status</span>SD model defined; lift recipe specified above; full per-project run pending. The framework will report whether the Harter-Krishnan-Slaughter gradient replicates on OSS — note that OSS projects don't have CMMI assessments, so the lift IS the proxy.</div>",
+    sanity="If the lifted maturity proxy is uncorrelated with bug-dwell, that's a finding: either OSS process discipline is uniformly low (CMMI L1-2 across the board) or the SEI gradient doesn't generalize from defence-contractor settings.",
+    results_intro="Pipeline ready (CI-richness extractor not yet run). Expected per-project: a (maturity_proxy, median_dwell) pair; correlation across the 8 projects gives the empirical answer to the Harter-Krishnan-Slaughter claim on open-source.",
+    results_table_rows=[],
+    results_table_cols=[],
+    results_discussion="The single most interesting outcome would be a NEGATIVE correlation (high CI-discipline projects show LONGER dwell) — that would suggest the SEI gradient is specific to closed-source contexts where process is the only way to coordinate. A positive correlation replicates Harter et al on a much different population.",
+    implications=[
+        "<strong>Maturity is the SEI/CMMI claim</strong>: institutionalised process discipline reduces defect dwell. We can test this on OSS for the first time.",
+        "If the lift shows the gradient is OSS-invariant, it joins debt.pay_rate as a candidate universal-law in F3.",
+        "If the lift breaks the gradient, that itself is a paper-worthy result: process-maturity benefits don't generalize beyond the contexts where it was first measured.",
+    ],
+    refs=[
+        ("Humphrey, W. S. (1989). <em>Managing the Software Process</em>. SEI/Addison-Wesley.",
+         "https://www.pearson.com/en-us/subject-catalog/p/managing-the-software-process/P200000003324", "book"),
+        ("Paulk, M. C., Curtis, B., Chrissis, M. B., &amp; Weber, C. V. (1993). Capability Maturity Model for Software, Version 1.1. <em>IEEE Software</em> 10(4):18&ndash;27.",
+         "https://doi.org/10.1109/52.219617", "peer-reviewed"),
+        ("Harter, D. E., Krishnan, M. S., &amp; Slaughter, S. A. (2000). Effects of process maturity on quality, cycle time, and effort in software product development. <em>Management Science</em> 46(4):451&ndash;466.",
+         "https://doi.org/10.1287/mnsc.46.4.451.12056", "peer-reviewed"),
+        ("Krishnan, M. S., Kriebel, C. H., Kekre, S., &amp; Mukhopadhyay, T. (2000). An empirical analysis of productivity and quality in software products. <em>Management Science</em> 46(6):745&ndash;759.",
+         "https://doi.org/10.1287/mnsc.46.6.745.11941", "peer-reviewed"),
+        ("Diaz, M., &amp; Sligo, J. (1997). How software process improvement helped Motorola. <em>IEEE Software</em> 14(5):75&ndash;81.",
+         "https://doi.org/10.1109/52.605934", "peer-reviewed"),
+    ],
+)
+
+
 # --- HTML template ---
 
 TEMPLATE = """<!doctype html>
