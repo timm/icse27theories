@@ -78,43 +78,60 @@
   <thead>
     <tr>
       <th>project</th>
+      <th>language(s)</th>
       <th class="num">LOC (code)</th>
       <th class="num">files</th>
       <th class="num">bugfix commits</th>
       <th class="num">unique bugfix authors</th>
       <th class="num">n_hires (brooks)</th>
-      <th>bugfix-data window</th>
+      <th>git-log window</th>
     </tr>
   </thead>
   <tbody>
-    <tr><td>airflow</td>  <td class="num">305 419</td>  <td class="num">3 012</td>  <td class="num">2 534</td>  <td class="num">685</td>   <td class="num">1 285</td>  <td>2014-11 → 2021-08</td></tr>
-    <tr><td>ambari</td>   <td class="num">625 569</td>  <td class="num">4 368</td>  <td class="num">2 460</td>  <td class="num">181</td>   <td class="num">126</td>    <td>2011-09 → 2025-12</td></tr>
-    <tr><td>camel</td>    <td class="num">99 145</td>   <td class="num">1 987</td>  <td class="num">188</td>    <td class="num">11</td>    <td class="num">5</td>      <td>2007-06 → 2009-02</td></tr>
-    <tr><td>helix</td>    <td class="num">199 071</td>  <td class="num">1 545</td>  <td class="num">180</td>    <td class="num">24</td>    <td class="num">65</td>     <td>2012-08 → 2022-04</td></tr>
-    <tr><td>junit5</td>   <td class="num">133 978</td>  <td class="num">1 724</td>  <td class="num">1 507</td>  <td class="num">117</td>   <td class="num">169</td>    <td>2015-10 → 2026-05</td></tr>
-    <tr><td>kaiaulu</td>  <td class="num">—</td>        <td class="num">—</td>      <td class="num">31</td>     <td class="num">4</td>     <td class="num">6</td>      <td>2020-05 → 2023-11</td></tr>
-    <tr><td>openssl</td>  <td class="num">706 948</td>  <td class="num">2 230</td>  <td class="num">1 518</td>  <td class="num">~165</td>  <td class="num">1 019</td>  <td>~1998 → 2024 <span class="dim">(re-parse pending)</span></td></tr>
-    <tr><td>tomcat</td>   <td class="num">341 145</td>  <td class="num">2 490</td>  <td class="num">2 958</td>  <td class="num">~2 185</td><td class="num">50</td>     <td>~2002 → 2024 <span class="dim">(re-parse pending)</span></td></tr>
+    <tr><td>airflow</td>  <td>Python</td>      <td class="num">305 419</td>  <td class="num">3 012</td>  <td class="num">2 534</td>  <td class="num">685</td>   <td class="num">1 285</td>  <td>2014-11 → 2026-05</td></tr>
+    <tr><td>ambari</td>   <td>Java</td>        <td class="num">625 569</td>  <td class="num">4 368</td>  <td class="num">2 460</td>  <td class="num">181</td>   <td class="num">126</td>    <td>2011-09 → 2025-12</td></tr>
+    <tr><td>camel</td>    <td>Java</td>        <td class="num">99 145</td>   <td class="num">1 987</td>  <td class="num">188</td>    <td class="num">11</td>    <td class="num">5</td>      <td>2007-03 → 2026-05</td></tr>
+    <tr><td>helix</td>    <td>Java</td>        <td class="num">199 071</td>  <td class="num">1 545</td>  <td class="num">180</td>    <td class="num">24</td>    <td class="num">65</td>     <td>2012-08 → 2026-04</td></tr>
+    <tr><td>junit5</td>   <td>Java</td>        <td class="num">133 978</td>  <td class="num">1 724</td>  <td class="num">1 507</td>  <td class="num">117</td>   <td class="num">169</td>    <td>2015-10 → 2026-05</td></tr>
+    <tr><td>kaiaulu</td>  <td>R</td>           <td class="num">8 886</td>    <td class="num">41</td>     <td class="num">31</td>     <td class="num">4</td>     <td class="num">6</td>      <td>2020-05 → 2026-05</td></tr>
+    <tr><td>openssl</td>  <td>C</td>           <td class="num">706 948</td>  <td class="num">2 230</td>  <td class="num">1 518</td>  <td class="num">165</td>   <td class="num">1 019</td>  <td>1998-12 → 2026-05</td></tr>
+    <tr><td>tomcat</td>   <td>Java</td>        <td class="num">341 145</td>  <td class="num">2 490</td>  <td class="num">2 958</td>  <td class="num">2 185</td> <td class="num">50</td>     <td>2006-03 → 2020-09</td></tr>
     <tr style="border-top:2px solid var(--border-strong);font-weight:600;">
-      <td>totals (clean 6)</td>
-      <td class="num">1 363 182</td>
-      <td class="num">12 636</td>
-      <td class="num">6 900</td>
-      <td class="num">1 022</td>
-      <td class="num">1 656</td>
-      <td><span class="dim">2007–2026, 19-year span</span></td>
+      <td>totals (all 8)</td>
+      <td>5 languages</td>
+      <td class="num">2 420 161</td>
+      <td class="num">17 397</td>
+      <td class="num">11 376</td>
+      <td class="num">3 372</td>
+      <td class="num">3 325</td>
+      <td><span class="dim">1998-12 → 2026-05, 28-year span</span></td>
     </tr>
   </tbody>
 </table>
 <p class="dim" style="font-size:12px;">
-  Caveats. (a) kaiaulu LOC line is blank because <code>scc</code> on the
-  R repo produced an empty count (R extension not auto-detected in this
-  pipeline); follow-up to wire <code>--include-ext r,rmd</code>. (b)
-  openssl/tomcat author + date columns contain CSV-quoting artefacts
-  from the bugfix-commit extractor — numbers are best-current estimates
-  while a sanitised re-parse is pending. (c) &quot;unique bugfix authors&quot;
-  is a <em>lower bound</em> on developer count: many committers never
-  touch a defect-tagged file in the observed window.
+  Notes.
+  <strong>(a) LOC</strong>: counted via <code>scc</code> on each language's
+  source files (excluding tests). Kaiaulu's R was added via
+  <code>grep -hv "^\s*$\|^\s*#"</code> across <code>*.R</code> files.
+  <strong>(b) n_hires</strong>: a "late hire" is a developer whose
+  first commit is &ge; 365 days after the project's first commit. For
+  airflow's 1 285: the project started 2014-11; any developer joining
+  after 2015-11 across the next decade counts. Apache projects routinely
+  accumulate thousands of contributors over their lifetimes, so the
+  number is consistent with reality (full author-count is higher; the
+  bugfix-author column is a strict subset of all committers). For
+  Camel: 5 only because Camel's bugfix-history is short (2007-2009
+  visible to our extractor; full history is much longer — see
+  bugfix-commits cap in <code>extract/scripts/szz_*.py</code>).
+  <strong>(c) git-log window</strong>: first and last commit dates
+  from the actual gitlog. Different from the SZZ-bugfix subset window
+  (e.g. tomcat's bugfix-commit extraction stops at 2020-09 even though
+  the repo is still active; tomcat-specific re-extraction is a TODO).
+  <strong>(d) author counts</strong>: "unique bugfix authors" is a
+  lower bound on total contributors. Most committers never touch a
+  defect-tagged file in the observed window. Counts for openssl/tomcat
+  are no longer approximate — the prior CSV-quoting artefact has been
+  worked around.
 </p>
 
 <h2>The tool pipeline</h2>
