@@ -67,48 +67,39 @@
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def brooksq():
   &quot;&quot;&quot;Brooks [1] + Madachy [7]: late hires hurt quality-adjusted progress.
-     RQ: boost=10 hurts y = Done - 5*Esc.&quot;&quot;&quot;
-  # init: 5 stocks (Vet, New, Done, Todo, Bugs, Esc) + 6 params
-  init = {&#x27;Vet&#x27;:[10,0,100], &#x27;New&#x27;:[0,0,100], &#x27;Done&#x27;:[0,0,500],
-          &#x27;Todo&#x27;:[500,0,500], &#x27;Bugs&#x27;:[0,0,100], &#x27;Esc&#x27;:[0,0,100],
-          &#x27;boost&#x27;:[0,0,100],            # *** ctrl *** newcomer surge at t=10
-          &#x27;comm_coef&#x27;:[0.005,0,0.05],   # comm overhead per vet-pair
-          &#x27;train_coef&#x27;:[0.2,0,1],       # training cost per New (paid by Vet)
-          &#x27;prod_rate&#x27;:[5,0.1,20],       # baseline productivity per Vet
-          &#x27;inj_rate&#x27;:[0.05,0,0.5],      # bugs introduced per unit prod (the F1 hi)
-          &#x27;leak_rate&#x27;:[0.10,0,0.5],     # fraction of bugs that escape to Esc
-          &#x27;mature_rate&#x27;:[0.1,0,1]}      # New -&gt; Vet maturation rate
+  RQ: boost=10 hurts y = Done - 5*Esc.&quot;&quot;&quot;
+  init = {&#x27;Vet&#x27;:[10,0,100,&#x27;devs&#x27;], &#x27;New&#x27;:[0,0,100,&#x27;devs&#x27;], &#x27;Done&#x27;:[0,0,500,&#x27;items&#x27;],
+          &#x27;Todo&#x27;:[500,0,500,&#x27;items&#x27;], &#x27;Bugs&#x27;:[0,0,100,&#x27;bugs&#x27;], &#x27;Esc&#x27;:[0,0,100,&#x27;bugs&#x27;],
+          &#x27;boost&#x27;:[0,0,100,&#x27;devs&#x27;],
+          &#x27;comm_coef&#x27;:[0.005,0,0.05,&#x27;frac/pair&#x27;], &#x27;train_coef&#x27;:[0.2,0,1,&#x27;frac/newhire&#x27;],
+          &#x27;prod_rate&#x27;:[5,0.1,20,&#x27;items/vet/tick&#x27;], &#x27;inj_rate&#x27;:[0.05,0,0.5,&#x27;bugs/item&#x27;],
+          &#x27;leak_rate&#x27;:[0.10,0,0.5,&#x27;frac&#x27;], &#x27;mature_rate&#x27;:[0.1,0,1,&#x27;frac/tick&#x27;]}
 
   def step(dt, t, u, v):
-    # Brooks&#x27;s velocity side
-    comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef  # n*(n-1)/2 comm overhead
-    train = u.New * u.train_coef                   # training drain
+    comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef
+    train = u.New * u.train_coef
     prod  = u.Vet * (1 - comm - train) * u.prod_rate
-    # Bug-quality side: production injects bugs at inj_rate
     inj   = max(0, prod) * u.inj_rate
-    # Some bugs leak to Esc (uncaught); the rest stay in Bugs (caught queue)
     leak  = u.Bugs * u.leak_rate
-    # Stock updates
     v.Todo = u.Todo - dt * max(0, prod)
     v.Done = u.Done + dt * max(0, prod)
-    v.Bugs = u.Bugs + dt * (inj - leak)
-    v.Esc  = u.Esc  + dt * leak
     v.New  = u.New - dt * u.mature_rate * u.New + (u.boost if t == 10 else 0)
     v.Vet  = u.Vet + dt * u.mature_rate * u.New
-    for p in (&#x27;boost&#x27;,&#x27;comm_coef&#x27;,&#x27;train_coef&#x27;,&#x27;prod_rate&#x27;,
-              &#x27;inj_rate&#x27;,&#x27;leak_rate&#x27;,&#x27;mature_rate&#x27;):
+    v.Bugs = u.Bugs + dt * (inj - leak)
+    v.Esc  = u.Esc  + dt * leak
+    for p in (&#x27;boost&#x27;,&#x27;comm_coef&#x27;,&#x27;train_coef&#x27;,&#x27;prod_rate&#x27;,&#x27;inj_rate&#x27;,
+              &#x27;leak_rate&#x27;,&#x27;mature_rate&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
-    # Quality-aware progress: Done minus 5x escape penalty
     return end.Done - 5 * end.Esc
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;boost=10 hurts y = Done - 5*Esc&quot;,
-                   y(run({**bi, &#x27;boost&#x27;:[0,0,100]}, step)),
-                   y(run({**bi, &#x27;boost&#x27;:[10,0,100]}, step)), &#x27;down&#x27;)
+    return verdict(&quot;boost=10 hurts quality-adjusted progress&quot;,
+                   y(run({**bi, &#x27;boost&#x27;:[0,0,100,&#x27;devs&#x27;]}, step)),
+                   y(run({**bi, &#x27;boost&#x27;:[10,0,100,&#x27;devs&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;boost&#x27;)
 </code></pre>

@@ -67,44 +67,36 @@
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def rework():
   &quot;&quot;&quot;Abdel-Hamid &amp; Madnick [5]: hidden rework cycle.
-     RQ: failrate 0.1 -&gt; 0.7 lets rework dominate.&quot;&quot;&quot;
-  # init: 5 stocks tracing the work flow Req -&gt; Dev -&gt; Test -&gt; {Done|Rew}
-  init = {&#x27;Req&#x27;:[100,0,100], &#x27;Dev&#x27;:[0,0,100], &#x27;Test&#x27;:[0,0,100],
-          &#x27;Rew&#x27;:[0,0,100], &#x27;Done&#x27;:[0,0,100],
-          &#x27;code_rate&#x27;:[0.2,0,1],   # Req -&gt; Dev rate
-          &#x27;qa_rate&#x27;:[0.5,0,1],     # Dev -&gt; Test rate
-          &#x27;fix_rate&#x27;:[0.5,0,1],    # Rew -&gt; Dev rate (back-edge)
-          &#x27;failrate&#x27;:[0.4,0,1]}    # *** ctrl *** Test -&gt; Rew probability
+  RQ: failrate 0.1 -&gt; 0.7 lets rework dominate.&quot;&quot;&quot;
+  init = {&#x27;Req&#x27;:[100,0,100,&#x27;items&#x27;], &#x27;Dev&#x27;:[0,0,100,&#x27;items&#x27;], &#x27;Test&#x27;:[0,0,100,&#x27;items&#x27;],
+          &#x27;Rew&#x27;:[0,0,100,&#x27;items&#x27;], &#x27;Done&#x27;:[0,0,100,&#x27;items&#x27;],
+          &#x27;code_rate&#x27;:[0.2,0,1,&#x27;frac/tick&#x27;], &#x27;qa_rate&#x27;:[0.5,0,1,&#x27;frac/tick&#x27;],
+          &#x27;fix_rate&#x27;:[0.5,0,1,&#x27;frac/tick&#x27;], &#x27;failrate&#x27;:[0.4,0,1,&#x27;frac&#x27;]}
 
   def step(dt, t, u, v):
-    # All four flow rates as instantaneous transitions
-    code = u.Req  * u.code_rate            # new requirements coded
-    qa   = u.Dev  * u.qa_rate              # dev work moves to test
-    fail = u.Test * u.failrate             # tests that fail go to Rew
-    pas  = u.Test * (1 - u.failrate)       # tests that pass go to Done
-    fix  = u.Rew  * u.fix_rate             # rework re-enters Dev
-    # Stock updates: Req drains, Dev = code + fix - qa, etc.
+    code = u.Req  * u.code_rate
+    qa   = u.Dev  * u.qa_rate
+    fail = u.Test * u.failrate
+    pas  = u.Test * (1 - u.failrate)
+    fix  = u.Rew  * u.fix_rate
     v.Req  = u.Req  - dt * code
     v.Dev  = u.Dev  + dt * (code - qa + fix)
     v.Test = u.Test + dt * (qa - fail - pas)
     v.Rew  = u.Rew  + dt * (fail - fix)
     v.Done = u.Done + dt * pas
-    # Carry rate params forward
     for p in (&#x27;code_rate&#x27;,&#x27;qa_rate&#x27;,&#x27;fix_rate&#x27;,&#x27;failrate&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1].Done
-    # Penalise WIP: pile-ups in Dev/Test/Rew cost 0.5x of Done value
     wip = sum(r.Dev + r.Test + r.Rew for _, r in out) / len(out)
     return end - 0.5 * wip
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # failrate 0.1 (good) vs 0.7 (rework dominates)
     return verdict(&quot;failrate 0.7 -&gt; hidden rework dominates&quot;,
-                   y(run({**bi, &#x27;failrate&#x27;:[0.1,0,1]}, step)),
-                   y(run({**bi, &#x27;failrate&#x27;:[0.7,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;failrate&#x27;:[0.1,0,1,&#x27;frac&#x27;]}, step)),
+                   y(run({**bi, &#x27;failrate&#x27;:[0.7,0,1,&#x27;frac&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;failrate&#x27;)
 </code></pre>

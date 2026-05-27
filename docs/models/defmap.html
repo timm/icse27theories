@@ -67,25 +67,17 @@
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def defmap():
   &quot;&quot;&quot;Abdel-Hamid &amp; Madnick [5] defect submodel.
-     RQ: tst 2.5 -&gt; 0.5 balloons operational defects.&quot;&quot;&quot;
-  # init: 3 design-state stocks (Cmplx, Dsn, Use) + 4 defect-flow stocks
-  init = {&#x27;Cmplx&#x27;:[20,0,100], &#x27;Dsn&#x27;:[20,0,100], &#x27;Use&#x27;:[35,0,100],
-          &#x27;Injected&#x27;:[2.43,0,100], &#x27;Caught&#x27;:[0,0,100],
-          &#x27;Latent&#x27;:[0,0,100], &#x27;Prod&#x27;:[0,0,100],
-          &#x27;tst&#x27;:[2.5,0,10],            # *** ctrl *** testing intensity
-          &#x27;intro_c&#x27;:[0.3,0,1],         # bug-introduction rate from Cmplx
-          &#x27;intro_d&#x27;:[0.2,0,1],         # bug-introduction rate from Dsn
-          &#x27;detect_coef&#x27;:[0.4,0,1],     # detection effectiveness coef
-          &#x27;fail_coef&#x27;:[0.15,0,1]}      # Latent -&gt; Prod (field failure) rate
+  RQ: tst 2.5 -&gt; 0.5 balloons operational defects.&quot;&quot;&quot;
+  init = {&#x27;Cmplx&#x27;:[20,0,100,&#x27;complexity&#x27;], &#x27;Dsn&#x27;:[20,0,100,&#x27;design-units&#x27;], &#x27;Use&#x27;:[35,0,100,&#x27;usage-units&#x27;],
+          &#x27;Injected&#x27;:[2.43,0,100,&#x27;bugs&#x27;], &#x27;Caught&#x27;:[0,0,100,&#x27;bugs&#x27;],
+          &#x27;Latent&#x27;:[0,0,100,&#x27;bugs&#x27;], &#x27;Prod&#x27;:[0,0,100,&#x27;items&#x27;],
+          &#x27;tst&#x27;:[2.5,0,10,&#x27;frac&#x27;], &#x27;intro_c&#x27;:[0.3,0,1,&#x27;bugs/complexity&#x27;], &#x27;intro_d&#x27;:[0.2,0,1,&#x27;bugs/design&#x27;],
+          &#x27;detect_coef&#x27;:[0.4,0,1,&#x27;frac/tst&#x27;], &#x27;fail_coef&#x27;:[0.15,0,1,&#x27;frac/latent&#x27;]}
 
   def step(dt, t, u, v):
-    # Defect introduction: complexity adds, good design subtracts
     intro  = u.Cmplx * u.intro_c - u.Dsn * u.intro_d
-    # Detection effectiveness scales with testing intensity
     detect = u.tst * u.Injected * u.detect_coef
-    # What doesn&#x27;t get caught leaks to Latent
     leak   = u.Injected * (1 - u.tst * u.detect_coef)
-    # Latent bugs eventually fail in production
     fail   = u.Latent * u.Use * u.fail_coef
     v.Injected = u.Injected + dt * intro
     v.Caught   = u.Caught   + dt * detect
@@ -97,15 +89,13 @@
 
   def y(out):
     end = out[-1][1]
-    # Negate both Prod and Latent: we want FEWER escaped + FEWER pending
     return -end.Prod - 0.5 * end.Latent
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # tst=2.5 (baseline) vs tst=0.5 (under-tested)
     return verdict(&quot;tst=0.5 increases operational defects&quot;,
-                   y(run({**bi, &#x27;tst&#x27;:[2.5,0,10]}, step)),
-                   y(run({**bi, &#x27;tst&#x27;:[0.5,0,10]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;tst&#x27;:[2.5,0,10,&#x27;frac&#x27;]}, step)),
+                   y(run({**bi, &#x27;tst&#x27;:[0.5,0,10,&#x27;frac&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;tst&#x27;)
 </code></pre>

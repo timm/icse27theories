@@ -66,40 +66,33 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def burnout():
-  &quot;&quot;&quot;DORA wellbeing [15]: high hours -&gt; exhaustion -&gt; output collapse.&quot;&quot;&quot;
-  # init: 3 stocks tracing the energy/output cycle
-  init = {&#x27;Energy&#x27;:[100,0,100], &#x27;Exhaustion&#x27;:[0,0,200],
-          &#x27;Output&#x27;:[0,0,1000],
-          &#x27;hours&#x27;:[40,0,80],          # *** ctrl *** weekly hours
-          &#x27;recover_rate&#x27;:[0.3,0,1],   # rest/recovery rate
-          &#x27;output_eff&#x27;:[0.5,0,1]}     # output per energy unit
+  &quot;&quot;&quot;DORA wellbeing [15]: chronic overload erodes capacity.
+  RQ: workload 60 (vs 40) erodes net delivery.&quot;&quot;&quot;
+  init = {&#x27;Capacity&#x27;:[40,10,50,&#x27;h/dev&#x27;], &#x27;Stress&#x27;:[0,0,100,&#x27;stress-units&#x27;], &#x27;Delivered&#x27;:[0,0,2000,&#x27;items&#x27;],
+          &#x27;workload&#x27;:[40,0,100,&#x27;h/dev/tick&#x27;], &#x27;stress_coef&#x27;:[1.0,0,5,&#x27;stress/h&#x27;],
+          &#x27;recover_coef&#x27;:[0.05,0,1,&#x27;frac/tick&#x27;], &#x27;erode_coef&#x27;:[0.05,0,1,&#x27;frac/stress&#x27;]}
 
   def step(dt, t, u, v):
-    # Exhaustion accumulates linearly with hours above 40
-    deplete = max(0, u.hours - 40) * 0.5
-    # Recovery proportional to current Energy
-    recover = u.Energy * u.recover_rate * 0.1
-    # Net Energy update
-    energy_next = max(0, u.Energy - deplete + recover - u.Exhaustion * 0.1)
-    # Output scales with current Energy
-    out = u.Output + dt * (energy_next * u.output_eff)
-    v.Energy     = energy_next
-    v.Exhaustion = u.Exhaustion + dt * deplete
-    v.Output     = out
-    v.hours, v.recover_rate, v.output_eff = u.hours, u.recover_rate, u.output_eff
+    actual  = min(u.workload, u.Capacity)
+    excess  = max(0, u.workload - u.Capacity)
+    d_stress = excess * u.stress_coef - u.Stress * u.recover_coef
+    d_cap    = -u.Stress * u.erode_coef + max(0, 40 - u.Capacity) * 0.1
+    v.Capacity  = u.Capacity + dt * d_cap
+    v.Stress    = u.Stress + dt * d_stress
+    v.Delivered = u.Delivered + dt * actual
+    for p in (&#x27;workload&#x27;,&#x27;stress_coef&#x27;,&#x27;recover_coef&#x27;,&#x27;erode_coef&#x27;):
+      setattr(v, p, getattr(u, p))
 
   def y(out):
-    end = out[-1][1]
-    return end.Output - end.Exhaustion * 0.5
+    return out[-1][1].Delivered
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # 40h sustainable vs 70h overdrive
-    return verdict(&quot;sustained 70h collapses output via exhaustion&quot;,
-                   y(run({**bi, &#x27;hours&#x27;:[40,0,80]}, step)),
-                   y(run({**bi, &#x27;hours&#x27;:[70,0,80]}, step)), &#x27;down&#x27;)
+    return verdict(&quot;workload=60 erodes net delivery&quot;,
+                   y(run({**bi, &#x27;workload&#x27;:[40,0,100,&#x27;h/dev/tick&#x27;]}, step)),
+                   y(run({**bi, &#x27;workload&#x27;:[60,0,100,&#x27;h/dev/tick&#x27;]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;hours&#x27;)
+  return Model(init, step, y, rq, &#x27;workload&#x27;)
 </code></pre>
   </div>
 

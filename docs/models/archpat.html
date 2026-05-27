@@ -66,25 +66,33 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def archpat():
-  &quot;&quot;&quot;Architectural patterns as repair: Clean Arch [16] + Perry-Wolf [17].
-     RQ: from Patterned=10, Legacy=90, Debt=40, migrate=1.5 repairs
-     project vs migrate=0.2.&quot;&quot;&quot;
-  # init: 3 architectural-region stocks + Debt accumulator + 11 params
-  init = {&#x27;Patterned&#x27;:[10,0,200], &#x27;Legacy&#x27;:[90,0,200],
-          &#x27;Drift&#x27;:[0,0,200], &#x27;Debt&#x27;:[40,0,150], &#x27;Feat&#x27;:[0,0,2000],
-          &#x27;migrate&#x27;:[0.2,0,2],           # *** ctrl *** Legacy -&gt; Patterned rate
-          &#x27;decay_rate&#x27;:[0.05,0,0.5],     # Patterned -&gt; Drift (Perry-Wolf erosion)
-          &#x27;drift_to_legacy&#x27;:[0.10,0,1],  # Drift -&gt; Legacy reabsorption
-          &#x27;gen_pat&#x27;:[1.0,0.1,3],         # feature gen rate from Patterned
-          &#x27;gen_leg&#x27;:[0.4,0.1,3],         # feature gen rate from Legacy (worse)
-          &#x27;born_pat&#x27;:[0.05,0,1],         # debt per Patterned feature
-          &#x27;born_leg&#x27;:[0.20,0,1],         # debt per Legacy feature (worse)
-          &#x27;intr_rate&#x27;:[0.08,0,0.5],      # interest on existing debt
-          &#x27;pay_rate&#x27;:[0.15,0,1],         # refactoring debt-paydown
-          &#x27;pat_strength&#x27;:[4,1,10]}       # (currently unused — flag for Ric)
+  &quot;&quot;&quot;Architectural patterns as repair: Martin Clean Arch [16] + Perry-Wolf [17].
+  
+  Tests Ric&#x27;s claim: &#x27;patterns repair existing-bad-software&#x27;.
+  
+  Three regions: Patterned (under good architecture), Legacy (not), Drift
+  (was patterned, eroded). Migration moves Legacy -&gt; Patterned at rate
+  proportional to migrate_rate * available effort. Decay moves Patterned
+  -&gt; Drift at rate decay_rate (architectural erosion: Perry &amp; Wolf 1992).
+  Drift converts back to Legacy at a fixed rate.
+  
+  Debt accumulates in both regions but at different rates: legacy code
+  generates more debt per feature than patterned code (factor pat_strength).
+  
+  RQ: starting from Patterned=10, Legacy=90, Debt=40 (already-bad project),
+  does aggressive migration (migrate=1.5) actually repair the project
+  vs slow migration (migrate=0.2)?  Ric&#x27;s strong claim says yes.
+  &quot;&quot;&quot;
+  init = {&#x27;Patterned&#x27;:[10,0,200,&#x27;modules&#x27;], &#x27;Legacy&#x27;:[90,0,200,&#x27;modules&#x27;],
+          &#x27;Drift&#x27;:[0,0,200,&#x27;modules&#x27;], &#x27;Debt&#x27;:[40,0,150,&#x27;debt-items&#x27;], &#x27;Feat&#x27;:[0,0,2000,&#x27;items&#x27;],
+          &#x27;migrate&#x27;:[0.2,0,2,&#x27;frac/tick&#x27;], &#x27;decay_rate&#x27;:[0.05,0,0.5,&#x27;frac/tick&#x27;],
+          &#x27;drift_to_legacy&#x27;:[0.10,0,1,&#x27;frac/tick&#x27;],
+          &#x27;gen_pat&#x27;:[1.0,0.1,3,&#x27;items/pat/tick&#x27;], &#x27;gen_leg&#x27;:[0.4,0.1,3,&#x27;items/leg/tick&#x27;],
+          &#x27;born_pat&#x27;:[0.05,0,1,&#x27;debt/pat/tick&#x27;], &#x27;born_leg&#x27;:[0.20,0,1,&#x27;debt/leg/tick&#x27;],
+          &#x27;intr_rate&#x27;:[0.08,0,0.5,&#x27;frac/tick&#x27;], &#x27;pay_rate&#x27;:[0.15,0,1,&#x27;frac/tick&#x27;],
+          &#x27;pat_strength&#x27;:[4,1,10,&#x27;frac&#x27;]}
 
   def step(dt, t, u, v):
-    # Speed declines with debt; floor at 0.05 to avoid total stall
     speed     = max(0.05, 1 - u.Debt / 150)
     available = (u.Patterned + u.Legacy + u.Drift) * speed
     # migration: legacy -&gt; patterned (costs effort proportional to migrate)
@@ -92,33 +100,35 @@
     # decay: patterned -&gt; drift (architectural erosion)
     decay_flow = u.decay_rate * u.Patterned
     # drift -&gt; legacy (drift fully converts back over time)
-    drift_back = u.drift_to_legacy * u.Drift
-    # Feat: separate gen rates per region (patterned &gt;&gt; legacy)
-    feat_gain = u.Patterned * u.gen_pat + u.Legacy * u.gen_leg
-    # Debt: separate born rates per region + interest - pay
-    debt_born  = u.Patterned * u.born_pat + u.Legacy * u.born_leg
-    debt_intr  = u.Debt * u.intr_rate
-    debt_pay   = u.Debt * u.pay_rate
-    # Stock updates
+    drift_flow = u.drift_to_legacy * u.Drift
+    # feature generation (Drift acts like Legacy for shipping)
+    gen = (u.Patterned * u.gen_pat
+           + (u.Legacy + u.Drift) * u.gen_leg) * speed
+    # debt: legacy code generates more debt per feature
+    pat_share = u.Patterned / max(1, u.Patterned + u.Legacy + u.Drift)
+    born = gen * (u.born_pat * pat_share + u.born_leg * (1 - pat_share))
+    intr = u.Debt * u.intr_rate
+    pay  = u.Debt * u.pay_rate * (1 + 0.5 * pat_share)  # patterns help paydown
     v.Patterned = u.Patterned + dt * (migration_flow - decay_flow)
-    v.Legacy    = u.Legacy    + dt * (drift_back - migration_flow)
-    v.Drift     = u.Drift     + dt * (decay_flow - drift_back)
-    v.Debt      = u.Debt      + dt * (debt_born + debt_intr - debt_pay)
-    v.Feat      = u.Feat      + dt * feat_gain * speed
+    v.Legacy    = u.Legacy    - dt * migration_flow + dt * drift_flow
+    v.Drift     = u.Drift     + dt * (decay_flow - drift_flow)
+    v.Debt      = u.Debt      + dt * (born + intr - pay)
+    v.Feat      = u.Feat      + dt * gen
     for p in (&#x27;migrate&#x27;,&#x27;decay_rate&#x27;,&#x27;drift_to_legacy&#x27;,&#x27;gen_pat&#x27;,&#x27;gen_leg&#x27;,
               &#x27;born_pat&#x27;,&#x27;born_leg&#x27;,&#x27;intr_rate&#x27;,&#x27;pay_rate&#x27;,&#x27;pat_strength&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
+    &quot;&quot;&quot;Reward features delivered, penalize sustained debt.&quot;&quot;&quot;
     end = out[-1][1]
-    return end.Feat - end.Debt
+    md = sum(r.Debt for _, r in out) / len(out)
+    return end.Feat - md
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # Slow vs aggressive migration on an already-bad start
     return verdict(&quot;aggressive migration repairs already-bad project&quot;,
-                   y(run({**bi, &#x27;migrate&#x27;:[0.2,0,2]}, step)),
-                   y(run({**bi, &#x27;migrate&#x27;:[1.5,0,2]}, step)), &#x27;up&#x27;)
+                   y(run({**bi, &#x27;migrate&#x27;:[0.2,0,2,&#x27;frac/tick&#x27;]}, step)),
+                   y(run({**bi, &#x27;migrate&#x27;:[1.5,0,2,&#x27;frac/tick&#x27;]}, step)), &#x27;up&#x27;)
 
   return Model(init, step, y, rq, &#x27;migrate&#x27;)
 </code></pre>

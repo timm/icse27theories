@@ -66,42 +66,35 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def flaky():
-  &quot;&quot;&quot;Luo et al. [11]: flake-mask probability dominates output.&quot;&quot;&quot;
-  # init: 4 stocks tracing the CI-feedback loop
-  init = {&#x27;Done&#x27;:[0,0,500], &#x27;Esc&#x27;:[0,0,200],
-          &#x27;Tests&#x27;:[100,0,500], &#x27;Flaky&#x27;:[5,0,100],
-          &#x27;mask&#x27;:[0.01,0,1],         # *** ctrl *** flake-mask probability
-          &#x27;gen&#x27;:[10,0,50],           # output generation rate per step
-          &#x27;discipline&#x27;:[0.3,0,1]}    # CI discipline rate (drains Flaky)
+  &quot;&quot;&quot;Luo et al. [11]: flaky tests erode trust -&gt; erode coverage.
+  RQ: high flake_rate erodes useful coverage.&quot;&quot;&quot;
+  init = {&#x27;Tests&#x27;:[100,0,500,&#x27;tests&#x27;], &#x27;Flakes&#x27;:[5,0,500,&#x27;tests&#x27;], &#x27;Bugs&#x27;:[0,0,500,&#x27;bugs&#x27;],
+          &#x27;flake_rate&#x27;:[0.02,0,0.2,&#x27;frac/tick&#x27;], &#x27;invest_base&#x27;:[5,0,20,&#x27;frac/tick&#x27;],
+          &#x27;fix_coef&#x27;:[0.15,0,1,&#x27;frac/flake&#x27;], &#x27;leak_coef&#x27;:[3,0,10,&#x27;frac/flake&#x27;]}
 
   def step(dt, t, u, v):
-    # Output flow
-    out = u.gen
-    # A fraction of escapes happen because flaky tests masked real bugs
-    masked = out * u.mask
-    # CI discipline removes flaky tests over time
-    drained = u.Flaky * u.discipline
-    # Compound feedback: undrained flakes ADD to themselves
-    breed = max(0, u.Flaky * 0.05 - drained)
-    v.Done    = u.Done + dt * (out - masked)
-    v.Esc     = u.Esc  + dt * masked
-    v.Tests   = u.Tests  # held constant in this simplified form
-    v.Flaky   = u.Flaky + dt * breed
-    v.mask, v.gen, v.discipline = u.mask, u.gen, u.discipline
+    cover = u.Tests / max(1, u.Tests + u.Flakes)
+    add   = u.invest_base * cover
+    flake = u.Tests * u.flake_rate
+    fix   = u.Flakes * u.fix_coef * cover
+    leak  = u.Flakes / max(1, u.Tests + u.Flakes) * u.leak_coef
+    v.Tests = u.Tests + dt * (add - flake)
+    v.Flakes = u.Flakes + dt * (flake - fix)
+    v.Bugs = u.Bugs + dt * leak
+    for p in (&#x27;flake_rate&#x27;,&#x27;invest_base&#x27;,&#x27;fix_coef&#x27;,&#x27;leak_coef&#x27;):
+      setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
-    # Penalise masked escapes 3x heavier than open work
-    return end.Done - 3 * end.Esc
+    return end.Tests - end.Bugs
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # mask 0.01 (well-disciplined) vs 0.4 (runaway flake mask)
-    return verdict(&quot;mask=0.4 collapses output via flake-masking&quot;,
-                   y(run({**bi, &#x27;mask&#x27;:[0.01,0,1]}, step)),
-                   y(run({**bi, &#x27;mask&#x27;:[0.40,0,1]}, step)), &#x27;down&#x27;)
+    return verdict(&quot;high flake_rate erodes useful coverage&quot;,
+                   y(run({**bi, &#x27;flake_rate&#x27;:[0.02,0,0.2,&#x27;frac/tick&#x27;]}, step)),
+                   y(run({**bi, &#x27;flake_rate&#x27;:[0.10,0,0.2,&#x27;frac/tick&#x27;]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;mask&#x27;)
+  return Model(init, step, y, rq, &#x27;flake_rate&#x27;)
 </code></pre>
   </div>
 

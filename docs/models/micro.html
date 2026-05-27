@@ -66,36 +66,31 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def micro():
-  &quot;&quot;&quot;Newman [13]: service coupling -&gt; cascade dominance.&quot;&quot;&quot;
-  # init: 3 service-level stocks + 3 params
-  init = {&#x27;Services&#x27;:[30,0,200], &#x27;Couplings&#x27;:[60,0,1000],
-          &#x27;Cascades&#x27;:[0,0,500],
-          &#x27;coupling&#x27;:[0.1,0,1],       # *** ctrl *** per-pair coupling intensity
-          &#x27;deploy_rate&#x27;:[2,0,10],     # services deployed per step
-          &#x27;fail_rate&#x27;:[0.05,0,1]}     # base per-service failure rate
+  &quot;&quot;&quot;Newman [14]: services linear, deps quadratic.
+  RQ: high coupling_rate erodes throughput.&quot;&quot;&quot;
+  init = {&#x27;Services&#x27;:[5,1,100,&#x27;services&#x27;], &#x27;Deps&#x27;:[5,0,500,&#x27;deps&#x27;], &#x27;Feat&#x27;:[0,0,500,&#x27;items&#x27;],
+          &#x27;coupling_rate&#x27;:[1.5,0,5,&#x27;deps/svc/tick&#x27;], &#x27;svc_growth&#x27;:[0.5,0,5,&#x27;svcs/tick&#x27;]}
 
   def step(dt, t, u, v):
-    # New couplings form proportional to existing pairs * coupling intensity
-    new_coup = u.Services * (u.Services - 1) / 2 * u.coupling * 0.01
-    # Each service-failure cascades through its couplings
-    new_casc = u.fail_rate * u.Couplings * 0.1
-    v.Services  = u.Services + dt * u.deploy_rate
-    v.Couplings = u.Couplings + dt * new_coup
-    v.Cascades  = u.Cascades + dt * new_casc
-    v.coupling, v.deploy_rate, v.fail_rate = u.coupling, u.deploy_rate, u.fail_rate
+    new_svc  = u.svc_growth
+    new_deps = new_svc * u.coupling_rate * (u.Services / 5)
+    density  = u.Deps / max(1, u.Services * u.Services)
+    fps      = max(0.1, u.Services * (1 - 2 * density))
+    v.Services = u.Services + dt * new_svc
+    v.Deps     = u.Deps + dt * new_deps
+    v.Feat     = u.Feat + dt * fps
+    v.coupling_rate, v.svc_growth = u.coupling_rate, u.svc_growth
 
   def y(out):
-    end = out[-1][1]
-    # Healthy services minus 2x cascade penalty
-    return end.Services - 2 * end.Cascades
+    return out[-1][1].Feat
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    return verdict(&quot;high coupling -&gt; cascade dominates&quot;,
-                   y(run({**bi, &#x27;coupling&#x27;:[0.05,0,1]}, step)),
-                   y(run({**bi, &#x27;coupling&#x27;:[0.50,0,1]}, step)), &#x27;down&#x27;)
+    return verdict(&quot;high coupling_rate erodes throughput&quot;,
+                   y(run({**bi, &#x27;coupling_rate&#x27;:[0.5,0,5,&#x27;deps/svc/tick&#x27;]}, step)),
+                   y(run({**bi, &#x27;coupling_rate&#x27;:[3.0,0,5,&#x27;deps/svc/tick&#x27;]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;coupling&#x27;)
+  return Model(init, step, y, rq, &#x27;coupling_rate&#x27;)
 </code></pre>
   </div>
 

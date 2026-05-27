@@ -67,37 +67,31 @@
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def learn():
   &quot;&quot;&quot;Sterman [6]: jr -&gt; tr -&gt; sr workforce flow.
-     RQ: removing seniors (Sr=0) starves training.&quot;&quot;&quot;
-  # init: 4 stocks (Jr/Tr/Sr/Ment) + 3 rate params
-  init = {&#x27;Jr&#x27;:[20,0,100], &#x27;Tr&#x27;:[5,0,100], &#x27;Sr&#x27;:[5,0,100], &#x27;Ment&#x27;:[0,0,100],
-          &#x27;train_rate&#x27;:[0.10,0,1],    # Jr -&gt; Tr per unit time
-          &#x27;promote_rate&#x27;:[0.05,0,1],  # Tr -&gt; Sr per unit time
-          &#x27;mentor_rate&#x27;:[0.02,0,1]}   # Sr -&gt; Ment per unit time
+  RQ: removing seniors (Sr=0) starves training.&quot;&quot;&quot;
+  init = {&#x27;Jr&#x27;:[20,0,100,&#x27;devs&#x27;], &#x27;Tr&#x27;:[5,0,100,&#x27;devs&#x27;], &#x27;Sr&#x27;:[5,0,100,&#x27;devs&#x27;], &#x27;Ment&#x27;:[0,0,100,&#x27;mentor-slots&#x27;],
+          &#x27;train_rate&#x27;:[0.10,0,1,&#x27;frac/tick&#x27;], &#x27;promote_rate&#x27;:[0.05,0,1,&#x27;frac/tick&#x27;],
+          &#x27;mentor_rate&#x27;:[0.02,0,1,&#x27;items/sr/tick&#x27;]}
 
   def step(dt, t, u, v):
-    # Three transitions; each draws proportionally from upstream stock
     train   = u.Jr * u.train_rate
     promote = u.Tr * u.promote_rate
     mentor  = u.Sr * u.mentor_rate
-    # Jr replenishes via mentor backflow (mentors recruit new juniors)
     v.Jr   = u.Jr   - dt * train + dt * mentor
     v.Tr   = u.Tr   + dt * (train - promote)
     v.Sr   = u.Sr   + dt * (promote - mentor)
-    v.Ment = u.Ment + dt * mentor          # Ment is sink for cumulative mentoring
+    v.Ment = u.Ment + dt * mentor
     for p in (&#x27;train_rate&#x27;,&#x27;promote_rate&#x27;,&#x27;mentor_rate&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
-    # Success = senior + mentor stock at end (pipeline health)
     return end.Sr + end.Ment
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # Sr=5 (baseline) vs Sr=0 (starvation)
     return verdict(&quot;Sr=0 starves training pipeline&quot;,
-                   y(run({**bi, &#x27;Sr&#x27;:[5,0,100]}, step)),
-                   y(run({**bi, &#x27;Sr&#x27;:[0,0,100]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;Sr&#x27;:[5,0,100,&#x27;devs&#x27;]}, step)),
+                   y(run({**bi, &#x27;Sr&#x27;:[0,0,100,&#x27;devs&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;Sr&#x27;)
 </code></pre>

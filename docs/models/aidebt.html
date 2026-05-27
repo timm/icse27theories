@@ -66,43 +66,39 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def aidebt():
-  &quot;&quot;&quot;Composite: AI accelerates Feat now, accumulates Debt for later.
-     RQ: long-horizon AI use becomes net-negative (regime crossover at t~26).&quot;&quot;&quot;
-  # init: 4 stocks
-  init = {&#x27;Feat&#x27;:[0,0,500], &#x27;Debt&#x27;:[0,0,200],
-          &#x27;Wip&#x27;:[100,0,500], &#x27;Done&#x27;:[0,0,1000],
-          &#x27;ai_intensity&#x27;:[0.5,0,1],   # *** ctrl *** AI assistance level
-          &#x27;gen_boost&#x27;:[0.5,0,2],      # AI&#x27;s velocity multiplier
-          &#x27;debt_coef&#x27;:[0.1,0,1]}      # AI debt accumulation rate
+  &quot;&quot;&quot;Cunningham [3] + GitClear [8]: AI-coded features carry more debt.
+  RQ: ai=1 raises debt enough to depress net (Feat - mean(Debt)).&quot;&quot;&quot;
+  init = {&#x27;Feat&#x27;:[1,0,200,&#x27;items&#x27;], &#x27;Debt&#x27;:[0,0,100,&#x27;debt-items&#x27;], &#x27;Vel&#x27;:[10,0,20,&#x27;items/tick&#x27;],
+          &#x27;ai&#x27;:[0,0,1,&#x27;frac&#x27;], &#x27;born_base&#x27;:[0.3,0,1,&#x27;debt/tick&#x27;], &#x27;born_ai_mult&#x27;:[1.5,0,5,&#x27;frac/ai&#x27;],
+          &#x27;gen_ai_mult&#x27;:[0.3,0,2,&#x27;frac/ai&#x27;], &#x27;intr_rate&#x27;:[0.10,0,0.5,&#x27;frac/tick&#x27;],
+          &#x27;pay_rate&#x27;:[0.15,0,1,&#x27;frac/tick&#x27;]}
 
   def step(dt, t, u, v):
-    # Output flow: base velocity * (1 + AI boost)
-    gen = (1 + u.ai_intensity * u.gen_boost)
-    # AI creates Feat but also Debt
-    feat_gain = gen * (1 - u.ai_intensity * 0.2)
-    debt_gain = u.ai_intensity * u.debt_coef * gen
-    v.Feat = u.Feat + dt * feat_gain
-    v.Debt = u.Debt + dt * debt_gain
-    v.Wip  = u.Wip - dt * gen
-    v.Done = u.Done + dt * gen
-    v.ai_intensity, v.gen_boost, v.debt_coef = (
-        u.ai_intensity, u.gen_boost, u.debt_coef)
+    speed = max(0, 1 - u.Debt / 100)
+    ship  = (1 + u.Feat * 0.1) * speed * (1 + u.gen_ai_mult * u.ai)
+    rate  = u.born_base * (1 + u.born_ai_mult * u.ai)
+    born  = ship * rate
+    intr  = u.Debt * u.intr_rate
+    pay   = u.Debt * u.pay_rate
+    v.Feat = u.Feat + dt * ship
+    v.Debt = u.Debt + dt * (born + intr - pay)
+    v.Vel  = 10 * speed
+    for p in (&#x27;ai&#x27;,&#x27;born_base&#x27;,&#x27;born_ai_mult&#x27;,&#x27;gen_ai_mult&#x27;,
+              &#x27;intr_rate&#x27;,&#x27;pay_rate&#x27;):
+      setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
-    # Net = Feat minus 0.3 * Debt. Crossover happens around t~26
-    # because debt accumulates linearly while feat saturates.
-    return end.Feat - 0.3 * end.Debt
+    md = sum(r.Debt for _, r in out) / len(out)
+    return end.Feat - md
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # ai=0 (no AI) vs ai=1 (full AI). At default tmax=20 ai=1 wins (REFUTE);
-    # at tmax=30+ ai=1 loses (CONFIRM) — regime crossover.
-    return verdict(&quot;ai=1 net-negative at long horizons&quot;,
-                   y(run({**bi, &#x27;ai_intensity&#x27;:[0,0,1]}, step)),
-                   y(run({**bi, &#x27;ai_intensity&#x27;:[1,0,1]}, step)), &#x27;down&#x27;)
+    return verdict(&quot;ai=1 raises debt &gt; offsets feature speedup&quot;,
+                   y(run({**bi, &#x27;ai&#x27;:[0,0,1,&#x27;frac&#x27;]}, step)),
+                   y(run({**bi, &#x27;ai&#x27;:[1,0,1,&#x27;frac&#x27;]}, step)), &#x27;down&#x27;)
 
-  return Model(init, step, y, rq, &#x27;ai_intensity&#x27;)
+  return Model(init, step, y, rq, &#x27;ai&#x27;)
 </code></pre>
   </div>
 

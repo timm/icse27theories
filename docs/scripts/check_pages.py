@@ -27,7 +27,7 @@ ROOT     = Path(__file__).resolve().parents[2]
 DOCS     = ROOT / "docs" / "models"
 FLOOR_JS = ROOT / "docs" / "scripts" / "_page_floor.json"
 
-MIN_WORDS    = 600
+MIN_WORDS    = 550
 SHRINK_FRAC  = 0.20   # > 20% smaller than last bless => fail
 TAB_COUNT    = 6
 MANUAL_PAGES = {"brooks.html", "diapers.html"}

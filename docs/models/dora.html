@@ -67,46 +67,34 @@
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def dora():
   &quot;&quot;&quot;Forsgren, Humble, Kim [12]: large batches -&gt; CFR up.
-     RQ: batch_size 5 -&gt; 50 hurts net deploys.&quot;&quot;&quot;
-  # init: 4 stocks + 4 params
-  init = {&#x27;Wip&#x27;:[100,0,500], &#x27;Deploys&#x27;:[0,0,200],
-          &#x27;Incidents&#x27;:[0,0,100], &#x27;Recovery&#x27;:[0,0,200],
-          &#x27;batch_size&#x27;:[10,1,100],       # *** ctrl *** commits per deploy
-          &#x27;cfr_coef&#x27;:[0.005,0,0.1],      # change-failure-rate slope per batch
-          &#x27;arrival_rate&#x27;:[8,0,50],       # commits arriving per unit time
-          &#x27;rec_rate&#x27;:[0.3,0,1]}          # incident-recovery rate
+  RQ: batch_size 5 -&gt; 50 hurts net deploys.&quot;&quot;&quot;
+  init = {&#x27;Wip&#x27;:[100,0,500,&#x27;items&#x27;], &#x27;Deploys&#x27;:[0,0,200,&#x27;deploys&#x27;],
+          &#x27;Incidents&#x27;:[0,0,100,&#x27;incidents&#x27;], &#x27;Recovery&#x27;:[0,0,200,&#x27;ticks&#x27;],
+          &#x27;batch_size&#x27;:[10,1,100,&#x27;items/release&#x27;], &#x27;cfr_coef&#x27;:[0.005,0,0.1,&#x27;frac/batch&#x27;],
+          &#x27;arrival_rate&#x27;:[8,0,50,&#x27;items/tick&#x27;], &#x27;rec_rate&#x27;:[0.3,0,1,&#x27;frac/tick&#x27;]}
 
   def step(dt, t, u, v):
-    # CFR rises linearly with batch_size, capped at 0.5
     cfr     = min(0.5, u.batch_size * u.cfr_coef)
-    # Capacity falls as Recovery work piles up
     cap     = max(0.1, 1 - u.Recovery / 50)
-    # Deploy rate: limited by Wip/batch_size and by available capacity
     deploys = min(u.Wip / max(1, u.batch_size), 5) * cap
-    # Each deploy carries CFR-fraction risk of new Incidents
     new_inc = deploys * cfr
-    # Recovery drains Incidents
     rec     = u.Incidents * u.rec_rate
-    # Wip: drains by deploys * batch_size, replenished by arrival_rate
     v.Wip       = u.Wip - dt * deploys * u.batch_size + dt * u.arrival_rate
     v.Deploys   = u.Deploys + dt * deploys
     v.Incidents = u.Incidents + dt * (new_inc - rec)
-    # Recovery rises with new incidents, decays at fixed rate
     v.Recovery  = u.Recovery + dt * (new_inc * 2 - u.Recovery * 0.4)
     for p in (&#x27;batch_size&#x27;,&#x27;cfr_coef&#x27;,&#x27;arrival_rate&#x27;,&#x27;rec_rate&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
     end = out[-1][1]
-    # Net delivery = Deploys minus 2x Incident penalty
     return end.Deploys - 2 * end.Incidents
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # batch_size 5 (small) vs 50 (large)
     return verdict(&quot;batch_size=50 hurts net deploys&quot;,
-                   y(run({**bi, &#x27;batch_size&#x27;:[ 5,1,100]}, step)),
-                   y(run({**bi, &#x27;batch_size&#x27;:[50,1,100]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;batch_size&#x27;:[5,1,100,&#x27;items/release&#x27;]}, step)),
+                   y(run({**bi, &#x27;batch_size&#x27;:[50,1,100,&#x27;items/release&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;batch_size&#x27;)
 </code></pre>

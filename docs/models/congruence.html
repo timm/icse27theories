@@ -66,25 +66,21 @@
     <h2>The SD model</h2>
     <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
     <pre><code class="language-python">def congruence():
-  &quot;&quot;&quot;Newman [14] / radio-silence: boundary-spanning brokers hold
-     communication-fragmented projects together.
-     RQ: broker_loss=0.3 per step hurts net coherent work.&quot;&quot;&quot;
-  # init: 3 community-level stocks + 4 rate params
-  init = {&#x27;Clusters&#x27;:[5,1,20], &#x27;Brokers&#x27;:[3,0,20], &#x27;Cohesion&#x27;:[0,0,500],
-          &#x27;broker_loss&#x27;:[0,0,1],       # *** ctrl *** rate brokers exit per step
-          &#x27;broker_form&#x27;:[0.05,0,0.5],  # rate new brokers form (from gradient)
-          &#x27;fragment_rate&#x27;:[0.05,0,0.5],# clusters split when comms thin
-          &#x27;merge_rate&#x27;:[0.1,0,0.5],    # clusters merge when brokers bridge
-          &#x27;work_rate&#x27;:[5,0,20]}        # base coherent work generation
+  &quot;&quot;&quot;Newman [14] / radio-silence (Tim et al.): boundary-spanning
+  brokers hold communication-fragmented projects together.
+  RQ: broker_loss=0.3 (per step) hurts net coherent work.&quot;&quot;&quot;
+  init = {&#x27;Clusters&#x27;:[5,1,20,&#x27;clusters&#x27;], &#x27;Brokers&#x27;:[3,0,20,&#x27;devs&#x27;], &#x27;Cohesion&#x27;:[0,0,500,&#x27;cohesion&#x27;],
+          &#x27;broker_loss&#x27;:[0,0,1,&#x27;frac/tick&#x27;], &#x27;broker_form&#x27;:[0.05,0,0.5,&#x27;frac/tick&#x27;],
+          &#x27;fragment_rate&#x27;:[0.05,0,0.5,&#x27;frac/tick&#x27;], &#x27;merge_rate&#x27;:[0.1,0,0.5,&#x27;frac/tick&#x27;],
+          &#x27;work_rate&#x27;:[5,0,20,&#x27;cohesion/broker/tick&#x27;]}
 
   def step(dt, t, u, v):
-    # Brokers form proportional to inter-cluster gradient, drain by ctrl
+    # Brokers form proportional to inter-cluster gradient, drain by ctrl.
     form  = u.broker_form * u.Clusters
     drain = u.broker_loss * u.Brokers
-    # Clusters fragment more when there aren&#x27;t enough brokers
     frag  = u.fragment_rate * max(0, u.Clusters - u.Brokers)
     merge = u.merge_rate * u.Brokers
-    # Cohesion accrues at work_rate, attenuated by fragmentation
+    # Cohesion accrues at work_rate, attenuated by fragmentation.
     coh_gain = u.work_rate * (u.Brokers / max(1, u.Clusters))
     v.Brokers  = max(0, u.Brokers  + dt * (form - drain))
     v.Clusters = max(1, u.Clusters + dt * (frag - merge))
@@ -95,17 +91,18 @@
 
   def y(out):
     end = out[-1][1]
-    # Cohesion minus 5x cluster-fragmentation penalty
     return end.Cohesion - 5 * end.Clusters
 
   def rq(bg=None):
     bi = init if bg is None else bg
-    # broker_loss=0 (stable brokers) vs 0.3 (rapid broker drain)
     return verdict(&quot;broker_loss=0.3 fragments project, hurts cohesion&quot;,
-                   y(run({**bi, &#x27;broker_loss&#x27;:[0.0,0,1]}, step)),
-                   y(run({**bi, &#x27;broker_loss&#x27;:[0.3,0,1]}, step)), &#x27;down&#x27;)
+                   y(run({**bi, &#x27;broker_loss&#x27;:[0.0,0,1,&#x27;frac/tick&#x27;]}, step)),
+                   y(run({**bi, &#x27;broker_loss&#x27;:[0.3,0,1,&#x27;frac/tick&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;broker_loss&#x27;)
+
+
+# --- 15 candidate models lifted from docs/other.html (buildable today) -------
 </code></pre>
   </div>
 
