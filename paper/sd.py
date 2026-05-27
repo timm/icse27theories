@@ -57,13 +57,17 @@ def make_state(d):
 # --- Engine -----------------------------------------------------------------
 
 def run(init, step, dt=1, tmax=20, mode='clip'):
-  """Simulate. mode='clip' clamps; mode='reject' returns None on escape."""
+  """Simulate. mode='clip' clamps; mode='reject' returns None on escape.
+  init values are [default, lo, hi] OR [default, lo, hi, 'unit'] —
+  the optional 4th element is human-readable documentation, ignored
+  by the engine."""
   u = make_state({k: v[0] for k, v in init.items()})
   out, t = [], 0
   while t < tmax:
     v = make_state(vars(u))
     step(dt, t, u, v)
-    for k, (_, lo, hi) in init.items():
+    for k, spec in init.items():
+      lo, hi = spec[1], spec[2]            # tolerate [d,lo,hi] or [d,lo,hi,unit]
       val = getattr(v, k)
       if mode == 'reject' and (val < lo - 1e-9 or val > hi + 1e-9):
         return None
@@ -135,7 +139,8 @@ def opt(model_factory, init=None, n=1000, seed=1, dt=1, tmax=20, narrow=0.6,
   rows = []
   for _ in range(n):
     init1 = {}
-    for k, (default, lo, hi) in init0.items():
+    for k, spec in init0.items():
+      default, lo, hi = spec[0], spec[1], spec[2]
       mid = (lo + hi) / 2
       half = (hi - lo) / 2 * narrow
       lo_n = max(lo, mid - half)
@@ -176,7 +181,8 @@ def stress(model_factory, target='all', n=500, seed=1, dist='triangular'):
 
   for _ in range(n):
     bg = {k: list(v) for k, v in m.init.items()}
-    for k, (default, lo, hi) in m.init.items():
+    for k, spec in m.init.items():
+      default, lo, hi = spec[0], spec[1], spec[2]
       if perturb(k):
         bg[k] = [sample(rng, default, lo, hi, dist), lo, hi]
     r = m.rq(bg)
@@ -219,7 +225,8 @@ def rq_n(model_factory, n=100, seed=1, dist='triangular', target='all'):
   y0s, y1s, last = [], [], None
   for _ in range(n):
     bg = {k: list(v) for k, v in m.init.items()}
-    for k, (default, lo, hi) in m.init.items():
+    for k, spec in m.init.items():
+      default, lo, hi = spec[0], spec[1], spec[2]
       if should_perturb(k):
         bg[k] = [sample(rng, default, lo, hi, dist), lo, hi]
     r = m.rq(bg=bg)
@@ -234,8 +241,8 @@ def rq_n(model_factory, n=100, seed=1, dist='triangular', target='all'):
 def diapers():
   """Toy: weekly diaper supply.  Sat = bulk buy + wash all dirty.
   RQ: skip wash on Sat t=13 -> dirty pileup."""
-  init = {'Clean':[100,0,200], 'Dirty':[0,0,200], 'Buy':[0,0,100],
-          'Use':[8,0,20], 'wash_amt':[0,0,200], 'skip':[0,0,1]}
+  init = {'Clean':[100,0,200,'diapers'], 'Dirty':[0,0,200,'diapers'], 'Buy':[0,0,100,'diapers/tick'],
+          'Use':[8,0,20,'diapers/tick'], 'wash_amt':[0,0,200,'diapers/tick'], 'skip':[0,0,1,'frac']}
 
   def step(dt, t, u, v):
     sat = int(t) % 7 == 6
@@ -252,18 +259,18 @@ def diapers():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("skip wash@t=13 -> Dirty pileup",
-                   y(run({**bi, 'skip':[0,0,1]}, step)),
-                   y(run({**bi, 'skip':[1,0,1]}, step)), 'down')
+                   y(run({**bi, 'skip':[0,0,1,'frac']}, step)),
+                   y(run({**bi, 'skip':[1,0,1,'frac']}, step)), 'down')
 
   return Model(init, step, y, rq, 'skip')
 
 
 def brooks():
   """Brooks [1]: late hires hurt.  RQ: boost=10 newcomers @t=10 hurt y."""
-  init = {'Vet':[10,0,100], 'New':[0,0,100], 'Done':[0,0,500],
-          'Todo':[500,0,500], 'boost':[0,0,100],
-          'comm_coef':[0.005,0,0.05], 'train_coef':[0.2,0,1],
-          'prod_rate':[5,0.1,20], 'mature_rate':[0.1,0,1]}
+  init = {'Vet':[10,0,100,'devs'], 'New':[0,0,100,'devs'], 'Done':[0,0,500,'items'],
+          'Todo':[500,0,500,'items'], 'boost':[0,0,100,'devs'],
+          'comm_coef':[0.005,0,0.05,'frac/pair'], 'train_coef':[0.2,0,1,'frac/newhire'],
+          'prod_rate':[5,0.1,20,'items/vet/tick'], 'mature_rate':[0.1,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef
@@ -283,8 +290,8 @@ def brooks():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("boost=10 hurts net progress",
-                   y(run({**bi, 'boost':[0,0,100]}, step)),
-                   y(run({**bi, 'boost':[10,0,100]}, step)), 'down')
+                   y(run({**bi, 'boost':[0,0,100,'devs']}, step)),
+                   y(run({**bi, 'boost':[10,0,100,'devs']}, step)), 'down')
 
   return Model(init, step, y, rq, 'boost')
 
@@ -292,8 +299,8 @@ def brooks():
 def bugs():
   """Goel-Okumoto [2]: exponential reliability growth.
   RQ: 2x initial Latent -> ~2x eventual Fixed (linearity of recovery)."""
-  init = {'Latent':[100,0,200], 'Found':[0,0,200], 'Fixed':[0,0,200],
-          'find_rate':[0.15,0.01,0.5], 'fix_rate':[0.5,0.05,1]}
+  init = {'Latent':[100,0,200,'bugs'], 'Found':[0,0,200,'bugs'], 'Fixed':[0,0,200,'bugs'],
+          'find_rate':[0.15,0.01,0.5,'frac/tick'], 'fix_rate':[0.5,0.05,1,'frac/tick']}
 
   def step(dt, t, u, v):
     find = u.Latent * u.find_rate
@@ -312,8 +319,8 @@ def bugs():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("2x initial Latent -> ~2x mid-curve Fixed",
-                   y(run({**bi, 'Latent':[ 50,0,200]}, step)),
-                   y(run({**bi, 'Latent':[100,0,200]}, step)), 'up')
+                   y(run({**bi, 'Latent':[50,0,200,'bugs']}, step)),
+                   y(run({**bi, 'Latent':[100,0,200,'bugs']}, step)), 'up')
 
   return Model(init, step, y, rq, 'Latent')
 
@@ -321,9 +328,9 @@ def bugs():
 def debt():
   """Cunningham [3]: shipping fast incurs debt; debt slows shipping.
   RQ: starting Debt=50 hurts net feature delivery."""
-  init = {'Feat':[1,0,200], 'Debt':[0,0,100], 'Vel':[10,0,20],
-          'born_rate':[0.3,0,1], 'intr_rate':[0.10,0,0.5],
-          'pay_rate':[0.15,0,1]}
+  init = {'Feat':[1,0,200,'items'], 'Debt':[0,0,100,'debt-items'], 'Vel':[10,0,20,'items/tick'],
+          'born_rate':[0.3,0,1,'debt/tick'], 'intr_rate':[0.10,0,0.5,'frac/tick'],
+          'pay_rate':[0.15,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     speed = max(0, 1 - u.Debt / 100)
@@ -344,8 +351,8 @@ def debt():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("starting Debt=50 slows delivery",
-                   y(run({**bi, 'Debt':[ 0,0,100]}, step)),
-                   y(run({**bi, 'Debt':[50,0,100]}, step)), 'down')
+                   y(run({**bi, 'Debt':[0,0,100,'debt-items']}, step)),
+                   y(run({**bi, 'Debt':[50,0,100,'debt-items']}, step)), 'down')
 
   return Model(init, step, y, rq, 'Debt')
 
@@ -353,8 +360,8 @@ def debt():
 def sir():
   """Kermack-McKendrick [4]: bad-pattern spread.
   RQ: 3x initial I raises peak (-y drops)."""
-  init = {'S':[90,0,100], 'I':[10,0,100], 'R':[0,0,100],
-          'beta':[0.0051,0,0.05], 'gamma':[0.15,0,1]}
+  init = {'S':[90,0,100,'modules'], 'I':[10,0,100,'modules'], 'R':[0,0,100,'modules'],
+          'beta':[0.0051,0,0.05,'frac/contact'], 'gamma':[0.15,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     inf = u.beta  * u.S * u.I
@@ -370,8 +377,8 @@ def sir():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("3x initial I raises peak",
-                   y(run({**bi, 'I':[10,0,100]}, step)),
-                   y(run({**bi, 'I':[30,0,100]}, step)), 'down')
+                   y(run({**bi, 'I':[10,0,100,'modules']}, step)),
+                   y(run({**bi, 'I':[30,0,100,'modules']}, step)), 'down')
 
   return Model(init, step, y, rq, 'I')
 
@@ -379,10 +386,10 @@ def sir():
 def rework():
   """Abdel-Hamid & Madnick [5]: hidden rework cycle.
   RQ: failrate 0.1 -> 0.7 lets rework dominate."""
-  init = {'Req':[100,0,100], 'Dev':[0,0,100], 'Test':[0,0,100],
-          'Rew':[0,0,100], 'Done':[0,0,100],
-          'code_rate':[0.2,0,1], 'qa_rate':[0.5,0,1],
-          'fix_rate':[0.5,0,1], 'failrate':[0.4,0,1]}
+  init = {'Req':[100,0,100,'items'], 'Dev':[0,0,100,'items'], 'Test':[0,0,100,'items'],
+          'Rew':[0,0,100,'items'], 'Done':[0,0,100,'items'],
+          'code_rate':[0.2,0,1,'frac/tick'], 'qa_rate':[0.5,0,1,'frac/tick'],
+          'fix_rate':[0.5,0,1,'frac/tick'], 'failrate':[0.4,0,1,'frac']}
 
   def step(dt, t, u, v):
     code = u.Req  * u.code_rate
@@ -406,8 +413,8 @@ def rework():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("failrate 0.7 -> hidden rework dominates",
-                   y(run({**bi, 'failrate':[0.1,0,1]}, step)),
-                   y(run({**bi, 'failrate':[0.7,0,1]}, step)), 'down')
+                   y(run({**bi, 'failrate':[0.1,0,1,'frac']}, step)),
+                   y(run({**bi, 'failrate':[0.7,0,1,'frac']}, step)), 'down')
 
   return Model(init, step, y, rq, 'failrate')
 
@@ -415,9 +422,9 @@ def rework():
 def learn():
   """Sterman [6]: jr -> tr -> sr workforce flow.
   RQ: removing seniors (Sr=0) starves training."""
-  init = {'Jr':[20,0,100], 'Tr':[5,0,100], 'Sr':[5,0,100], 'Ment':[0,0,100],
-          'train_rate':[0.10,0,1], 'promote_rate':[0.05,0,1],
-          'mentor_rate':[0.02,0,1]}
+  init = {'Jr':[20,0,100,'devs'], 'Tr':[5,0,100,'devs'], 'Sr':[5,0,100,'devs'], 'Ment':[0,0,100,'mentor-slots'],
+          'train_rate':[0.10,0,1,'frac/tick'], 'promote_rate':[0.05,0,1,'frac/tick'],
+          'mentor_rate':[0.02,0,1,'items/sr/tick']}
 
   def step(dt, t, u, v):
     train   = u.Jr * u.train_rate
@@ -437,8 +444,8 @@ def learn():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("Sr=0 starves training pipeline",
-                   y(run({**bi, 'Sr':[5,0,100]}, step)),
-                   y(run({**bi, 'Sr':[0,0,100]}, step)), 'down')
+                   y(run({**bi, 'Sr':[5,0,100,'devs']}, step)),
+                   y(run({**bi, 'Sr':[0,0,100,'devs']}, step)), 'down')
 
   return Model(init, step, y, rq, 'Sr')
 
@@ -446,12 +453,12 @@ def learn():
 def brooksq():
   """Brooks [1] + Madachy [7]: late hires hurt quality-adjusted progress.
   RQ: boost=10 hurts y = Done - 5*Esc."""
-  init = {'Vet':[10,0,100], 'New':[0,0,100], 'Done':[0,0,500],
-          'Todo':[500,0,500], 'Bugs':[0,0,100], 'Esc':[0,0,100],
-          'boost':[0,0,100],
-          'comm_coef':[0.005,0,0.05], 'train_coef':[0.2,0,1],
-          'prod_rate':[5,0.1,20], 'inj_rate':[0.05,0,0.5],
-          'leak_rate':[0.10,0,0.5], 'mature_rate':[0.1,0,1]}
+  init = {'Vet':[10,0,100,'devs'], 'New':[0,0,100,'devs'], 'Done':[0,0,500,'items'],
+          'Todo':[500,0,500,'items'], 'Bugs':[0,0,100,'bugs'], 'Esc':[0,0,100,'bugs'],
+          'boost':[0,0,100,'devs'],
+          'comm_coef':[0.005,0,0.05,'frac/pair'], 'train_coef':[0.2,0,1,'frac/newhire'],
+          'prod_rate':[5,0.1,20,'items/vet/tick'], 'inj_rate':[0.05,0,0.5,'bugs/item'],
+          'leak_rate':[0.10,0,0.5,'frac'], 'mature_rate':[0.1,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef
@@ -476,8 +483,8 @@ def brooksq():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("boost=10 hurts quality-adjusted progress",
-                   y(run({**bi, 'boost':[ 0,0,100]}, step)),
-                   y(run({**bi, 'boost':[10,0,100]}, step)), 'down')
+                   y(run({**bi, 'boost':[0,0,100,'devs']}, step)),
+                   y(run({**bi, 'boost':[10,0,100,'devs']}, step)), 'down')
 
   return Model(init, step, y, rq, 'boost')
 
@@ -485,11 +492,11 @@ def brooksq():
 def defmap():
   """Abdel-Hamid & Madnick [5] defect submodel.
   RQ: tst 2.5 -> 0.5 balloons operational defects."""
-  init = {'Cmplx':[20,0,100], 'Dsn':[20,0,100], 'Use':[35,0,100],
-          'Injected':[2.43,0,100], 'Caught':[0,0,100],
-          'Latent':[0,0,100], 'Prod':[0,0,100],
-          'tst':[2.5,0,10], 'intro_c':[0.3,0,1], 'intro_d':[0.2,0,1],
-          'detect_coef':[0.4,0,1], 'fail_coef':[0.15,0,1]}
+  init = {'Cmplx':[20,0,100,'complexity'], 'Dsn':[20,0,100,'design-units'], 'Use':[35,0,100,'usage-units'],
+          'Injected':[2.43,0,100,'bugs'], 'Caught':[0,0,100,'bugs'],
+          'Latent':[0,0,100,'bugs'], 'Prod':[0,0,100,'items'],
+          'tst':[2.5,0,10,'frac'], 'intro_c':[0.3,0,1,'bugs/complexity'], 'intro_d':[0.2,0,1,'bugs/design'],
+          'detect_coef':[0.4,0,1,'frac/tst'], 'fail_coef':[0.15,0,1,'frac/latent']}
 
   def step(dt, t, u, v):
     intro  = u.Cmplx * u.intro_c - u.Dsn * u.intro_d
@@ -511,8 +518,8 @@ def defmap():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("tst=0.5 increases operational defects",
-                   y(run({**bi, 'tst':[2.5,0,10]}, step)),
-                   y(run({**bi, 'tst':[0.5,0,10]}, step)), 'down')
+                   y(run({**bi, 'tst':[2.5,0,10,'frac']}, step)),
+                   y(run({**bi, 'tst':[0.5,0,10,'frac']}, step)), 'down')
 
   return Model(init, step, y, rq, 'tst')
 
@@ -520,11 +527,11 @@ def defmap():
 def aiwork():
   """GitClear [8] / METR [9]: AI churn vs gen tradeoff.
   RQ: ai=1 reduces kept code."""
-  init = {'Todo':[1000,0,1000], 'Wip':[0,0,500],
-          'Kept':[0,0,1000], 'Churned':[0,0,1000],
-          'ai':[0,0,1], 'gen_boost':[0.3,0,2], 'churn_mult':[2.0,0,5],
-          'verify_drag':[0.4,0,1], 'mature_rate':[0.2,0,1],
-          'churn_base':[0.05,0,1]}
+  init = {'Todo':[1000,0,1000,'items'], 'Wip':[0,0,500,'items'],
+          'Kept':[0,0,1000,'items'], 'Churned':[0,0,1000,'items'],
+          'ai':[0,0,1,'frac'], 'gen_boost':[0.3,0,2,'frac/ai'], 'churn_mult':[2.0,0,5,'frac/ai'],
+          'verify_drag':[0.4,0,1,'frac/ai'], 'mature_rate':[0.2,0,1,'frac/tick'],
+          'churn_base':[0.05,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     gen_boost   = 1 + u.gen_boost * u.ai
@@ -548,8 +555,8 @@ def aiwork():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("ai=1 reduces Kept (METR/GitClear)",
-                   y(run({**bi, 'ai':[0,0,1]}, step)),
-                   y(run({**bi, 'ai':[1,0,1]}, step)), 'down')
+                   y(run({**bi, 'ai':[0,0,1,'frac']}, step)),
+                   y(run({**bi, 'ai':[1,0,1,'frac']}, step)), 'down')
 
   return Model(init, step, y, rq, 'ai')
 
@@ -557,9 +564,9 @@ def aiwork():
 def flaky():
   """Luo et al. [11]: flaky tests erode trust -> erode coverage.
   RQ: high flake_rate erodes useful coverage."""
-  init = {'Tests':[100,0,500], 'Flakes':[5,0,500], 'Bugs':[0,0,500],
-          'flake_rate':[0.02,0,0.2], 'invest_base':[5,0,20],
-          'fix_coef':[0.15,0,1], 'leak_coef':[3,0,10]}
+  init = {'Tests':[100,0,500,'tests'], 'Flakes':[5,0,500,'tests'], 'Bugs':[0,0,500,'bugs'],
+          'flake_rate':[0.02,0,0.2,'frac/tick'], 'invest_base':[5,0,20,'frac/tick'],
+          'fix_coef':[0.15,0,1,'frac/flake'], 'leak_coef':[3,0,10,'frac/flake']}
 
   def step(dt, t, u, v):
     cover = u.Tests / max(1, u.Tests + u.Flakes)
@@ -580,8 +587,8 @@ def flaky():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("high flake_rate erodes useful coverage",
-                   y(run({**bi, 'flake_rate':[0.02,0,0.2]}, step)),
-                   y(run({**bi, 'flake_rate':[0.10,0,0.2]}, step)), 'down')
+                   y(run({**bi, 'flake_rate':[0.02,0,0.2,'frac/tick']}, step)),
+                   y(run({**bi, 'flake_rate':[0.10,0,0.2,'frac/tick']}, step)), 'down')
 
   return Model(init, step, y, rq, 'flake_rate')
 
@@ -589,10 +596,10 @@ def flaky():
 def dora():
   """Forsgren, Humble, Kim [12]: large batches -> CFR up.
   RQ: batch_size 5 -> 50 hurts net deploys."""
-  init = {'Wip':[100,0,500], 'Deploys':[0,0,200],
-          'Incidents':[0,0,100], 'Recovery':[0,0,200],
-          'batch_size':[10,1,100], 'cfr_coef':[0.005,0,0.1],
-          'arrival_rate':[8,0,50], 'rec_rate':[0.3,0,1]}
+  init = {'Wip':[100,0,500,'items'], 'Deploys':[0,0,200,'deploys'],
+          'Incidents':[0,0,100,'incidents'], 'Recovery':[0,0,200,'ticks'],
+          'batch_size':[10,1,100,'items/release'], 'cfr_coef':[0.005,0,0.1,'frac/batch'],
+          'arrival_rate':[8,0,50,'items/tick'], 'rec_rate':[0.3,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     cfr     = min(0.5, u.batch_size * u.cfr_coef)
@@ -614,8 +621,8 @@ def dora():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("batch_size=50 hurts net deploys",
-                   y(run({**bi, 'batch_size':[ 5,1,100]}, step)),
-                   y(run({**bi, 'batch_size':[50,1,100]}, step)), 'down')
+                   y(run({**bi, 'batch_size':[5,1,100,'items/release']}, step)),
+                   y(run({**bi, 'batch_size':[50,1,100,'items/release']}, step)), 'down')
 
   return Model(init, step, y, rq, 'batch_size')
 
@@ -623,8 +630,8 @@ def dora():
 def micro():
   """Newman [14]: services linear, deps quadratic.
   RQ: high coupling_rate erodes throughput."""
-  init = {'Services':[5,1,100], 'Deps':[5,0,500], 'Feat':[0,0,500],
-          'coupling_rate':[1.5,0,5], 'svc_growth':[0.5,0,5]}
+  init = {'Services':[5,1,100,'services'], 'Deps':[5,0,500,'deps'], 'Feat':[0,0,500,'items'],
+          'coupling_rate':[1.5,0,5,'deps/svc/tick'], 'svc_growth':[0.5,0,5,'svcs/tick']}
 
   def step(dt, t, u, v):
     new_svc  = u.svc_growth
@@ -642,8 +649,8 @@ def micro():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("high coupling_rate erodes throughput",
-                   y(run({**bi, 'coupling_rate':[0.5,0,5]}, step)),
-                   y(run({**bi, 'coupling_rate':[3.0,0,5]}, step)), 'down')
+                   y(run({**bi, 'coupling_rate':[0.5,0,5,'deps/svc/tick']}, step)),
+                   y(run({**bi, 'coupling_rate':[3.0,0,5,'deps/svc/tick']}, step)), 'down')
 
   return Model(init, step, y, rq, 'coupling_rate')
 
@@ -651,9 +658,9 @@ def micro():
 def teamtopo():
   """Skelton & Pais [13]: cognitive load = Domain / team.
   RQ: oversized Domain (per team) collapses delivery."""
-  init = {'Domain':[5,0,50], 'Delivered':[0,0,500],
-          'team':[7,1,20], 'load_thresh':[1.5,0.1,5],
-          'domain_growth':[0.3,0,2], 'collapse_coef':[0.8,0,2]}
+  init = {'Domain':[5,0,50,'domain-units'], 'Delivered':[0,0,500,'items'],
+          'team':[7,1,20,'devs'], 'load_thresh':[1.5,0.1,5,'items/team'],
+          'domain_growth':[0.3,0,2,'domain/tick'], 'collapse_coef':[0.8,0,2,'frac/overload']}
 
   def step(dt, t, u, v):
     load = u.Domain / max(1, u.team)
@@ -669,8 +676,8 @@ def teamtopo():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("oversized Domain collapses delivery",
-                   y(run({**bi, 'Domain':[ 5,0,50]}, step)),
-                   y(run({**bi, 'Domain':[20,0,50]}, step)), 'down')
+                   y(run({**bi, 'Domain':[5,0,50,'domain-units']}, step)),
+                   y(run({**bi, 'Domain':[20,0,50,'domain-units']}, step)), 'down')
 
   return Model(init, step, y, rq, 'Domain')
 
@@ -678,9 +685,9 @@ def teamtopo():
 def burnout():
   """DORA wellbeing [15]: chronic overload erodes capacity.
   RQ: workload 60 (vs 40) erodes net delivery."""
-  init = {'Capacity':[40,10,50], 'Stress':[0,0,100], 'Delivered':[0,0,2000],
-          'workload':[40,0,100], 'stress_coef':[1.0,0,5],
-          'recover_coef':[0.05,0,1], 'erode_coef':[0.05,0,1]}
+  init = {'Capacity':[40,10,50,'h/dev'], 'Stress':[0,0,100,'stress-units'], 'Delivered':[0,0,2000,'items'],
+          'workload':[40,0,100,'h/dev/tick'], 'stress_coef':[1.0,0,5,'stress/h'],
+          'recover_coef':[0.05,0,1,'frac/tick'], 'erode_coef':[0.05,0,1,'frac/stress']}
 
   def step(dt, t, u, v):
     actual  = min(u.workload, u.Capacity)
@@ -699,8 +706,8 @@ def burnout():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("workload=60 erodes net delivery",
-                   y(run({**bi, 'workload':[40,0,100]}, step)),
-                   y(run({**bi, 'workload':[60,0,100]}, step)), 'down')
+                   y(run({**bi, 'workload':[40,0,100,'h/dev/tick']}, step)),
+                   y(run({**bi, 'workload':[60,0,100,'h/dev/tick']}, step)), 'down')
 
   return Model(init, step, y, rq, 'workload')
 
@@ -708,10 +715,10 @@ def burnout():
 def aidebt():
   """Cunningham [3] + GitClear [8]: AI-coded features carry more debt.
   RQ: ai=1 raises debt enough to depress net (Feat - mean(Debt))."""
-  init = {'Feat':[1,0,200], 'Debt':[0,0,100], 'Vel':[10,0,20],
-          'ai':[0,0,1], 'born_base':[0.3,0,1], 'born_ai_mult':[1.5,0,5],
-          'gen_ai_mult':[0.3,0,2], 'intr_rate':[0.10,0,0.5],
-          'pay_rate':[0.15,0,1]}
+  init = {'Feat':[1,0,200,'items'], 'Debt':[0,0,100,'debt-items'], 'Vel':[10,0,20,'items/tick'],
+          'ai':[0,0,1,'frac'], 'born_base':[0.3,0,1,'debt/tick'], 'born_ai_mult':[1.5,0,5,'frac/ai'],
+          'gen_ai_mult':[0.3,0,2,'frac/ai'], 'intr_rate':[0.10,0,0.5,'frac/tick'],
+          'pay_rate':[0.15,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     speed = max(0, 1 - u.Debt / 100)
@@ -735,8 +742,8 @@ def aidebt():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("ai=1 raises debt > offsets feature speedup",
-                   y(run({**bi, 'ai':[0,0,1]}, step)),
-                   y(run({**bi, 'ai':[1,0,1]}, step)), 'down')
+                   y(run({**bi, 'ai':[0,0,1,'frac']}, step)),
+                   y(run({**bi, 'ai':[1,0,1,'frac']}, step)), 'down')
 
   return Model(init, step, y, rq, 'ai')
 
@@ -759,14 +766,14 @@ def archpat():
   does aggressive migration (migrate=1.5) actually repair the project
   vs slow migration (migrate=0.2)?  Ric's strong claim says yes.
   """
-  init = {'Patterned':[10,0,200], 'Legacy':[90,0,200],
-          'Drift':[0,0,200], 'Debt':[40,0,150], 'Feat':[0,0,2000],
-          'migrate':[0.2,0,2], 'decay_rate':[0.05,0,0.5],
-          'drift_to_legacy':[0.10,0,1],
-          'gen_pat':[1.0,0.1,3], 'gen_leg':[0.4,0.1,3],
-          'born_pat':[0.05,0,1], 'born_leg':[0.20,0,1],
-          'intr_rate':[0.08,0,0.5], 'pay_rate':[0.15,0,1],
-          'pat_strength':[4,1,10]}
+  init = {'Patterned':[10,0,200,'modules'], 'Legacy':[90,0,200,'modules'],
+          'Drift':[0,0,200,'modules'], 'Debt':[40,0,150,'debt-items'], 'Feat':[0,0,2000,'items'],
+          'migrate':[0.2,0,2,'frac/tick'], 'decay_rate':[0.05,0,0.5,'frac/tick'],
+          'drift_to_legacy':[0.10,0,1,'frac/tick'],
+          'gen_pat':[1.0,0.1,3,'items/pat/tick'], 'gen_leg':[0.4,0.1,3,'items/leg/tick'],
+          'born_pat':[0.05,0,1,'debt/pat/tick'], 'born_leg':[0.20,0,1,'debt/leg/tick'],
+          'intr_rate':[0.08,0,0.5,'frac/tick'], 'pay_rate':[0.15,0,1,'frac/tick'],
+          'pat_strength':[4,1,10,'frac']}
 
   def step(dt, t, u, v):
     speed     = max(0.05, 1 - u.Debt / 150)
@@ -803,8 +810,8 @@ def archpat():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("aggressive migration repairs already-bad project",
-                   y(run({**bi, 'migrate':[0.2,0,2]}, step)),
-                   y(run({**bi, 'migrate':[1.5,0,2]}, step)), 'up')
+                   y(run({**bi, 'migrate':[0.2,0,2,'frac/tick']}, step)),
+                   y(run({**bi, 'migrate':[1.5,0,2,'frac/tick']}, step)), 'up')
 
   return Model(init, step, y, rq, 'migrate')
 
@@ -813,10 +820,10 @@ def congruence():
   """Newman [14] / radio-silence (Tim et al.): boundary-spanning
   brokers hold communication-fragmented projects together.
   RQ: broker_loss=0.3 (per step) hurts net coherent work."""
-  init = {'Clusters':[5,1,20], 'Brokers':[3,0,20], 'Cohesion':[0,0,500],
-          'broker_loss':[0,0,1], 'broker_form':[0.05,0,0.5],
-          'fragment_rate':[0.05,0,0.5], 'merge_rate':[0.1,0,0.5],
-          'work_rate':[5,0,20]}
+  init = {'Clusters':[5,1,20,'clusters'], 'Brokers':[3,0,20,'devs'], 'Cohesion':[0,0,500,'cohesion'],
+          'broker_loss':[0,0,1,'frac/tick'], 'broker_form':[0.05,0,0.5,'frac/tick'],
+          'fragment_rate':[0.05,0,0.5,'frac/tick'], 'merge_rate':[0.1,0,0.5,'frac/tick'],
+          'work_rate':[5,0,20,'cohesion/broker/tick']}
 
   def step(dt, t, u, v):
     # Brokers form proportional to inter-cluster gradient, drain by ctrl.
@@ -840,8 +847,8 @@ def congruence():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("broker_loss=0.3 fragments project, hurts cohesion",
-                   y(run({**bi, 'broker_loss':[0.0,0,1]}, step)),
-                   y(run({**bi, 'broker_loss':[0.3,0,1]}, step)), 'down')
+                   y(run({**bi, 'broker_loss':[0.0,0,1,'frac/tick']}, step)),
+                   y(run({**bi, 'broker_loss':[0.3,0,1,'frac/tick']}, step)), 'down')
 
   return Model(init, step, y, rq, 'broker_loss')
 
@@ -864,11 +871,11 @@ def little():
 
   Thesis: holding Arrival constant, tripling cycle_time (4 -> 12)
   cuts throughput. Pure identity result if the queue is stable."""
-  init = {'WIP':[20,0,500],          # 20 items already in flight at t=0
-          'Arrival':[5,0,50],        # 5 items arrive per tick (steady)
-          'Done':[0,0,5000],         # nothing finished yet
-          'cycle_time':[4,1,30],     # *** ctrl ***; 4 ticks per item
-          'wip_cap':[60,5,200]}      # WIP can't exceed 60
+  init = {'WIP':[20,0,500,'items'],          # 20 items already in flight at t=0
+          'Arrival':[5,0,50,'items/tick'],        # 5 items arrive per tick (steady)
+          'Done':[0,0,5000,'items'],         # nothing finished yet
+          'cycle_time':[4,1,30,'ticks'],     # *** ctrl ***; 4 ticks per item
+          'wip_cap':[60,5,200,'items']}      # WIP can't exceed 60
 
   def step(dt, t, u, v):
     # Service: clear (WIP / cycle_time) items per tick, but no more than WIP.
@@ -889,8 +896,8 @@ def little():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("doubling cycle_time hurts throughput",
-                   y(run({**bi, 'cycle_time':[4,1,30]},  step)),   # fast
-                   y(run({**bi, 'cycle_time':[12,1,30]}, step)),   # slow (3x)
+                   y(run({**bi, 'cycle_time':[4,1,30,'ticks']},  step)),   # fast
+                   y(run({**bi, 'cycle_time':[12,1,30,'ticks']}, step)),   # slow (3x)
                    'down')
   return Model(init, step, y, rq, 'cycle_time')
 
@@ -910,10 +917,10 @@ def coordn2():
 
   Thesis: doubling Devs (5 -> 10) less than doubles Done (because
   comm_coef * pairs / N grows in N)."""
-  init = {'Devs':[5,1,200],              # *** ctrl ***; small team default
-          'Done':[0,0,10000],            # nothing done at t=0
-          'work_per_dev':[10,0,50],      # 10 items/dev/tick baseline
-          'comm_coef':[0.02,0,0.5]}      # 2% attention lost per pair-share
+  init = {'Devs':[5,1,200,'devs'],              # *** ctrl ***; small team default
+          'Done':[0,0,10000,'items'],            # nothing done at t=0
+          'work_per_dev':[10,0,50,'items/dev/tick'],      # 10 items/dev/tick baseline
+          'comm_coef':[0.02,0,0.5,'frac/pair']}      # 2% attention lost per pair-share
 
   def step(dt, t, u, v):
     # Communication-pair count grows quadratically in team size.
@@ -931,8 +938,8 @@ def coordn2():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("doubling team superlinear-taxes throughput",
-                   y(run({**bi, 'Devs':[5,1,200]},  step)),    # small
-                   y(run({**bi, 'Devs':[10,1,200]}, step)),    # doubled
+                   y(run({**bi, 'Devs':[5,1,200,'devs']},  step)),    # small
+                   y(run({**bi, 'Devs':[10,1,200,'devs']}, step)),    # doubled
                    'down')
   return Model(init, step, y, rq, 'Devs')
 
@@ -953,11 +960,11 @@ def entropy():
 
   Thesis: dropping refactor_rate from 0.20 (active maintenance) to
   0.02 (neglect) inflates terminal Complexity + Bugs."""
-  init = {'Complexity':[100,0,5000],         # starting complexity
-          'Bugs':[0,0,5000],                 # no defects yet
-          'work_rate':[10,0,100],            # 10 commits per tick
-          'refactor_rate':[0.05,0,0.5],      # *** ctrl ***; 5% paid down
-          'entropy_coef':[0.02,0,0.5]}       # 2% of work becomes complexity
+  init = {'Complexity':[100,0,5000,'complexity-units'],         # starting complexity
+          'Bugs':[0,0,5000,'bugs'],                 # no defects yet
+          'work_rate':[10,0,100,'items/tick'],            # 10 commits per tick
+          'refactor_rate':[0.05,0,0.5,'frac/tick'],      # *** ctrl ***; 5% paid down
+          'entropy_coef':[0.02,0,0.5,'complexity/item']}       # 2% of work becomes complexity
 
   def step(dt, t, u, v):
     # Each commit adds work_rate * entropy_coef to Complexity.
@@ -978,8 +985,8 @@ def entropy():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low refactor leaves Complexity high",
-                   y(run({**bi, 'refactor_rate':[0.20,0,0.5]}, step)),  # active
-                   y(run({**bi, 'refactor_rate':[0.02,0,0.5]}, step)),  # neglect
+                   y(run({**bi, 'refactor_rate':[0.20,0,0.5,'frac/tick']}, step)),  # active
+                   y(run({**bi, 'refactor_rate':[0.02,0,0.5,'frac/tick']}, step)),  # neglect
                    'down')
   return Model(init, step, y, rq, 'refactor_rate')
 
@@ -1001,11 +1008,11 @@ def costchange():
 
   Thesis: dropping catch_early from 0.8 (test-driven) to 0.2 (ship
   it and fix in prod) inflates total Cost."""
-  init = {'Bugs':[20,0,1000],          # 20 outstanding defects
-          'Cost':[0,0,1e6],            # zero spent yet
-          'catch_early':[0.6,0,1],     # *** ctrl ***; 60% caught early default
-          'cost_early':[1,0.1,5],      # $1 per early catch
-          'cost_late':[50,1,500]}      # $50 per late catch (50x ratio)
+  init = {'Bugs':[20,0,1000,'bugs'],          # 20 outstanding defects
+          'Cost':[0,0,1e6,'$'],            # zero spent yet
+          'catch_early':[0.6,0,1,'frac'],     # *** ctrl ***; 60% caught early default
+          'cost_early':[1,0.1,5,'$/bug'],      # $1 per early catch
+          'cost_late':[50,1,500,'$/bug']}      # $50 per late catch (50x ratio)
 
   def step(dt, t, u, v):
     # Bugs split by phase of discovery this tick.
@@ -1023,8 +1030,8 @@ def costchange():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("shifting catch late inflates total cost",
-                   y(run({**bi, 'catch_early':[0.8,0,1]}, step)),    # test-heavy
-                   y(run({**bi, 'catch_early':[0.2,0,1]}, step)),    # ship-fast
+                   y(run({**bi, 'catch_early':[0.8,0,1,'frac']}, step)),    # test-heavy
+                   y(run({**bi, 'catch_early':[0.2,0,1,'frac']}, step)),    # ship-fast
                    'down')
   return Model(init, step, y, rq, 'catch_early')
 
@@ -1047,12 +1054,12 @@ def pareto():
   Thesis: dropping fix_share_hot from 0.8 (hotspot-focused) to 0.1
   (proportional/oblivious) inflates Bugs because hot fixes net 4x
   more bug-reduction per unit effort than cold fixes."""
-  init = {'Hot':[10,0,200],                 # 10 hotspot modules
-          'Cold':[90,0,2000],               # 90 cold modules (20/80 mix)
-          'Bugs':[0,0,5000],                # no outstanding defects yet
-          'hot_bug_rate':[0.4,0,2],         # hot module: 0.4 bugs/tick
-          'cold_bug_rate':[0.02,0,0.5],     # cold module: 0.02 bugs/tick
-          'fix_share_hot':[0.5,0,1]}        # *** ctrl ***; 50% effort to hot
+  init = {'Hot':[10,0,200,'modules'],                 # 10 hotspot modules
+          'Cold':[90,0,2000,'modules'],               # 90 cold modules (20/80 mix)
+          'Bugs':[0,0,5000,'bugs'],                # no outstanding defects yet
+          'hot_bug_rate':[0.4,0,2,'bugs/module/tick'],         # hot module: 0.4 bugs/tick
+          'cold_bug_rate':[0.02,0,0.5,'bugs/module/tick'],     # cold module: 0.02 bugs/tick
+          'fix_share_hot':[0.5,0,1,'frac']}        # *** ctrl ***; 50% effort to hot
 
   def step(dt, t, u, v):
     # Inflow: bug generation per module class.
@@ -1071,8 +1078,8 @@ def pareto():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("ignoring hotspots inflates bugs",
-                   y(run({**bi, 'fix_share_hot':[0.8,0,1]}, step)),  # focused
-                   y(run({**bi, 'fix_share_hot':[0.1,0,1]}, step)),  # oblivious
+                   y(run({**bi, 'fix_share_hot':[0.8,0,1,'frac']}, step)),  # focused
+                   y(run({**bi, 'fix_share_hot':[0.1,0,1,'frac']}, step)),  # oblivious
                    'down')
   return Model(init, step, y, rq, 'fix_share_hot')
 
@@ -1093,11 +1100,11 @@ def linus():
 
   Thesis: dropping review_rate from 0.6 (every PR reviewed) to 0.1
   (skim-and-merge) inflates Recurring; net Reviewed - 3*Recurring drops."""
-  init = {'Open':[20,0,500],            # 20 PRs awaiting review
-          'Reviewed':[0,0,5000],        # nothing reviewed yet
-          'Recurring':[0,0,500],        # no recurrences yet
-          'review_rate':[0.4,0,1],      # *** ctrl ***; 40% reviewed/tick
-          'recur_rate':[0.3,0,1]}       # 30% base re-occurrence
+  init = {'Open':[20,0,500,'prs'],            # 20 PRs awaiting review
+          'Reviewed':[0,0,5000,'prs'],        # nothing reviewed yet
+          'Recurring':[0,0,500,'bugs'],        # no recurrences yet
+          'review_rate':[0.4,0,1,'frac/tick'],      # *** ctrl ***; 40% reviewed/tick
+          'recur_rate':[0.3,0,1,'frac']}       # 30% base re-occurrence
 
   def step(dt, t, u, v):
     # Reviewed flow: depends on policy (review_rate) and Open queue size.
@@ -1119,8 +1126,8 @@ def linus():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low review_rate inflates recurrence",
-                   y(run({**bi, 'review_rate':[0.6,0,1]}, step)),    # rigorous
-                   y(run({**bi, 'review_rate':[0.1,0,1]}, step)),    # rubber-stamp
+                   y(run({**bi, 'review_rate':[0.6,0,1,'frac/tick']}, step)),    # rigorous
+                   y(run({**bi, 'review_rate':[0.1,0,1,'frac/tick']}, step)),    # rubber-stamp
                    'down')
   return Model(init, step, y, rq, 'review_rate')
 
@@ -1143,11 +1150,11 @@ def mirroring():
   Thesis: dropping mirror from 0.85 (Conway-aligned) to 0.30
   (cross-team chaos) inflates Bugs because cross-team changes are
   more error-prone."""
-  init = {'Modules':[20,1,200],          # 20 modules
-          'Teams':[5,1,50],              # 5 teams
-          'Bugs':[0,0,5000],             # no defects yet
-          'mirror':[0.7,0,1],            # *** ctrl ***; 70% aligned default
-          'churn_rate':[2,0,20]}         # 2 commits/file/tick
+  init = {'Modules':[20,1,200,'modules'],          # 20 modules
+          'Teams':[5,1,50,'teams'],              # 5 teams
+          'Bugs':[0,0,5000,'bugs'],             # no defects yet
+          'mirror':[0.7,0,1,'frac'],            # *** ctrl ***; 70% aligned default
+          'churn_rate':[2,0,20,'commits/file/tick']}         # 2 commits/file/tick
 
   def step(dt, t, u, v):
     # Mismatch = 1 - mirror. Drives the leak rate.
@@ -1164,8 +1171,8 @@ def mirroring():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low mirror inflates defects",
-                   y(run({**bi, 'mirror':[0.85,0,1]}, step)),    # aligned
-                   y(run({**bi, 'mirror':[0.30,0,1]}, step)),    # chaotic
+                   y(run({**bi, 'mirror':[0.85,0,1,'frac']}, step)),    # aligned
+                   y(run({**bi, 'mirror':[0.30,0,1,'frac']}, step)),    # chaotic
                    'down')
   return Model(init, step, y, rq, 'mirror')
 
@@ -1186,10 +1193,10 @@ def orgchurn():
 
   Thesis: 10x churn_rate spike (0.02 -> 0.20) inflates Bugs because
   knowledge depletes and bug rate scales inversely with knowledge."""
-  init = {'Devs':[20,1,500],            # 20-dev team default
-          'Bugs':[0,0,5000],            # no defects yet
-          'churn_rate':[0.02,0,0.5],    # *** ctrl ***; 2% departure/tick
-          'knowledge':[100,0,1000]}     # 100 units of tacit context
+  init = {'Devs':[20,1,500,'devs'],            # 20-dev team default
+          'Bugs':[0,0,5000,'bugs'],            # no defects yet
+          'churn_rate':[0.02,0,0.5,'frac/tick'],    # *** ctrl ***; 2% departure/tick
+          'knowledge':[100,0,1000,'knowledge-units']}     # 100 units of tacit context
 
   def step(dt, t, u, v):
     # Departures this tick.
@@ -1207,8 +1214,8 @@ def orgchurn():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("departure spike inflates defect burst",
-                   y(run({**bi, 'churn_rate':[0.02,0,0.5]}, step)),  # stable
-                   y(run({**bi, 'churn_rate':[0.20,0,0.5]}, step)),  # 10x churn
+                   y(run({**bi, 'churn_rate':[0.02,0,0.5,'frac/tick']}, step)),  # stable
+                   y(run({**bi, 'churn_rate':[0.20,0,0.5,'frac/tick']}, step)),  # 10x churn
                    'down')
   return Model(init, step, y, rq, 'churn_rate')
 
@@ -1230,10 +1237,10 @@ def ownership():
   Thesis: raising minor_share from 0.10 (single owner) to 0.60
   (drive-by-heavy) inflates Bugs. Effective quality drops because
   minors are assumed at 60% the quality of majors."""
-  init = {'Modules':[50,1,500],         # 50 modules
-          'Bugs':[0,0,5000],            # no defects yet
-          'minor_share':[0.2,0,1],      # *** ctrl ***; 20% minor share default
-          'major_quality':[0.95,0,1]}   # major author work is 95% bug-free
+  init = {'Modules':[50,1,500,'modules'],         # 50 modules
+          'Bugs':[0,0,5000,'bugs'],            # no defects yet
+          'minor_share':[0.2,0,1,'frac'],      # *** ctrl ***; 20% minor share default
+          'major_quality':[0.95,0,1,'frac']}   # major author work is 95% bug-free
 
   def step(dt, t, u, v):
     # Effective per-module quality = weighted blend of major and minor work.
@@ -1250,8 +1257,8 @@ def ownership():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("high minor_share inflates defects",
-                   y(run({**bi, 'minor_share':[0.10,0,1]}, step)),   # single-owner
-                   y(run({**bi, 'minor_share':[0.60,0,1]}, step)),   # patchwork
+                   y(run({**bi, 'minor_share':[0.10,0,1,'frac']}, step)),   # single-owner
+                   y(run({**bi, 'minor_share':[0.60,0,1,'frac']}, step)),   # patchwork
                    'down')
   return Model(init, step, y, rq, 'minor_share')
 
@@ -1271,10 +1278,10 @@ def ossfail():
 
   Thesis: shrinking truck_factor from 8 (healthy) to 1 (single
   maintainer) accelerates Activity decay; final Activity drops."""
-  init = {'Devs':[5,1,200],             # 5 devs
-          'Activity':[100,0,10000],     # 100 units pulse at t=0
-          'truck_factor':[2,1,20],      # *** ctrl ***; TF=2 default
-          'attrition':[0.05,0,0.5]}     # 5%/tick base attrition
+  init = {'Devs':[5,1,200,'devs'],             # 5 devs
+          'Activity':[100,0,10000,'activity-units'],     # 100 units pulse at t=0
+          'truck_factor':[2,1,20,'devs'],      # *** ctrl ***; TF=2 default
+          'attrition':[0.05,0,0.5,'frac/tick']}     # 5%/tick base attrition
 
   def step(dt, t, u, v):
     # Bus risk = 1 / truck_factor. TF=1 -> risk 1.0; TF=20 -> risk 0.05.
@@ -1291,8 +1298,8 @@ def ossfail():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("low truck_factor accelerates abandonment",
-                   y(run({**bi, 'truck_factor':[8,1,20]}, step)),   # healthy
-                   y(run({**bi, 'truck_factor':[1,1,20]}, step)),   # one-person
+                   y(run({**bi, 'truck_factor':[8,1,20,'devs']}, step)),   # healthy
+                   y(run({**bi, 'truck_factor':[1,1,20,'devs']}, step)),   # one-person
                    'down')
   return Model(init, step, y, rq, 'truck_factor')
 
@@ -1315,11 +1322,11 @@ def deprot():
 
   Thesis: lowering update_rate from 0.30 to 0.02 (15x slower) inflates
   terminal Vulns. CONFIRM expected for any non-trivial disclose rate."""
-  init = {'Deps':[40,1,500],                 # 40 deps is typical mid-size Java/Python
-          'Stale':[20,0,500],                # half stale at t=0 is the project's debt
-          'Vulns':[0,0,500],                 # no exposure at t=0
-          'update_rate':[0.1,0,1],           # *** ctrl ***; 10% Stale renewed per tick
-          'vuln_disclose_rate':[0.01,0,0.5]} # 1% Stale gets a CVE per tick
+  init = {'Deps':[40,1,500,'deps'],                 # 40 deps is typical mid-size Java/Python
+          'Stale':[20,0,500,'deps'],                # half stale at t=0 is the project's debt
+          'Vulns':[0,0,500,'cves'],                 # no exposure at t=0
+          'update_rate':[0.1,0,1,'frac/tick'],           # *** ctrl ***; 10% Stale renewed per tick
+          'vuln_disclose_rate':[0.01,0,0.5,'frac/tick']} # 1% Stale gets a CVE per tick
 
   def step(dt, t, u, v):
     # Flow OUT of Stale: project actively updates that fraction this tick.
@@ -1345,8 +1352,8 @@ def deprot():
     # (negligent) update_rate. Thesis claims low rate hurts -> 'down'.
     bi = init if bg is None else bg
     return verdict("low update_rate inflates vulnerabilities",
-                   y(run({**bi, 'update_rate':[0.30,0,1]}, step)),  # defensive
-                   y(run({**bi, 'update_rate':[0.02,0,1]}, step)),  # negligent
+                   y(run({**bi, 'update_rate':[0.30,0,1,'frac/tick']}, step)),  # defensive
+                   y(run({**bi, 'update_rate':[0.02,0,1,'frac/tick']}, step)),  # negligent
                    'down')
 
   return Model(init, step, y, rq, 'update_rate')
@@ -1367,10 +1374,10 @@ def scope():
 
   Thesis: tripling inflow (5 -> 15) without changing outflow drops
   net Done (delivered - 10% of Backlog penalty)."""
-  init = {'Backlog':[100,0,10000],      # 100 items already piled up
-          'Done':[0,0,10000],           # nothing delivered yet
-          'inflow':[8,0,100],           # *** ctrl ***; 8 items arrive/tick
-          'outflow':[6,0,100]}          # 6 items delivered/tick (chronic deficit)
+  init = {'Backlog':[100,0,10000,'items'],      # 100 items already piled up
+          'Done':[0,0,10000,'items'],           # nothing delivered yet
+          'inflow':[8,0,100,'items/tick'],           # *** ctrl ***; 8 items arrive/tick
+          'outflow':[6,0,100,'items/tick']}          # 6 items delivered/tick (chronic deficit)
 
   def step(dt, t, u, v):
     # Can only serve what exists in the Backlog, up to outflow capacity.
@@ -1389,8 +1396,8 @@ def scope():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("inflow >> outflow drowns Done",
-                   y(run({**bi, 'inflow':[5,0,100]},  step)),    # under-capacity
-                   y(run({**bi, 'inflow':[15,0,100]}, step)),    # creep
+                   y(run({**bi, 'inflow':[5,0,100,'items/tick']},  step)),    # under-capacity
+                   y(run({**bi, 'inflow':[15,0,100,'items/tick']}, step)),    # creep
                    'down')
   return Model(init, step, y, rq, 'inflow')
 
@@ -1412,10 +1419,10 @@ def ctxswitch():
   Thesis: quadrupling diversity (2 -> 8) hurts Done. Effective
   productivity = work_per_dev / (1 + 0.4 * (diversity - 1)). Weinberg's
   0.4 coefficient says 1 extra file ~40% productivity hit."""
-  init = {'Devs':[10,1,200],            # 10 devs
-          'Done':[0,0,10000],           # nothing delivered yet
-          'work_per_dev':[10,0,50],     # 10 items/dev/tick focused
-          'diversity':[2,1,20]}         # *** ctrl ***; 2 files/dev/day default
+  init = {'Devs':[10,1,200,'devs'],            # 10 devs
+          'Done':[0,0,10000,'items'],           # nothing delivered yet
+          'work_per_dev':[10,0,50,'items/dev/tick'],     # 10 items/dev/tick focused
+          'diversity':[2,1,20,'files/dev/day']}         # *** ctrl ***; 2 files/dev/day default
 
   def step(dt, t, u, v):
     # Effective per-dev throughput drops with diversity:
@@ -1432,8 +1439,8 @@ def ctxswitch():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("high file-diversity per dev hurts throughput",
-                   y(run({**bi, 'diversity':[2,1,20]}, step)),    # focused
-                   y(run({**bi, 'diversity':[8,1,20]}, step)),    # chaotic
+                   y(run({**bi, 'diversity':[2,1,20,'files/dev/day']}, step)),    # focused
+                   y(run({**bi, 'diversity':[8,1,20,'files/dev/day']}, step)),    # chaotic
                    'down')
   return Model(init, step, y, rq, 'diversity')
 
@@ -1454,10 +1461,10 @@ def limits():
   Thesis: doubling Devs near cap (30 -> 60) yields LESS than 2x Done.
   Tested with expect='up' — if the model is right we expect SOME
   gain, but the verdict checks the gap is smaller than linear."""
-  init = {'Devs':[10,1,500],            # *** ctrl ***; 10 devs default
-          'Done':[0,0,1e5],             # nothing delivered yet
-          'k_per_dev':[10,0,100],       # 10 items/dev/tick raw
-          'cap':[200,10,1000]}          # saturate at 200 items/tick
+  init = {'Devs':[10,1,500,'devs'],            # *** ctrl ***; 10 devs default
+          'Done':[0,0,1e5,'items'],             # nothing delivered yet
+          'k_per_dev':[10,0,100,'items/dev/tick'],       # 10 items/dev/tick raw
+          'cap':[200,10,1000,'items/tick']}          # saturate at 200 items/tick
 
   def step(dt, t, u, v):
     # Raw demand: linear in team size.
@@ -1474,8 +1481,8 @@ def limits():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("doubling Devs near cap yields diminishing returns",
-                   y(run({**bi, 'Devs':[30,1,500]}, step)),    # near knee
-                   y(run({**bi, 'Devs':[60,1,500]}, step)),    # past knee
+                   y(run({**bi, 'Devs':[30,1,500,'devs']}, step)),    # near knee
+                   y(run({**bi, 'Devs':[60,1,500,'devs']}, step)),    # past knee
                    'up')                                       # expect up but small
   return Model(init, step, y, rq, 'Devs')
 
@@ -1497,11 +1504,11 @@ def successful():
   Thesis: pushing concentration from 0.4 (balanced) to 0.9 (extreme)
   starves the unattended set faster than the attended set gains; net
   Coverage drops."""
-  init = {'Pop':[50,1,500],              # 50 modules total
-          'Attended':[10,0,500],         # 10 currently attended (20% Pareto-ish)
-          'Coverage':[0,0,1e5],          # no coverage yet
-          'concentration':[0.5,0,1],     # *** ctrl ***; 50% to attended default
-          'attention_rate':[3,0,30]}     # 3 units/tick total budget
+  init = {'Pop':[50,1,500,'modules'],              # 50 modules total
+          'Attended':[10,0,500,'modules'],         # 10 currently attended (20% Pareto-ish)
+          'Coverage':[0,0,1e5,'attention-units'],          # no coverage yet
+          'concentration':[0.5,0,1,'frac'],     # *** ctrl ***; 50% to attended default
+          'attention_rate':[3,0,30,'attention/tick']}     # 3 units/tick total budget
 
   def step(dt, t, u, v):
     # Attention split: concentration goes to Attended, rest to Pop.
@@ -1521,8 +1528,8 @@ def successful():
   def rq(bg=None):
     bi = init if bg is None else bg
     return verdict("extreme concentration starves Coverage",
-                   y(run({**bi, 'concentration':[0.4,0,1]}, step)),  # balanced
-                   y(run({**bi, 'concentration':[0.9,0,1]}, step)),  # extreme
+                   y(run({**bi, 'concentration':[0.4,0,1,'frac']}, step)),  # balanced
+                   y(run({**bi, 'concentration':[0.9,0,1,'frac']}, step)),  # extreme
                    'down')
   return Model(init, step, y, rq, 'concentration')
 

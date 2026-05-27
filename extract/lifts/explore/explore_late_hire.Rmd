@@ -1,0 +1,115 @@
+---
+title: "Explore — Late-Hire Velocity Helpers (Brooks)"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Explore Late Hire Velocity}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls())
+seed <- 1
+set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu)
+require(data.table)
+require(stringi)
+require(magrittr)
+require(knitr)
+```
+
+# Introduction
+
+This notebook walks through the two helpers added in `R/myths_late_hire.R`
+on Apache Helix:
+
+- `detect_late_hires()` — finds developers whose first commit is
+  ≥ N days after the project's first commit.
+- `compute_velocity_changes()` — for each late hire, computes the
+  pre/post commit rate of *veterans* (devs who joined before).
+
+The downstream `brooks_tax_median = (pre - post) / pre` is the
+calibrated metric consumed by the SD model `paper/sd.py:brooks`.
+
+# Project Configuration File
+
+```{r}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../../conf/helix.yml")
+```
+
+`conf` carries the gitlog path + filter list. `tool` carries paths to
+Perceval, RefactoringMiner, etc.
+
+# Step 1 — parse the gitlog via Perceval
+
+```{r warning=FALSE}
+project_git <- parse_gitlog(
+  get_tool_project("perceval", tool),
+  get_git_repo_path(conf)
+) %>%
+  filter_by_file_extension(get_file_extensions(conf), "file_pathname") %>%
+  filter_by_filepath_substring(get_substring_filepath(conf), "file_pathname")
+
+# Perceval emits "Tue Jun 21 18:56:46 2011 -0700"; parse to POSIXct
+project_git$author_datetimetz <- as.POSIXct(
+  project_git$author_datetimetz,
+  format = "%a %b %d %H:%M:%S %Y %z", tz = "UTC"
+)
+
+kable(head(project_git[, .(commit_hash, author_name_email,
+                           author_datetimetz, file_pathname)], 5))
+```
+
+# Step 2 — merge developer aliases
+
+```{r}
+project_log <- list(git_log = project_git)
+project_log <- identity_match(project_log, c("author_name_email"),
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = "identity_id")
+project_git <- project_log$git_log
+
+# 5 example identity rows
+kable(head(unique(project_git[, .(identity_id, author_name_email)]), 5))
+```
+
+# Step 3 — detect late hires
+
+```{r}
+late_hires <- detect_late_hires(project_git, min_project_age_days = 365)
+cat("late hires detected:", nrow(late_hires), "\n")
+kable(head(late_hires[order(days_after_project_start)], 10))
+```
+
+# Step 4 — compute pre/post velocity per hire
+
+```{r}
+window_days <- 90
+vc <- compute_velocity_changes(project_git, late_hires, window_days)
+vc[, brooks_tax := (pre_velocity - post_velocity) / pre_velocity]
+kable(head(vc[order(-brooks_tax)], 10))
+```
+
+# Headline stats
+
+```{r}
+cat("median brooks_tax:", median(vc$brooks_tax, na.rm = TRUE), "\n")
+cat("mean   brooks_tax:", mean(vc$brooks_tax,   na.rm = TRUE), "\n")
+cat("n_hires:           ", nrow(vc), "\n")
+```
+
+# What we learned
+
+For Helix specifically: 65 late-hire events over the project lifetime;
+median brooks_tax ≈ 0.11 (~11% velocity drop on veterans in the 90-day
+window after each new hire). The scalar feeds the SD model's
+verification machinery — see `paper/cross_project.py` for the
+8-project comparison.

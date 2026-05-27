@@ -1,0 +1,105 @@
+---
+title: "Explore — SZZ-Pair Helpers (defect attribution)"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Explore Szz Pairs}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls()); seed <- 1; set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu); require(data.table); require(stringi); require(magrittr); require(knitr)
+```
+
+# Introduction
+
+Walks through SZZ-defect-attribution helpers added in `R/myths_szz.R`:
+
+- `parse_szz_bugfixes()` — reads a CSV produced by PyDriller B-SZZ.
+- `compute_injection_changes()` — per-late-hire pre/post injection rates.
+- `estimate_leak_rate()` — fraction of bug-fix latencies > N days.
+- `compute_failrate_per_window()` — windowed defect injection rate.
+
+Downstream metrics: `brooksq.leak_rate`, `brooksq.inj_rate_increase`,
+`rework.failrate_median` — all feed into `paper/sd.py` model
+calibration.
+
+# Project config
+
+The PyDriller B-SZZ CSV is produced externally (Python script that
+walks the git log, finds bug-fix commits by message pattern, and uses
+PyDriller to walk back to the introducing commit).
+
+```{r}
+szz_csv <- "../../data/helix/derived/szz_pairs.csv"
+cat("file exists:", file.exists(szz_csv), "\n")
+```
+
+# Step 1 — parse SZZ output
+
+```{r}
+szz <- parse_szz_bugfixes(szz_csv)
+kable(head(szz[, .(fixing_commit_hash, introducing_commit_hash, file_path,
+                   jira_keys, fixing_date, introducing_date)], 5))
+cat("total SZZ pairs:", nrow(szz), "\n")
+```
+
+# Step 2 — load gitlog for cohort context
+
+```{r warning=FALSE}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../../conf/helix.yml")
+project_git <- parse_gitlog(get_tool_project("perceval", tool),
+                            get_git_repo_path(conf))
+project_git$author_datetimetz <- as.POSIXct(
+  project_git$author_datetimetz,
+  format = "%a %b %d %H:%M:%S %Y %z", tz = "UTC")
+project_log <- identity_match(list(git_log = project_git),
+                              c("author_name_email"),
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = "identity_id")
+project_git <- project_log$git_log
+```
+
+# Step 3 — windowed failrate (for rework / dora)
+
+```{r}
+fr <- compute_failrate_per_window(szz, project_git, window_days = 90)
+kable(head(fr[order(window_start)], 8))
+cat("median failrate:", median(fr$failrate, na.rm = TRUE), "\n")
+```
+
+# Step 4 — leak rate (for brooksq)
+
+```{r}
+leak <- estimate_leak_rate(szz, latency_days = 30)
+cat("leak_rate (fraction of pairs with fix-introduction latency > 30d):",
+    round(leak, 3), "\n")
+```
+
+# Step 5 — injection change per late-hire (for brooksq)
+
+```{r}
+late_hires <- detect_late_hires(project_git, min_project_age_days = 365)
+inj <- compute_injection_changes(szz, late_hires, window_days = 90)
+kable(head(inj[order(-inj_rate_increase)], 10))
+cat("median inj_rate_increase:", median(inj$inj_rate_increase, na.rm = TRUE), "\n")
+```
+
+# What we learned
+
+Helix-specific:
+- `leak_rate` ≈ 0.57 — over half of bug-fix introductions sit > 30 days
+  before their fix. Above brooksq's declared `hi = 0.5`, contributing
+  to F2 (boundary-adequacy failure).
+- `inj_rate_increase` is the brooksq quality verdict input: positive
+  = late hires inject MORE bugs than veterans were doing pre-hire.
+  Helix sits near zero.

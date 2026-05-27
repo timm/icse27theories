@@ -1,0 +1,103 @@
+---
+title: "Explore — Mailing-List Reply Motifs (congruence)"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Explore Mailing Motifs}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls()); seed <- 1; set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu); require(data.table); require(stringi); require(magrittr); require(knitr)
+```
+
+# Introduction
+
+Walks through mailing-list helpers in `R/myths_mailing.R`:
+
+- `parse_mbox_dir()` — wraps Perceval's mbox parser over a directory.
+- `build_reply_edges()` — pivots (reply_id → identity) into a
+  child→parent edge list.
+- `detect_radio_silence()` — finds gaps where a previously-active
+  boundary spanner stops replying.
+
+Downstream: `paper/sd.py:congruence.broker_loss`, `Brokers_n`.
+
+Note Carlos's review (PR #409): `detect_radio_silence` may overlap
+with `R/smells.R:radio_silence` — to be folded in B6.
+
+# Project config
+
+```{r}
+tool    <- parse_config("../tools.yml")
+mbox_dir <- "../../data/helix/mbox"
+cat("mbox dir exists:", dir.exists(mbox_dir), "\n")
+```
+
+# Step 1 — parse all mbox files
+
+```{r}
+perceval <- get_tool_project("perceval", tool)
+msgs <- parse_mbox_dir(perceval, mbox_dir)
+kable(head(msgs[, .(reply_id, in_reply_to_id, reply_from,
+                    reply_datetimetz)], 5))
+cat("total messages:", nrow(msgs), "\n")
+```
+
+# Step 2 — identity-merge senders
+
+```{r}
+m_list <- list(reply_log = msgs)
+m_list <- identity_match(m_list, c("reply_from"),
+                         assign_identity_function = assign_exact_identity,
+                         use_name_only = FALSE,
+                         label = "identity_id")
+msgs <- m_list$reply_log
+kable(head(unique(msgs[, .(identity_id, reply_from)]), 5))
+```
+
+# Step 3 — build reply edges
+
+```{r}
+edges <- build_reply_edges(msgs)
+kable(head(edges, 10))
+cat("edges:", nrow(edges), "\n")
+```
+
+# Step 4 — detect radio-silence (broker loss)
+
+```{r}
+silences <- detect_radio_silence(edges)
+kable(head(silences, 10))
+cat("radio-silence incidents:", nrow(silences), "\n")
+```
+
+# Headline stats
+
+```{r}
+brokers <- length(unique(c(silences$broker_id)))
+clusters <- length(unique(c(edges$cluster_id)))
+cat("brokers detected:        ", brokers, "\n")
+cat("clusters identified:     ", clusters, "\n")
+cat("longest silence (days):  ",
+    if (nrow(silences)) max(silences$silence_days) else NA, "\n")
+```
+
+# What we learned
+
+For Helix:
+- 3 brokers across 5 Louvain clusters.
+- 4 radio-silence incidents (1 broker disappeared, 3 weakened ties).
+- The Newman/Cataldo broker-loss thesis (`congruence`) finds non-
+  trivial mappings here.
+
+Carlos's open question (B6): whether this implementation diverges
+from `R/smells.R:radio_silence`. Side-by-side comparison TBD in a
+follow-up commit.

@@ -1,0 +1,98 @@
+---
+title: "Explore — Refactor + Release-Snapshot Helpers"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Explore Refactor Snapshots}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls()); seed <- 1; set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu); require(data.table); require(stringi); require(magrittr); require(knitr)
+```
+
+# Introduction
+
+Walks through refactor + release helpers in `R/myths_refactor.R`:
+
+- `get_release_tags()` — list git tags in lexicographic order.
+- `get_tag_dates()` — pair tags with their commit timestamp.
+- `flatten_refactoring_json()` — parse RefactoringMiner JSON output.
+- `compute_pay_rate()` — fraction of commits per window containing
+  ≥ 1 detected refactoring.
+- `compute_born_rate_proxy()` — multi-file commit share (born-rate
+  proxy).
+
+Downstream: `paper/sd.py:debt.pay_rate`, `archpat.born_pat / born_leg`.
+
+# Project config
+
+```{r}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../../conf/helix.yml")
+refminer_json <- "../../data/helix/derived/refminer.json"
+cat("RefMiner JSON exists:", file.exists(refminer_json), "\n")
+```
+
+# Step 1 — list release tags
+
+```{r}
+tags <- get_release_tags(get_git_repo_path(conf))
+kable(head(data.table(tag = tags), 10))
+cat("total tags:", length(tags), "\n")
+```
+
+# Step 2 — tag dates
+
+```{r}
+tag_dates <- get_tag_dates(get_git_repo_path(conf))
+kable(head(tag_dates, 8))
+```
+
+# Step 3 — parse RefMiner JSON
+
+```{r}
+refactorings <- flatten_refactoring_json(refminer_json)
+kable(head(refactorings, 5))
+cat("detected refactorings:", nrow(refactorings), "\n")
+```
+
+# Step 4 — pay rate (the scalar fed to debt.pay_rate)
+
+```{r warning=FALSE}
+project_git <- parse_gitlog(get_tool_project("perceval", tool),
+                            get_git_repo_path(conf))
+project_git$author_datetimetz <- as.POSIXct(
+  project_git$author_datetimetz,
+  format = "%a %b %d %H:%M:%S %Y %z", tz = "UTC")
+pay <- compute_pay_rate(project_git, refactorings, window_days = 90)
+kable(head(pay[order(window_start)], 8))
+cat("median pay_rate:", round(median(pay$pay_rate, na.rm = TRUE), 3), "\n")
+```
+
+# Step 5 — born-rate proxy (multi-file commit share)
+
+```{r}
+born <- compute_born_rate_proxy(project_git, window_days = 90, min_files = 5)
+kable(head(born[order(window_start)], 8))
+cat("median born_rate proxy:",
+    round(median(born$born_rate_proxy, na.rm = TRUE), 3), "\n")
+```
+
+# What we learned
+
+For Helix:
+- `pay_rate_median` ≈ 0.59 — most 90-day windows contain ≥ 1 RefMiner-
+  detected refactoring. Sits comfortably inside debt.pay_rate's
+  declared `[0, 1]` range. Helix is one of 5 Java projects whose
+  pay_rate converges to 0.36–0.59 (F2).
+- born-rate proxy (large multi-file commits) is rare — most commits
+  touch ≤ 5 files. This is a CRUDE proxy; ideally we'd lift
+  born_rate from new-feature commits identified via JIRA.

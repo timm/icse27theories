@@ -1,0 +1,85 @@
+---
+title: "Explore — Workforce Cohort Helpers (Sterman learn)"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Explore Workforce Cohorts}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls()); seed <- 1; set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu); require(data.table); require(stringi); require(magrittr); require(knitr)
+```
+
+# Introduction
+
+Walks through Sterman-style cohort helpers in `R/myths_workforce.R`:
+
+- `compute_cohorts()` — bucket each developer into Jr / Tr / Sr by
+  tenure (years since first commit).
+- `estimate_transition_rates()` — Jr→Tr / Tr→Sr promotion rates from
+  sliding 90-day windows.
+
+Downstream: `paper/sd.py:learn.train_rate`, `learn.promote_rate`.
+
+# Project config
+
+```{r warning=FALSE}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../../conf/helix.yml")
+project_git <- parse_gitlog(get_tool_project("perceval", tool),
+                            get_git_repo_path(conf))
+project_git$author_datetimetz <- as.POSIXct(
+  project_git$author_datetimetz,
+  format = "%a %b %d %H:%M:%S %Y %z", tz = "UTC")
+project_log <- identity_match(list(git_log = project_git),
+                              c("author_name_email"),
+                              assign_identity_function = assign_exact_identity,
+                              use_name_only = FALSE,
+                              label = "identity_id")
+project_git <- project_log$git_log
+```
+
+# Step 1 — bucket developers by tenure
+
+```{r}
+cohorts <- compute_cohorts(project_git, jr_max_days = 365, tr_max_days = 1094)
+kable(head(cohorts, 10))
+cat("Jr / Tr / Sr counts:\n")
+print(table(cohorts$cohort))
+```
+
+# Step 2 — estimate transition rates
+
+```{r}
+rates <- estimate_transition_rates(project_git, jr_max_days = 365,
+                                   tr_max_days = 1094, window_days = 90)
+kable(head(rates[order(window_start)], 8))
+```
+
+# Step 3 — annualised rates (the scalar fed to sd.py:learn)
+
+```{r}
+train_rate   <- median(rates$jr_to_tr_rate,   na.rm = TRUE) * (365 / 90)
+promote_rate <- median(rates$tr_to_sr_rate,   na.rm = TRUE) * (365 / 90)
+cat("train_rate (Jr -> Tr / yr):  ", round(train_rate,   3), "\n")
+cat("promote_rate (Tr -> Sr / yr):", round(promote_rate, 3), "\n")
+```
+
+# What we learned
+
+For Helix:
+- ~24 distinct identities across ~10 years of history.
+- Jr cohort dominates (most contributors are short-tenure drive-bys).
+- Annualised Jr→Tr ≈ 0.81 — Sterman's workforce flow holds: most Jrs
+  who DO stick around graduate within their first year.
+- Earlier methodology used 365-day windows + 365-day Jr cutoff, which
+  forced every Jr to graduate per window and saturated train_rate at
+  1.0. Fixed to 90-day windows then annualised.
