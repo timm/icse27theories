@@ -233,7 +233,9 @@ kable(out)</code></pre>
 <tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
 <tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap +228.69</td></tr>
 <tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap +59.01 (sd0 527.90 / sd1 509.26 / &epsilon; 184.77)</td></tr>
-<tr><td><code>2&times;2 cell</code></td><td>universal <span class="dim">(inputs 129/200 CONFIRM, params 122/200)</span></td></tr>
+<tr><td><code>stress(inputs)</code></td><td><span class="ok">129/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
+<tr><td><code>stress(params)</code></td><td><span class="ok">122/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>boundary violations</span>archpat.Legacy_n hi=200 is exceeded on both lifted projects: Helix 384, Ambari 1890. archpat.Patterned_n hi=200 also exceeded on Ambari (381). The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files in each partition.</div>
   </div>

@@ -1653,7 +1653,25 @@ def render_scorecard_table(name):
     rnv = a.get("verdict_n","")
     rnc = {"CONFIRM":"ok","REFUTE":"bad"}.get(rnv,"warn")
     out.append(f'<tr><td><code>rq_n N=100 + Cliff\'s &delta; / KS</code></td><td><span class="{rnc}">{rnv}</span> &middot; gap {a.get("gap_n","")} (sd0 {a.get("sd0_n","")} / sd1 {a.get("sd1_n","")} / &epsilon; {a.get("eps_n","")})</td></tr>')
-    out.append(f'<tr><td><code>2&times;2 cell</code></td><td>{a.get("cell","")} <span class="dim">(inputs {a.get("inp_cnt","")}/200 CONFIRM, params {a.get("par_cnt","")}/200)</span></td></tr>')
+    inp_cnt = a.get("inp_cnt", "")
+    par_cnt = a.get("par_cnt", "")
+    cell    = a.get("cell", "")
+    def stress_cls(v):
+        try:
+            return "ok" if int(v) >= 100 else "bad"
+        except (TypeError, ValueError):
+            return "dim"
+    cell_cls = {"universal":"ok","process-conditional":"warn",
+                "world-conditional":"warn","fragile":"bad"}.get(cell,"dim")
+    out.append(f'<tr><td><code>stress(inputs)</code></td>'
+               f'<td><span class="{stress_cls(inp_cnt)}">{inp_cnt}/200 CONFIRM</span>'
+               f' &middot; 200 triangular-perturbed input backgrounds</td></tr>')
+    out.append(f'<tr><td><code>stress(params)</code></td>'
+               f'<td><span class="{stress_cls(par_cnt)}">{par_cnt}/200 CONFIRM</span>'
+               f' &middot; 200 triangular-perturbed param backgrounds</td></tr>')
+    out.append(f'<tr><td><code>2&times;2 cell</code></td>'
+               f'<td><span class="{cell_cls}">{cell}</span> '
+               f'<span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>')
     out.append('</tbody></table>')
     return "\n".join(out)
 
