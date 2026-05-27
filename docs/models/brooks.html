@@ -517,13 +517,13 @@ compute_velocity_changes &lt;- function(project_git, late_hires,
       </tr>
       <tr>
         <td><code>stress(inputs)</code></td>
-        <td>CONFIRM-count across 200 random input backgrounds</td>
-        <td><span class="bad">5/200 CONFIRM</span> &mdash; thesis very sensitive to inputs.</td>
+        <td>CONFIRM-count across 200 random input backgrounds (triangular)</td>
+        <td><span class="bad">12/200 CONFIRM</span> &mdash; thesis very sensitive to inputs.</td>
       </tr>
       <tr>
         <td><code>stress(params)</code></td>
-        <td>CONFIRM-count across 200 random param backgrounds</td>
-        <td><span class="bad">37/200 CONFIRM</span> &mdash; thesis sensitive to params too.</td>
+        <td>CONFIRM-count across 200 random param backgrounds (triangular)</td>
+        <td><span class="bad">68/200 CONFIRM</span> &mdash; thesis sensitive to params too.</td>
       </tr>
       <tr>
         <td><code>stress_matrix cell</code></td>
@@ -531,9 +531,14 @@ compute_velocity_changes &lt;- function(project_git, late_hires,
         <td><span class="bad">fragile</span> &mdash; CONFIRM only under restricted backgrounds</td>
       </tr>
       <tr>
-        <td><code>rq() at default init</code></td>
-        <td>baseline verdict</td>
+        <td><code>rq() single-shot</code></td>
+        <td>baseline verdict at init defaults</td>
         <td><span class="ok">CONFIRM</span> &middot; gap = &minus;147.5</td>
+      </tr>
+      <tr>
+        <td><code>rq_n N=100 + stats.same</code></td>
+        <td>verdict over 100 perturbed runs, Cliff's &delta; + KS + median &epsilon;</td>
+        <td><span class="warn">neutral</span> &middot; gap = &minus;0.58 (sd0 188 / sd1 186 / &epsilon; 65.9) &mdash; signal within noise band when background perturbed</td>
       </tr>
     </tbody>
   </table>
