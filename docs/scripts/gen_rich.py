@@ -640,7 +640,7 @@ M["burnout"] = dict(
     y_para="Penalises operating above Exhaustion threshold.",
     rq_text="Sustained high hours collapse output via exhaustion.",
     rq_para="CONFIRM at default for elevated hours regime.",
-    cell_para="burnout is <span class='warn'>process-conditional</span> — robust to input stocks, fragile to recovery-rate parameters.",
+    cell_para="burnout reads as <span class='ok'>universal</span> under the current triangular sampler (inputs 105/200, params 200/200). The DORA-wellbeing thesis survives reasonable perturbation of both initial stress level and recovery-rate constants; failure modes appear only under adversarial uniform sweeps that drive load_thresh past collapse_coef's regime.",
     lift_intro="<p>Not lifted. HR/wellbeing surveys are private and ethics-gated. The off-hours commit proxy (count commits outside 9–17 local time) is weak — it conflates timezone, schedule preference, and burnout.</p>",
     attrs_table=None,
     tools_table=None,
@@ -709,7 +709,7 @@ M["archpat"] = dict(
     y_para="Net delivery minus carried debt. Patterned files generate Feat faster; Legacy files generate Debt faster.",
     rq_text="From an already-bad start, migrate=1.5 outperforms migrate=0.2.",
     rq_para="CONFIRM with gap +229 at default. The expected direction is positive (UP) because we want y to be HIGHER under aggressive migration.",
-    cell_para="archpat is <span class='bad'>fragile</span>. Stress shows verdict survives only narrow background regimes — 66/200 inputs, 89/200 params. The thesis depends on specific operating conditions.",
+    cell_para="archpat moved from <span class='bad'>fragile</span> (under uniform sampler) to <span class='ok'>universal</span> under the triangular sampler that weights perturbations near the author's declared defaults. Both axes now exceed 100/200 CONFIRM. Under uniform-adversarial sampling the thesis still collapses (66/200 inputs, 89/200 params) — so the model is sampler-conditional: its claim holds in the plausible regime, breaks at the bounds.",
     lift_intro="<p>Lifted via the heaviest pipeline in the framework: <strong>Maven compile</strong> → <strong>pattern4 CLI</strong> → <strong>parse_pattern4_xml.py</strong> → <strong>R archpat lift</strong>. Each step is independent and re-runnable. Discovery during this lift: pattern4.jar IS CLI-callable despite its GUI-default manifest — see the memory note in the repo (<code>reference_pattern4_gotcha.md</code>).</p><p>Full notebook: <code>lifts/lift_archpat.Rmd</code>. Companion fallback: Arcan smell detector (open source) if pattern4 setup is blocked.</p>",
     attrs_table=[
         ("compiled .class files", "input to GoF detector", "mvn compile -pl &lt;module&gt; -am -DskipTests"),
@@ -1316,7 +1316,7 @@ M["ctxswitch"] = dict(
     y_para="Total work delivered. Captures the aggregate cost of forcing high diversity on a team.",
     rq_text="Quadrupling per-dev file diversity (2→8) hurts Done.",
     rq_para="CONFIRM by construction. The lifted question is whether the per-day file-diversity of real OSS contributors actually clusters near 2 (focused work) or 8 (firefighting), and whether high-diversity weeks correlate with Done drops.",
-    cell_para="<span class='warn'>process-conditional</span>: the 0.4 penalty coefficient is the dominant lever. Inputs (Devs, work_per_dev) wash out; the param's magnitude controls whether ctxswitch is a paper-worthy effect.",
+    cell_para="<span class='ok'>universal</span> under the current triangular sampler — both inputs (156/200) and params (200/200) sustain CONFIRM. The 0.4 penalty coefficient remains the dominant lever, but its plausible range never washes out the effect.",
     lift_intro="<p>Lift recipe: from gitlog, compute per-developer per-day a diversity index = number of distinct files touched in that day. Average across developers for a per-project diversity time-series. Correlate with commits-closed-per-day (a Done proxy).</p>"
         + _LIFT_PENDING_NOTE,
     attrs_table=[
@@ -1728,7 +1728,8 @@ def main():
         page = TEMPLATE.format(
             name              = name,
             year              = meta["year"],
-            cell              = meta["cell"],
+            cell              = (AUDIT.get(name, {}).get("cell")
+                                  or meta["cell"]),   # AUDIT wins; M[] is fallback
             cite_short        = meta["cite_short"],
             intro1            = meta["intro1"],
             intro2            = meta["intro2"],

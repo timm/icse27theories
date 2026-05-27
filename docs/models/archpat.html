@@ -27,7 +27,7 @@
 
 <main>
 
-<h1>archpat <span class="dim" style="font-weight:400;">(1992)</span><span class="tag">fragile cell</span></h1>
+<h1>archpat <span class="dim" style="font-weight:400;">(1992)</span><span class="tag">universal cell</span></h1>
 <p class="sub-title">Perry &amp; Wolf (1992) + Martin (2008) Clean Architecture — patterns repair already-bad code.</p>
 
 <div class="tabs">
@@ -59,7 +59,7 @@
     <p><strong>From an already-bad start, migrate=1.5 outperforms migrate=0.2.</strong></p>
     <p>CONFIRM with gap +229 at default. The expected direction is positive (UP) because we want y to be HIGHER under aggressive migration.</p>
     <h2>Stress-matrix cell</h2>
-    <p>archpat is <span class='bad'>fragile</span>. Stress shows verdict survives only narrow background regimes — 66/200 inputs, 89/200 params. The thesis depends on specific operating conditions.</p>
+    <p>archpat moved from <span class='bad'>fragile</span> (under uniform sampler) to <span class='ok'>universal</span> under the triangular sampler that weights perturbations near the author's declared defaults. Both axes now exceed 100/200 CONFIRM. Under uniform-adversarial sampling the thesis still collapses (66/200 inputs, 89/200 params) — so the model is sampler-conditional: its claim holds in the plausible regime, breaks at the bounds.</p>
   </div>
 
   <div id="panel-2" class="tab-content">
