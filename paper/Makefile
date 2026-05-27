@@ -63,6 +63,9 @@ outputs/calibrated_verdicts.csv: outputs/lifts.csv calibrate.py
 audit-orphans: ## flag init keys never read/written in step()
 	python3 scripts/audit_orphans.py
 
+audit-staleness: ## flag docs/ numbers drifting from outputs/full_audit.csv
+	python3 scripts/audit_staleness.py
+
 findings: inference ## print headline findings F0..F4
 	@echo "==== F0 boundary-adequacy violations ===="
 	@grep -E "out_of_range|at_boundary" outputs/boundary_check.csv | head -20 || true

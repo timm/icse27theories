@@ -92,7 +92,7 @@ M["diapers"] = dict(
 
 
 M["bugs"] = dict(
-    year=1979, cell="process-conditional",
+    year=1979, cell="universal",
     cite_short="Goel-Okumoto NHPP-style reliability growth.",
     intro1="A software system contains an unknown pool <em>a</em> of latent defects. As testing proceeds, defects are discovered at a rate proportional to the remaining latent stock — yielding the canonical exponential <code>N(t) = a·(1 − e<sup>−bt</sup>)</code>. The discovery rate <em>b</em> is per-bug; the asymptote <em>a</em> is the eventual total.",
     intro2="Mathematically the same as radioactive decay. Empirically it captures the often-observed pattern that big systems converge on their full bug count: the discovery rate slows because the un-found pool shrinks, not because testing got worse.",
@@ -287,7 +287,7 @@ M["rework"] = dict(
 
 
 M["learn"] = dict(
-    year=2000, cell="process-conditional",
+    year=2000, cell="universal",
     cite_short="Sterman ch.18 workforce flow: Jr → Tr → Sr → Ment.",
     intro1="The workforce-flow pipeline. New developers enter as Juniors (Jr); after gaining experience they become Trainees (Tr); after more time and mentorship they reach Senior (Sr); and finally Sr's mentor the next cohort (Ment). The flow only works if each stage has enough people to teach the next.",
     intro2="Remove the seniors (Sr = 0) and the training pipeline starves: juniors have no one to graduate toward, trainees never get reviewed by experienced eyes, and the system collapses to a pool of perpetual juniors who never reach productive maturity. This is one of Sterman's flagship Business Dynamics examples (ch. 18, hiring &amp; mentoring).",
@@ -631,7 +631,7 @@ M["teamtopo"] = dict(
 
 
 M["burnout"] = dict(
-    year=2024, cell="process-conditional",
+    year=2024, cell="universal",
     cite_short="DORA wellbeing reports + Maslach burnout inventory.",
     intro1="Sustained high hours and emotional exhaustion degrade output. The model tracks Energy (resource), Exhaustion (depletion), and Output (delivered work). Recovery rate (rest, lower hours) competes with depletion rate (hours, stress).",
     intro2="Maslach's burnout inventory (1981) defines the psychological construct; DORA's 2024 wellbeing report shows the operational impact on team output.",
@@ -700,7 +700,7 @@ M["aidebt"] = dict(
 
 
 M["archpat"] = dict(
-    year=1992, cell="fragile",
+    year=1992, cell="universal",
     cite_short="Perry &amp; Wolf (1992) + Martin (2008) Clean Architecture — patterns repair already-bad code.",
     intro1="Three architectural regions: <em>Patterned</em> (under good architecture), <em>Legacy</em> (not), <em>Drift</em> (was patterned, eroded). Migration moves Legacy → Patterned at rate proportional to migrate_rate · available_effort. Decay (Perry-Wolf erosion) moves Patterned → Drift. Drift eventually decays back to Legacy.",
     intro2="The model tests whether <em>aggressive migration</em> (migrate=1.5) can repair an already-bad project (Patterned=10, Legacy=90, Debt=40) better than slow migration (migrate=0.2). The thesis says yes: applying patterns actively pays down debt.",
@@ -981,7 +981,7 @@ M["costchange"] = dict(
 
 
 M["pareto"] = dict(
-    year=1992, cell="universal",
+    year=1992, cell="process-conditional",
     cite_short="Fenton, N. E., &amp; Ohlsson, N. (2000). Quantitative analysis of faults and failures in a complex software system. <em>IEEE TSE</em>; Ostrand, T. J., &amp; Weyuker, E. J. (2002). The distribution of faults in a large industrial software system. <em>ISSTA</em>.",
     intro1="Fenton-Ohlsson and Ostrand-Weyuker independently observed that ~20% of modules in large software systems carry ~80% of the defects, and that the hotspot set persists across releases. The empirical regularity has been replicated dozens of times since.",
     intro2="The SD form in <code>models/sd.py:pareto</code> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.",
@@ -1108,7 +1108,7 @@ M["mirroring"] = dict(
 
 
 M["orgchurn"] = dict(
-    year=2010, cell="universal",
+    year=2010, cell="process-conditional",
     cite_short="Nagappan, N., Murphy, B., &amp; Basili, V. R. (2008). The influence of organizational structure on software quality. <em>ICSE</em>.",
     intro1="Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.",
     intro2="The SD form in <code>models/sd.py:orgchurn</code> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.",
@@ -1268,7 +1268,7 @@ M["deprot"] = dict(
 
 
 M["scope"] = dict(
-    year=1981, cell="universal",
+    year=1981, cell="fragile",
     cite_short="Boehm, B. W. (1981); Jones, T. C. (1991). <em>Applied Software Measurement</em>.",
     intro1="Scope creep is the workhorse failure mode of every project management framework: inflow of requirements exceeds outflow of delivered features, backlog grows unbounded, calendar slips. Boehm's COCOMO and Jones's measurement work both treat it as a first-order risk factor.",
     intro2="The SD form in <code>models/sd.py:scope</code> tracks Backlog (requirements not yet delivered) and Done (delivered). When inflow &gt; outflow, Backlog grows linearly per timestep, Done plateaus near outflow capacity. The metric y subtracts a 10% Backlog penalty from Done.",
@@ -1307,7 +1307,7 @@ M["scope"] = dict(
 
 
 M["ctxswitch"] = dict(
-    year=2014, cell="process-conditional",
+    year=2014, cell="universal",
     cite_short="Meyer, A. N., Fritz, T., Murphy, G. C., &amp; Zimmermann, T. (2014). Software developers' perceptions of productivity. <em>FSE</em>.",
     intro1="Meyer-Fritz-Murphy-Zimmermann surveyed developers about productivity and found that high task-switching is one of the most cited frustrations. Weinberg's Quality Software Management put a similar argument structurally: every context switch costs ramp-up time, and the cost scales with the diversity of work pulled.",
     intro2="The SD form in <code>models/sd.py:ctxswitch</code> takes Devs, work_per_dev, and diversity (number of distinct modules a typical dev touches per period). Effective throughput per dev = work_per_dev / (1 + 0.4·(diversity − 1)). The controlled lever is diversity.",
