@@ -12,8 +12,15 @@ help: ## show help
 	@gawk 'match($$0, /^([A-Za-z][A-Za-z0-9]*)[ \t]*\?=[ \t]*([^#]*[^# \t])[ \t]*#[ \t]*(.+)/, a) { \
 	         printf("  \033[36m%-8s\033[0m = %-30s %s\n", a[1], a[2], a[3]) | "sort" }' $(MAKEFILE_LIST)
 
-push: ## prompt msg, commit -am, push
-	@read -p "Reason? " msg; git commit -am "$$msg"; git push; git status
+push: ## audit staleness + bless pages + prompt msg, commit -am, push
+	@cd .. && python3 paper/scripts/audit_staleness.py || { \
+	  echo "FAIL: docs out of sync with paper/outputs/full_audit.csv"; \
+	  echo "Run: cd paper && make audit-staleness  for details. "; \
+	  exit 1; }
+	@cd .. && python3 docs/scripts/check_pages.py || { \
+	  echo "FAIL: docs/models/*.html violates page contract"; \
+	  exit 1; }
+	@read -p "Reason? " msg; cd .. && git commit -am "$$msg" && git push && git status
 
 doctor: ## check required tools (✓ found, ✗ missing)
 	@for e in \
