@@ -12,6 +12,47 @@ five F-findings in <30 seconds. No R, no Perceval, no kaiaulu.
   `extreme_eqn`, `mr_zero_input`, `mr_monotone`, `mr_dt_halving`,
   `mr_bound_consist`, `mr_scale`. Plus `stress_matrix()` for 2×2 cell
   classification.
+
+## Scorecard structure (standard, all 34 model pages)
+
+Every `docs/models/<name>.html` carries the same 18-row V&V scorecard
+in Panel 5. Auto-derived from CSVs by `docs/scripts/gen_rich.py`'s
+`render_scorecard_table()`. Rows divide into two tiers:
+
+**Tier 1 — Prudence (model survives sanity)**
+- 8 structural tests from `full_audit.csv` cols 12–19:
+  `boundary_adq`, `anomaly_check`, `extreme_eqn`, `mr_zero_input`,
+  `mr_monotone`, `mr_dt_halving`, `mr_bound_consist`, `mr_scale`.
+
+**Tier 2 — Effect claims (cell typology + verdicts)**
+- `rq() single-shot` + gap (from `verdict`)
+- `rq_n N=100 + Cliff's δ / KS` + gap_n + sd0/sd1/ε (from `verdict_n`)
+- `stress(inputs)` count /200 + `stress(params)` count /200
+- `2×2 cell` (universal / process-conditional / world-conditional / fragile)
+
+**Tier 3 — Data-tier prudence (auto from lift CSVs)**
+- `param_plausibility` — count of in_range / at_boundary / out_of_range
+  rows in `boundary_check.csv` for this model. PASS / warn / FAIL.
+- `boundary_adq_data` — PASS iff any lifted value reaches or exceeds
+  declared `[lo, hi]`. warn iff all strictly inside (range not tested
+  at edges). N/A iff no lift rows.
+- `calibrated_rq_rerun` — from `calibrated_verdicts.csv`. Reports
+  CONFIRM stable, REFUTE-changed, or N/A (no overridable params).
+- `family_member_coherence` — project count from `lifts.csv`. Sign
+  tally is hand-tuned per model; only `brooks.html` carries a sign
+  count today.
+- `behavior_reproduction` — `not run` globally; needs monthly historical
+  ground-truth vs sim trajectory.
+
+Model pages without lifts (e.g. `aiwork`, `burnout`, `aidebt`,
+`teamtopo`, `flaky`, `micro`, `sir`, `diapers`) display `N/A · no
+lift rows` honestly on the data-tier rows. This makes the "structurally
+absent data category" finding visible at scorecard glance.
+
+Two pages are hand-tuned (`manual=True` in `gen_rich.py`):
+- `brooks.html` — full hand-written prose throughout; data-tier rows
+  conform to the same 5-row schema.
+- `diapers.html` — toy demonstrator; no lift relevance.
 - `full_audit.py` — runs the stress matrix + 9-test bank across all 34
   models. Writes `outputs/full_audit.csv`.
 - `calibrate.py` — CSV-anchored verdicts. Reads `outputs/lift_<model>_<project>.csv`,

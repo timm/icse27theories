@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Little's law says that for any stable queueing system, the long-run average number of items in the system (L) equals the long-run average arrival rate (λ) times the long-run average time an item spends in the system (W). Carried into software, it predicts that work-in-progress, throughput, and cycle time are tied: you cannot push more work through faster by adding WIP unless cycle time stays bounded.</p>
-    <p>The MYTHS framing treats Little's law as a sanity-check baseline: any process model that violates L = λW is internally inconsistent. Most agile guidance (limit WIP, reduce batch size) is a corollary. The model in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L859" target="_blank" rel="noopener"><code>paper/sd.py:little</code></a> tracks WIP, arrival, and Done over a fixed horizon and rejects any control regime that produces inconsistent triplets.</p>
+    <p>The MYTHS framing treats Little's law as a sanity-check baseline: any process model that violates L = λW is internally inconsistent. Most agile guidance (limit WIP, reduce batch size) is a corollary. The model in <code>models/sd.py:little</code> tracks WIP, arrival, and Done over a fixed horizon and rejects any control regime that produces inconsistent triplets.</p>
     <p class="dim"><em>Intuition</em>: Halve cycle time, and either WIP halves or throughput doubles. Double WIP without faster service, and cycle time doubles — Done is unchanged in steady-state.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative throughput at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def little():
   &quot;&quot;&quot;Little (1961) &quot;A Proof for the Queuing Formula L = λW.&quot;
   Queueing identity: long-run WIP = throughput * cycle_time. Acts as
@@ -114,7 +114,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from a GitHub PR stream (or JIRA issue history) compute arrival rate (new items / week), throughput (closed items / week), and WIP (open items at end of week). Independent triplets per project per quarter; fit L vs λ·W and check residuals.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from a GitHub PR stream (or JIRA issue history) compute arrival rate (new items / week), throughput (closed items / week), and WIP (open items at end of week). Independent triplets per project per quarter; fit L vs λ·W and check residuals.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -151,6 +151,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">145/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

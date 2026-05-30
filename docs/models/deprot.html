@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Decan-Mens-Constantinou studied the npm ecosystem and found a systematic delay between vulnerability disclosure and dependent project updates — and that the delay grows as projects accumulate stale dependencies. Each stale dep is a vulnerability surface waiting to bite.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1307" target="_blank" rel="noopener"><code>paper/sd.py:deprot</code></a> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
+    <p>The SD form in <code>models/sd.py:deprot</code> tracks Deps, Stale (fraction not updated this period), and Vulns (newly-disclosed CVEs against Stale deps). The controlled lever is update_rate — how aggressively the project refreshes its dependencies.</p>
     <p class="dim"><em>Intuition</em>: Pin your deps and skip updates for two years; sit on a known-CVE library. The fix isn't free (updates break things), but the cost of not updating accumulates exponentially.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Vulns at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def deprot():
   &quot;&quot;&quot;Decan, Mens, Constantinou (2018) &quot;On the impact of security
   vulnerabilities in the npm package dependency network.&quot; Stale deps
@@ -123,7 +123,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog, identify dependency-manifest files (pom.xml, requirements.txt, package.json, Cargo.toml). For each release tag, extract the dep versions. Compute update_rate = fraction of deps with version change in each release window. Optionally cross-reference NVD/OSV for exposed CVEs.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog, identify dependency-manifest files (pom.xml, requirements.txt, package.json, Cargo.toml). For each release tag, extract the dep versions. Compute update_rate = fraction of deps with version change in each release window. Optionally cross-reference NVD/OSV for exposed CVEs.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -160,6 +160,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">190/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

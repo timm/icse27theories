@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def brooksq():
   &quot;&quot;&quot;Brooks [1] + Madachy [7]: late hires hurt quality-adjusted progress.
   RQ: boost=10 hurts y = Done - 5*Esc.&quot;&quot;&quot;
@@ -220,6 +220,12 @@ kable(out)</code></pre>
 <tr><td><code>stress(inputs)</code></td><td><span class="bad">6/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="bad">80/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="bad">fragile</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="bad">FAIL &middot; 10/16 out_of_range, 0 at_boundary, 6 in_range</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="ok">PASS &middot; lifted values reach or exceed declared [lo, hi]</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="ok">CONFIRM &middot; verdict stable under Helix-calibrated init (default=CONFIRM)</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">8 projects lifted <span class='dim'>(sign tally not auto-computed)</span></span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>known boundary violation</span><code>brooksq.leak_rate hi = 0.5</code> is exceeded on every lifted project except kaiaulu (the smallest sample). Median ≈ 0.71. The model's bound was set at small-project scale; mature OSS routinely has &gt;70% of bug-fixes lagging the introduction by &gt;30 days. F1 in <code>findings.md</code>.</div>
   </div>

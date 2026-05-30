@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Meyer-Fritz-Murphy-Zimmermann surveyed developers about productivity and found that high task-switching is one of the most cited frustrations. Weinberg's Quality Software Management put a similar argument structurally: every context switch costs ramp-up time, and the cost scales with the diversity of work pulled.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1405" target="_blank" rel="noopener"><code>paper/sd.py:ctxswitch</code></a> takes Devs, work_per_dev, and diversity (number of distinct modules a typical dev touches per period). Effective throughput per dev = work_per_dev / (1 + 0.4·(diversity − 1)). The controlled lever is diversity.</p>
+    <p>The SD form in <code>models/sd.py:ctxswitch</code> takes Devs, work_per_dev, and diversity (number of distinct modules a typical dev touches per period). Effective throughput per dev = work_per_dev / (1 + 0.4·(diversity − 1)). The controlled lever is diversity.</p>
     <p class="dim"><em>Intuition</em>: A dev touching 8 modules per day spends a third of their time on remembering where they were. A dev touching 2 modules per day spends ~5%. The 0.4 coefficient in the model is Weinberg's rough estimate.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Cumulative Done at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def ctxswitch():
   &quot;&quot;&quot;Weinberg (Quality Software Management, 1992) + Meyer, Fritz,
   Murphy, Zimmermann (2014 FSE &quot;developers&#x27; perceptions of
@@ -111,7 +111,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog, compute per-developer per-day a diversity index = number of distinct files touched in that day. Average across developers for a per-project diversity time-series. Correlate with commits-closed-per-day (a Done proxy).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog, compute per-developer per-day a diversity index = number of distinct files touched in that day. Average across developers for a per-project diversity time-series. Correlate with commits-closed-per-day (a Done proxy).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -148,6 +148,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">156/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

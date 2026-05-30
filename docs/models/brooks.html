@@ -552,54 +552,46 @@ compute_velocity_changes &lt;- function(project_git, late_hires,
     test catches the non-linearity, which is the point.
   </div>
 
-  <h3>Data tests <span class="dim">(per project)</span></h3>
+  <h3>Data-tier checks <span class="dim">(auto-derived from CSVs)</span></h3>
+  <p class="dim">
+    Standard 5-row data-tier subtable, identical in schema to the other
+    32 model pages. Values resolved from <code>boundary_check.csv</code>,
+    <code>calibrated_verdicts.csv</code>, and <code>lifts.csv</code>.
+    Brooks's lift output (<code>brooks_tax_median</code>) is a
+    <em>derived velocity-drop metric</em>, not a primitive model
+    parameter &mdash; hence the N/A on three rows. This is itself the
+    paper's methodological finding: Brooks's Law as conventionally
+    modelled is not directly calibratable from velocity lifts; primitive
+    parameters (<code>comm_coef</code>, <code>train_coef</code>) require
+    different measurement.
+  </p>
   <table>
     <thead>
-      <tr>
-        <th>test</th>
-        <th>what it checks</th>
-        <th>helix</th>
-        <th>others</th>
-      </tr>
+      <tr><th>test</th><th>result</th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td><code>param_plausibility</code></td>
-        <td>lifted value within model's [lo, hi]</td>
-        <td><span class="ok">in_range</span></td>
-        <td><span class="ok">in_range</span> all 8</td>
-      </tr>
-      <tr>
-        <td><code>boundary_adq_data</code></td>
-        <td>real-world value spans declared range</td>
-        <td><span class="ok">PASS</span></td>
-        <td><span class="ok">PASS</span> all 8</td>
-      </tr>
-      <tr>
-        <td><code>calibrated_rq_rerun</code></td>
-        <td>verdict survives Helix-calibrated init</td>
-        <td><span class="ok">CONFIRM</span></td>
-        <td><span class="ok">CONFIRM</span> all 8</td>
-      </tr>
-      <tr>
-        <td><code>family_member_coherence</code></td>
-        <td>sign of effect consistent across projects</td>
-        <td colspan="2"><span class="warn">mixed</span> &mdash; 5/8 positive sign with
-            <em>n_hires</em> &geq; 50; 3/8 noisy with small samples (see Pane 6)</td>
-      </tr>
-      <tr>
-        <td><code>behavior_reproduction</code></td>
-        <td>sim trajectory matches historical CSV</td>
-        <td colspan="2"><span class="dim">not run</span> &mdash; requires monthly
-            ground-truth Done/Todo, which gitlog alone cannot supply</td>
-      </tr>
+      <tr><td><code>param_plausibility</code></td>
+          <td><span class="dim">N/A &middot; no lift rows in boundary_check.csv (lift output is derived, not a primitive param)</span></td></tr>
+      <tr><td><code>boundary_adq_data</code></td>
+          <td><span class="dim">N/A &middot; no lift rows in boundary_check.csv</span></td></tr>
+      <tr><td><code>calibrated_rq_rerun</code></td>
+          <td><span class="dim">N/A &middot; default=CONFIRM; no overridable params (comm_coef/train_coef not lifted)</span></td></tr>
+      <tr><td><code>family_member_coherence</code></td>
+          <td><span class="warn">8 projects lifted</span> &middot;
+              6/8 positive sign with <em>n_hires</em> &geq; 50; 2/8 noisy
+              with <em>n_hires</em> &lt; 10 (see Pane 6 table)</td></tr>
+      <tr><td><code>behavior_reproduction</code></td>
+          <td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
     </tbody>
   </table>
 
   <p class="dim">
     All scorecard numbers are reproducible: see
     <code>outputs/full_audit.csv</code>, <code>outputs/boundary_check.csv</code>,
-    <code>outputs/calibrated_verdicts.csv</code> in the repo.
+    <code>outputs/calibrated_verdicts.csv</code>, <code>outputs/lifts.csv</code>
+    in the repo. <code>family_member_coherence</code>'s sign tally for
+    brooks is hand-counted from <code>lifts.csv</code>; the other 32
+    model pages report the project count without the sign tally.
   </p>
 
   </div>

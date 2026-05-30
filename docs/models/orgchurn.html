@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Nagappan-Murphy-Basili showed on Windows Vista development that organisational churn (developer departures, team reorganisations) is a better predictor of post-release defects than code-churn or complexity metrics. The thesis: people leaving carry tacit knowledge with them, and the gaps surface as defects.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1180" target="_blank" rel="noopener"><code>paper/sd.py:orgchurn</code></a> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
+    <p>The SD form in <code>models/sd.py:orgchurn</code> tracks Devs, knowledge (tacit context, depleted by departures), and Bugs (which scale inversely with current knowledge). The controlled lever is churn_rate.</p>
     <p class="dim"><em>Intuition</em>: Lose half your senior devs; halve your effective knowledge base; double your defect rate. The model is not quite that linear but the direction is.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def orgchurn():
   &quot;&quot;&quot;Nagappan, Murphy, Basili (2008 ICSE) on Windows Vista:
   organisational churn (developer departures, team reorgs) is a
@@ -111,7 +111,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from gitlog + identity_match, detect &quot;departure events&quot; — an identity_id whose last commit is &gt; N months before the project's HEAD. Compute the per-quarter departure count. Correlate with the per-quarter SZZ defect rate (lagged by 0, 1, 2 quarters to look for delayed effects).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from gitlog + identity_match, detect &quot;departure events&quot; — an identity_id whose last commit is &gt; N months before the project's HEAD. Compute the per-quarter departure count. Correlate with the per-quarter SZZ defect rate (lagged by 0, 1, 2 quarters to look for delayed effects).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -148,6 +148,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="bad">38/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">197/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="warn">process-conditional</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

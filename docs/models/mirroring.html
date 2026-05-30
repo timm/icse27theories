@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>MacCormack, Baldwin, and Rusnak operationalised Conway's law as a measurable mirror coefficient: the agreement between the design-structure-matrix of the code (who-calls-who) and the design-structure-matrix of the organisation (who-talks-to-who). Their finding: high mirror predicts cleaner modular boundaries and lower defect density.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1135" target="_blank" rel="noopener"><code>paper/sd.py:mirroring</code></a> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.</p>
+    <p>The SD form in <code>models/sd.py:mirroring</code> represents the project as Modules and Teams with a mirror coefficient that controls how cleanly module ownership maps to team membership. Mismatch (low mirror) inflates churn-driven Bugs because cross-team changes are more error-prone.</p>
     <p class="dim"><em>Intuition</em>: If your repo has 20 modules and 5 teams, the cleanest world is 4 modules per team. Half a module owned by two teams means every change there is a coordination event — and coordination events break things.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def mirroring():
   &quot;&quot;&quot;MacCormack, Baldwin, Rusnak (2006 Mgmt Science) operationalised
   Conway&#x27;s law: the code&#x27;s design-structure-matrix (who-calls-who)
@@ -113,7 +113,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: use <code>parse_dependencies</code> (Depends) to build the file DSM. Use <code>parse_gitlog</code> + <code>identity_match</code> to build the developer DSM (who-touches-which-file). Compute MacCormack's mirror coefficient as the cosine similarity (or normalized agreement) between the two DSMs. Repeat per release tag.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: use <code>parse_dependencies</code> (Depends) to build the file DSM. Use <code>parse_gitlog</code> + <code>identity_match</code> to build the developer DSM (who-touches-which-file). Compute MacCormack's mirror coefficient as the cosine similarity (or normalized agreement) between the two DSMs. Repeat per release tag.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -152,6 +152,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">121/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

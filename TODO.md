@@ -120,6 +120,48 @@ Snapshot 2026-05-25. Repo `github.com/timm/icse27theories` @ `main`.
    retry-pattern parser), `testshape` (path-prefix-based test-tier
    classifier).
 
+### Site / docs UX
+
+XX. **Hyperlink scorecard terms to definitions** (deferred 2026-05-29).
+    Bare `<code>extreme_eqn</code>`, `mr_*`, `boundary_adq`,
+    `anomaly_check`, `stress_matrix cell`, `rq()`, `rq_n`,
+    `verdict_n`, `gap_n`, `Cliff's δ / KS` etc. in all 34
+    scorecard panels have no link. Do:
+    - **A. Build `docs/glossary.html`** — one anchor per term;
+      content = formal def + Sterman/F&S/Chen citation + link to
+      `paper/tests.py` def line. Single source of truth.
+    - **B. Add `<abbr title="…">` tooltips** for hover preview on
+      each term in scorecard tables; click goes to glossary anchor.
+    - Scope: 8 structural tests + verdict/stress family
+      (`rq`, `rq_n`, `verdict`, `verdict_n`, `stress(inputs)`,
+      `stress(params)`, `stress_matrix cell`) + stats primitives
+      (`Cliff's δ`, `KS`, `median ε`, `gap`, `gap_n`,
+      `inp_cnt`, `par_cnt`).
+    - Rollout: write rewriter that finds `<code>NAME</code>` in
+      `docs/models/*.html` scorecard panels, wraps with `<a>`+`<abbr>`.
+      Bake into `gen_rich.py` for regenerated pages; one-shot patch
+      for `brooks.html` (manual).
+
+### Audit coverage gaps (deferred 2026-05-29)
+
+YY. **audit_staleness.py misses prose-embedded lift stats**.
+    Currently checks: cell label, inp_cnt/par_cnt, badge counts,
+    typology totals, model count. Does NOT check summary statistics
+    in page prose that are computed from `lifts.csv`.
+    Concrete miss: `brooks.html` Panel 5 row `family_member_coherence`
+    says "5/8 positive sign with n_hires ≥ 50; 3/8 noisy with small
+    samples". Current lifts.csv gives 6/8 + 2/8 (tomcat n_hires=50
+    crosses the threshold). Same drift on Panel 6 line 636
+    ("5 of 8 cases, all five").
+    Extend `paper/scripts/audit_staleness.py` to:
+    - parse prose patterns like `N/M positive sign`, `N of M cases`,
+      `N/M show <X>`
+    - recompute from lifts.csv per-model
+    - flag mismatch
+    Also similar prose-embedded counts on other model pages — sweep
+    all 34 docs/models/*.html for `\d+/\d+` and `\d+ of \d+` patterns
+    that reference lift quantities (sign, threshold, magnitude).
+
 ### Methodology gaps
 7. **Widen `models/sd.py` bounds** per F0:
    `brooksq.leak_rate hi 0.5→1.0`,

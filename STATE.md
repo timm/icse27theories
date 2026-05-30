@@ -178,3 +178,35 @@ Depends 0.9.7, git-filter-repo 2.47.0, networkx + python-louvain.
 **Key docs**: `findings.md` (paper-relevant observations),
 `TIMETABLE.md` (per-model hours), `sanity.md` (per-cell sanity
 status), `diary/` (collaborator email archive), `outputs/` (raw CSVs).
+
+---
+
+## Update 2026-05-29 — scorecard data-tier rows standardised
+
+**Scorecard schema unified across all 34 model pages.** Previously
+only `brooks.html` (hand-tuned) carried the 5 data-tier prudence rows
+(`param_plausibility`, `boundary_adq_data`, `calibrated_rq_rerun`,
+`family_member_coherence`, `behavior_reproduction`). The other 33
+auto-generated pages showed only structural + effect rows.
+
+Today's change to `docs/scripts/gen_rich.py::render_scorecard_table`
+appends those 5 rows auto-derived from `boundary_check.csv`,
+`calibrated_verdicts.csv`, and `lifts.csv`. Brooks's hand-tuned
+data-tier subtable was rewritten to the same 2-column schema for
+uniformity.
+
+**Why this matters**: F0 boundary-adequacy violations (archpat.Legacy
+out_of_range on Helix + Ambari, brooksq.leak_rate out_of_range on
+10/16, learn.Jr out_of_range on 3/38) now surface at scorecard glance
+on every page rather than only via prose callouts on selected pages.
+
+**Models without lift data** (aiwork, aidebt, burnout, teamtopo,
+flaky, micro, sir, diapers) display honest `N/A · no lift rows` on
+each data-tier row — making the "structurally absent data category"
+finding visible at scorecard level.
+
+Schema documented in `paper/MODELS_README.md` under "Scorecard
+structure". Total scorecard now 18 rows per page (8 structural prudence
++ 4 effect + 1 cell + 5 data-tier).
+
+Both gates (audit_staleness.py, check_pages.py) pass after the change.

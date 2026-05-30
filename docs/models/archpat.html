@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def archpat():
   &quot;&quot;&quot;Architectural patterns as repair: Martin Clean Arch [16] + Perry-Wolf [17].
   
@@ -236,6 +236,12 @@ kable(out)</code></pre>
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">129/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">122/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="bad">FAIL &middot; 3/4 out_of_range, 0 at_boundary, 1 in_range</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="ok">PASS &middot; lifted values reach or exceed declared [lo, hi]</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="ok">CONFIRM &middot; verdict stable under Helix-calibrated init (default=CONFIRM)</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">2 projects lifted <span class='dim'>(sign tally not auto-computed)</span></span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>boundary violations</span>archpat.Legacy_n hi=200 is exceeded on both lifted projects: Helix 384, Ambari 1890. archpat.Patterned_n hi=200 also exceeded on Ambari (381). The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files in each partition.</div>
   </div>

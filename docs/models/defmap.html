@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def defmap():
   &quot;&quot;&quot;Abdel-Hamid &amp; Madnick [5] defect submodel.
   RQ: tst 2.5 -&gt; 0.5 balloons operational defects.&quot;&quot;&quot;
@@ -173,6 +173,12 @@ kable(out)</code></pre>
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">156/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">163/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; default=CONFIRM; no overridable params</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">8 projects lifted <span class='dim'>(sign tally not auto-computed)</span></span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     <p>All 8 structural tests PASS. Cell typology is robust (universal).</p>
   </div>

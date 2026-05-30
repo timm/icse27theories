@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Raymond's bazaar argument — &quot;given enough eyeballs, all bugs are shallow&quot; — became Linus's law in popular framing. Mockus-Fielding-Herbsleb's empirical study of Apache and Mozilla put a peer-reviewed footing under the claim: code reviewed by multiple committers had measurably lower defect recurrence.</p>
-    <p>The MYTHS form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1087" target="_blank" rel="noopener"><code>paper/sd.py:linus</code></a> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
+    <p>The MYTHS form in <code>models/sd.py:linus</code> tracks Open issues, Reviewed (drained by review_rate), and Recurring (defects that re-appear after fix because review missed them). High review_rate funnels Open into Reviewed; low review_rate inflates Recurring through the recur_rate term.</p>
     <p class="dim"><em>Intuition</em>: Five reviewers means a high chance any given bug pattern is recognised. One reviewer means the bug recurs in a sister module. Doubling reviewers doesn't halve recurrence, but the gradient is real.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Reviewed minus 3·Recurring at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def linus():
   &quot;&quot;&quot;Raymond (1999) &quot;Cathedral and the Bazaar&quot; + Mockus, Fielding,
   Herbsleb (2002 ACM TOSEM): &quot;given enough eyeballs, all bugs are
@@ -116,7 +116,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: from GitHub PR data, compute per-PR reviewer count and review-comment count. Map each merged PR to its later SZZ-tagged bug-introducing commit (if any). Test whether PRs with &ge; 2 reviewers have a lower rate of producing bug-introducing commits than PRs with &le; 1 reviewer.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: from GitHub PR data, compute per-PR reviewer count and review-comment count. Map each merged PR to its later SZZ-tagged bug-introducing commit (if any). Test whether PRs with &ge; 2 reviewers have a lower rate of producing bug-introducing commits than PRs with &le; 1 reviewer.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -153,6 +153,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">111/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

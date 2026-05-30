@@ -46,8 +46,38 @@ def load_audit():
     return {row["model"]: row for row in csv.DictReader(p.open())}
 
 
-CP    = load_cross_project()
-AUDIT = load_audit()
+def load_boundary_check():
+    p = ROOT / "paper/outputs/boundary_check.csv"
+    if not p.exists():
+        return {}
+    out = {}
+    for row in csv.DictReader(p.open()):
+        out.setdefault(row["model"], []).append(row)
+    return out
+
+
+def load_calibrated_verdicts():
+    p = ROOT / "paper/outputs/calibrated_verdicts.csv"
+    if not p.exists():
+        return {}
+    return {row["model"]: row for row in csv.DictReader(p.open())}
+
+
+def load_lifts():
+    p = ROOT / "paper/outputs/lifts.csv"
+    if not p.exists():
+        return {}
+    out = {}
+    for row in csv.DictReader(p.open()):
+        out.setdefault(row["model"], []).append(row)
+    return out
+
+
+CP       = load_cross_project()
+AUDIT    = load_audit()
+BOUNDARY = load_boundary_check()
+CALIB    = load_calibrated_verdicts()
+LIFTS    = load_lifts()
 
 
 # --- per-model rich content ---
@@ -1672,6 +1702,81 @@ def render_scorecard_table(name):
     out.append(f'<tr><td><code>2&times;2 cell</code></td>'
                f'<td><span class="{cell_cls}">{cell}</span> '
                f'<span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>')
+
+    # --- data-tier prudence rows (auto-derived from CSVs) ---
+    out.append('<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>')
+
+    # param_plausibility — count statuses in boundary_check.csv
+    bc_rows = BOUNDARY.get(name, [])
+    if not bc_rows:
+        pp_cls, pp_txt = "dim", "N/A &middot; no lift rows"
+    else:
+        n_in   = sum(1 for r in bc_rows if r["status"] == "in_range")
+        n_at   = sum(1 for r in bc_rows if r["status"] == "at_boundary")
+        n_out  = sum(1 for r in bc_rows if r["status"] == "out_of_range")
+        n_tot  = len(bc_rows)
+        if n_out:
+            pp_cls = "bad"
+            pp_txt = f"FAIL &middot; {n_out}/{n_tot} out_of_range, {n_at} at_boundary, {n_in} in_range"
+        elif n_at:
+            pp_cls = "warn"
+            pp_txt = f"warn &middot; {n_at}/{n_tot} at_boundary, {n_in} in_range"
+        else:
+            pp_cls = "ok"
+            pp_txt = f"PASS &middot; {n_in}/{n_tot} in_range"
+    out.append(f'<tr><td><code>param_plausibility</code></td>'
+               f'<td><span class="{pp_cls}">{pp_txt}</span></td></tr>')
+
+    # boundary_adq_data — does real-world value span declared range?
+    # PASS iff any out_of_range or at_boundary row exists (range was tested at its edge or beyond).
+    if not bc_rows:
+        ba_cls, ba_txt = "dim", "N/A &middot; no lift rows"
+    elif any(r["status"] in ("at_boundary","out_of_range") for r in bc_rows):
+        ba_cls, ba_txt = "ok", "PASS &middot; lifted values reach or exceed declared [lo, hi]"
+    else:
+        ba_cls = "warn"
+        ba_txt = "warn &middot; all lifted values strictly inside [lo, hi]; range not tested at edges"
+    out.append(f'<tr><td><code>boundary_adq_data</code></td>'
+               f'<td><span class="{ba_cls}">{ba_txt}</span></td></tr>')
+
+    # calibrated_rq_rerun — from calibrated_verdicts.csv
+    cv = CALIB.get(name)
+    if not cv:
+        cv_cls, cv_txt = "dim", "N/A &middot; model not in calibrate.py"
+    else:
+        dv, cvv = cv.get("default_verdict",""), cv.get("calib_verdict","")
+        changes = cv.get("changes_verdict","")
+        notes   = cv.get("notes","")
+        no_calib = "no calib applied" in notes
+        if no_calib:
+            cv_cls = "dim"
+            cv_txt = f"N/A &middot; default={dv}; no overridable params"
+        elif changes == "False":
+            cv_cls = "ok" if cvv == "CONFIRM" else "warn"
+            cv_txt = f"{cvv} &middot; verdict stable under Helix-calibrated init (default={dv})"
+        else:
+            cv_cls = "warn"
+            cv_txt = f"{cvv} &middot; verdict changed from default={dv}"
+    out.append(f'<tr><td><code>calibrated_rq_rerun</code></td>'
+               f'<td><span class="{cv_cls}">{cv_txt}</span></td></tr>')
+
+    # family_member_coherence — count projects in lifts.csv (sign analysis is hand-tuned per model)
+    lf_rows = LIFTS.get(name, [])
+    if not lf_rows:
+        fc_cls, fc_txt = "dim", "N/A &middot; no lift rows"
+    else:
+        projs = {r["project"] for r in lf_rows}
+        fc_cls = "dim"
+        fc_txt = (f"{len(projs)} projects lifted "
+                  f"<span class='dim'>(sign tally not auto-computed)</span>")
+    out.append(f'<tr><td><code>family_member_coherence</code></td>'
+               f'<td><span class="{fc_cls}">{fc_txt}</span></td></tr>')
+
+    # behavior_reproduction — globally not run
+    out.append('<tr><td><code>behavior_reproduction</code></td>'
+               '<td><span class="dim">not run</span> &middot; '
+               'requires monthly historical CSV vs sim trajectory</td></tr>')
+
     out.append('</tbody></table>')
     return "\n".join(out)
 

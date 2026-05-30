@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def bugs():
   &quot;&quot;&quot;Goel-Okumoto [2]: exponential reliability growth.
   RQ: 2x initial Latent -&gt; ~2x eventual Fixed (linearity of recovery).&quot;&quot;&quot;
@@ -208,6 +208,12 @@ kable(out)</code></pre>
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">130/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">3 projects lifted <span class='dim'>(sign tally not auto-computed)</span></span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     <div class='callout'><span class='label'>note</span>The <code>mr_scale</code> test PASSES — and that PASS IS the rq() thesis. The integral is linear in Latent, so doubling Latent doubles Fixed by construction. The test catches the linearity, which is the point of the model.</div>
   </div>

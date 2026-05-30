@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Boehm's cost-of-change curve is the most cited bar chart in software engineering: catching a bug in requirements costs $1, in coding $10, in test $100, in release $1000. The literal numbers are dated and have been contested in agile contexts (Beck/Cockburn pushback), but the structural claim — fix-cost rises super-linearly with discovery latency — holds in most modern datasets too.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L994" target="_blank" rel="noopener"><code>paper/sd.py:costchange</code></a> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.</p>
+    <p>The SD form in <code>models/sd.py:costchange</code> splits incoming Bugs into early-catch and late-catch, charges each at cost_early and cost_late respectively, and integrates total Cost over the horizon. The controlled lever is catch_early — the fraction of defects caught in the cheap phase.</p>
     <p class="dim"><em>Intuition</em>: Push catch to release and total cost explodes. Push catch to coding/test and total cost stays linear in defect count. The exponent is the cost ratio late/early.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative cumulative cost at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def costchange():
   &quot;&quot;&quot;Boehm (1981) &quot;Software Engineering Economics&quot; cost-of-change
   curve: a bug costs ~$1 in requirements, ~$10 in coding, ~$100 in
@@ -113,7 +113,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: use SZZ-tagged bug pairs to compute the time between bug-introduction commit and bug-fix commit. Bucket fixes into early (&lt; 30 days), mid (30–180 days), late (&gt; 180 days). For Cost proxy, use lines-changed in the fix commit (large change = late detection = expensive). Compute ratio mid_cost / early_cost and late_cost / early_cost per project.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: use SZZ-tagged bug pairs to compute the time between bug-introduction commit and bug-fix commit. Bucket fixes into early (&lt; 30 days), mid (30–180 days), late (&gt; 180 days). For Cost proxy, use lines-changed in the fix commit (large change = late detection = expensive). Compute ratio mid_cost / early_cost and late_cost / early_cost per project.</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -150,6 +150,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="ok">183/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">200/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>

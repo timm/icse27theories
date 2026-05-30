@@ -50,7 +50,7 @@
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
     <p>Fenton-Ohlsson and Ostrand-Weyuker independently observed that ~20% of modules in large software systems carry ~80% of the defects, and that the hotspot set persists across releases. The empirical regularity has been replicated dozens of times since.</p>
-    <p>The SD form in <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py#L1039" target="_blank" rel="noopener"><code>paper/sd.py:pareto</code></a> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.</p>
+    <p>The SD form in <code>models/sd.py:pareto</code> partitions Modules into Hot and Cold with different bug-introduction rates and tests whether allocating fix-effort proportionally to Hot's defect density (fix_share_hot) reduces total Bugs. The model assumes hot-fixes are more cost-effective than cold-fixes per unit effort.</p>
     <p class="dim"><em>Intuition</em>: If you have 10 hotspot modules and 90 cold ones, fixing one hotspot kills 10x as many bugs as fixing one cold module. Spreading fix effort uniformly wastes most of it.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
     <p><strong>Negative Bugs at <code>tmax</code>.</strong></p>
@@ -64,7 +64,7 @@
 
   <div id="panel-2" class="tab-content">
     <h2>The SD model</h2>
-    <p>From <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>:</p>
+    <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def pareto():
   &quot;&quot;&quot;Fenton &amp; Ohlsson (2000 IEEE TSE) + Ostrand &amp; Weyuker (2002 ISSTA):
   ~20% of modules carry ~80% of defects, and that hotspot set persists
@@ -116,7 +116,7 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lift recipe: use SZZ-tagged bugs to compute per-file bug count over the project history. Rank files by bug count, mark the top 20% as Hot. Test (a) does Hot account for &gt; 60% of all bugs (the Pareto claim); (b) is the Hot set stable across the first and second half of the history (the persistence claim).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <a class="src-link" href="https://github.com/timm/icse27theories/blob/main/paper/sd.py" target="_blank" rel="noopener"><code>paper/sd.py</code></a>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
+    <p>Lift recipe: use SZZ-tagged bugs to compute per-file bug count over the project history. Rank files by bug count, mark the top 20% as Hot. Test (a) does Hot account for &gt; 60% of all bugs (the Pareto claim); (b) is the Hot set stable across the first and second half of the history (the persistence claim).</p><div class='callout'><span class='label'>lift status</span>SD model defined and stress-typed (see <code>models/sd.py</code>). Lift recipe specified below — pipeline ingredients (gitlog parser, SZZ pairs, identity match, etc.) all already on disk for the family. Full per-project run is the next pass; this page documents the model + recipe so a reviewer can audit both before numbers land.</div>
     
   </div>
 
@@ -154,6 +154,12 @@
 <tr><td><code>stress(inputs)</code></td><td><span class="bad">69/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
 <tr><td><code>stress(params)</code></td><td><span class="ok">198/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
 <tr><td><code>2&times;2 cell</code></td><td><span class="warn">process-conditional</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
 </tbody></table>
     
   </div>
