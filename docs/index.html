@@ -25,7 +25,7 @@
 
 <main>
 
-<h1>MYTHS<span class="tag">34 models</span></h1>
+<h1>MYTHS<span class="tag">35 models</span></h1>
 <p class="sub-title">
   A test-bench for SE theories cast as compartmental system-dynamics
   models. Each model is a falsifiable conjecture; each is hit by a
@@ -37,7 +37,7 @@
 <h2 id="findings">Headline findings</h2>
 <ul>
   <li><strong>F0 — Most published SE theses do not survive proper stats.</strong>
-      Of 34 modelled theses, only <strong>13 produce a CONFIRM verdict</strong>
+      Of 35 modelled theses, only <strong>13 produce a CONFIRM verdict</strong>
       under N=100 perturbation + stats.same (Cliff's &delta; 0.195 + KS conf 1.36
       + median-&epsilon; 0.35&sigma;). 19 dissolve to neutral; 1 flips to REFUTE.
       The single-shot threshold heuristic was hiding noise as signal.</li>
@@ -77,7 +77,7 @@
     <tr><th>cell</th><th>meaning</th><th class="num">count</th><th>members</th></tr>
   </thead>
   <tbody>
-    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">22</td><td class="mono dim">aiwork, archpat, bugs, burnout, congruence, costchange, ctxswitch, debt, defmap, deprot, dora, entropy, flaky, learn, linus, little, mirroring, ossfail, ownership, rework, sir, teamtopo</td></tr>
+    <tr><td><span class="ok">universal</span></td><td>robust to both input and parameter perturbation</td><td class="num">23</td><td class="mono dim">aiwork, archpat, bugs, burnout, congruence, congruence_motif, costchange, ctxswitch, debt, defmap, deprot, dora, entropy, flaky, learn, linus, little, mirroring, ossfail, ownership, rework, sir, teamtopo</td></tr>
     <tr><td><span class="warn">process-cond.</span></td><td>robust to inputs, fragile to params</td><td class="num">7</td><td class="mono dim">diapers, limits, maturity, micro, orgchurn, pareto, successful</td></tr>
     <tr><td><span class="bad">fragile</span></td><td>sensitive to both</td><td class="num">4</td><td class="mono dim">brooks, brooksq, coordn2, scope</td></tr>
     <tr><td><span class="world">world-cond.</span></td><td>robust to params, fragile to inputs</td><td class="num">1</td><td class="mono dim">aidebt (regime crossover at t&asymp;26)</td></tr>
@@ -91,7 +91,7 @@
 
 <div class="callout">
   <span class="label">scope</span>
-  All 34 model pages below are built. Click any card. Dim cards are
+  All 35 model pages below are built. Click any card. Dim cards are
   <em>structurally dark</em> — the model is defined but no open
   dataset can calibrate it. Order: the toy demonstrator first, then
   the rest by year (most recent first).
@@ -186,8 +186,14 @@
 
   <a class="card universal" href="models/congruence.html">
     <div class="name">congruence <span class="dim" style="font-weight:400;">(2008)</span></div>
-    <div class="desc">Newman / radio-silence: brokers hold fragmented projects together.</div>
+    <div class="desc">Newman / radio-silence: brokers hold fragmented projects together. <em>Smells-based variant.</em></div>
     <div class="meta"><span class="badge">universal</span><span>lifted 3/8</span></div>
+  </a>
+
+  <a class="card universal" href="models/congruence_motif.html">
+    <div class="name">congruence_motif <span class="dim" style="font-weight:400;">(2022)</span></div>
+    <div class="desc">Mauerer et al. STC: anti-motifs (no-comm co-touch) predict defects. <em>Motif-based companion to congruence.</em></div>
+    <div class="meta"><span class="badge">universal</span><span>pipeline ready</span></div>
   </a>
 
   <a class="card universal" href="models/mirroring.html">

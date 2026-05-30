@@ -21,7 +21,9 @@ from sd import (diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
                 orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
                 successful,
                 # 1 added 2026-05-26 per domain-expert request:
-                maturity)
+                maturity,
+                # 1 added 2026-05-25 per Carlos GH #3 (motif-based STC):
+                congruence_motif)
 from tests import (boundary_adq, anomaly_check, extreme_eqn,
                    mr_zero_input, mr_monotone, mr_dt_halving,
                    mr_bound_consist, mr_scale, stress_matrix)
@@ -29,7 +31,7 @@ from tests import (boundary_adq, anomaly_check, extreme_eqn,
 
 MODELS = [diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
           defmap, aiwork, flaky, dora, micro, teamtopo, burnout, aidebt,
-          archpat, congruence,
+          archpat, congruence, congruence_motif,
           little, coordn2, entropy, costchange, pareto, linus, mirroring,
           orgchurn, ownership, ossfail, deprot, scope, ctxswitch, limits,
           successful, maturity]

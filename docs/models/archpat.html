@@ -136,7 +136,21 @@
 
   <div id="panel-3" class="tab-content">
     <h2>Data lift</h2>
-    <p>Lifted via the heaviest pipeline in the framework: <strong>Maven compile</strong> → <strong>pattern4 CLI</strong> → <strong>parse_pattern4_xml.py</strong> → <strong>R archpat lift</strong>. Each step is independent and re-runnable. Discovery during this lift: pattern4.jar IS CLI-callable despite its GUI-default manifest — see the memory note in the repo (<code>reference_pattern4_gotcha.md</code>).</p><p>Full notebook: <code>lifts/lift_archpat.Rmd</code>. Companion fallback: Arcan smell detector (open source) if pattern4 setup is blocked.</p>
+    <p>Lifted via the heaviest pipeline in the framework. Full chain mirrors the kaiaulu vignette <code>vignettes/archpat_gof_pattern_partition.Rmd</code>:</p>
+<pre><code>Legacy ──migrate──&gt; Patterned ──decay_rate──&gt; Drift ──drift_to_legacy──&gt; Legacy
+            (effort applied)     (Perry-Wolf erosion)</code></pre>
+<p><strong>Six-step method</strong>:</p>
+<ol>
+  <li><code>mvn compile -pl &lt;module&gt; -am -DskipTests</code> — produces <code>.class</code> files in <code>target/classes/</code>. Multi-minute side effect; run externally before knitting.</li>
+  <li><code>java -jar pattern4.jar -target &lt;classes&gt; -output &lt;xml&gt;</code> — detects 23 GoF patterns per class.</li>
+  <li><code>parse_pattern4_xml.py &lt;pattern4-dir&gt;</code> — emits <code>patterned_files.csv</code> with <code>file_pathname, pattern_type, role, module</code> columns. Kaiaulu offers <code>parse_gof_patterns()</code> for reading existing XML output.</li>
+  <li><strong>Bug-frequency signal</strong>: SZZ-introducing-commits touching each file (B-SZZ via PyDriller). Kaiaulu-native alternative is <code>parse_jira()</code> Bug-type filter when a complete JIRA dump exists.</li>
+  <li><strong>File-churn signal</strong>: <code>compute_file_churn()</code> over a 180-day window.</li>
+  <li>Assign each <code>.java</code> file to <code>{Patterned, Legacy, Drift, Other}</code> via <code>assign_file_partition()</code> with <code>legacy_bug_threshold=3</code>, <code>drift_churn_threshold=0.5</code>.</li>
+</ol>
+<p><strong>Pattern4 invocation gotcha</strong>: <code>pattern4.jar</code> declares <code>Main-Class: gr.uom.java.pattern.gui.MatrixFrame</code> which opens a Swing GUI on <code>java -jar pattern4.jar</code> with no args. <code>MatrixFrame.main(args)</code> dispatches to a batch-mode <code>Console</code> when called as <code>java -Xmx2g -jar pattern4.jar -target &lt;classes-dir&gt; -output &lt;xml&gt;</code>. The GUI path is taken only when no recognised switches appear. See <code>reference_pattern4_gotcha.md</code> in the project memory.</p>
+<p><strong>Fallback path</strong>: where pattern4 is unavailable, Arcan (Arcelli Fontana et al. 2017) produces structural-smell output with the same <code>(file, smell_type, smell_id)</code> shape. Partition logic is detector-agnostic. Smells ≠ GoF patterns semantically — document the substitution in any downstream comparison.</p>
+<p>Full notebook: <code>lifts/lift_archpat.Rmd</code>. Carlos's PR-style vignette: <a href="https://github.com/timm/kaiaulu/blob/master/vignettes/archpat_gof_pattern_partition.Rmd"><code>kaiaulu/vignettes/archpat_gof_pattern_partition.Rmd</code></a>.</p>
     <pre><code class="language-r">rm(list = ls())
 seed &lt;- 1
 set.seed(seed)</code></pre>
@@ -248,7 +262,7 @@ kable(out)</code></pre>
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>Lifted on Helix (1985 files) and Ambari (6600 files). junit5 attempted but blocked by Gradle JDK 25 toolchain mismatch.</p>
+    <p><strong>Verdict on Helix</strong>: Helix's partition is <strong>~6.5% Patterned (149 files), ~19% Legacy (384 files), 0 Drift, ~74% Other</strong>. Helix's bigger Legacy stock means more headroom for the <code>migrate</code> control to move files into the Patterned bucket; a downstream SD verdict pipeline that consumes these stocks therefore reports a larger thesis-gap than its defaults predict.<br/><br/>Drift = 0 because no file passes the 0.5 churn threshold in the recent 180-day window — Helix is a mature, stable codebase. Same pattern holds on Ambari.<br/><br/>Lifted on Helix (1985 files) and Ambari (6600 files). junit5 attempted but blocked by Gradle JDK 25 toolchain mismatch; camel attempted but blocked by Maven dep resolution on Java 26.</p>
     <table><thead><tr>
 <th>project</th>
 <th>Patterned</th>
@@ -274,7 +288,7 @@ kable(out)</code></pre>
 <td class="mono">6600</td>
 </tr>
 </tbody></table>
-    <p>Helix and Ambari both have far more Legacy than the model's hi=200 anticipates. Calibrated rq() gap widens from +229 to +390 with Helix's larger Legacy — more legacy means more headroom for the migrate parameter to act, which strengthens the thesis. Drift is 0 in both projects because the churn threshold isn't met by any file in a recent 180-day window — both projects are mature enough that no file is actively drifting.</p>
+    <p><strong>Boundary-adequacy finding</strong>: Both projects produce Legacy counts well above 200; for downstream SD models with a Legacy-stock upper bound of 200, the empirical counts trigger boundary-clipping during simulation. Ambari's Legacy at 1890 is 9.5× the declared <code>hi</code>; helix's 384 is 1.9× over. The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files per partition. TODO 7a (in <code>TODO.md</code>) proposes widening to <code>Patterned hi=1000, Legacy hi=3000</code> based on a 1.5× headroom over Ambari's observed max.<br/><br/><strong>Calibrated rq() shift</strong>: calibrated gap widens from +229 to +390 with Helix's larger Legacy — more legacy means more headroom for the <code>migrate</code> parameter to act, which strengthens the thesis. Counter-intuitive: more degraded projects show STRONGER apparent thesis support, because the model has more material to migrate. Reviewers should not conflate "thesis strengthened" with "project healthier."<br/><br/><strong>Drift = 0</strong> in both projects because the churn threshold isn't met by any file in a recent 180-day window — both projects are mature enough that no file is actively drifting. A snapshot test on a younger project (e.g. orgchurn data set) would likely populate Drift.</p>
     <h3>Implications</h3>
     <ul>
     <li><strong>F0 contribution</strong>: archpat's two boundary violations (Legacy + Patterned) anchor two of the five F0 violations.</li>
@@ -297,9 +311,12 @@ kable(out)</code></pre>
 
 <h2>References</h2>
 <table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/design-patterns-elements-of-reusable-object-oriented-software/P200000009480" target="_blank" rel="noopener">Gamma, E., Helm, R., Johnson, R., &amp; Vlissides, J. (1994). <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Addison-Wesley.</a></td><td><span class="warn">book</span></td></tr>
 <tr><td><a href="https://doi.org/10.1145/141874.141884" target="_blank" rel="noopener">Perry, D. E., &amp; Wolf, A. L. (1992). Foundations for the Study of Software Architecture. <em>ACM SIGSOFT SEN</em> 17(4):40–52.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1145/3180155.3180206" target="_blank" rel="noopener">Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
-<tr><td><a href="https://doi.org/10.1109/TSE.2009.1" target="_blank" rel="noopener">Tsantalis, N., &amp; Chatzigeorgiou, A. (2009). Identification of Move Method Refactoring Opportunities. <em>IEEE TSE</em> 35(3):347–367.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/TSE.2006.112" target="_blank" rel="noopener">Tsantalis, N., Chatzigeorgiou, A., Stephanides, G., &amp; Halkidis, S. T. (2006). Design Pattern Detection Using Similarity Scoring. <em>IEEE TSE</em> 32(11):896–909. (pattern4.jar's algorithmic basis.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/3180155.3180206" target="_blank" rel="noopener">Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>. (RefactoringMiner.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/ICSAW.2017.16" target="_blank" rel="noopener">Arcelli Fontana, F., Pigazzini, I., Roveda, R., Tamburri, D. A., Zanoni, M., &amp; Lenarduzzi, V. (2017). Arcan: A Tool for Architectural Smells Detection. <em>ECSA 2017</em>. (Documented fallback detector with compatible output schema.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1287/mnsc.1060.0552" target="_blank" rel="noopener">MacCormack, A., Rusnak, J., &amp; Baldwin, C. Y. (2007). Exploring the Structure of Complex Software Designs: An Empirical Study of Open Source and Proprietary Code. <em>Management Science</em> 52(7):1015–1030.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
 <tr><td><a href="https://www.pearson.com/en-us/subject-catalog/p/clean-architecture-a-craftsmans-guide-to-software-structure-and-design/P200000009528" target="_blank" rel="noopener">Martin, R. C. (2008). <em>Clean Architecture</em>. Prentice Hall.</a></td><td><span class="warn">book</span></td></tr>
 </tbody></table>
 <p class="dim" style="font-size:12px;">

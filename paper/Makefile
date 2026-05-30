@@ -22,6 +22,15 @@ push: ## audit staleness + bless pages + prompt msg, commit -am, push
 	  exit 1; }
 	@read -p "Reason? " msg; cd .. && git commit -am "$$msg" && git push && git status
 
+refresh: ## ingest data/dropzone/* + run full pipeline + gates (raw data + lift CSVs)
+	@cd .. && python3 scripts/refresh.py
+
+refresh-lifts: ## ingest only lift CSVs from data/dropzone/ (skip raw-data path)
+	@cd .. && python3 scripts/refresh.py --lifts-only
+
+refresh-dry: ## show what refresh would do without moving files or running steps
+	@cd .. && python3 scripts/refresh.py --dry-run
+
 doctor: ## check required tools (✓ found, ✗ missing)
 	@for e in \
 	   "R|run R scripts" \

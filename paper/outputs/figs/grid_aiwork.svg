@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="808" height="414" viewBox="0 0 808 414" font-family="-apple-system, Segoe UI, sans-serif">
+<style>
+  .lbl  { font-size: 11px; fill: #444; }
+  .axl  { font-size: 12px; fill: #222; font-weight: 600; }
+  .ttl  { font-size: 14px; fill: #111; font-weight: 700; }
+  .cell { font-size: 12px; fill: #111; font-weight: 600; text-anchor: middle; }
+  .cellneg { fill: #fff; }
+</style>
+<text class="ttl" x="404" y="22" text-anchor="middle">aiwork: gap = y(ai=1) − y(ai=0) over (gen_boost, churn_mult)</text>
+<text class="lbl" x="404" y="40" text-anchor="middle" fill="#666">red = AI hurts &middot; blue = AI helps &middot; diagonal contour = regime boundary</text>
+<text class="lbl" x="149" y="62" text-anchor="middle">+0%</text>
+<text class="lbl" x="227" y="62" text-anchor="middle">+20%</text>
+<text class="lbl" x="305" y="62" text-anchor="middle">+50%</text>
+<text class="lbl" x="383" y="62" text-anchor="middle">+100%</text>
+<text class="lbl" x="461" y="62" text-anchor="middle">+150%</text>
+<text class="lbl" x="539" y="62" text-anchor="middle">+200%</text>
+<text class="axl" x="344" y="42" text-anchor="middle">gen_boost (AI speedup)</text>
+<text class="lbl" x="100" y="96" text-anchor="end">churn 0×</text>
+<text class="lbl" x="100" y="140" text-anchor="end">churn 1×</text>
+<text class="lbl" x="100" y="184" text-anchor="end">churn 2×</text>
+<text class="lbl" x="100" y="228" text-anchor="end">churn 3×</text>
+<text class="lbl" x="100" y="272" text-anchor="end">churn 4×</text>
+<text class="lbl" x="100" y="316" text-anchor="end">churn 5×</text>
+<text class="axl" x="20" y="202" text-anchor="middle" transform="rotate(-90 20 202)">churn_mult (AI rework inflation)</text>
+<rect x="110" y="70" width="78" height="44" fill="#e0b086" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="149" y="96">-51</text>
+<rect x="110" y="114" width="78" height="44" fill="#daa06e" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="140">-61</text>
+<rect x="110" y="158" width="78" height="44" fill="#d6945b" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="184">-69</text>
+<rect x="110" y="202" width="78" height="44" fill="#d28b4c" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="228">-76</text>
+<rect x="110" y="246" width="78" height="44" fill="#cf8340" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="272">-81</text>
+<rect x="110" y="290" width="78" height="44" fill="#cd7d37" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="316">-85</text>
+<rect x="188" y="70" width="78" height="44" fill="#e9c8aa" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="227" y="96">-36</text>
+<rect x="188" y="114" width="78" height="44" fill="#e2b58d" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="227" y="140">-48</text>
+<rect x="188" y="158" width="78" height="44" fill="#dda677" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="184">-58</text>
+<rect x="188" y="202" width="78" height="44" fill="#d89b65" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="228">-65</text>
+<rect x="188" y="246" width="78" height="44" fill="#d59157" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="272">-71</text>
+<rect x="188" y="290" width="78" height="44" fill="#d28a4b" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="316">-76</text>
+<rect x="266" y="70" width="78" height="44" fill="#f7ebe0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="96">-13</text>
+<rect x="266" y="114" width="78" height="44" fill="#eed3bc" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="140">-28</text>
+<rect x="266" y="158" width="78" height="44" fill="#e7c1a0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="184">-40</text>
+<rect x="266" y="202" width="78" height="44" fill="#e1b38a" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="228">-49</text>
+<rect x="266" y="246" width="78" height="44" fill="#dda778" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="305" y="272">-57</text>
+<rect x="266" y="290" width="78" height="44" fill="#d99e69" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="305" y="316">-63</text>
+<rect x="344" y="70" width="78" height="44" fill="#cddef2" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="96">+26</text>
+<rect x="344" y="114" width="78" height="44" fill="#f4f8fc" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="140">+5</text>
+<rect x="344" y="158" width="78" height="44" fill="#f8eee6" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="184">-11</text>
+<rect x="344" y="202" width="78" height="44" fill="#f1dbc8" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="228">-23</text>
+<rect x="344" y="246" width="78" height="44" fill="#ebccb0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="272">-33</text>
+<rect x="344" y="290" width="78" height="44" fill="#e6bf9c" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="316">-42</text>
+<rect x="422" y="70" width="78" height="44" fill="#82addf" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="461" y="96">+64</text>
+<rect x="422" y="114" width="78" height="44" fill="#b3ceec" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="140">+39</text>
+<rect x="422" y="158" width="78" height="44" fill="#dae7f5" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="184">+19</text>
+<rect x="422" y="202" width="78" height="44" fill="#f8fbfd" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="228">+3</text>
+<rect x="422" y="246" width="78" height="44" fill="#f9f0e8" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="272">-10</text>
+<rect x="422" y="290" width="78" height="44" fill="#f3e0cf" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="316">-20</text>
+<rect x="500" y="70" width="78" height="44" fill="#377dcd" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="539" y="96">+102</text>
+<rect x="500" y="114" width="78" height="44" fill="#72a3db" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="539" y="140">+72</text>
+<rect x="500" y="158" width="78" height="44" fill="#a0c1e7" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="184">+48</text>
+<rect x="500" y="202" width="78" height="44" fill="#c5d9f0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="228">+29</text>
+<rect x="500" y="246" width="78" height="44" fill="#e3edf8" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="272">+14</text>
+<rect x="500" y="290" width="78" height="44" fill="#fcfdfe" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="316">+1</text>
+<circle cx="383" cy="92" r="7" fill="none" stroke="#1f6db8" stroke-width="2.2"/>
+<circle cx="598" cy="76" r="5" fill="none" stroke="#1f6db8" stroke-width="2"/>
+<text class="lbl" x="608" y="80">GitHub RCT 2024 (+2–4%)</text>
+<circle cx="227" cy="180" r="7" fill="none" stroke="#a83232" stroke-width="2.2"/>
+<circle cx="598" cy="94" r="5" fill="none" stroke="#a83232" stroke-width="2"/>
+<text class="lbl" x="608" y="98">GitClear 2024 (~2× churn)</text>
+<circle cx="149" cy="136" r="7" fill="none" stroke="#a83232" stroke-width="2.2"/>
+<circle cx="598" cy="112" r="5" fill="none" stroke="#a83232" stroke-width="2"/>
+<text class="lbl" x="608" y="116">METR 2025 (−19%)</text>
+<text class="lbl" x="110" y="362">○ marks the approximate parameter region each study samples (heuristic placement, not derived from study artifacts).</text>
+<text class="lbl" x="110" y="380">Source: paper/scripts/grid_aiwork.py — deps-free, reproducible.</text>
+</svg>

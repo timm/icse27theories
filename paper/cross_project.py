@@ -83,7 +83,8 @@ def main():
         param_key = f"{model}.{metric}"
         if param_key in PARAM_FOR_METRIC and PARAM_FOR_METRIC[param_key]:
             mod, par = PARAM_FOR_METRIC[param_key]
-            _, lo, hi = MODEL_FACTORIES[mod]().init[par]
+            spec = MODEL_FACTORIES[mod]().init[par]
+            lo, hi = spec[1], spec[2]
             row['lo'] = lo; row['hi'] = hi
             statuses = []
             for proj in projects:

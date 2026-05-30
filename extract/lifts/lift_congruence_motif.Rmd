@@ -1,0 +1,261 @@
+---
+title: "Lift — Congruence Motif (Mauerer 2022 STC) from Apache Helix"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Congruence Motif STC}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rm(list = ls())
+seed <- 1
+set.seed(seed)
+```
+
+```{r warning=FALSE, message=FALSE}
+require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr); require(igraph)
+source("functions.R")
+```
+
+# Introduction
+
+The `congruence_motif` model (Mauerer/Joblin/Tamburri/Paradis/Kazman/Apel
+2022, IEEE TSE 48(8):3159-3184, doi:10.1109/TSE.2021.3082074) tests
+the socio-technical congruence (STC) thesis using **graph motif
+counting** rather than the Louvain community detection used by the
+sibling `congruence` (smells-based) model. The two are independent
+operationalizations of the same SE claim — *coordination gaps predict
+defects* — and the framework's job is to triage which surface offers
+the more falsifiable measurement.
+
+Four motif templates (from kaiaulu `R/motif.R`):
+
+```
+Triangle:        dev─dev (comm edge) and both ─ same file (touch edge)        — positive
+Anti-Triangle:   dev   dev (no comm) and both ─ same file                     — negative
+Square:          dev─dev (comm) and dev─file1 and dev─file2 with file1─file2  — positive
+Anti-Square:     dev   dev (no comm) across two dep-linked files              — negative
+```
+
+The motif-based congruence ratio:
+
+```
+congruence_motif = (Triangle + Square) / (Triangle + AntiTri + Square + AntiSq)
+```
+
+Method outline (parallels the smells-based congruence path, adds
+dependency parsing):
+
+1. Parse gitlog → `transform_gitlog_to_bipartite_network(mode="author-file")`.
+2. Parse replies (mbox or GitHub) → `transform_reply_to_bipartite_network()`
+   → `bipartite_graph_projection()` for dev↔dev edges.
+3. Parse dependencies → `transform_dependencies_to_network(dependency_type="file")`.
+4. `identity_match()` across both sources (REQUIRED — same cross-source
+   bridge as the smells variant; without it, devs with mismatched
+   mbox/git addresses double-count).
+5. Merge all three networks into one combined graph; cast node colours
+   to numeric so `igraph::count_subgraph_isomorphisms()` can use them.
+6. For each motif in {triangle, anti_triangle, square, anti_square}:
+   `motif_factory(name)` → `igraph::count_subgraph_isomorphisms(motif,
+   network, method = "vf2")`. Emit four integer counts.
+
+# Configuration
+
+```{r}
+tool <- parse_config("../tools.yml")
+conf <- parse_config("../conf/helix.yml")
+
+perceval_path <- get_tool_project("perceval", tool)
+depends_path  <- get_tool_project("depends", tool)
+git_repo_path <- get_git_repo_path(conf)
+mbox_dir      <- "/Users/timm/Downloads/helix/mod_mbox/save_mbox_mail"
+```
+
+# Parse Git Log
+
+```{r}
+project_git <- parse_gitlog(perceval_path, git_repo_path) %>%
+  filter_by_file_extension(get_file_extensions(conf), "file_pathname") %>%
+  filter_by_filepath_substring(get_substring_filepath(conf),
+                               "file_pathname")
+project_git$author_datetimetz <- as.POSIXct(project_git$author_datetimetz,
+                                            format = "%a %b %d %H:%M:%S %Y %z",
+                                            tz = "UTC")
+cat("git rows:", nrow(project_git),
+    "  unique authors:", uniqueN(project_git$author_name_email), "\n")
+```
+
+# Parse Replies (Mbox)
+
+```{r}
+msgs <- parse_mbox_dir(perceval_path, mbox_dir)
+cat("Mbox messages parsed:", nrow(msgs), "\n")
+```
+
+# Parse Dependencies
+
+```{r}
+# Depends produces <module>-file.json; kaiaulu parse_dependencies reads it.
+# For Helix we point at helix-core's compiled class graph.
+deps <- parse_dependencies("../data/helix/derived/depends/helix-core-file.json")
+cat("dependency edges:", nrow(deps$edgelist), "\n")
+```
+
+# Identity Match (cross-source)
+
+```{r}
+project_log <- list(git_log = project_git, mbox = msgs)
+project_log <- identity_match(
+  project_log,
+  name_column = c("author_name_email", "reply_from"),
+  assign_identity_function = assign_exact_identity,
+  use_name_only = FALSE,
+  label = "identity_id"
+)
+project_git <- project_log$git_log
+msgs        <- project_log$mbox
+cat("Identities post-merge:",
+    uniqueN(c(project_git$identity_id, msgs$identity_id)), "\n")
+```
+
+# Build the Three Networks
+
+```{r}
+# (1) author-file bipartite from gitlog
+git_network <- transform_gitlog_to_bipartite_network(project_git,
+                                                     mode = "author-file")
+
+# (2) dev-dev from replies (project from dev-thread bipartite)
+reply_network <- transform_reply_to_bipartite_network(msgs)
+reply_network <- bipartite_graph_projection(
+  reply_network, mode = TRUE,
+  weight_scheme_function = weight_scheme_sum_edges)
+
+# (3) file-file dep network
+file_network <- transform_dependencies_to_network(deps,
+                                                  dependency_type = "file")
+```
+
+# Combine Networks
+
+```{r}
+combined <- list()
+combined[["nodes"]] <- unique(rbind(
+  git_network[["nodes"]],
+  reply_network[["nodes"]],
+  file_network[["nodes"]]))
+combined[["edgelist"]] <- rbind(
+  git_network[["edgelist"]],
+  reply_network[["edgelist"]],
+  file_network[["edgelist"]])
+
+g <- igraph::graph_from_data_frame(d = combined$edgelist,
+                                   directed = FALSE,
+                                   vertices = combined$nodes)
+V(g)$color <- ifelse(V(g)$color == "black", 1, 2)
+cat("merged graph: ", igraph::vcount(g), " nodes / ",
+    igraph::ecount(g), " edges\n", sep = "")
+```
+
+# Count Motifs (Triangle, Anti-Triangle, Square, Anti-Square)
+
+```{r}
+count_motif <- function(motif_name, g) {
+  m <- motif_factory(motif_name)
+  img <- igraph::graph_from_data_frame(
+    d = m$edgelist, directed = FALSE, vertices = m$nodes)
+  V(img)$color <- ifelse(V(img)$color == "black", 1, 2)
+  igraph::count_subgraph_isomorphisms(
+    img, g, method = "vf2",
+    edge.color1 = NULL, edge.color2 = NULL)
+}
+
+counts <- list(
+  Triangle    = count_motif("triangle",      g),
+  AntiTri     = count_motif("anti_triangle", g),
+  Square      = count_motif("square",        g),
+  AntiSquare  = count_motif("anti_square",   g)
+)
+print(unlist(counts))
+
+ratio <- (counts$Triangle + counts$Square) /
+         max(1, counts$Triangle + counts$AntiTri +
+                counts$Square + counts$AntiSquare)
+cat("congruence_motif ratio:", round(ratio, 3), "\n")
+```
+
+# Verdict on Helix
+
+Mauerer 2022 reports the STC ratio as a per-snapshot summary. Higher
+ratio = more dev-pair co-touches are accompanied by communication =
+fewer realized coordination gaps. Helix's specific value goes into
+the SD model's `comm_rate` calibration (replacing the `0.5` default).
+
+The downstream SD model `paper/sd.py::congruence_motif()` uses
+`comm_rate` as ctrl — flipping it from 0.2 to 0.8 reduces final
+`Bugs`. At default the gap is `-68.78` (CONFIRM). Plugging Helix's
+lifted ratio in via `paper/calibrate.py` would calibrate the
+single-shot verdict against the real network's coordination signal.
+
+# Outputs
+
+```{r}
+dir.create("../outputs", showWarnings = FALSE)
+out <- data.table(
+  project           = "helix",
+  Triangle          = counts$Triangle,
+  AntiTriangle      = counts$AntiTri,
+  Square            = counts$Square,
+  AntiSquare        = counts$AntiSquare,
+  congruence_ratio  = round(ratio, 4),
+  n_devs            = sum(V(g)$color == 1),
+  n_files           = sum(V(g)$color == 2),
+  n_edges           = igraph::ecount(g),
+  seed              = seed
+)
+fwrite(out, "../outputs/lift_congruence_motif_helix.csv")
+kable(out)
+```
+
+# Sanity Checks (Carlos's two-part)
+
+**(1) Bug-count dependency**: not used by this lift. Anti-motif
+counts are themselves the coordination-gap signal; Bugs is a
+downstream consequence stock in the SD model, not a lifted quantity.
+
+**(2) Identity bridging**: REQUIRED. Same `identity_match()` call as
+the smells-based `congruence` lift, with two name_columns. Without
+the merge, a developer appearing as `asebastian@linkedin` in mbox
+and `asebastian@apache.org` in git would be treated as two nodes —
+inflating anti-triangle counts and depressing the congruence ratio.
+
+# Family-Member Test (3 projects with mbox + deps)
+
+Pipeline-ready for Helix, airflow, tomcat (the three projects with
+both mbox replies and a runnable Depends pass). Per-project runs
+deferred; this notebook produces the Helix row first.
+
+# References
+
+- Mauerer, W., Joblin, M., Tamburri, D. A., Paradis, C., Kazman, R.,
+  & Apel, S. (2022). In Search of Socio-Technical Congruence: A
+  Large-Scale Longitudinal Study. *IEEE TSE* 48(8):3159-3184.
+  doi:10.1109/TSE.2021.3082074.
+- Cataldo, M., Wagstrom, P. A., Herbsleb, J. D., & Carley, K. M.
+  (2006). Identification of Coordination Requirements: Implications
+  for the Design of Collaboration and Awareness Tools. *CSCW '06*.
+  (Original STC matrix-form.)
+- Cordella, L. P., Foggia, P., Sansone, C., & Vento, M. (2004). A
+  (sub)graph isomorphism algorithm for matching large graphs.
+  *IEEE TPAMI* 26(10):1367-1372. (VF2.)
+- kaiaulu R/motif.R — `motif_factory()` (triangle / anti_triangle /
+  square / anti_square templates) + `transform_*_to_bipartite_network()`.
+- kaiaulu vignettes/motif_analysis.Rmd — reference implementation
+  walked through above.
+- paper/sd.py::congruence_motif() — the SD model this lift calibrates.
+- paper/sd.py::congruence() — the sibling smells-based model.

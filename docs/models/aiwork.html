@@ -66,34 +66,54 @@
     <h2>The SD model</h2>
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def aiwork():
-  &quot;&quot;&quot;GitClear [8] / METR [9]: AI churn vs gen tradeoff.
-  RQ: ai=1 reduces kept code.&quot;&quot;&quot;
+  &quot;&quot;&quot;GitClear [8] / METR [9]: AI-assisted coding has a quality tradeoff.
+  AI boosts raw generation rate but inflates churn (code rewritten or
+  abandoned) AND adds verification drag (humans must check outputs).
+  Net effect on KEPT code (the thing that ships) is ambiguous.
+
+  Stocks: Todo -&gt; Wip -&gt; {Kept, Churned}. Kept is the success measure.
+  Control: ai (0=no AI, 1=full AI). RQ: ai=1 lowers final Kept.
+  Hypothesis from METR 2025: AI accelerates throughput at the cost of
+  more rework, so the net signed effect on Kept can be negative.&quot;&quot;&quot;
   init = {&#x27;Todo&#x27;:[1000,0,1000,&#x27;items&#x27;], &#x27;Wip&#x27;:[0,0,500,&#x27;items&#x27;],
           &#x27;Kept&#x27;:[0,0,1000,&#x27;items&#x27;], &#x27;Churned&#x27;:[0,0,1000,&#x27;items&#x27;],
-          &#x27;ai&#x27;:[0,0,1,&#x27;frac&#x27;], &#x27;gen_boost&#x27;:[0.3,0,2,&#x27;frac/ai&#x27;], &#x27;churn_mult&#x27;:[2.0,0,5,&#x27;frac/ai&#x27;],
-          &#x27;verify_drag&#x27;:[0.4,0,1,&#x27;frac/ai&#x27;], &#x27;mature_rate&#x27;:[0.2,0,1,&#x27;frac/tick&#x27;],
-          &#x27;churn_base&#x27;:[0.05,0,1,&#x27;frac/tick&#x27;]}
+          # ctrl: AI usage fraction across the team
+          &#x27;ai&#x27;:[0,0,1,&#x27;frac&#x27;],
+          # Per-unit-AI effect coefficients (literature priors, wide ranges)
+          &#x27;gen_boost&#x27;:[0.3,0,2,&#x27;frac/ai&#x27;],     # +30% gen at full AI
+          &#x27;churn_mult&#x27;:[2.0,0,5,&#x27;frac/ai&#x27;],    # 3x churn at full AI
+          &#x27;verify_drag&#x27;:[0.4,0,1,&#x27;frac/ai&#x27;],   # 40% time on verification at full AI
+          &#x27;mature_rate&#x27;:[0.2,0,1,&#x27;frac/tick&#x27;], # Wip -&gt; Kept transition rate
+          &#x27;churn_base&#x27;:[0.05,0,1,&#x27;frac/tick&#x27;]} # baseline (no-AI) churn rate
 
   def step(dt, t, u, v):
-    gen_boost   = 1 + u.gen_boost * u.ai
-    churn_mult  = 1 + u.churn_mult * u.ai
-    verify_drag = u.verify_drag * u.ai
+    # Three AI effects (multiplicative on baseline rates):
+    gen_boost   = 1 + u.gen_boost * u.ai     # speedup factor
+    churn_mult  = 1 + u.churn_mult * u.ai    # churn inflation factor
+    verify_drag = u.verify_drag * u.ai       # fraction of capacity spent verifying
+    # Net gen = baseline_rate (10/tick) * speedup * (1 - verify overhead).
+    # When verify_drag=1 (all AI, all time on review) gen collapses to 0.
     gen   = 10 * gen_boost * (1 - verify_drag)
-    add   = min(gen, u.Todo)
-    mature = u.Wip * u.mature_rate
-    churn  = u.Wip * u.churn_base * churn_mult
+    add   = min(gen, u.Todo)                 # cap: can&#x27;t pull from empty Todo
+    mature = u.Wip * u.mature_rate           # Wip -&gt; Kept
+    churn  = u.Wip * u.churn_base * churn_mult  # Wip -&gt; Churned (lossy)
     v.Todo    = u.Todo - dt * add
     v.Wip     = u.Wip + dt * (add - mature - churn)
     v.Kept    = u.Kept + dt * mature
     v.Churned = u.Churned + dt * churn
+    # Carry params forward (rates are stateless across ticks):
     for p in (&#x27;ai&#x27;,&#x27;gen_boost&#x27;,&#x27;churn_mult&#x27;,&#x27;verify_drag&#x27;,
               &#x27;mature_rate&#x27;,&#x27;churn_base&#x27;):
       setattr(v, p, getattr(u, p))
 
   def y(out):
+    # Success = final Kept. Churned doesn&#x27;t count (rewritten/abandoned).
     return out[-1][1].Kept
 
   def rq(bg=None):
+    # Two-arm comparison: ai=0 (baseline) vs ai=1 (full AI adoption).
+    # &#x27;down&#x27; expected: AI&#x27;s churn + verify drag should outweigh gen boost,
+    # producing LESS final Kept than the baseline.
     bi = init if bg is None else bg
     return verdict(&quot;ai=1 reduces Kept (METR/GitClear)&quot;,
                    y(run({**bi, &#x27;ai&#x27;:[0,0,1,&#x27;frac&#x27;]}, step)),
@@ -147,12 +167,13 @@
 
   <div id="panel-6" class="tab-content">
     <h2>What we learned</h2>
-    <p>No empirical results. aiwork is part of the paper's <em>methodological case</em>: the framework expresses theses the field can't yet calibrate, naming the data gaps.</p>
+    <p>No project-data lift (no AI-authorship attribution exists in any open corpus). What we DO have is a <em>model-derived</em> finding: the 6×6 parameter sweep below unifies three contradictory empirical studies — METR (−19% slowdown), GitClear (~2× churn), and GitHub RCT (+2–4% gain) — as samples from different regions of aiwork's (<code>gen_boost</code>, <code>churn_mult</code>) space.</p><figure style="margin:1em 0;text-align:center"><img src="../figs/grid_aiwork.svg" alt="aiwork gap = y(ai=1)-y(ai=0) over (gen_boost, churn_mult) — diverging heatmap with 3 empirical studies annotated" style="max-width:100%;height:auto;border:1px solid #ddd;padding:8px;background:#fff"/><figcaption class="dim" style="margin-top:6px;font-size:12px">Figure: gap surface over the 6×6 parameter grid (red = AI hurts, blue = AI helps). Diagonal contour at gap≈0 traces the regime boundary. ○ marks the approximate parameter region each study samples. Source: <code>paper/scripts/grid_aiwork.py</code>.</figcaption></figure><p></p>
     
-    <p>A future-research agenda item: build an AI-authorship attribution corpus (perhaps via opt-in IDE instrumentation).</p>
+    <p>The diagonal contour at gap ≈ 0 traces the regime boundary: AI helps wherever <code>gen_boost</code> outruns <code>churn_mult</code> and hurts where churn dominates. Each empirical study sits in a different cell. The studies are not adjudicating a single empirical question; they are sampling different points in this parameter space. Today's audit reports <code>verdict_n=neutral</code> for aiwork precisely because, across declared ranges, the gap distribution spans both signs (−85 to +102) and <code>stats.same</code> cannot distinguish y0 from y1 pooled. The regime ambiguity IS the neutral verdict.</p>
     <h3>Implications</h3>
     <ul>
-    <li><strong>Field-wide data gap</strong>: aiwork is one of 7 dark models in the framework. Its inability to be calibrated is itself a finding worth flagging to ICSE reviewers.</li>
+    <li><strong>Field-wide data gap</strong>: aiwork is one of 7 dark models in the framework. Its inability to be calibrated from existing corpora is itself a finding worth flagging to ICSE reviewers.</li>
+<li><strong>Model-based triage of measurement</strong>: the single most informative future measurement is not another aggregate effect estimate but the ratio of generation speedup to churn inflation <em>per team</em>. Knowing this ratio makes outcomes predictable; not knowing it makes contradictory aggregate findings irreconcilable.</li>
 <li><strong>Practical recommendation</strong>: tool vendors (GitHub Copilot, Codeium, Cursor) should consider opt-in commit-level usage logging — a small change with large research impact.</li>
     </ul>
     

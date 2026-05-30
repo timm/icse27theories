@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>congruence_motif (2022) — MYTHS</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/languages/r.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
+</head>
+<body>
+
+<!-- gh-ribbon: REMOVE for double-blind submission -->
+<div class="gh-ribbon"><a href="https://github.com/timm/icse27theories" target="_blank" rel="noopener">Fork me on GitHub</a></div>
+
+<header class="nav">
+  <div class="inner">
+    <span class="brand"><a href="../index.html" style="color:var(--text);text-decoration:none;">MYTHS</a><span class="sub">/ congruence_motif</span></span>
+    <nav>
+      <a href="../index.html">all models</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>congruence_motif <span class="dim" style="font-weight:400;">(2022)</span><span class="tag">universal cell</span></h1>
+<p class="sub-title">Mauerer et al. (2022, IEEE TSE) — motif-based socio-technical congruence; companion to <code>congruence</code> (smells-based).</p>
+
+<div class="tabs">
+  <input type="radio" name="t" id="tab-1" checked>
+  <input type="radio" name="t" id="tab-2">
+  <input type="radio" name="t" id="tab-3">
+  <input type="radio" name="t" id="tab-4">
+  <input type="radio" name="t" id="tab-5">
+  <input type="radio" name="t" id="tab-6">
+
+  <div class="tab-bar">
+    <label for="tab-1">1 &middot; Summary</label>
+    <label for="tab-2">2 &middot; Model</label>
+    <label for="tab-3">3 &middot; Data lift</label>
+    <label for="tab-4">4 &middot; Attributes</label>
+    <label for="tab-5">5 &middot; Scorecard</label>
+    <label for="tab-6">6 &middot; Results</label>
+  </div>
+
+  <div id="panel-1" class="tab-content">
+    <h2>What this model says</h2>
+    <p>Dev-pairs who CO-TOUCH the same source file (or two dep-linked source files) SHOULD COMMUNICATE about it. When they don't, anti-motif counts accumulate as <em>realized coordination gaps</em>. Mauerer et al. (2022 IEEE TSE) operationalize this via four motif templates over a merged dev–file–dep graph and count subgraph isomorphisms (VF2 algorithm).</p>
+    <p>The model tracks Devs, Files, and Bugs. Each tick, the active dev-pair population co-touches files at <code>pair_touch_rate</code>; the fraction (1 − <code>comm_rate</code>) become anti-triangles (file-level) or anti-squares (dep-level). Each anti-motif event accrues bugs at <code>bug_per_antimotif</code>; <code>bug_pay_rate</code> drains them. Higher communication closes more coordination gaps → fewer Bugs accumulate. This is the <strong>motif-based variant</strong> of the same SE thesis the <code>congruence</code> model encodes via the smells/Louvain path.</p>
+    <p class="dim"><em>Intuition</em>: When two devs touch the same file but never email or comment, every such co-touch is a future bug waiting to happen.</p>
+    <h2>Success measure <span class="dim">(model.y)</span></h2>
+    <p><strong><code>Bugs</code> at end of run (lower = better).</strong></p>
+    <p>Total bugs accumulated from anti-motif events minus paydown. Success = LOW Bugs. <code>rq()</code> uses <code>expect='down'</code>: high comm should produce lower Bugs.</p>
+    <h2>Conjecture <span class="dim">(model.rq)</span></h2>
+    <p><strong>Raising <code>comm_rate</code> from 0.2 (fragmented) to 0.8 (well-coordinated) lowers final Bugs.</strong></p>
+    <p>CONFIRM with gap ≈ −69 at default. The two-arm comparison is Mauerer's central STC claim distilled to a controlled experiment.</p>
+    <h2>Stress-matrix cell</h2>
+    <p>congruence_motif sits in <span class='ok'>universal</span> (174/200 input CONFIRM, 154/200 param CONFIRM) — the coordination-gap → bugs mechanism holds across both world and process variation. Stats-grade <code>verdict_n</code> is neutral, mirroring archpat's profile: signal robust in direction but smaller than declared-range variance.</p>
+  </div>
+
+  <div id="panel-2" class="tab-content">
+    <h2>The SD model</h2>
+    <p>From <code>models/sd.py</code>:</p>
+    <pre><code class="language-python">def congruence_motif():
+  &quot;&quot;&quot;**Motif-based variant** of socio-technical congruence (STC).
+  Companion to the smells-based `congruence` model above.
+
+  Source: Mauerer, Joblin, Tamburri, Paradis, Kazman, Apel (2022).
+  &quot;In Search of Socio-Technical Congruence: A Large-Scale
+  Longitudinal Study.&quot; IEEE TSE 48(8):3159-3184.
+  doi:10.1109/TSE.2021.3082074. Operationalized in kaiaulu
+  R/motif.R via igraph::count_subgraph_isomorphisms over four
+  motif templates.
+
+  Thesis (Cataldo/Mauerer): dev-pairs who CO-TOUCH source files
+  (or dep-linked files) SHOULD COMMUNICATE about it. When they
+  don&#x27;t, anti-motif counts (anti-triangle, anti-square) accumulate.
+  Anti-motifs realize the coordination gap as defects.
+
+  Motif accounting per tick:
+    Triangle      = pair comm + co-touch file        (positive)
+    Anti-Triangle = pair NO-comm + co-touch file     (negative)
+    Square        = pair comm + co-touch dep-linked  (positive)
+    Anti-Square   = pair NO-comm + co-touch dep-linked (negative)
+
+  Stocks: Devs, Files, Bugs (success = LOW final Bugs).
+  Ctrl: comm_rate. RQ: high comm (0.8) reduces Bugs vs low comm (0.2).
+
+  Lift (per project, per snapshot, via kaiaulu motif_factory +
+  igraph::count_subgraph_isomorphisms over the merged
+  git-reply-dependency network): produces Tri/AntiTri/Sq/AntiSq
+  integer counts plus n_devs, n_files, n_deps. Calibrate `comm_rate`
+  from the empirical ratio (Tri+Sq)/(all four).&quot;&quot;&quot;
+  init = {&#x27;Devs&#x27;:[30,2,200,&#x27;devs&#x27;], &#x27;Files&#x27;:[100,10,5000,&#x27;files&#x27;],
+          &#x27;Bugs&#x27;:[0,0,500,&#x27;bugs&#x27;],
+          # ctrl: probability a co-touching dev-pair communicates
+          &#x27;comm_rate&#x27;:[0.5,0,1,&#x27;frac&#x27;],
+          # Network params (literature priors):
+          &#x27;dep_density&#x27;:[0.2,0,1,&#x27;frac/pair&#x27;],         # cross-file dep frequency
+          &#x27;pair_touch_rate&#x27;:[0.05,0,1,&#x27;frac/pair/tick&#x27;],  # avg co-touch frequency
+          # Bug accounting:
+          &#x27;bug_per_antimotif&#x27;:[0.5,0,5,&#x27;bugs/event&#x27;],
+          &#x27;bug_pay_rate&#x27;:[0.1,0,1,&#x27;frac/tick&#x27;]}
+
+  def step(dt, t, u, v):
+    # Mauerer 2022 motif accounting at flow level:
+    # enumerate dev-pairs that could co-touch this tick.
+    active_pairs = u.Devs * (u.Devs - 1) / 2 * u.pair_touch_rate
+    # Of those, the fraction that DON&#x27;T communicate become anti-triangles.
+    antitri_flow = active_pairs * (1 - u.comm_rate)
+    # Subset of pairs that touch DEP-LINKED file pairs (square family).
+    cross_pairs  = active_pairs * u.dep_density
+    antisq_flow  = cross_pairs * (1 - u.comm_rate)
+    # Each anti-motif event accrues some Bugs; refactor pays them down.
+    bugs_born = (antitri_flow + antisq_flow) * u.bug_per_antimotif
+    bugs_paid = u.Bugs * u.bug_pay_rate
+    v.Devs  = u.Devs
+    v.Files = u.Files
+    v.Bugs  = max(0, u.Bugs + dt * (bugs_born - bugs_paid))
+    for p in (&#x27;comm_rate&#x27;,&#x27;dep_density&#x27;,&#x27;pair_touch_rate&#x27;,
+              &#x27;bug_per_antimotif&#x27;,&#x27;bug_pay_rate&#x27;):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    # Final Bugs is the success measure. Lower = better.
+    # rq() uses expect=&#x27;down&#x27; so CONFIRM means y1 &lt; y0 (more comm → fewer Bugs).
+    return out[-1][1].Bugs
+
+  def rq(bg=None):
+    # Two-arm comparison: low comm (0.2, communication-fragmented)
+    # vs high comm (0.8, well-coordinated). Mauerer&#x27;s thesis says
+    # the high-comm arm produces fewer defects via fewer anti-motifs.
+    bi = init if bg is None else bg
+    return verdict(&quot;comm_rate 0.8 reduces Bugs vs 0.2 (Mauerer 2022 STC)&quot;,
+                   y(run({**bi, &#x27;comm_rate&#x27;:[0.2,0,1,&#x27;frac&#x27;]}, step)),
+                   y(run({**bi, &#x27;comm_rate&#x27;:[0.8,0,1,&#x27;frac&#x27;]}, step)), &#x27;down&#x27;)
+
+  return Model(init, step, y, rq, &#x27;comm_rate&#x27;)
+
+
+# --- 15 candidate models lifted from docs/other.html (buildable today) -------
+</code></pre>
+  </div>
+
+  <div id="panel-3" class="tab-content">
+    <h2>Data lift</h2>
+    <p>Lifted via the kaiaulu motif pipeline (<code>R/motif.R</code> + <code>R/network.R</code>), confirmed against the kaiaulu vignette <a href="https://github.com/sailuh/kaiaulu/blob/master/vignettes/motif_analysis.Rmd"><code>vignettes/motif_analysis.Rmd</code></a>:</p>
+<pre><code>gitlog ──&gt; bipartite (author-file)         ─┐
+replies ─&gt; bipartite (dev-thread) ──proj──&gt; ─┼─&gt; merged graph
+deps ────&gt; file-file network                ─┘            │
+                                                          ▼
+                                       igraph::count_subgraph_isomorphisms
+                                       over { triangle, anti_triangle,
+                                              square, anti_square }
+                                                          │
+                                                          ▼
+                              congruence_motif = (Tri + Sq) / sum(all 4)</code></pre>
+<p><strong>Six-step method</strong> (parallels the smells-based <code>congruence</code> path; uses the same identity-match prerequisite):</p>
+<ol>
+  <li>Parse gitlog → <code>transform_gitlog_to_bipartite_network(mode="author-file")</code>.</li>
+  <li>Parse replies (mbox / GitHub) → <code>transform_reply_to_bipartite_network()</code> → <code>bipartite_graph_projection()</code> for dev-dev edges.</li>
+  <li>Parse dependencies → <code>transform_dependencies_to_network(dependency_type="file")</code> (or <code>transform_r_dependencies_to_network()</code> for R).</li>
+  <li><code>identity_match(name_column=c("author_name_email","reply_from"))</code> — required cross-source bridge.</li>
+  <li>Merge all three networks into a single combined graph; cast node colours to numeric for VF2.</li>
+  <li>For each motif in {triangle, anti_triangle, square, anti_square}: <code>motif_factory(name)</code> → <code>igraph::count_subgraph_isomorphisms(motif, network, method="vf2")</code>. Emit four integer counts + <code>n_devs</code>, <code>n_files</code>, <code>n_deps</code>, plus the derived ratio.</li>
+</ol>
+<p><strong>Vignette example on kaiaulu itself</strong>: triangle=34, square=32 (anti variants available via <code>motif_factory("anti_triangle")</code> etc.). Calibrate <code>comm_rate</code> from the empirical ratio (Tri+Sq)/(Tri+AntiTri+Sq+AntiSq).</p>
+<p><strong>Three operationalizations of the same SE thesis</strong>: kaiaulu carries the <em>smells path</em> (R/smells.R, Louvain communities, Catolino 2019) shipped as <code>congruence</code>; the <em>motif path</em> (R/motif.R, VF2 subgraph isomorphism, Mauerer 2022) shipped as this model; and a possible third <em>Cataldo matrix path</em> (CR ∩ CA / |CR|, three sub-variants reviewer-requested in 2022) still queued as <code>congruence_cataldo</code> per TODO UU.</p>
+<p>Full notebook: <code>lifts/lift_congruence_motif.Rmd</code>.</p>
+    <pre><code class="language-r">rm(list = ls())
+seed &lt;- 1
+set.seed(seed)</code></pre>
+<pre><code class="language-r">require(kaiaulu); require(data.table); require(stringi)
+require(knitr); require(yaml); require(magrittr); require(igraph)
+source(&quot;functions.R&quot;)</code></pre>
+<pre><code class="language-r">tool &lt;- parse_config(&quot;../tools.yml&quot;)
+conf &lt;- parse_config(&quot;../conf/helix.yml&quot;)
+
+perceval_path &lt;- get_tool_project(&quot;perceval&quot;, tool)
+depends_path  &lt;- get_tool_project(&quot;depends&quot;, tool)
+git_repo_path &lt;- get_git_repo_path(conf)
+mbox_dir      &lt;- &quot;/Users/timm/Downloads/helix/mod_mbox/save_mbox_mail&quot;</code></pre>
+<pre><code class="language-r">project_git &lt;- parse_gitlog(perceval_path, git_repo_path) %&gt;%
+  filter_by_file_extension(get_file_extensions(conf), &quot;file_pathname&quot;) %&gt;%
+  filter_by_filepath_substring(get_substring_filepath(conf),
+                               &quot;file_pathname&quot;)
+project_git$author_datetimetz &lt;- as.POSIXct(project_git$author_datetimetz,
+                                            format = &quot;%a %b %d %H:%M:%S %Y %z&quot;,
+                                            tz = &quot;UTC&quot;)
+cat(&quot;git rows:&quot;, nrow(project_git),
+    &quot;  unique authors:&quot;, uniqueN(project_git$author_name_email), &quot;\n&quot;)</code></pre>
+<pre><code class="language-r">msgs &lt;- parse_mbox_dir(perceval_path, mbox_dir)
+cat(&quot;Mbox messages parsed:&quot;, nrow(msgs), &quot;\n&quot;)</code></pre>
+<pre><code class="language-r"># Depends produces &lt;module&gt;-file.json; kaiaulu parse_dependencies reads it.
+# For Helix we point at helix-core&#x27;s compiled class graph.
+deps &lt;- parse_dependencies(&quot;../data/helix/derived/depends/helix-core-file.json&quot;)
+cat(&quot;dependency edges:&quot;, nrow(deps$edgelist), &quot;\n&quot;)</code></pre>
+<pre><code class="language-r">project_log &lt;- list(git_log = project_git, mbox = msgs)
+project_log &lt;- identity_match(
+  project_log,
+  name_column = c(&quot;author_name_email&quot;, &quot;reply_from&quot;),
+  assign_identity_function = assign_exact_identity,
+  use_name_only = FALSE,
+  label = &quot;identity_id&quot;
+)
+project_git &lt;- project_log$git_log
+msgs        &lt;- project_log$mbox
+cat(&quot;Identities post-merge:&quot;,
+    uniqueN(c(project_git$identity_id, msgs$identity_id)), &quot;\n&quot;)</code></pre>
+<pre><code class="language-r"># (1) author-file bipartite from gitlog
+git_network &lt;- transform_gitlog_to_bipartite_network(project_git,
+                                                     mode = &quot;author-file&quot;)
+
+# (2) dev-dev from replies (project from dev-thread bipartite)
+reply_network &lt;- transform_reply_to_bipartite_network(msgs)
+reply_network &lt;- bipartite_graph_projection(
+  reply_network, mode = TRUE,
+  weight_scheme_function = weight_scheme_sum_edges)
+
+# (3) file-file dep network
+file_network &lt;- transform_dependencies_to_network(deps,
+                                                  dependency_type = &quot;file&quot;)</code></pre>
+<pre><code class="language-r">combined &lt;- list()
+combined[[&quot;nodes&quot;]] &lt;- unique(rbind(
+  git_network[[&quot;nodes&quot;]],
+  reply_network[[&quot;nodes&quot;]],
+  file_network[[&quot;nodes&quot;]]))
+combined[[&quot;edgelist&quot;]] &lt;- rbind(
+  git_network[[&quot;edgelist&quot;]],
+  reply_network[[&quot;edgelist&quot;]],
+  file_network[[&quot;edgelist&quot;]])
+
+g &lt;- igraph::graph_from_data_frame(d = combined$edgelist,
+                                   directed = FALSE,
+                                   vertices = combined$nodes)
+V(g)$color &lt;- ifelse(V(g)$color == &quot;black&quot;, 1, 2)
+cat(&quot;merged graph: &quot;, igraph::vcount(g), &quot; nodes / &quot;,
+    igraph::ecount(g), &quot; edges\n&quot;, sep = &quot;&quot;)</code></pre>
+<pre><code class="language-r">count_motif &lt;- function(motif_name, g) {
+  m &lt;- motif_factory(motif_name)
+  img &lt;- igraph::graph_from_data_frame(
+    d = m$edgelist, directed = FALSE, vertices = m$nodes)
+  V(img)$color &lt;- ifelse(V(img)$color == &quot;black&quot;, 1, 2)
+  igraph::count_subgraph_isomorphisms(
+    img, g, method = &quot;vf2&quot;,
+    edge.color1 = NULL, edge.color2 = NULL)
+}
+
+counts &lt;- list(
+  Triangle    = count_motif(&quot;triangle&quot;,      g),
+  AntiTri     = count_motif(&quot;anti_triangle&quot;, g),
+  Square      = count_motif(&quot;square&quot;,        g),
+  AntiSquare  = count_motif(&quot;anti_square&quot;,   g)
+)
+print(unlist(counts))
+
+ratio &lt;- (counts$Triangle + counts$Square) /
+         max(1, counts$Triangle + counts$AntiTri +
+                counts$Square + counts$AntiSquare)
+cat(&quot;congruence_motif ratio:&quot;, round(ratio, 3), &quot;\n&quot;)</code></pre>
+<pre><code class="language-r">dir.create(&quot;../outputs&quot;, showWarnings = FALSE)
+out &lt;- data.table(
+  project           = &quot;helix&quot;,
+  Triangle          = counts$Triangle,
+  AntiTriangle      = counts$AntiTri,
+  Square            = counts$Square,
+  AntiSquare        = counts$AntiSquare,
+  congruence_ratio  = round(ratio, 4),
+  n_devs            = sum(V(g)$color == 1),
+  n_files           = sum(V(g)$color == 2),
+  n_edges           = igraph::ecount(g),
+  seed              = seed
+)
+fwrite(out, &quot;../outputs/lift_congruence_motif_helix.csv&quot;)
+kable(out)</code></pre>
+  </div>
+
+  <div id="panel-4" class="tab-content">
+    <h2>Lift inputs &amp; sources</h2>
+    <table><thead><tr><th>input</th><th>used for</th><th>source &amp; extractor</th></tr></thead><tbody>
+<tr><td class="mono">author_name_email + file_pathname</td><td>author-file bipartite</td><td>kaiaulu parse_gitlog + transform_gitlog_to_bipartite_network</td></tr>
+<tr><td class="mono">reply_from + reply_id + in_reply_to_id</td><td>dev-thread bipartite → dev-dev projection</td><td>kaiaulu parse_mbox / parse_github_replies + transform_reply_to_bipartite_network</td></tr>
+<tr><td class="mono">file dep edges</td><td>file-file network</td><td>kaiaulu parse_dependencies (via Depends) + transform_dependencies_to_network</td></tr>
+<tr><td class="mono">identity_id (merged)</td><td>graph node identity</td><td>identity_match with TWO name_columns</td></tr>
+<tr><td class="mono">triangle / anti_triangle / square / anti_square</td><td>motif templates</td><td>kaiaulu motif_factory()</td></tr>
+<tr><td class="mono">subgraph isomorphism counts</td><td>per-motif integer counts</td><td>igraph::count_subgraph_isomorphisms(method="vf2")</td></tr>
+</tbody></table>
+    <h2>Tools</h2>
+    <table><thead><tr><th>tool</th><th>role</th></tr></thead><tbody>
+<tr><td><strong>Perceval / Depends</strong></td><td>parsing inputs (via kaiaulu)</td></tr>
+<tr><td><strong>kaiaulu R package</strong></td><td>parse_gitlog, parse_mbox, parse_dependencies, identity_match, motif_factory, transform_*_to_network</td></tr>
+<tr><td><strong>igraph (R)</strong></td><td>graph representation + count_subgraph_isomorphisms (VF2)</td></tr>
+</tbody></table>
+    <h2>Sanity checks</h2>
+    <p><strong>(1) Bug-count</strong>: not used directly — Bugs is a downstream consequence stock, not a lifted quantity. <strong>(2) Identity bridging</strong>: REQUIRED; same identity_match call as the smells-based <code>congruence</code>. Anti-motif counts on raw (unmerged) identities would double-count any developer with mbox-vs-git address mismatch — exactly the bias the vignette's identity_match step exists to prevent.</p>
+  </div>
+
+  <div id="panel-5" class="tab-content">
+    <h2>V&amp;V scorecard</h2>
+    <p class="dim">Auto-populated from <code>outputs/full_audit.csv</code>.</p>
+    <table><thead><tr><th>test</th><th>result</th></tr></thead><tbody>
+<tr><td><code>boundary_adq</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>anomaly_check</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>extreme_eqn</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
+<tr><td><code>mr_zero_input</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_monotone</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_dt_halving</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_bound_consist</code></td><td><span class="ok">PASS</span></td></tr>
+<tr><td><code>mr_scale</code></td><td><span class="dim">ERR:ValueError</span></td></tr>
+<tr><td><code>rq() single-shot</code></td><td><span class="ok">CONFIRM</span> &middot; gap -68.78</td></tr>
+<tr><td><code>rq_n N=100 + Cliff's &delta; / KS</code></td><td><span class="warn">neutral</span> &middot; gap -60.03 (sd0 132.28 / sd1 183.12 / &epsilon; 46.30)</td></tr>
+<tr><td><code>stress(inputs)</code></td><td><span class="ok">174/200 CONFIRM</span> &middot; 200 triangular-perturbed input backgrounds</td></tr>
+<tr><td><code>stress(params)</code></td><td><span class="ok">154/200 CONFIRM</span> &middot; 200 triangular-perturbed param backgrounds</td></tr>
+<tr><td><code>2&times;2 cell</code></td><td><span class="ok">universal</span> <span class="dim">(see <a href="../index.html#typology">typology</a>)</span></td></tr>
+<tr><td colspan="2" class="dim"><em>data-tier checks</em></td></tr>
+<tr><td><code>param_plausibility</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>boundary_adq_data</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>calibrated_rq_rerun</code></td><td><span class="dim">N/A &middot; model not in calibrate.py</span></td></tr>
+<tr><td><code>family_member_coherence</code></td><td><span class="dim">N/A &middot; no lift rows</span></td></tr>
+<tr><td><code>behavior_reproduction</code></td><td><span class="dim">not run</span> &middot; requires monthly historical CSV vs sim trajectory</td></tr>
+</tbody></table>
+    <div class='callout'><span class='label'>methodological note</span>This is the <strong>second of (at least) three operationalizations</strong> of the SE thesis 'coordination-gap predicts defects.' Compare with the smells-based <code>congruence</code> page; together they let the framework triage WHICH operationalization is the better measurement target for the same underlying theory. Cataldo's matrix-form variants (TODO UU) would constitute a third such track.</div>
+  </div>
+
+  <div id="panel-6" class="tab-content">
+    <h2>What we learned</h2>
+    <p>No project-data lift run yet (pipeline-ready; awaits a per-project execution of motif counting). The SD model alone yields CONFIRM gap=-68.78 at default and lands universally in the stress matrix.</p>
+    <table><thead><tr>
+<th>project</th>
+<th>Triangle</th>
+<th>AntiTriangle</th>
+<th>Square</th>
+<th>AntiSquare</th>
+<th>congruence_ratio</th>
+</tr></thead><tbody>
+<tr>
+<td class="mono">kaiaulu (vignette sample)</td>
+<td class="mono">34</td>
+<td class="mono">—</td>
+<td class="mono">32</td>
+<td class="mono">—</td>
+<td class="mono">—</td>
+</tr>
+</tbody></table>
+    <p>The vignette example on kaiaulu itself reports triangle=34, square=32 (positive motifs); anti variants are available via <code>motif_factory("anti_triangle")</code> etc. but were not enumerated in the vignette demo. A complete lift run across the 8-project family (Helix, junit5, Ambari, kaiaulu, airflow, openssl, tomcat, camel) would yield the cross-project ratio variance — that variance is what calibrates the <code>comm_rate</code> default and provides the family-member coherence test. Helix is the natural first target since identity_match is already wired in <code>lift_congruence.Rmd</code> (the smells-variant lift) and the merged dev-file-dep graph carries over directly.</p>
+    <h3>Implications</h3>
+    <ul>
+    <li><strong>Two model pages for one SE thesis</strong>: same coordination-gap claim, two different mathematical surfaces (Louvain community detection vs VF2 subgraph isomorphism). The framework's job is to triage which surface gives the more falsifiable measurement.</li>
+<li><strong>Anti-motif counts are the leverage measurement</strong>: not the triangle/square counts themselves (which scale with project size) but the RATIO (Tri+Sq)/(all four). This ratio normalises across project sizes and is the headline calibration target.</li>
+<li><strong>Cross-validation with smells variant</strong>: on the same project, the smells path's Brokers count and the motif path's anti-triangle count should correlate (both measure coordination gaps). High correlation → either method is fine. Low correlation → the methods disagree on what 'coordination gap' means and the SE community needs to pick one.</li>
+<li><strong>Cataldo's matrix-form variants</strong> (TODO UU) constitute a third operationalization (CR ∩ CA / |CR|). Shipping all three as separate SD models gives reviewers the head-to-head methodological comparison the 2022 reviewers asked for.</li>
+    </ul>
+    
+  </div>
+</div>
+
+<h2>References</h2>
+<table><thead><tr><th>reference</th><th>type</th></tr></thead><tbody>
+<tr><td><a href="https://doi.org/10.1109/TSE.2021.3082074" target="_blank" rel="noopener">Mauerer, W., Joblin, M., Tamburri, D. A., Paradis, C., Kazman, R., &amp; Apel, S. (2022). In Search of Socio-Technical Congruence: A Large-Scale Longitudinal Study. <em>IEEE Transactions on Software Engineering</em> 48(8):3159&ndash;3184. (Motif-based STC: the basis for this model.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1180875.1180929" target="_blank" rel="noopener">Cataldo, M., Wagstrom, P. A., Herbsleb, J. D., &amp; Carley, K. M. (2006). Identification of Coordination Requirements: Implications for the Design of Collaboration and Awareness Tools. <em>CSCW '06</em>. (Original STC matrix-form; reviewer-requested companion variant.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1145/1460563.1460654" target="_blank" rel="noopener">Cataldo, M., &amp; Herbsleb, J. D. (2008). Communication Networks in Geographically Distributed Software Development. <em>CSCW '08</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/ICSE-SEIP.2019.00011" target="_blank" rel="noopener">Catolino, G., Palomba, F., Tamburri, D. A., Serebrenik, A., &amp; Ferrucci, F. (2019). Refactoring Community Smells in the Wild. <em>ICSE '19 SEIP</em>. (Smells-based variant — see <code>congruence</code> companion model.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/TPAMI.2004.75" target="_blank" rel="noopener">Cordella, L. P., Foggia, P., Sansone, C., &amp; Vento, M. (2004). A (sub)graph isomorphism algorithm for matching large graphs. <em>IEEE TPAMI</em> 26(10):1367–1372. (VF2 algorithm used by igraph::count_subgraph_isomorphisms.)</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://github.com/sailuh/kaiaulu/blob/master/vignettes/motif_analysis.Rmd" target="_blank" rel="noopener">kaiaulu motif vignette: <em>motif_analysis.Rmd</em>.</a></td><td><span class="dim">industry</span></td></tr>
+</tbody></table>
+<p class="dim" style="font-size:12px;">
+  <span class="ok">peer-reviewed</span> = refereed journal or conference.
+  <span class="warn">book</span> / <span class="warn">preprint</span> = editorially reviewed but not formally refereed.
+  <span class="dim">industry / magazine</span> = trade source, cited for context only.
+</p>
+
+</main>
+
+<footer>
+  Anonymous submission &middot; ICSE 2027
+</footer>
+
+</body>
+</html>

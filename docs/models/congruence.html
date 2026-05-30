@@ -28,7 +28,7 @@
 <main>
 
 <h1>congruence <span class="dim" style="font-weight:400;">(2008)</span><span class="tag">universal cell</span></h1>
-<p class="sub-title">Blondel et al. (2008) Louvain + Cataldo &amp; Herbsleb communication graphs.</p>
+<p class="sub-title">Blondel et al. (2008) Louvain + Cataldo &amp; Herbsleb communication graphs. <strong>Smells-based variant</strong>; motif-based companion model planned (TODO UU).</p>
 
 <div class="tabs">
   <input type="radio" name="t" id="tab-1" checked>
@@ -49,7 +49,7 @@
 
   <div id="panel-1" class="tab-content">
     <h2>What this model says</h2>
-    <p>Communication graphs in software teams exhibit community structure: most replies happen within sub-groups ("clusters"), and a few boundary-spanning developers ("brokers") hold the graph together. If brokers leave, the graph fragments — sub-communities lose context, work synchronisation breaks down.</p>
+    <p>Communication graphs in software teams exhibit community structure: most replies happen within sub-groups ("clusters"), and a few boundary-spanning developers ("brokers") hold the graph together. If brokers leave, the graph fragments — sub-communities lose context, work synchronisation breaks down. <em>This page documents the smells-based operationalization (Catolino 2019, kaiaulu R/smells.R); a separate motif-based variant (Mauerer et al. 2022 TSE, kaiaulu R/motif.R) is queued — see TODO UU for the parallel SD model `congruence_motif`.</em></p>
     <p>The model tracks Clusters (count), Brokers (count), and Cohesion (cumulative aligned work output). The ctrl is broker_loss (rate at which brokers exit the project). The thesis is that even a small broker_loss (0.3 = lose 30% of brokers) collapses cohesion.</p>
     <p class="dim"><em>Intuition</em>: Email threads cluster naturally. The few people who span clusters keep the project coherent. Lose them, the clusters drift apart.</p>
     <h2>Success measure <span class="dim">(model.y)</span></h2>
@@ -66,8 +66,16 @@
     <h2>The SD model</h2>
     <p>From <code>models/sd.py</code>:</p>
     <pre><code class="language-python">def congruence():
-  &quot;&quot;&quot;Newman [14] / radio-silence (Tim et al.): boundary-spanning
-  brokers hold communication-fragmented projects together.
+  &quot;&quot;&quot;**Smells-based variant** of socio-technical congruence (kaiaulu
+  R/smells.R lineage; Catolino 2019, IEEE 8651329). Newman [14] /
+  radio-silence (Tim et al.): boundary-spanning brokers hold
+  communication-fragmented projects together.
+
+  Companion model `congruence_motif` (motif-based STC variant per
+  Mauerer/Joblin/Paradis/Kazman/Apel TSE 48(8) 2022) is TODO UU
+  in `TODO.md`. Together they form the methodology paper&#x27;s
+  same-thesis / different-operationalization pair.
+
   RQ: broker_loss=0.3 (per step) hurts net coherent work.&quot;&quot;&quot;
   init = {&#x27;Clusters&#x27;:[5,1,20,&#x27;clusters&#x27;], &#x27;Brokers&#x27;:[3,0,20,&#x27;devs&#x27;], &#x27;Cohesion&#x27;:[0,0,500,&#x27;cohesion&#x27;],
           &#x27;broker_loss&#x27;:[0,0,1,&#x27;frac/tick&#x27;], &#x27;broker_form&#x27;:[0.05,0,0.5,&#x27;frac/tick&#x27;],
@@ -100,9 +108,6 @@
                    y(run({**bi, &#x27;broker_loss&#x27;:[0.3,0,1,&#x27;frac/tick&#x27;]}, step)), &#x27;down&#x27;)
 
   return Model(init, step, y, rq, &#x27;broker_loss&#x27;)
-
-
-# --- 15 candidate models lifted from docs/other.html (buildable today) -------
 </code></pre>
   </div>
 
@@ -266,6 +271,7 @@ kable(out)</code></pre>
     <li><strong>Identity-match step matters</strong>: applying identity_match across mbox+git reduces Helix's main-component nodes from 96 to 77 (~20% consolidation). Without it, brokers would be double-counted.</li>
 <li><strong>Strongest CONFIRM in framework</strong>: gap −315 at default. The broker-loss thesis is mathematically and empirically robust.</li>
 <li><strong>Methodologically circular at Helix scale</strong>: the model's default init exactly matches Helix's measured values (Brokers=3, Clusters=5). The model was specified knowing Helix's first radio_silence run. The 2nd and 3rd project lifts (airflow, tomcat) provide the falsification test.</li>
+<li><strong>Two operationalizations of the same SE thesis</strong>: kaiaulu carries both the smells-based (R/smells.R, Catolino 2019) and the motif-based (R/motif.R, Mauerer et al. 2022 TSE) congruence pipelines. The smells path detects radio-silence brokers via Louvain communities; the motif path counts triangle/anti-triangle/square/anti-square subgraph isomorphisms via VF2. Both lift to the same conceptual coordination-gap stock but with different mathematical surfaces. Companion model `congruence_motif` (TODO UU) ports the motif path into the SD framework. Cataldo's 3 matrix-form congruence variants (CR ∩ CA / |CR|) constitute a third operationalization track that may ship as `congruence_cataldo`.</li>
     </ul>
     <h3>Cross-project (key metric: <code>Brokers_n</code>)</h3>
 <table><thead><tr><th>project</th><th class="num">value</th><th>status</th></tr></thead><tbody>
@@ -286,6 +292,8 @@ kable(out)</code></pre>
 <tr><td><a href="https://doi.org/10.1088/1742-5468/2008/10/P10008" target="_blank" rel="noopener">Blondel, V. D., Guillaume, J.-L., Lambiotte, R., &amp; Lefebvre, E. (2008). Fast Unfolding of Communities in Large Networks. <em>Journal of Statistical Mechanics</em> P10008.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
 <tr><td><a href="https://doi.org/10.1145/1460563.1460654" target="_blank" rel="noopener">Cataldo, M., &amp; Herbsleb, J. D. (2008). Communication Networks in Geographically Distributed Software Development. <em>CSCW '08</em>.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
 <tr><td><a href="https://global.oup.com/academic/product/networks-9780198805090" target="_blank" rel="noopener">Newman, M. E. J. (2015). <em>Networks: An Introduction</em> (2nd ed). Oxford University Press.</a></td><td><span class="warn">book</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/TSE.2021.3082074" target="_blank" rel="noopener">Mauerer, W., Joblin, M., Tamburri, D. A., Paradis, C., Kazman, R., &amp; Apel, S. (2022). In Search of Socio-Technical Congruence: A Large-Scale Longitudinal Study. <em>IEEE Transactions on Software Engineering</em> 48(8):3159&ndash;3184.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
+<tr><td><a href="https://doi.org/10.1109/ICSE-SEIP.2019.00011" target="_blank" rel="noopener">Catolino, G., Palomba, F., Tamburri, D. A., Serebrenik, A., &amp; Ferrucci, F. (2019). Refactoring Community Smells in the Wild: The Practitioner's Field Manual. <em>ICSE '19</em>. IEEE 8651329.</a></td><td><span class="ok">peer-reviewed</span></td></tr>
 </tbody></table>
 <p class="dim" style="font-size:12px;">
   <span class="ok">peer-reviewed</span> = refereed journal or conference.

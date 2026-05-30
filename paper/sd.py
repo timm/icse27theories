@@ -525,34 +525,54 @@ def defmap():
 
 
 def aiwork():
-  """GitClear [8] / METR [9]: AI churn vs gen tradeoff.
-  RQ: ai=1 reduces kept code."""
+  """GitClear [8] / METR [9]: AI-assisted coding has a quality tradeoff.
+  AI boosts raw generation rate but inflates churn (code rewritten or
+  abandoned) AND adds verification drag (humans must check outputs).
+  Net effect on KEPT code (the thing that ships) is ambiguous.
+
+  Stocks: Todo -> Wip -> {Kept, Churned}. Kept is the success measure.
+  Control: ai (0=no AI, 1=full AI). RQ: ai=1 lowers final Kept.
+  Hypothesis from METR 2025: AI accelerates throughput at the cost of
+  more rework, so the net signed effect on Kept can be negative."""
   init = {'Todo':[1000,0,1000,'items'], 'Wip':[0,0,500,'items'],
           'Kept':[0,0,1000,'items'], 'Churned':[0,0,1000,'items'],
-          'ai':[0,0,1,'frac'], 'gen_boost':[0.3,0,2,'frac/ai'], 'churn_mult':[2.0,0,5,'frac/ai'],
-          'verify_drag':[0.4,0,1,'frac/ai'], 'mature_rate':[0.2,0,1,'frac/tick'],
-          'churn_base':[0.05,0,1,'frac/tick']}
+          # ctrl: AI usage fraction across the team
+          'ai':[0,0,1,'frac'],
+          # Per-unit-AI effect coefficients (literature priors, wide ranges)
+          'gen_boost':[0.3,0,2,'frac/ai'],     # +30% gen at full AI
+          'churn_mult':[2.0,0,5,'frac/ai'],    # 3x churn at full AI
+          'verify_drag':[0.4,0,1,'frac/ai'],   # 40% time on verification at full AI
+          'mature_rate':[0.2,0,1,'frac/tick'], # Wip -> Kept transition rate
+          'churn_base':[0.05,0,1,'frac/tick']} # baseline (no-AI) churn rate
 
   def step(dt, t, u, v):
-    gen_boost   = 1 + u.gen_boost * u.ai
-    churn_mult  = 1 + u.churn_mult * u.ai
-    verify_drag = u.verify_drag * u.ai
+    # Three AI effects (multiplicative on baseline rates):
+    gen_boost   = 1 + u.gen_boost * u.ai     # speedup factor
+    churn_mult  = 1 + u.churn_mult * u.ai    # churn inflation factor
+    verify_drag = u.verify_drag * u.ai       # fraction of capacity spent verifying
+    # Net gen = baseline_rate (10/tick) * speedup * (1 - verify overhead).
+    # When verify_drag=1 (all AI, all time on review) gen collapses to 0.
     gen   = 10 * gen_boost * (1 - verify_drag)
-    add   = min(gen, u.Todo)
-    mature = u.Wip * u.mature_rate
-    churn  = u.Wip * u.churn_base * churn_mult
+    add   = min(gen, u.Todo)                 # cap: can't pull from empty Todo
+    mature = u.Wip * u.mature_rate           # Wip -> Kept
+    churn  = u.Wip * u.churn_base * churn_mult  # Wip -> Churned (lossy)
     v.Todo    = u.Todo - dt * add
     v.Wip     = u.Wip + dt * (add - mature - churn)
     v.Kept    = u.Kept + dt * mature
     v.Churned = u.Churned + dt * churn
+    # Carry params forward (rates are stateless across ticks):
     for p in ('ai','gen_boost','churn_mult','verify_drag',
               'mature_rate','churn_base'):
       setattr(v, p, getattr(u, p))
 
   def y(out):
+    # Success = final Kept. Churned doesn't count (rewritten/abandoned).
     return out[-1][1].Kept
 
   def rq(bg=None):
+    # Two-arm comparison: ai=0 (baseline) vs ai=1 (full AI adoption).
+    # 'down' expected: AI's churn + verify drag should outweigh gen boost,
+    # producing LESS final Kept than the baseline.
     bi = init if bg is None else bg
     return verdict("ai=1 reduces Kept (METR/GitClear)",
                    y(run({**bi, 'ai':[0,0,1,'frac']}, step)),
@@ -817,8 +837,16 @@ def archpat():
 
 
 def congruence():
-  """Newman [14] / radio-silence (Tim et al.): boundary-spanning
-  brokers hold communication-fragmented projects together.
+  """**Smells-based variant** of socio-technical congruence (kaiaulu
+  R/smells.R lineage; Catolino 2019, IEEE 8651329). Newman [14] /
+  radio-silence (Tim et al.): boundary-spanning brokers hold
+  communication-fragmented projects together.
+
+  Companion model `congruence_motif` (motif-based STC variant per
+  Mauerer/Joblin/Paradis/Kazman/Apel TSE 48(8) 2022) is TODO UU
+  in `TODO.md`. Together they form the methodology paper's
+  same-thesis / different-operationalization pair.
+
   RQ: broker_loss=0.3 (per step) hurts net coherent work."""
   init = {'Clusters':[5,1,20,'clusters'], 'Brokers':[3,0,20,'devs'], 'Cohesion':[0,0,500,'cohesion'],
           'broker_loss':[0,0,1,'frac/tick'], 'broker_form':[0.05,0,0.5,'frac/tick'],
@@ -851,6 +879,83 @@ def congruence():
                    y(run({**bi, 'broker_loss':[0.3,0,1,'frac/tick']}, step)), 'down')
 
   return Model(init, step, y, rq, 'broker_loss')
+
+
+def congruence_motif():
+  """**Motif-based variant** of socio-technical congruence (STC).
+  Companion to the smells-based `congruence` model above.
+
+  Source: Mauerer, Joblin, Tamburri, Paradis, Kazman, Apel (2022).
+  "In Search of Socio-Technical Congruence: A Large-Scale
+  Longitudinal Study." IEEE TSE 48(8):3159-3184.
+  doi:10.1109/TSE.2021.3082074. Operationalized in kaiaulu
+  R/motif.R via igraph::count_subgraph_isomorphisms over four
+  motif templates.
+
+  Thesis (Cataldo/Mauerer): dev-pairs who CO-TOUCH source files
+  (or dep-linked files) SHOULD COMMUNICATE about it. When they
+  don't, anti-motif counts (anti-triangle, anti-square) accumulate.
+  Anti-motifs realize the coordination gap as defects.
+
+  Motif accounting per tick:
+    Triangle      = pair comm + co-touch file        (positive)
+    Anti-Triangle = pair NO-comm + co-touch file     (negative)
+    Square        = pair comm + co-touch dep-linked  (positive)
+    Anti-Square   = pair NO-comm + co-touch dep-linked (negative)
+
+  Stocks: Devs, Files, Bugs (success = LOW final Bugs).
+  Ctrl: comm_rate. RQ: high comm (0.8) reduces Bugs vs low comm (0.2).
+
+  Lift (per project, per snapshot, via kaiaulu motif_factory +
+  igraph::count_subgraph_isomorphisms over the merged
+  git-reply-dependency network): produces Tri/AntiTri/Sq/AntiSq
+  integer counts plus n_devs, n_files, n_deps. Calibrate `comm_rate`
+  from the empirical ratio (Tri+Sq)/(all four)."""
+  init = {'Devs':[30,2,200,'devs'], 'Files':[100,10,5000,'files'],
+          'Bugs':[0,0,500,'bugs'],
+          # ctrl: probability a co-touching dev-pair communicates
+          'comm_rate':[0.5,0,1,'frac'],
+          # Network params (literature priors):
+          'dep_density':[0.2,0,1,'frac/pair'],         # cross-file dep frequency
+          'pair_touch_rate':[0.05,0,1,'frac/pair/tick'],  # avg co-touch frequency
+          # Bug accounting:
+          'bug_per_antimotif':[0.5,0,5,'bugs/event'],
+          'bug_pay_rate':[0.1,0,1,'frac/tick']}
+
+  def step(dt, t, u, v):
+    # Mauerer 2022 motif accounting at flow level:
+    # enumerate dev-pairs that could co-touch this tick.
+    active_pairs = u.Devs * (u.Devs - 1) / 2 * u.pair_touch_rate
+    # Of those, the fraction that DON'T communicate become anti-triangles.
+    antitri_flow = active_pairs * (1 - u.comm_rate)
+    # Subset of pairs that touch DEP-LINKED file pairs (square family).
+    cross_pairs  = active_pairs * u.dep_density
+    antisq_flow  = cross_pairs * (1 - u.comm_rate)
+    # Each anti-motif event accrues some Bugs; refactor pays them down.
+    bugs_born = (antitri_flow + antisq_flow) * u.bug_per_antimotif
+    bugs_paid = u.Bugs * u.bug_pay_rate
+    v.Devs  = u.Devs
+    v.Files = u.Files
+    v.Bugs  = max(0, u.Bugs + dt * (bugs_born - bugs_paid))
+    for p in ('comm_rate','dep_density','pair_touch_rate',
+              'bug_per_antimotif','bug_pay_rate'):
+      setattr(v, p, getattr(u, p))
+
+  def y(out):
+    # Final Bugs is the success measure. Lower = better.
+    # rq() uses expect='down' so CONFIRM means y1 < y0 (more comm → fewer Bugs).
+    return out[-1][1].Bugs
+
+  def rq(bg=None):
+    # Two-arm comparison: low comm (0.2, communication-fragmented)
+    # vs high comm (0.8, well-coordinated). Mauerer's thesis says
+    # the high-comm arm produces fewer defects via fewer anti-motifs.
+    bi = init if bg is None else bg
+    return verdict("comm_rate 0.8 reduces Bugs vs 0.2 (Mauerer 2022 STC)",
+                   y(run({**bi, 'comm_rate':[0.2,0,1,'frac']}, step)),
+                   y(run({**bi, 'comm_rate':[0.8,0,1,'frac']}, step)), 'down')
+
+  return Model(init, step, y, rq, 'comm_rate')
 
 
 # --- 15 candidate models lifted from docs/other.html (buildable today) -------

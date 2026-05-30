@@ -88,7 +88,8 @@ def main():
             for param, col in mapping.items():
                 if param not in m.init:
                     continue
-                _, lo, hi = m.init[param]
+                spec = m.init[param]
+                lo, hi = spec[1], spec[2]
                 try:
                     val = float(csv_row[col])
                 except (KeyError, ValueError):

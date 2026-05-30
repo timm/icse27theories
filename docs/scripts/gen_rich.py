@@ -540,11 +540,12 @@ M["aiwork"] = dict(
     tools_table=None,
     sanity="N/A while structurally dark.",
     scorecard_extras="",
-    results_intro="No empirical results. aiwork is part of the paper's <em>methodological case</em>: the framework expresses theses the field can't yet calibrate, naming the data gaps.",
+    results_intro='No project-data lift (no AI-authorship attribution exists in any open corpus). What we DO have is a <em>model-derived</em> finding: the 6×6 parameter sweep below unifies three contradictory empirical studies — METR (−19% slowdown), GitClear (~2× churn), and GitHub RCT (+2–4% gain) — as samples from different regions of aiwork\'s (<code>gen_boost</code>, <code>churn_mult</code>) space.</p><figure style="margin:1em 0;text-align:center"><img src="../figs/grid_aiwork.svg" alt="aiwork gap = y(ai=1)-y(ai=0) over (gen_boost, churn_mult) — diverging heatmap with 3 empirical studies annotated" style="max-width:100%;height:auto;border:1px solid #ddd;padding:8px;background:#fff"/><figcaption class="dim" style="margin-top:6px;font-size:12px">Figure: gap surface over the 6×6 parameter grid (red = AI hurts, blue = AI helps). Diagonal contour at gap≈0 traces the regime boundary. ○ marks the approximate parameter region each study samples. Source: <code>paper/scripts/grid_aiwork.py</code>.</figcaption></figure><p>',
     results_table="",
-    results_discussion="A future-research agenda item: build an AI-authorship attribution corpus (perhaps via opt-in IDE instrumentation).",
+    results_discussion="The diagonal contour at gap ≈ 0 traces the regime boundary: AI helps wherever <code>gen_boost</code> outruns <code>churn_mult</code> and hurts where churn dominates. Each empirical study sits in a different cell. The studies are not adjudicating a single empirical question; they are sampling different points in this parameter space. Today's audit reports <code>verdict_n=neutral</code> for aiwork precisely because, across declared ranges, the gap distribution spans both signs (−85 to +102) and <code>stats.same</code> cannot distinguish y0 from y1 pooled. The regime ambiguity IS the neutral verdict.",
     implications=[
-        "<strong>Field-wide data gap</strong>: aiwork is one of 7 dark models in the framework. Its inability to be calibrated is itself a finding worth flagging to ICSE reviewers.",
+        "<strong>Field-wide data gap</strong>: aiwork is one of 7 dark models in the framework. Its inability to be calibrated from existing corpora is itself a finding worth flagging to ICSE reviewers.",
+        "<strong>Model-based triage of measurement</strong>: the single most informative future measurement is not another aggregate effect estimate but the ratio of generation speedup to churn inflation <em>per team</em>. Knowing this ratio makes outcomes predictable; not knowing it makes contradictory aggregate findings irreconcilable.",
         "<strong>Practical recommendation</strong>: tool vendors (GitHub Copilot, Codeium, Cursor) should consider opt-in commit-level usage logging — a small change with large research impact.",
     ],
     refs=[
@@ -740,7 +741,21 @@ M["archpat"] = dict(
     rq_text="From an already-bad start, migrate=1.5 outperforms migrate=0.2.",
     rq_para="CONFIRM with gap +229 at default. The expected direction is positive (UP) because we want y to be HIGHER under aggressive migration.",
     cell_para="archpat moved from <span class='bad'>fragile</span> (under uniform sampler) to <span class='ok'>universal</span> under the triangular sampler that weights perturbations near the author's declared defaults. Both axes now exceed 100/200 CONFIRM. Under uniform-adversarial sampling the thesis still collapses (66/200 inputs, 89/200 params) — so the model is sampler-conditional: its claim holds in the plausible regime, breaks at the bounds.",
-    lift_intro="<p>Lifted via the heaviest pipeline in the framework: <strong>Maven compile</strong> → <strong>pattern4 CLI</strong> → <strong>parse_pattern4_xml.py</strong> → <strong>R archpat lift</strong>. Each step is independent and re-runnable. Discovery during this lift: pattern4.jar IS CLI-callable despite its GUI-default manifest — see the memory note in the repo (<code>reference_pattern4_gotcha.md</code>).</p><p>Full notebook: <code>lifts/lift_archpat.Rmd</code>. Companion fallback: Arcan smell detector (open source) if pattern4 setup is blocked.</p>",
+    lift_intro="""<p>Lifted via the heaviest pipeline in the framework. Full chain mirrors the kaiaulu vignette <code>vignettes/archpat_gof_pattern_partition.Rmd</code>:</p>
+<pre><code>Legacy ──migrate──&gt; Patterned ──decay_rate──&gt; Drift ──drift_to_legacy──&gt; Legacy
+            (effort applied)     (Perry-Wolf erosion)</code></pre>
+<p><strong>Six-step method</strong>:</p>
+<ol>
+  <li><code>mvn compile -pl &lt;module&gt; -am -DskipTests</code> — produces <code>.class</code> files in <code>target/classes/</code>. Multi-minute side effect; run externally before knitting.</li>
+  <li><code>java -jar pattern4.jar -target &lt;classes&gt; -output &lt;xml&gt;</code> — detects 23 GoF patterns per class.</li>
+  <li><code>parse_pattern4_xml.py &lt;pattern4-dir&gt;</code> — emits <code>patterned_files.csv</code> with <code>file_pathname, pattern_type, role, module</code> columns. Kaiaulu offers <code>parse_gof_patterns()</code> for reading existing XML output.</li>
+  <li><strong>Bug-frequency signal</strong>: SZZ-introducing-commits touching each file (B-SZZ via PyDriller). Kaiaulu-native alternative is <code>parse_jira()</code> Bug-type filter when a complete JIRA dump exists.</li>
+  <li><strong>File-churn signal</strong>: <code>compute_file_churn()</code> over a 180-day window.</li>
+  <li>Assign each <code>.java</code> file to <code>{Patterned, Legacy, Drift, Other}</code> via <code>assign_file_partition()</code> with <code>legacy_bug_threshold=3</code>, <code>drift_churn_threshold=0.5</code>.</li>
+</ol>
+<p><strong>Pattern4 invocation gotcha</strong>: <code>pattern4.jar</code> declares <code>Main-Class: gr.uom.java.pattern.gui.MatrixFrame</code> which opens a Swing GUI on <code>java -jar pattern4.jar</code> with no args. <code>MatrixFrame.main(args)</code> dispatches to a batch-mode <code>Console</code> when called as <code>java -Xmx2g -jar pattern4.jar -target &lt;classes-dir&gt; -output &lt;xml&gt;</code>. The GUI path is taken only when no recognised switches appear. See <code>reference_pattern4_gotcha.md</code> in the project memory.</p>
+<p><strong>Fallback path</strong>: where pattern4 is unavailable, Arcan (Arcelli Fontana et al. 2017) produces structural-smell output with the same <code>(file, smell_type, smell_id)</code> shape. Partition logic is detector-agnostic. Smells ≠ GoF patterns semantically — document the substitution in any downstream comparison.</p>
+<p>Full notebook: <code>lifts/lift_archpat.Rmd</code>. Carlos's PR-style vignette: <a href="https://github.com/timm/kaiaulu/blob/master/vignettes/archpat_gof_pattern_partition.Rmd"><code>kaiaulu/vignettes/archpat_gof_pattern_partition.Rmd</code></a>.</p>""",
     attrs_table=[
         ("compiled .class files", "input to GoF detector", "mvn compile -pl &lt;module&gt; -am -DskipTests"),
         ("patterned_files.csv", "Patterned partition members", "pattern4 -target classes -output xml + parse_pattern4_xml.py"),
@@ -755,25 +770,31 @@ M["archpat"] = dict(
     ],
     sanity="<strong>(1) Bug-count</strong>: required (Legacy partition uses bug-frequency). SZZ as proxy works; JIRA Bug filter would be cleaner. <strong>(2) Identity bridging</strong>: not used (file-level lift).",
     scorecard_extras="<div class='callout'><span class='label'>boundary violations</span>archpat.Legacy_n hi=200 is exceeded on both lifted projects: Helix 384, Ambari 1890. archpat.Patterned_n hi=200 also exceeded on Ambari (381). The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files in each partition.</div>",
-    results_intro="Lifted on Helix (1985 files) and Ambari (6600 files). junit5 attempted but blocked by Gradle JDK 25 toolchain mismatch.",
+    results_intro="""<strong>Verdict on Helix</strong>: Helix's partition is <strong>~6.5% Patterned (149 files), ~19% Legacy (384 files), 0 Drift, ~74% Other</strong>. Helix's bigger Legacy stock means more headroom for the <code>migrate</code> control to move files into the Patterned bucket; a downstream SD verdict pipeline that consumes these stocks therefore reports a larger thesis-gap than its defaults predict.<br/><br/>Drift = 0 because no file passes the 0.5 churn threshold in the recent 180-day window — Helix is a mature, stable codebase. Same pattern holds on Ambari.<br/><br/>Lifted on Helix (1985 files) and Ambari (6600 files). junit5 attempted but blocked by Gradle JDK 25 toolchain mismatch; camel attempted but blocked by Maven dep resolution on Java 26.""",
     results_table_rows=[
         ("Helix",  "149",  "384 (OUT)",  "0",   "1452", "1985"),
         ("Ambari", "381 (OUT)", "1890 (OUT)", "0",   "4329", "6600"),
     ],
     results_table_cols=["project","Patterned","Legacy","Drift","Other","n_files"],
-    results_discussion="Helix and Ambari both have far more Legacy than the model's hi=200 anticipates. Calibrated rq() gap widens from +229 to +390 with Helix's larger Legacy — more legacy means more headroom for the migrate parameter to act, which strengthens the thesis. Drift is 0 in both projects because the churn threshold isn't met by any file in a recent 180-day window — both projects are mature enough that no file is actively drifting.",
+    results_discussion="""<strong>Boundary-adequacy finding</strong>: Both projects produce Legacy counts well above 200; for downstream SD models with a Legacy-stock upper bound of 200, the empirical counts trigger boundary-clipping during simulation. Ambari's Legacy at 1890 is 9.5× the declared <code>hi</code>; helix's 384 is 1.9× over. The model's bounds were specified at small-project scale; mature OSS Java codebases routinely have thousands of files per partition. TODO 7a (in <code>TODO.md</code>) proposes widening to <code>Patterned hi=1000, Legacy hi=3000</code> based on a 1.5× headroom over Ambari's observed max.<br/><br/><strong>Calibrated rq() shift</strong>: calibrated gap widens from +229 to +390 with Helix's larger Legacy — more legacy means more headroom for the <code>migrate</code> parameter to act, which strengthens the thesis. Counter-intuitive: more degraded projects show STRONGER apparent thesis support, because the model has more material to migrate. Reviewers should not conflate "thesis strengthened" with "project healthier."<br/><br/><strong>Drift = 0</strong> in both projects because the churn threshold isn't met by any file in a recent 180-day window — both projects are mature enough that no file is actively drifting. A snapshot test on a younger project (e.g. orgchurn data set) would likely populate Drift.""",
     implications=[
         "<strong>F0 contribution</strong>: archpat's two boundary violations (Legacy + Patterned) anchor two of the five F0 violations.",
         "<strong>Counter-intuitive calibrated strengthening</strong>: bigger Legacy → stronger thesis. Helix's calibration moves the rq gap from +229 to +390 because the model has more room to move files from Legacy to Patterned.",
         "<strong>Maven build cost</strong>: archpat's pipeline is the heaviest in the framework. RefMiner + pattern4 + Maven compile all in series, per project. ~30 min per Java project. Caching the intermediate XMLs is essential for reproducibility.",
     ],
     refs=[
+        ("Gamma, E., Helm, R., Johnson, R., &amp; Vlissides, J. (1994). <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Addison-Wesley.",
+         "https://www.pearson.com/en-us/subject-catalog/p/design-patterns-elements-of-reusable-object-oriented-software/P200000009480", "book"),
         ("Perry, D. E., &amp; Wolf, A. L. (1992). Foundations for the Study of Software Architecture. <em>ACM SIGSOFT SEN</em> 17(4):40–52.",
          "https://doi.org/10.1145/141874.141884", "peer-reviewed"),
-        ("Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>.",
+        ("Tsantalis, N., Chatzigeorgiou, A., Stephanides, G., &amp; Halkidis, S. T. (2006). Design Pattern Detection Using Similarity Scoring. <em>IEEE TSE</em> 32(11):896–909. (pattern4.jar's algorithmic basis.)",
+         "https://doi.org/10.1109/TSE.2006.112", "peer-reviewed"),
+        ("Tsantalis, N., Mansouri, M., Eshkevari, L. M., Mazinanian, D., &amp; Dig, D. (2018). Accurate and Efficient Refactoring Detection in Commit History. <em>ICSE '18</em>. (RefactoringMiner.)",
          "https://doi.org/10.1145/3180155.3180206", "peer-reviewed"),
-        ("Tsantalis, N., &amp; Chatzigeorgiou, A. (2009). Identification of Move Method Refactoring Opportunities. <em>IEEE TSE</em> 35(3):347–367.",
-         "https://doi.org/10.1109/TSE.2009.1", "peer-reviewed"),
+        ("Arcelli Fontana, F., Pigazzini, I., Roveda, R., Tamburri, D. A., Zanoni, M., &amp; Lenarduzzi, V. (2017). Arcan: A Tool for Architectural Smells Detection. <em>ECSA 2017</em>. (Documented fallback detector with compatible output schema.)",
+         "https://doi.org/10.1109/ICSAW.2017.16", "peer-reviewed"),
+        ("MacCormack, A., Rusnak, J., &amp; Baldwin, C. Y. (2007). Exploring the Structure of Complex Software Designs: An Empirical Study of Open Source and Proprietary Code. <em>Management Science</em> 52(7):1015–1030.",
+         "https://doi.org/10.1287/mnsc.1060.0552", "peer-reviewed"),
         ("Martin, R. C. (2008). <em>Clean Architecture</em>. Prentice Hall.",
          "https://www.pearson.com/en-us/subject-catalog/p/clean-architecture-a-craftsmans-guide-to-software-structure-and-design/P200000009528", "book"),
     ],
@@ -782,8 +803,8 @@ M["archpat"] = dict(
 
 M["congruence"] = dict(
     year=2008, cell="universal",
-    cite_short="Blondel et al. (2008) Louvain + Cataldo &amp; Herbsleb communication graphs.",
-    intro1="Communication graphs in software teams exhibit community structure: most replies happen within sub-groups (\"clusters\"), and a few boundary-spanning developers (\"brokers\") hold the graph together. If brokers leave, the graph fragments — sub-communities lose context, work synchronisation breaks down.",
+    cite_short="Blondel et al. (2008) Louvain + Cataldo &amp; Herbsleb communication graphs. <strong>Smells-based variant</strong>; motif-based companion model planned (TODO UU).",
+    intro1="Communication graphs in software teams exhibit community structure: most replies happen within sub-groups (\"clusters\"), and a few boundary-spanning developers (\"brokers\") hold the graph together. If brokers leave, the graph fragments — sub-communities lose context, work synchronisation breaks down. <em>This page documents the smells-based operationalization (Catolino 2019, kaiaulu R/smells.R); a separate motif-based variant (Mauerer et al. 2022 TSE, kaiaulu R/motif.R) is queued — see TODO UU for the parallel SD model `congruence_motif`.</em>",
     intro2="The model tracks Clusters (count), Brokers (count), and Cohesion (cumulative aligned work output). The ctrl is broker_loss (rate at which brokers exit the project). The thesis is that even a small broker_loss (0.3 = lose 30% of brokers) collapses cohesion.",
     intuition="Email threads cluster naturally. The few people who span clusters keep the project coherent. Lose them, the clusters drift apart.",
     y_text="<code>Cohesion − 5·Clusters</code> at end of run.",
@@ -817,6 +838,7 @@ M["congruence"] = dict(
         "<strong>Identity-match step matters</strong>: applying identity_match across mbox+git reduces Helix's main-component nodes from 96 to 77 (~20% consolidation). Without it, brokers would be double-counted.",
         "<strong>Strongest CONFIRM in framework</strong>: gap −315 at default. The broker-loss thesis is mathematically and empirically robust.",
         "<strong>Methodologically circular at Helix scale</strong>: the model's default init exactly matches Helix's measured values (Brokers=3, Clusters=5). The model was specified knowing Helix's first radio_silence run. The 2nd and 3rd project lifts (airflow, tomcat) provide the falsification test.",
+        "<strong>Two operationalizations of the same SE thesis</strong>: kaiaulu carries both the smells-based (R/smells.R, Catolino 2019) and the motif-based (R/motif.R, Mauerer et al. 2022 TSE) congruence pipelines. The smells path detects radio-silence brokers via Louvain communities; the motif path counts triangle/anti-triangle/square/anti-square subgraph isomorphisms via VF2. Both lift to the same conceptual coordination-gap stock but with different mathematical surfaces. Companion model `congruence_motif` (TODO UU) ports the motif path into the SD framework. Cataldo's 3 matrix-form congruence variants (CR ∩ CA / |CR|) constitute a third operationalization track that may ship as `congruence_cataldo`.",
     ],
     refs=[
         ("Blondel, V. D., Guillaume, J.-L., Lambiotte, R., &amp; Lefebvre, E. (2008). Fast Unfolding of Communities in Large Networks. <em>Journal of Statistical Mechanics</em> P10008.",
@@ -825,6 +847,93 @@ M["congruence"] = dict(
          "https://doi.org/10.1145/1460563.1460654", "peer-reviewed"),
         ("Newman, M. E. J. (2015). <em>Networks: An Introduction</em> (2nd ed). Oxford University Press.",
          "https://global.oup.com/academic/product/networks-9780198805090", "book"),
+        ("Mauerer, W., Joblin, M., Tamburri, D. A., Paradis, C., Kazman, R., &amp; Apel, S. (2022). In Search of Socio-Technical Congruence: A Large-Scale Longitudinal Study. <em>IEEE Transactions on Software Engineering</em> 48(8):3159&ndash;3184.",
+         "https://doi.org/10.1109/TSE.2021.3082074", "peer-reviewed"),
+        ("Catolino, G., Palomba, F., Tamburri, D. A., Serebrenik, A., &amp; Ferrucci, F. (2019). Refactoring Community Smells in the Wild: The Practitioner's Field Manual. <em>ICSE '19</em>. IEEE 8651329.",
+         "https://doi.org/10.1109/ICSE-SEIP.2019.00011", "peer-reviewed"),
+    ],
+)
+
+
+# ============================================================================
+# congruence_motif — motif-based STC (Mauerer et al. 2022 TSE).
+# Added 2026-05-25 per Carlos GH #3.
+# ============================================================================
+
+M["congruence_motif"] = dict(
+    year=2022, cell="universal",
+    cite_short="Mauerer et al. (2022, IEEE TSE) — motif-based socio-technical congruence; companion to <code>congruence</code> (smells-based).",
+    intro1="Dev-pairs who CO-TOUCH the same source file (or two dep-linked source files) SHOULD COMMUNICATE about it. When they don't, anti-motif counts accumulate as <em>realized coordination gaps</em>. Mauerer et al. (2022 IEEE TSE) operationalize this via four motif templates over a merged dev–file–dep graph and count subgraph isomorphisms (VF2 algorithm).",
+    intro2="The model tracks Devs, Files, and Bugs. Each tick, the active dev-pair population co-touches files at <code>pair_touch_rate</code>; the fraction (1 − <code>comm_rate</code>) become anti-triangles (file-level) or anti-squares (dep-level). Each anti-motif event accrues bugs at <code>bug_per_antimotif</code>; <code>bug_pay_rate</code> drains them. Higher communication closes more coordination gaps → fewer Bugs accumulate. This is the <strong>motif-based variant</strong> of the same SE thesis the <code>congruence</code> model encodes via the smells/Louvain path.",
+    intuition="When two devs touch the same file but never email or comment, every such co-touch is a future bug waiting to happen.",
+    y_text="<code>Bugs</code> at end of run (lower = better).",
+    y_para="Total bugs accumulated from anti-motif events minus paydown. Success = LOW Bugs. <code>rq()</code> uses <code>expect='down'</code>: high comm should produce lower Bugs.",
+    rq_text="Raising <code>comm_rate</code> from 0.2 (fragmented) to 0.8 (well-coordinated) lowers final Bugs.",
+    rq_para="CONFIRM with gap ≈ −69 at default. The two-arm comparison is Mauerer's central STC claim distilled to a controlled experiment.",
+    cell_para="congruence_motif sits in <span class='ok'>universal</span> (174/200 input CONFIRM, 154/200 param CONFIRM) — the coordination-gap → bugs mechanism holds across both world and process variation. Stats-grade <code>verdict_n</code> is neutral, mirroring archpat's profile: signal robust in direction but smaller than declared-range variance.",
+    lift_intro="""<p>Lifted via the kaiaulu motif pipeline (<code>R/motif.R</code> + <code>R/network.R</code>), confirmed against the kaiaulu vignette <a href="https://github.com/sailuh/kaiaulu/blob/master/vignettes/motif_analysis.Rmd"><code>vignettes/motif_analysis.Rmd</code></a>:</p>
+<pre><code>gitlog ──&gt; bipartite (author-file)         ─┐
+replies ─&gt; bipartite (dev-thread) ──proj──&gt; ─┼─&gt; merged graph
+deps ────&gt; file-file network                ─┘            │
+                                                          ▼
+                                       igraph::count_subgraph_isomorphisms
+                                       over { triangle, anti_triangle,
+                                              square, anti_square }
+                                                          │
+                                                          ▼
+                              congruence_motif = (Tri + Sq) / sum(all 4)</code></pre>
+<p><strong>Six-step method</strong> (parallels the smells-based <code>congruence</code> path; uses the same identity-match prerequisite):</p>
+<ol>
+  <li>Parse gitlog → <code>transform_gitlog_to_bipartite_network(mode="author-file")</code>.</li>
+  <li>Parse replies (mbox / GitHub) → <code>transform_reply_to_bipartite_network()</code> → <code>bipartite_graph_projection()</code> for dev-dev edges.</li>
+  <li>Parse dependencies → <code>transform_dependencies_to_network(dependency_type="file")</code> (or <code>transform_r_dependencies_to_network()</code> for R).</li>
+  <li><code>identity_match(name_column=c("author_name_email","reply_from"))</code> — required cross-source bridge.</li>
+  <li>Merge all three networks into a single combined graph; cast node colours to numeric for VF2.</li>
+  <li>For each motif in {triangle, anti_triangle, square, anti_square}: <code>motif_factory(name)</code> → <code>igraph::count_subgraph_isomorphisms(motif, network, method="vf2")</code>. Emit four integer counts + <code>n_devs</code>, <code>n_files</code>, <code>n_deps</code>, plus the derived ratio.</li>
+</ol>
+<p><strong>Vignette example on kaiaulu itself</strong>: triangle=34, square=32 (anti variants available via <code>motif_factory("anti_triangle")</code> etc.). Calibrate <code>comm_rate</code> from the empirical ratio (Tri+Sq)/(Tri+AntiTri+Sq+AntiSq).</p>
+<p><strong>Three operationalizations of the same SE thesis</strong>: kaiaulu carries the <em>smells path</em> (R/smells.R, Louvain communities, Catolino 2019) shipped as <code>congruence</code>; the <em>motif path</em> (R/motif.R, VF2 subgraph isomorphism, Mauerer 2022) shipped as this model; and a possible third <em>Cataldo matrix path</em> (CR ∩ CA / |CR|, three sub-variants reviewer-requested in 2022) still queued as <code>congruence_cataldo</code> per TODO UU.</p>
+<p>Full notebook: <code>lifts/lift_congruence_motif.Rmd</code>.</p>""",
+    attrs_table=[
+        ("author_name_email + file_pathname", "author-file bipartite", "kaiaulu parse_gitlog + transform_gitlog_to_bipartite_network"),
+        ("reply_from + reply_id + in_reply_to_id", "dev-thread bipartite → dev-dev projection", "kaiaulu parse_mbox / parse_github_replies + transform_reply_to_bipartite_network"),
+        ("file dep edges", "file-file network", "kaiaulu parse_dependencies (via Depends) + transform_dependencies_to_network"),
+        ("identity_id (merged)", "graph node identity", "identity_match with TWO name_columns"),
+        ("triangle / anti_triangle / square / anti_square", "motif templates", "kaiaulu motif_factory()"),
+        ("subgraph isomorphism counts", "per-motif integer counts", "igraph::count_subgraph_isomorphisms(method=\"vf2\")"),
+    ],
+    tools_table=[
+        ("Perceval / Depends", "parsing inputs (via kaiaulu)"),
+        ("kaiaulu R package", "parse_gitlog, parse_mbox, parse_dependencies, identity_match, motif_factory, transform_*_to_network"),
+        ("igraph (R)", "graph representation + count_subgraph_isomorphisms (VF2)"),
+    ],
+    sanity="<strong>(1) Bug-count</strong>: not used directly — Bugs is a downstream consequence stock, not a lifted quantity. <strong>(2) Identity bridging</strong>: REQUIRED; same identity_match call as the smells-based <code>congruence</code>. Anti-motif counts on raw (unmerged) identities would double-count any developer with mbox-vs-git address mismatch — exactly the bias the vignette's identity_match step exists to prevent.",
+    scorecard_extras="<div class='callout'><span class='label'>methodological note</span>This is the <strong>second of (at least) three operationalizations</strong> of the SE thesis 'coordination-gap predicts defects.' Compare with the smells-based <code>congruence</code> page; together they let the framework triage WHICH operationalization is the better measurement target for the same underlying theory. Cataldo's matrix-form variants (TODO UU) would constitute a third such track.</div>",
+    results_intro="No project-data lift run yet (pipeline-ready; awaits a per-project execution of motif counting). The SD model alone yields CONFIRM gap=-68.78 at default and lands universally in the stress matrix.",
+    results_table_rows=[
+        ("kaiaulu (vignette sample)", "34", "—", "32", "—", "—"),
+    ],
+    results_table_cols=["project","Triangle","AntiTriangle","Square","AntiSquare","congruence_ratio"],
+    results_discussion="The vignette example on kaiaulu itself reports triangle=34, square=32 (positive motifs); anti variants are available via <code>motif_factory(\"anti_triangle\")</code> etc. but were not enumerated in the vignette demo. A complete lift run across the 8-project family (Helix, junit5, Ambari, kaiaulu, airflow, openssl, tomcat, camel) would yield the cross-project ratio variance — that variance is what calibrates the <code>comm_rate</code> default and provides the family-member coherence test. Helix is the natural first target since identity_match is already wired in <code>lift_congruence.Rmd</code> (the smells-variant lift) and the merged dev-file-dep graph carries over directly.",
+    implications=[
+        "<strong>Two model pages for one SE thesis</strong>: same coordination-gap claim, two different mathematical surfaces (Louvain community detection vs VF2 subgraph isomorphism). The framework's job is to triage which surface gives the more falsifiable measurement.",
+        "<strong>Anti-motif counts are the leverage measurement</strong>: not the triangle/square counts themselves (which scale with project size) but the RATIO (Tri+Sq)/(all four). This ratio normalises across project sizes and is the headline calibration target.",
+        "<strong>Cross-validation with smells variant</strong>: on the same project, the smells path's Brokers count and the motif path's anti-triangle count should correlate (both measure coordination gaps). High correlation → either method is fine. Low correlation → the methods disagree on what 'coordination gap' means and the SE community needs to pick one.",
+        "<strong>Cataldo's matrix-form variants</strong> (TODO UU) constitute a third operationalization (CR ∩ CA / |CR|). Shipping all three as separate SD models gives reviewers the head-to-head methodological comparison the 2022 reviewers asked for.",
+    ],
+    refs=[
+        ("Mauerer, W., Joblin, M., Tamburri, D. A., Paradis, C., Kazman, R., &amp; Apel, S. (2022). In Search of Socio-Technical Congruence: A Large-Scale Longitudinal Study. <em>IEEE Transactions on Software Engineering</em> 48(8):3159&ndash;3184. (Motif-based STC: the basis for this model.)",
+         "https://doi.org/10.1109/TSE.2021.3082074", "peer-reviewed"),
+        ("Cataldo, M., Wagstrom, P. A., Herbsleb, J. D., &amp; Carley, K. M. (2006). Identification of Coordination Requirements: Implications for the Design of Collaboration and Awareness Tools. <em>CSCW '06</em>. (Original STC matrix-form; reviewer-requested companion variant.)",
+         "https://doi.org/10.1145/1180875.1180929", "peer-reviewed"),
+        ("Cataldo, M., &amp; Herbsleb, J. D. (2008). Communication Networks in Geographically Distributed Software Development. <em>CSCW '08</em>.",
+         "https://doi.org/10.1145/1460563.1460654", "peer-reviewed"),
+        ("Catolino, G., Palomba, F., Tamburri, D. A., Serebrenik, A., &amp; Ferrucci, F. (2019). Refactoring Community Smells in the Wild. <em>ICSE '19 SEIP</em>. (Smells-based variant — see <code>congruence</code> companion model.)",
+         "https://doi.org/10.1109/ICSE-SEIP.2019.00011", "peer-reviewed"),
+        ("Cordella, L. P., Foggia, P., Sansone, C., &amp; Vento, M. (2004). A (sub)graph isomorphism algorithm for matching large graphs. <em>IEEE TPAMI</em> 26(10):1367–1372. (VF2 algorithm used by igraph::count_subgraph_isomorphisms.)",
+         "https://doi.org/10.1109/TPAMI.2004.75", "peer-reviewed"),
+        ("kaiaulu motif vignette: <em>motif_analysis.Rmd</em>.",
+         "https://github.com/sailuh/kaiaulu/blob/master/vignettes/motif_analysis.Rmd", "industry"),
     ],
 )
 

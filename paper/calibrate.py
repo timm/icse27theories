@@ -54,7 +54,8 @@ def _override_init(init, overrides, notes):
         if k not in bg:
             notes.append(f"skipped: '{k}' not in model.init")
             continue
-        _, lo, hi = bg[k]
+        spec = bg[k]
+        lo, hi = spec[1], spec[2]
         clipped = _clip(float(val), lo, hi)
         if clipped != float(val):
             notes.append(f"clipped {k}: {val:.3g} -> [{lo},{hi}] => {clipped:.3g}")

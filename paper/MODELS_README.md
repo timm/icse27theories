@@ -5,7 +5,7 @@ five F-findings in <30 seconds. No R, no Perceval, no kaiaulu.
 
 ## Files
 
-- `sd.py` (~42 KB) — **33** SD models as `Model(init, step, y, rq, ctrl)`
+- `sd.py` (~44 KB) — **35** SD models as `Model(init, step, y, rq, ctrl)`
   namedtuples. UPPER inputs / lower params naming convention. Includes
   the engine: `run()`, `verdict()`, `opt()`, `stress(target='inputs'|'params'|'all')`.
 - `tests.py` — 9-test V&V bank: `boundary_adq`, `anomaly_check`,
@@ -13,7 +13,7 @@ five F-findings in <30 seconds. No R, no Perceval, no kaiaulu.
   `mr_bound_consist`, `mr_scale`. Plus `stress_matrix()` for 2×2 cell
   classification.
 
-## Scorecard structure (standard, all 34 model pages)
+## Scorecard structure (standard, all 35 model pages)
 
 Every `docs/models/<name>.html` carries the same 18-row V&V scorecard
 in Panel 5. Auto-derived from CSVs by `docs/scripts/gen_rich.py`'s
@@ -53,7 +53,7 @@ Two pages are hand-tuned (`manual=True` in `gen_rich.py`):
 - `brooks.html` — full hand-written prose throughout; data-tier rows
   conform to the same 5-row schema.
 - `diapers.html` — toy demonstrator; no lift relevance.
-- `full_audit.py` — runs the stress matrix + 9-test bank across all 34
+- `full_audit.py` — runs the stress matrix + 9-test bank across all 35
   models. Writes `outputs/full_audit.csv`.
 - `calibrate.py` — CSV-anchored verdicts. Reads `outputs/lift_<model>_<project>.csv`,
   substitutes lifted values into `model.init`, re-runs `rq()`, writes
@@ -65,7 +65,7 @@ Two pages are hand-tuned (`manual=True` in `gen_rich.py`):
   upstream extraction lives in `extract/`.
 - `Makefile` — targets to run all of the above + per-finding reports.
 
-## The 34 models
+## The 35 models
 
 Year-tagged. Diapers is the toy demonstrator.
 
@@ -74,6 +74,7 @@ Year-tagged. Diapers is the toy demonstrator.
 | 2024 | aiwork      | universal            | dark          |
 | 2024 | aidebt      | world-conditional    | dark          |
 | 2024 | burnout     | process-conditional  | dark          |
+| 2022 | congruence_motif | universal       | pipeline-ready (Mauerer 2022 STC; companion to congruence) |
 | 2019 | teamtopo    | universal            | dark          |
 | 2018 | dora        | universal            | 7/8           |
 | 2018 | deprot      | universal            | pipeline-ready|
@@ -105,7 +106,8 @@ Year-tagged. Diapers is the toy demonstrator.
 | 1961 | little      | universal            | pipeline-ready|
 | 1927 | sir         | universal            | 0/8           |
 
-Counts: 14 universal · 12 process-cond · 4 fragile · 3 world-cond.
+Counts (from `paper/outputs/full_audit.csv` post 2026-05-25 re-run):
+23 universal · 7 process-cond · 4 fragile · 1 world-cond.
 
 ## 2×2 stress matrix typology
 

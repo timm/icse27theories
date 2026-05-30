@@ -181,7 +181,7 @@ status), `diary/` (collaborator email archive), `outputs/` (raw CSVs).
 
 ---
 
-## Update 2026-05-29 — scorecard data-tier rows standardised
+## Update 2026-05-25 — scorecard data-tier rows standardised
 
 **Scorecard schema unified across all 34 model pages.** Previously
 only `brooks.html` (hand-tuned) carried the 5 data-tier prudence rows
@@ -210,3 +210,51 @@ structure". Total scorecard now 18 rows per page (8 structural prudence
 + 4 effect + 1 cell + 5 data-tier).
 
 Both gates (audit_staleness.py, check_pages.py) pass after the change.
+
+---
+
+## Update 2026-05-25 (later) — congruence_motif model + 3-script bug fix
+
+**New model: `congruence_motif`** added per Carlos GH issue #3.
+Motif-based socio-technical congruence (Mauerer et al. 2022, IEEE TSE
+48(8); kaiaulu R/motif.R lineage). Companion to the existing
+smells-based `congruence`. Same SE thesis, different mathematical
+surface (VF2 subgraph isomorphism over 4 motif templates rather than
+Louvain community detection over reply graph).
+
+Added:
+- SD model `congruence_motif()` in `paper/sd.py` (~70 lines, fully
+  commented per aiwork pattern).
+- Wired into `paper/full_audit.py` import + MODELS list.
+- Rich `M["congruence_motif"]` entry in `docs/scripts/gen_rich.py`
+  matching archpat-style schema (6-step method outline, three-track
+  comparison: smells vs motif vs Cataldo, 6 references including
+  Mauerer 2022 + Cataldo 2006 + Cordella 2004 VF2).
+- New page `docs/models/congruence_motif.html`.
+- New card on `docs/index.html` (cyan "universal" tile,
+  pipeline-ready badge).
+- Lift notebook `extract/lifts/lift_congruence_motif.Rmd`
+  mirroring Carlos's `vignettes/motif_analysis.Rmd` structure with
+  Helix as the first target.
+- `paper/MODELS_README.md` table updated (35 rows; 23 universal · 7
+  process-cond · 4 fragile · 1 world-cond per current audit).
+
+Audit profile of new model: CONFIRM gap=-68.78 single-shot, neutral
+gap_n=-60.03 stats-grade, cell=universal (174/200 inputs, 154/200
+params CONFIRM). Mirrors archpat (universal cell + neutral stats =
+direction robust but magnitude smaller than declared-range variance).
+
+**Bug fix collateral**: `paper/boundary_check.py:91`,
+`paper/cross_project.py:86`, `paper/calibrate.py:57` all unpacked
+init values as `_, lo, hi = ...` (3-tuple) but `sd.py` init values
+are 4-tuples `[default, lo, hi, units]`. Pre-existing latent bug —
+worked silently as long as the CSV files were never regenerated.
+Fixed to use `spec = m.init[param]; lo, hi = spec[1], spec[2]`.
+
+**Pipeline state**: 35 models · full_audit.csv refreshed ·
+boundary_check.csv refreshed (lifts.csv restored from git after a
+melt_lifts accidental wipe — per-project lift_*.csv source files
+absent on disk, so melt_lifts produces empty output; lifts.csv is
+the frozen survivor and was preserved by git checkout). All four
+inference CSVs (full_audit, boundary_check, calibrated_verdicts,
+cross_project) reproduce cleanly. Both gates green.
