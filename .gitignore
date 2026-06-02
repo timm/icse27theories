@@ -41,3 +41,8 @@ extract/data/*/mod_mbox/
 # Depends cwd output (writes here regardless of -o flag)
 depends.log
 depends-dv8map.mapping
+
+# project drops (raw + derived) — never commit, recoverable from Drive
+data/*/
+!data/dropzone/
+!data/README*
