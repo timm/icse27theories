@@ -1,0 +1,153 @@
+<h1>A. The project as received</h1>
+
+<p class="note">Everything on this page was in the repository before your
+work and this session (git history up to commit <code>2949f60</code>).
+Sources: <code>STATE.md</code>, <code>paper/MODELS_README.md</code>,
+<code>findings.md</code>, <code>CLAUDE.md</code>.</p>
+
+<h2>A1. Purpose</h2>
+<p>This is a methodology paper for ICSE 2027 (NIER first, then EMSE) by
+Menzies and Kazman with Umar, with Carlos on tooling. The
+framing is <i>"what to measure next: model-based triage for SE
+empirical research"</i>. The project doesn't collect new data. It
+triages which data are worth collecting by building small simulations
+of SE laws and checking which of their parameters can be "lifted" from
+existing open-source data.</p>
+
+<h2>A2. Repository layout</h2>
+<table>
+<tr><th>folder</th><th>role</th></tr>
+<tr><td><code>paper/</code></td><td>Inference layer. <code>sd.py</code> (35 models + engine),
+<code>tests.py</code> (validation bank), <code>stats.py</code> (Cliff's δ, KS, Scott-Knott from ezr),
+<code>full_audit.py</code>, <code>calibrate.py</code>, <code>boundary_check.py</code>,
+<code>cross_project.py</code>, and <code>outputs/*.csv</code>.</td></tr>
+<tr><td><code>extract/</code></td><td>Data layer. kaiaulu-style <code>.Rmd</code> lift notebooks + <code>functions.R</code>,
+per-project configs (<code>conf/*.yml</code>), derived CSVs (SZZ pairs, bug-fix commits,
+pattern4 output, LOC), helper scripts (SZZ, pattern4 parser).</td></tr>
+<tr><td><code>docs/</code></td><td>The public site: one page per model with a V&amp;V scorecard, generated
+by <code>docs/scripts/gen_rich.py</code> from the CSVs.</td></tr>
+<tr><td><code>feasibility/</code></td><td>Scorecard of which models can be lifted with which tools.</td></tr>
+<tr><td><code>smells/</code></td><td><code>radio_silence.py</code>: a Python port of a kaiaulu communication smell.</td></tr>
+<tr><td><code>diary/</code>, <code>meta/</code></td><td>Collaborator e-mails and session logs.</td></tr>
+</table>
+
+<h2>A3. How a "law" is represented</h2>
+<p>Every law is a function in <code>paper/sd.py</code> returning
+<code>Model(init, step, y, rq, ctrl)</code>:</p>
+<ul>
+<li><code>init</code>: <code>{name: [default, lo, hi, unit]}</code>. UPPER-case names are
+<b>inputs</b> (state of the world), lower-case names are <b>parameters</b> (the process).</li>
+<li><code>step(dt, t, u, v)</code>: one Euler step of the stocks and flows.</li>
+<li><code>y(trajectory)</code>: the success measure (higher = better).</li>
+<li><code>rq()</code>: the research question. Run the model with the control
+variable <code>ctrl</code> at two values and compare <code>y</code>, giving CONFIRM / REFUTE / neutral
+(5%-of-y0 threshold).</li>
+</ul>
+
+<div class="mermaid">
+flowchart LR
+  I["init<br/>defaults and lo/hi ranges"] --> R["sd.run<br/>Euler steps,<br/>states clipped to lo/hi"]
+  S["step<br/>flow equations"] --> R
+  R --> T0["trajectory, ctrl = arm 0"]
+  R --> T1["trajectory, ctrl = arm 1"]
+  T0 --> Y["y() on each"]
+  T1 --> Y
+  Y --> V{"gap = y1 − y0<br/>vs 5% threshold"}
+  V --> C["CONFIRM"]
+  V --> F["REFUTE"]
+  V --> N["neutral"]
+</div>
+
+<h3>The three laws this work focuses on</h3>
+<table>
+<tr><th>model</th><th>claim (rq)</th><th>lever</th><th>stocks</th><th>sources</th></tr>
+<tr><td><code>brooks</code></td><td>adding 10 people at t=10 lowers Done−Todo at t=20</td>
+<td><code>boost</code> 0 → 10</td><td>Vet, New, Done, Todo</td><td>Brooks 1975</td></tr>
+<tr><td><code>aiwork</code></td><td>full AI use (ai=1) lowers kept code</td><td><code>ai</code> 0 → 1</td>
+<td>Todo → Wip → Kept / Churned</td><td>GitClear 2024, METR 2025</td></tr>
+<tr><td><code>archpat</code></td><td>aggressive migration to patterns repairs a bad project</td>
+<td><code>migrate</code> 0.2 → 1.5</td><td>Patterned, Legacy, Drift, Debt, Feat</td>
+<td>Perry &amp; Wolf 1992, Martin 2008</td></tr>
+</table>
+
+<h3>The Brooks equations (shared by A and B)</h3>
+<pre>comm  = Vet·(Vet−1)/2 · comm_coef        # flat clique: all pairs
+train = New · train_coef                 # every newcomer taxes every vet
+prod  = Vet · (1 − comm − train) · prod_rate,  clipped at ≥ 0
+New  ← New − mature_rate·New + boost (at t=10)
+Vet  ← Vet + mature_rate·New
+y     = Done − Todo at t=20</pre>
+
+<h2>A4. Internal validation, as received</h2>
+<p><code>paper/tests.py</code> holds 8 tests (the docs call it the "9-test
+bank"):</p>
+<table>
+<tr><th>test</th><th>origin</th><th>checks</th></tr>
+<tr><td>boundary_adq</td><td>Forrester &amp; Senge §4/7</td><td>verdict does not flip at tmax=80</td></tr>
+<tr><td>anomaly_check</td><td>F&amp;S §3</td><td>y does not change sign with all inputs at hi</td></tr>
+<tr><td>extreme_eqn</td><td>F&amp;S §3</td><td>no NaN/inf with inputs at lo/hi</td></tr>
+<tr><td>mr_zero_input</td><td>metamorphic MR3</td><td>ctrl at 0 is reproducible</td></tr>
+<tr><td>mr_monotone</td><td>MR1</td><td>y monotone across 5 ctrl values</td></tr>
+<tr><td>mr_dt_halving</td><td>Sterman test 6</td><td>y within 10% when dt halves</td></tr>
+<tr><td>mr_bound_consist</td><td>MR9</td><td>clipping is not load-bearing</td></tr>
+<tr><td>mr_scale</td><td>MR2</td><td>2× stocks gives no sign flip or explosion</td></tr>
+</table>
+<p>The <b>2×2 stress matrix</b> perturbs inputs and parameters separately
+(200 triangular draws each) and labels each model:</p>
+<table>
+<tr><th></th><th>robust to inputs</th><th>fragile to inputs</th></tr>
+<tr><th>robust to params</th><td>universal</td><td>world-conditional</td></tr>
+<tr><th>fragile to params</th><td>process-conditional</td><td>fragile</td></tr>
+</table>
+<p>As received: <code>brooks</code> = <b>fragile</b> (only 12/200 input and 68/200
+parameter backgrounds CONFIRM; stats-grade verdict neutral);
+<code>aiwork</code> = universal; <code>archpat</code> = universal.</p>
+
+<h2>A5. External validation, as received ("lifts")</h2>
+<div class="mermaid">
+flowchart LR
+  G["8 OSS projects<br/>helix, ambari, junit5, tomcat,<br/>camel, airflow, openssl, kaiaulu"]
+  K["kaiaulu + tools<br/>Perceval, PyDriller SZZ, scc,<br/>RefactoringMiner, pattern4"]
+  L["extract/lifts/*.Rmd"]
+  C["lift_model_project.csv<br/>melted into lifts.csv"]
+  B["boundary_check.py<br/>lifted value outside lo/hi?"]
+  CA["calibrate.py<br/>re-run rq with lifted values"]
+  X["cross_project.py"]
+  D["docs/models/*.html<br/>scorecards"]
+  G --> K --> L --> C
+  C --> B --> D
+  C --> CA --> D
+  C --> X --> D
+</div>
+<ul>
+<li><b>Brooks lift:</b> <code>brooks_tax</code> is the veterans' commit velocity in the 90 days after
+a newcomer's first commit, relative to the 90 days before. Median values
+range from −1.13 (kaiaulu) to 0.31 (airflow). This is the "11× spread" of
+finding F3. <code>calibrated_verdicts.csv</code> notes it is <i>not</i> an input to the
+model, so no calibration was applied.</li>
+<li><b>archpat lift:</b> pattern4 (GoF detector) on compiled Helix/Ambari bytecode gives the
+Patterned files; files with ≥3 SZZ bug-introductions are Legacy; files
+with high recent churn are Drift. Helix: 149 / 384 / 0, with 1,452 "Other".</li>
+<li><b>aiwork:</b> marked "dark". No open dataset attributes commits to AI. The
+repo's only aiwork result is a parameter sweep (<code>grid_aiwork</code>) showing that METR,
+GitClear and the GitHub RCT sample different regions.</li>
+</ul>
+<figure><!--SVG:docs/figs/grid_aiwork.svg-->
+<figcaption>Received figure <code>docs/figs/grid_aiwork.svg</code>: the aiwork gap over
+<code>gen_boost × churn_mult</code>. Orange: AI hurts. Blue: AI helps. Circles mark where each study roughly sits.</figcaption></figure>
+
+<h2>A6. Findings as received</h2>
+<table>
+<tr><th>id</th><th>finding</th></tr>
+<tr><td>F0</td><td>5 parameters fail boundary adequacy: mature OSS exceeds the "small project" ranges (e.g. archpat.Legacy hi=200; Helix has 384).</td></tr>
+<tr><td>F1</td><td>brooksq.leak_rate exceeds hi=0.5 on 7/8 projects.</td></tr>
+<tr><td>F2</td><td>debt.pay_rate converges across Java projects (0.36–0.59).</td></tr>
+<tr><td>F3</td><td>Brooks effect varies 11× across 8 projects.</td></tr>
+<tr><td>F4</td><td>brooksq quality thesis splits (Ambari supports, junit5 refutes).</td></tr>
+</table>
+<p class="note">Known caveats recorded in the repo: <code>archpat.pat_strength</code> is unused
+in <code>step()</code>. The committed <code>full_audit.csv</code> shows
+<code>ERR:ValueError</code> for two tests (fixed by your uncommitted 4-tuple edit
+in <code>tests.py</code>). This session also found that <code>full_audit.py</code> swaps
+the world-/process-conditional labels relative to <code>tests.py</code> and the
+README (this affects aidebt, not the three laws here).</p>

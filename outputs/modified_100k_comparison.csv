@@ -1,0 +1,9 @@
+id,label,median_score,pct_beats_baseline,pct_beats_brooks,advantage_over_brooks,cliffs_delta_vs_brooks,verdict
+ambassador_10,"Ambassador Partitioning (10 Hires)",946.3,9.4%,100.0%,592.8,1.000,"MITIGATES BROOKS (Significant Recovery)"
+dedicated_mentor_10,"Dedicated Mentors (10 Hires)",1038.5,27.2%,100.0%,686.8,1.000,"MITIGATES BROOKS (Significant Recovery)"
+async_ci_10,"Async Documentation & CI (10 Hires)",671.7,0.0%,100.0%,317.5,0.980,"MITIGATES BROOKS (Significant Recovery)"
+staged_wave_10,"Staged Wave Influx (10 Hires)",392.4,0.0%,100.0%,39.0,0.272,"MITIGATES BROOKS (Significant Recovery)"
+synergistic_10,"Synergistic Modern Org (10 Hires)",1632.9,100.0%,100.0%,1279.4,1.000,"SURPASSES BASELINE (Brooks Broken)"
+standard_surge_50,"Standard Surge (50 Hires, Flat)",351.8,0.0%,0.0%,0.0,0.007,"MINIMAL MITIGATION"
+ambassador_surge_50,"Ambassador Surge (50 Hires)",594.3,0.0%,100.0%,233.4,0.935,"MITIGATES BROOKS (Significant Recovery)"
+synergistic_surge_50,"Synergistic Surge (50 Hires)",2361.4,100.0%,100.0%,2005.8,1.000,"SURPASSES BASELINE (Brooks Broken)"

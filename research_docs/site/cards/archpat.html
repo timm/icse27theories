@@ -1,0 +1,265 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>card: archpat</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="../index.html">Overview</a> <a href="../before.html">A. The project as received</a> <a href="../brooks.html">B1. Your Brooks work</a> <a href="../review.html">B2. Review of the Brooks work</a> <a href="../lawkit.html">C1. lawkit framework</a> <a href="../results.html">C2. Results per law</a> <a href="../evidence.html">C3. Real-world evidence</a> <a href="../strategy.html">D. Strategy, Cartwright, next steps</a> <a href="../reproduce.html">Files & reproduce</a> <a href="../cards/index.html" class=on>Evidence cards</a></nav><h1>Evidence card: <code>archpat</code></h1>
+<p><strong>Claim.</strong> aggressive migration to patterns (1.5 vs 0.2) raises Feat - mean(Debt) of an already-bad project.<br />
+<strong>Lever.</strong> <code>migrate</code> 0.2 -&gt; 1.5; expected y up.<br />
+<strong>Support factors.</strong> Patterned, Legacy, Debt, decay_rate, drift_to_legacy, gen_pat, gen_leg, born_pat, born_leg, intr_rate, pay_rate.<br />
+<strong>Sources.</strong> Perry &amp; Wolf 1992; Martin 2008; Bavota et al. 2012; sd.archpat</p>
+<h2>1. Is the machine sound? (structure battery)</h2>
+<table>
+<thead>
+<tr>
+<th>status</th>
+<th>test</th>
+<th>detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASS</td>
+<td>units declared</td>
+<td>every var has units</td>
+</tr>
+<tr>
+<td>FAIL</td>
+<td>dead parameters</td>
+<td>no influence on y: ['pat_strength']</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>extreme conditions</td>
+<td>all finite. claim not CONFIRMed at 3 extremes: Legacy=0:neutral, gen_pat=0.1:REFUTE, born_pat=1:REFUTE</td>
+</tr>
+<tr>
+<td>WARN</td>
+<td>clamp dependence</td>
+<td>34% of prior backgrounds escape declared bounds; 19% are CONFIRMs that need clamping</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>integration step (dt)</td>
+<td>gap dt=1:+228.7 dt=.25:+228.6 (0%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>time-horizon adequacy</td>
+<td>t=15:CONFIRM(+149); t=20:CONFIRM(+229); t=40:CONFIRM(+542); t=80:CONFIRM(+1127)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>dose-response monotone</td>
+<td>gaps 0.2:+0, 0.5:+64, 0.8:+121, 1.1:+171, 1.4:+215, 1.7:+254, 2:+288</td>
+</tr>
+<tr>
+<td>FAIL</td>
+<td>mechanism knock-out</td>
+<td>channels ['gen_pat', 'born_pat'] neutral -&gt; CONFIRM (+26.8)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>refutability (uniform)</td>
+<td>uniform over ranges: {'CONFIRM': 58.3, 'REFUTE': 12.9, 'neutral': 28.8}</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>scale x2 (MR2)</td>
+<td>CONFIRM(+229) -&gt; CONFIRM(+351)</td>
+</tr>
+</tbody>
+</table>
+<h2>2. How robust is the claim? (CONFIRM / REFUTE / neutral)</h2>
+<table>
+<thead>
+<tr>
+<th>neighbourhood</th>
+<th>verdicts</th>
+<th>gap median [5%, 95%]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+-15% around defaults (old MC protocol)</td>
+<td>100% / 0% / 0%</td>
+<td>+227 [+183, +275]</td>
+</tr>
+<tr>
+<td>triangular over declared ranges</td>
+<td>65% / 10% / 24%</td>
+<td>+67 [-111, +359]</td>
+</tr>
+<tr>
+<td>uniform over declared ranges</td>
+<td>59% / 14% / 26%</td>
+<td>+58 [-264, +463]</td>
+</tr>
+</tbody>
+</table>
+<h2>3. What decides it? (tree on prior draws, base rate 65% CONFIRM, accuracy 79%)</h2>
+<p>Importance: <code>gen_leg</code> 0.40, <code>born_leg</code> 0.24, <code>born_pat</code> 0.15, <code>pay_rate</code> 0.14, <code>gen_pat</code> 0.07</p>
+<pre><code>|--- gen_leg &lt;= 0.817
+|   |--- gen_pat &lt;= 0.737
+|   |   |--- gen_leg &lt;= 0.497
+|   |   |   |--- class: 1
+|   |   |--- gen_leg &gt;  0.497
+|   |   |   |--- class: 0
+|   |--- gen_pat &gt;  0.737
+|   |   |--- born_leg &lt;= 0.164
+|   |   |   |--- class: 1
+|   |   |--- born_leg &gt;  0.164
+|   |   |   |--- class: 1
+|--- gen_leg &gt;  0.817
+|   |--- born_leg &lt;= 0.348
+|   |   |--- born_pat &lt;= 0.255
+|   |   |   |--- class: 1
+|   |   |--- born_pat &gt;  0.255
+|   |   |   |--- class: 0
+|   |--- born_leg &gt;  0.348
+|   |   |--- pay_rate &lt;= 0.200
+|   |   |   |--- class: 0
+|   |   |--- pay_rate &gt;  0.200
+|   |   |   |--- class: 1
+</code></pre>
+<p>One-at-a-time tipping points (others at default):</p>
+<ul>
+<li><code>Legacy</code>: neutral-&gt;CONFIRM@5</li>
+<li><code>gen_pat</code>: REFUTE-&gt;neutral@0.245, neutral-&gt;CONFIRM@0.318</li>
+<li><code>born_pat</code>: CONFIRM-&gt;neutral@0.7, neutral-&gt;REFUTE@0.975</li>
+<li>no flip inside declared range: Patterned, Debt, decay_rate, drift_to_legacy, gen_leg, born_leg, intr_rate, pay_rate</li>
+</ul>
+<h2>4. Business scenarios (same mechanism, different world)</h2>
+<table>
+<thead>
+<tr>
+<th>scenario</th>
+<th>story</th>
+<th>default</th>
+<th>C/R/n under +-15%</th>
+<th>gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>big_bang</td>
+<td>rewrite: migrate=2.0</td>
+<td>CONFIRM (+288)</td>
+<td>100% / 0% / 0%</td>
+<td>+287 [+230, +348]</td>
+</tr>
+<tr>
+<td>no_governance</td>
+<td>patterns erode 6x faster</td>
+<td>CONFIRM (+84)</td>
+<td>100% / 0% / 0%</td>
+<td>+83 [+66, +105]</td>
+</tr>
+<tr>
+<td>already_good</td>
+<td>90 patterned / 10 legacy</td>
+<td>CONFIRM (+60)</td>
+<td>93% / 0% / 7%</td>
+<td>+59 [+47, +72]</td>
+</tr>
+<tr>
+<td>debt_crisis</td>
+<td>Debt=120 at start</td>
+<td>CONFIRM (+209)</td>
+<td>100% / 0% / 0%</td>
+<td>+208 [+167, +254]</td>
+</tr>
+<tr>
+<td>overengineered</td>
+<td>abstraction tax: patterned code ships slower</td>
+<td>CONFIRM (+38)</td>
+<td>86% / 0% / 14%</td>
+<td>+39 [+17, +60]</td>
+</tr>
+<tr>
+<td>patterns_no_safer</td>
+<td>patterned code as bug-prone as legacy</td>
+<td>CONFIRM (+161)</td>
+<td>100% / 0% / 0%</td>
+<td>+159 [+125, +196]</td>
+</tr>
+<tr>
+<td>helix_scale</td>
+<td>Helix partition: 149 patterned, 384 legacy</td>
+<td>CONFIRM (+341)</td>
+<td>100% / 0% / 0%</td>
+<td>+346 [+282, +425]</td>
+</tr>
+<tr>
+<td>short_horizon</td>
+<td>evaluate after 8 ticks</td>
+<td>CONFIRM (+52)</td>
+<td>100% / 0% / 0%</td>
+<td>+52 [+41, +64]</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Mechanism variants (same world, different structure; arms compared <em>within</em> each structure)</h2>
+<table>
+<thead>
+<tr>
+<th>variant</th>
+<th>story</th>
+<th>default</th>
+<th>local C/R/n</th>
+<th>prior C/R/n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sd.archpat</td>
+<td>reference: migration is free</td>
+<td>CONFIRM (+229)</td>
+<td>100% / 0% / 0%</td>
+<td>66% / 11% / 23%</td>
+</tr>
+<tr>
+<td>migration costs</td>
+<td>4 feature-items of effort per module moved</td>
+<td>CONFIRM (+74)</td>
+<td>97% / 0% / 3%</td>
+<td>20% / 59% / 21%</td>
+</tr>
+<tr>
+<td>refactoring bugs</td>
+<td>0.5 debt per module moved (Bavota 2012)</td>
+<td>CONFIRM (+153)</td>
+<td>100% / 0% / 0%</td>
+<td>38% / 27% / 34%</td>
+</tr>
+<tr>
+<td>erosion ~ pressure</td>
+<td>decay grows with delivery pressure</td>
+<td>CONFIRM (+201)</td>
+<td>100% / 0% / 0%</td>
+<td>64% / 10% / 27%</td>
+</tr>
+<tr>
+<td>all three</td>
+<td>cost + bugs + pressure</td>
+<td>REFUTE (-35)</td>
+<td>0% / 69% / 31%</td>
+<td>4% / 88% / 8%</td>
+</tr>
+</tbody>
+</table><script src="../vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

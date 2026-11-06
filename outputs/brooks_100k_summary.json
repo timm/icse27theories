@@ -1,0 +1,307 @@
+{
+  "summary": [
+    {
+      "scenario": "high_productivity",
+      "desc": "High productivity devs (prod_rate = 15)",
+      "mean": 2058.0366232258416,
+      "sd": 232.8395462571062,
+      "median": 2056.2593559661846,
+      "p05": 1695.7599934883654,
+      "p95": 2430.893081413342,
+      "iqr": 384.8788665531679,
+      "completed_pct": 100.0,
+      "cliffs_delta_vs_base": 1.0,
+      "is_same_as_base": false,
+      "rank": 1
+    },
+    {
+      "scenario": "baseline",
+      "desc": "Baseline: 10 veterans, 0 hires, horizon 20 ticks",
+      "mean": 1050.285675456353,
+      "sd": 142.8712083239957,
+      "median": 1048.99081287316,
+      "p05": 827.2555733399122,
+      "p95": 1279.8200864167136,
+      "iqr": 233.0309500063007,
+      "completed_pct": 100.0,
+      "cliffs_delta_vs_base": 0.01182475,
+      "is_same_as_base": true,
+      "rank": 2
+    },
+    {
+      "scenario": "break_training",
+      "desc": "No training penalty (train_coef = 0.0)",
+      "mean": 1033.532616657629,
+      "sd": 151.32951830483216,
+      "median": 1030.5803753082719,
+      "p05": 794.5841696038275,
+      "p95": 1285.8487201758178,
+      "iqr": 232.72092859051804,
+      "completed_pct": 100.0,
+      "cliffs_delta_vs_base": -0.0745545,
+      "is_same_as_base": true,
+      "rank": 2
+    },
+    {
+      "scenario": "last_minute_panic",
+      "desc": "Management panics 2 ticks before deadline (t=18)",
+      "mean": 972.7663717817768,
+      "sd": 136.01382972819448,
+      "median": 971.4146704703269,
+      "p05": 760.2846946867957,
+      "p95": 1191.3141719386879,
+      "iqr": 221.23029059601583,
+      "completed_pct": 100.0,
+      "cliffs_delta_vs_base": -0.318953,
+      "is_same_as_base": false,
+      "rank": 3
+    },
+    {
+      "scenario": "micro_hire",
+      "desc": "Micro hire of only 1 person at t=10",
+      "mean": 932.0247512767662,
+      "sd": 134.3608384082749,
+      "median": 930.4090224434583,
+      "p05": 721.5357045994655,
+      "p95": 1149.1148549898987,
+      "iqr": 215.37731827705068,
+      "completed_pct": 100.0,
+      "cliffs_delta_vs_base": -0.449289,
+      "is_same_as_base": false,
+      "rank": 3
+    },
+    {
+      "scenario": "break_communication",
+      "desc": "No communication penalty (comm_coef = 0.0)",
+      "mean": 635.801023947842,
+      "sd": 106.98698450000333,
+      "median": 635.0581747777062,
+      "p05": 467.70843717013025,
+      "p95": 807.3652284679025,
+      "iqr": 170.52898150911585,
+      "completed_pct": 86.098,
+      "cliffs_delta_vs_base": -0.9913545,
+      "is_same_as_base": false,
+      "rank": 4
+    },
+    {
+      "scenario": "asynchronous_remote",
+      "desc": "Async/remote culture reduces comm tax (comm_coef=0.001)",
+      "mean": 561.4752049525985,
+      "sd": 97.56589179367322,
+      "median": 561.5071887071646,
+      "p05": 407.75185706387225,
+      "p95": 716.5645834937459,
+      "iqr": 159.70334480603094,
+      "completed_pct": 68.979,
+      "cliffs_delta_vs_base": -0.9998215,
+      "is_same_as_base": false,
+      "rank": 5
+    },
+    {
+      "scenario": "long_horizon",
+      "desc": "Extended horizon: 50 ticks to allow recovery",
+      "mean": 472.71152512213325,
+      "sd": 195.69822165541856,
+      "median": 422.9699101558656,
+      "p05": 230.7013836752634,
+      "p95": 863.2200110210199,
+      "iqr": 262.34427335017745,
+      "completed_pct": 36.429,
+      "cliffs_delta_vs_base": -0.965516,
+      "is_same_as_base": false,
+      "rank": 6
+    },
+    {
+      "scenario": "fast_onboarding",
+      "desc": "Rapid onboarding (mature_rate = 0.5)",
+      "mean": 401.92404913476753,
+      "sd": 112.79312845503982,
+      "median": 394.7652365758238,
+      "p05": 230.77193207249317,
+      "p95": 607.068958156027,
+      "iqr": 155.09078327681618,
+      "completed_pct": 21.246000000000002,
+      "cliffs_delta_vs_base": -0.999995,
+      "is_same_as_base": false,
+      "rank": 6
+    },
+    {
+      "scenario": "brooks_law",
+      "desc": "Standard Brooks: 10 hires at t=10",
+      "mean": 352.61194238516845,
+      "sd": 82.08132258287714,
+      "median": 351.8329132696212,
+      "p05": 221.87771102430352,
+      "p95": 485.6740657751736,
+      "iqr": 128.4528190790138,
+      "completed_pct": 6.763,
+      "cliffs_delta_vs_base": -1.0,
+      "is_same_as_base": false,
+      "rank": 6
+    },
+    {
+      "scenario": "massive_surge",
+      "desc": "Massive hiring surge of 50 people at t=10",
+      "mean": 352.61194238516845,
+      "sd": 82.08132258287714,
+      "median": 351.8329132696212,
+      "p05": 221.87771102430352,
+      "p95": 485.6740657751736,
+      "iqr": 128.4528190790138,
+      "completed_pct": 6.763,
+      "cliffs_delta_vs_base": -1.0,
+      "is_same_as_base": false,
+      "rank": 6
+    },
+    {
+      "scenario": "steep_learning_curve",
+      "desc": "Spaghetti codebase: mature_rate=0.02, train_coef=0.4",
+      "mean": 352.61194238516845,
+      "sd": 82.08132258287714,
+      "median": 351.8329132696212,
+      "p05": 221.87771102430352,
+      "p95": 485.6740657751736,
+      "iqr": 128.4528190790138,
+      "completed_pct": 6.763,
+      "cliffs_delta_vs_base": -1.0,
+      "is_same_as_base": false,
+      "rank": 7
+    },
+    {
+      "scenario": "early_hire",
+      "desc": "Hiring early at t=2 instead of t=10",
+      "mean": -267.44450180237294,
+      "sd": 35.57857132812144,
+      "median": -267.4415763613893,
+      "p05": -326.45131729894194,
+      "p95": -208.42379403019646,
+      "iqr": 51.93752062789076,
+      "completed_pct": 0.0,
+      "cliffs_delta_vs_base": -1.0,
+      "is_same_as_base": false,
+      "rank": 8
+    },
+    {
+      "scenario": "small_core_team",
+      "desc": "Hiring 10 people onto tiny core team of 2 vets",
+      "mean": -276.6948151589022,
+      "sd": 35.24299892377889,
+      "median": -276.72537176241246,
+      "p05": -334.8973914158288,
+      "p95": -218.3587323209512,
+      "iqr": 51.728080140791945,
+      "completed_pct": 0.0,
+      "cliffs_delta_vs_base": -1.0,
+      "is_same_as_base": false,
+      "rank": 8
+    }
+  ],
+  "breakdowns": [
+    {
+      "scenario": "brooks_law",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -1.0
+    },
+    {
+      "scenario": "break_communication",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -0.9913545
+    },
+    {
+      "scenario": "break_training",
+      "pct_worse_than_base": 67.732,
+      "pct_better_than_base": 32.268,
+      "pct_tied": 0.0,
+      "verdict": "AMBIGUOUS / PARITY",
+      "cliffs_delta": -0.0745545
+    },
+    {
+      "scenario": "fast_onboarding",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -0.999995
+    },
+    {
+      "scenario": "early_hire",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -1.0
+    },
+    {
+      "scenario": "massive_surge",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -1.0
+    },
+    {
+      "scenario": "micro_hire",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -0.449289
+    },
+    {
+      "scenario": "high_productivity",
+      "pct_worse_than_base": 0.0,
+      "pct_better_than_base": 100.0,
+      "pct_tied": 0.0,
+      "verdict": "BROKEN (Hiring Helps)",
+      "cliffs_delta": 1.0
+    },
+    {
+      "scenario": "long_horizon",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -0.965516
+    },
+    {
+      "scenario": "small_core_team",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -1.0
+    },
+    {
+      "scenario": "steep_learning_curve",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -1.0
+    },
+    {
+      "scenario": "last_minute_panic",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -0.318953
+    },
+    {
+      "scenario": "asynchronous_remote",
+      "pct_worse_than_base": 100.0,
+      "pct_better_than_base": 0.0,
+      "pct_tied": 0.0,
+      "verdict": "CONFIRMED (Hiring Hurts)",
+      "cliffs_delta": -0.9998215
+    }
+  ],
+  "runs": 100000
+}

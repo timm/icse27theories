@@ -1,0 +1,131 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>D. Strategy, Cartwright lens, generic framework, next steps</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="index.html">Overview</a> <a href="before.html">A. The project as received</a> <a href="brooks.html">B1. Your Brooks work</a> <a href="review.html">B2. Review of the Brooks work</a> <a href="lawkit.html">C1. lawkit framework</a> <a href="results.html">C2. Results per law</a> <a href="evidence.html">C3. Real-world evidence</a> <a href="strategy.html" class=on>D. Strategy, Cartwright, next steps</a> <a href="reproduce.html">Files & reproduce</a> <a href="cards/index.html">Evidence cards</a></nav><h1>D. Strategy, Cartwright lens, generic framework, next steps</h1>
+
+<h2>D1. Conclusions per law</h2>
+<p>Each verdict is stated in Cartwright form: "L plays a causal role in Y
+where S holds; project P satisfies S with probability p; the deciding
+unknown is F".</p>
+<table>
+<tr><th>law</th><th>holds where…</th><th>real project</th><th>deciding unknown</th></tr>
+<tr><td>Brooks</td><td>the project is late AND the post-hire team overshoots its coordination optimum V*(c)</td><td>Helix core of 3: fails (70% REFUTE); at 6–8 it holds (87–94%)</td><td>observed lateness; c outside the observed team sizes</td></tr>
+<tr><td>aiwork</td><td>(1+gen_boost)(1−verify_drag) &lt; 1 + churn term</td><td>Aider: 65% CONFIRM, swinging 3–100% with borrowed factors</td><td><code>verify_drag</code>, <code>gen_boost</code></td></tr>
+<tr><td>archpat</td><td>migration is nearly free and injects no bugs</td><td>Helix: 82% CONFIRM with free migration, 3–4% with priced migration</td><td><code>mig_cost</code>, <code>mig_bugs</code></td></tr>
+</table>
+
+<h2>D2. A strategy for testing SE laws (goal 1)</h2>
+<table>
+<tr><th>test family</th><th>establishes</th><th>cannot establish</th><th>changed a conclusion here?</th></tr>
+<tr><td>Forrester/Sterman + metamorphic</td><td>the model is a sound machine</td><td>that the law is true anywhere</td><td><b>yes</b>: 7 model defects</td></tr>
+<tr><td>Monte Carlo at ±15%</td><td>precision of the default verdict</td><td>robustness</td><td>no (always "100%")</td></tr>
+<tr><td>sampling over declared ranges</td><td>dependence on the author's priors</td><td>where real projects are</td><td><b>yes</b>: Brooks 100% → 11% (original model), 44% (standard)</td></tr>
+<tr><td>regime map</td><td>deciding factors and thresholds</td><td>which side a project is on</td><td><b>yes</b>: verdicts became conditions</td></tr>
+<tr><td>business scenarios</td><td>consequences in named worlds</td><td>whether those worlds exist</td><td>partly (exposed "not late")</td></tr>
+<tr><td>mechanism variants</td><td>survival under rival structures</td><td>which structure is right</td><td><b>yes</b>: archpat reverses</td></tr>
+<tr><td>real-project placement</td><td>P(holds here | data)</td><td>an average effect</td><td><b>yes</b>: Helix flips Brooks and archpat</td></tr>
+<tr><td>value of information</td><td>what to measure next</td><td>—</td><td><b>yes</b>: always away from what git records</td></tr>
+</table>
+
+<h3>Recommended order (cheap → expensive; stop when a step fails)</h3>
+<div class="mermaid">
+flowchart TB
+  A1["1 · Claim hygiene<br/>outcome in the law's own words;<br/>antecedent true by default?"]
+  A2["2 · Machine battery<br/>dead params, knock-out, dt, clamps"]
+  A3["3 · Robustness in 3 neighbourhoods<br/>never one number"]
+  A4["4 · Regime map<br/>+ analytic threshold"]
+  A5["5 · Rival mechanisms<br/>for the term that prices the lever"]
+  A6["6 · Placement on 2+ populations<br/>that differ in the deciding factor"]
+  A7["7 · VOI → next measurement<br/>as tool + column"]
+  A1 -->|ok| A2 -->|ok| A3 --> A4 --> A5 --> A6 --> A7
+  A1 -->|fail| F1["fix the spec"]
+  A2 -->|fail| F2["fix the model"]
+  A7 -.->|new data| A6
+</div>
+
+<h2>D3. Reading the results through Nancy Cartwright</h2>
+<table>
+<tr><th>Cartwright idea</th><th>source</th><th>where it shows up here</th></tr>
+<tr><td><b>"It worked there" ≠ "it will work here"</b>. Efficacy in a study population is not effectiveness in yours.</td><td>Cartwright &amp; Hardie 2012</td><td>Card §6 asks the "here" question per project. Brooks holds in the textbook world and fails for Helix's typical core.</td></tr>
+<tr><td><b>Laws are capacities</b> that show up only inside a nomological machine (a shielded arrangement of conditions); laws "lie" ceteris paribus.</td><td>1983, 1989, 1999</td><td>The regime map <i>is</i> the machine description: late project + team &gt; V* + training drag.</td></tr>
+<tr><td><b>Support factors / causal cake</b>. The cause is one slice; others must be present (INUS, Mackie 1965).</td><td>2012</td><td><code>rules()</code> and <code>tipping()</code> find the other slices. The knock-out test checks that the declared slices do the work (archpat fails).</td></tr>
+<tr><td><b>Vertical search</b>: re-describe the cause more abstractly until it travels.</td><td>2012</td><td>"adding people" → "adding coordination load past the optimum"; "using AI" → "trading verification time for speed"; "migrating" → "paying a migration price for a lower future defect rate"</td></tr>
+<tr><td><b>Horizontal search</b>: list what else must be in place.</td><td>2012</td><td>scenarios + variants + VOI</td></tr>
+<tr><td><b>Evidence for use is a long chain</b>; each link needs warrant.</td><td>2012</td><td>Caveat lists per estimate; sensitivity tables show which link carries the weight (for archpat, the <i>unmeasured</i> price).</td></tr>
+<tr><td><b>Borrowing needs a similarity argument</b>.</td><td>2012</td><td>METR vs Peng factors swing aiwork from 100% to 3%.</td></tr>
+<tr><td><b>Gold standards don't travel by themselves</b>. Rigour at the study site doesn't license export.</td><td>2007, 2012</td><td>The within-author Aider design is internally strong and says nothing about teams with code review.</td></tr>
+</table>
+
+<div class="mermaid">
+flowchart LR
+  T["it worked THERE<br/>RCTs, MC, one project"] -->|"same causal role?<br/>support factors present?"| H["it will work HERE"]
+  subgraph sf["support factors = the causal cake"]
+    s1["lever"]
+    s2["antecedent<br/>e.g. late project"]
+    s3["thresholds<br/>e.g. team &gt; V*"]
+    s4["the price of the lever"]
+  end
+  sf --> H
+</div>
+
+<h2>D4. A generic framework for future SE laws (goal 2)</h2>
+<p>Implemented as <a href="lawkit.html"><code>lawkit/</code></a>. A new law is one <code>Law(...)</code>
+spec plus, optionally, one miner. Each run extracts reusable knowledge:</p>
+<ol>
+<li><b>A model-defect catalogue</b>, checked automatically: dead parameters, hard-coded
+channels, clamp-made verdicts, outflow overshoot, an outcome that isn't the law's words,
+an antecedent false by default.</li>
+<li><b>Dimensionless thresholds</b> that travel between projects: V*, the aiwork
+inequality, archpat break-even.</li>
+<li><b>A measurement agenda</b> (VOI), phrased as tool + column.</li>
+<li><b>Price the lever first.</b> Every "doing L improves/hurts Y" law is a claim
+about the sign of (benefit − price of L). Ask whether the price is in the
+model (if not, the claim is a tautology, as in archpat) and in any data
+(if not, it is undecidable, as in aiwork).</li>
+<li><b>Composition.</b> <code>resources.txt</code> sketches chaining Brooks → aiwork → archpat. The
+specs are designed so a combined model is just another <code>Law</code> (not built yet).</li>
+</ol>
+<div class="mermaid">
+flowchart LR
+  N["new SE law"] --> P["Price the lever:<br/>in model? in data?"]
+  P --> SP["Law spec"] --> BT["battery"] --> RM["regime map"] --> PL["placement"] --> VO["VOI"]
+  VO --> KB[("knowledge base<br/>defects · thresholds ·<br/>measurement agenda")]
+  KB -.->|"reused for the next law"| N
+</div>
+
+<h2>D5. Next steps</h2>
+<ol>
+<li><b>archpat:</b> measure <code>mig_cost</code> / <code>mig_bugs</code> with RefactoringMiner
+(<code>parse_java_code_refactoring_json</code>) + SZZ on Helix and Ambari, following Bavota et al. 2012.</li>
+<li><b>aiwork:</b> measure <code>verify_drag</code> as review latency and review comments on AI-tagged vs untagged PRs.</li>
+<li><b>Brooks:</b> observe lateness from JIRA fixVersion due dates (<code>parse_jira</code>).</li>
+<li>Port <code>mine/</code> to kaiaulu <code>.Rmd</code> + <code>.R</code> (Carlos's format) with <code>identity_match</code>.</li>
+<li>Upstream model fixes to <code>paper/sd.py</code>: completion-time outcome for brooks; bounded
+aiwork outflows; for archpat, use <code>available</code>, price migration, and wire or remove
+<code>pat_strength</code>; also fix the label swap in <code>full_audit.py</code>.</li>
+</ol>
+
+<h2>References</h2>
+<p>Abdel-Hamid &amp; Madnick 1991 · Bavota et al. 2012 (SCAM) · Becker et al.
+2025 (METR) · Brooks 1975 · Cartwright 1983, 1989, 1999, 2007 · Cartwright
+&amp; Hardie 2012 · Chen et al. 1998 · Forrester &amp; Senge 1980 · GitClear
+2024 · Mackie 1965 · Peng et al. 2023 · Perry &amp; Wolf 1992 · Scholtes et
+al. 2016 · Sterman 2000.</p>
+<script src="vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

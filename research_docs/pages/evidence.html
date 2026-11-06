@@ -1,0 +1,116 @@
+<h1>C3. Real-world evidence (external tests)</h1>
+
+<p>Three plain-git miners (<code>mine/</code>) estimate support factors from two
+repositories, cloned read-only: <b>apache/helix</b> (4,948 commits since 2011)
+and <b>Aider-AI/aider</b> (13,138 commits; the tool tags commits it wrote with
+"(aider)" in the author name). Each estimate is bootstrapped and carries a
+written caveat list.</p>
+
+<div class="mermaid">
+flowchart LR
+  H["apache/helix"] --> BE["brooks_evidence.py<br/>monthly panel"]
+  A["Aider-AI/aider"] --> BE
+  A --> AE["aiwork_evidence.py<br/>git blame survival"]
+  H --> PE["archpat_evidence.py<br/>per-file GLM"]
+  P4["extract/data/helix/<br/>pattern4 + SZZ (Part A)"] --> PE
+  BE --> J1["brooks_helix.json<br/>brooks_aider.json"]
+  AE --> J2["aiwork_aider.json<br/>aiwork_aider2023.json"]
+  PE --> J3["archpat_cost_helix.json"]
+  J1 --> RL["run_laws.py → cards §6"]
+  J2 --> RL
+  J3 --> RL
+</div>
+
+<h2>C3.1 Brooks: Helix and Aider</h2>
+<p><b>Method.</b> Tick = 1 month. Veterans = active developers with tenure of at
+least 6 months; New = developers whose first commit is under 6 months
+old. The standard model's own production equation is fitted to per-veteran
+commits: <code>y = p·exp(−(c·V(V−1)/2 + train·New))</code> (bounded least
+squares, 300 bootstraps over months), so the evidence and the model use the
+same formula. Newcomer ramp-up
+<code>1 − exp(−r(k+1))</code> gives <code>mature_rate</code>.</p>
+<table>
+<tr><th>project</th><th>months</th><th>median vets (max)</th><th>comm_coef</th><th>train_coef</th><th>mature_rate</th></tr>
+<tr><td>Helix</td><td>152</td><td>3 (8)</td><td>0.038 [0.021, 0.066]</td><td>0.008 [0, 0.037]</td><td>≈1/month (instant; survivors only)</td></tr>
+<tr><td>Aider</td><td>28</td><td>2 (3)</td><td>not identified</td><td>≈0 [0, 0.0077]</td><td>uncertain</td></tr>
+<tr><td><i>model default</i></td><td></td><td>10</td><td>0.005</td><td>0.2</td><td>0.1</td></tr>
+</table>
+<figure><img src="img/brooks_params.png" alt="Helix brooks parameters">
+<figcaption>Helix estimates (blue, 90% CI) vs model defaults (orange).
+Coordination costs more than assumed (×7.7); onboarding costs far less
+(÷24). (Re-fitted 2026-11-06 with the standard model's bounded formula; the
+earlier straight-line fit gave 0.023 and 0.012.)</figcaption></figure>
+<p><b>Placement.</b> The counterfactual is "if this team were late, would
+doubling it make it later?" (backlog assumed at 1000, since lateness is not
+observed).</p>
+<figure><img src="img/sens_brooks.png" alt="Helix team size sweep">
+<figcaption>Helix's measured c puts its optimum at V* ≈ 5.4 (V(2V − 1) = 2/c).
+Doubling the typical core (3) helps: 70% REFUTE. Doubling 6 or 8 hurts:
+87–94% CONFIRM. At 12 (96% CONFIRM) the team is outside Helix's observed
+max of 8, so treat that as extrapolation.</figcaption></figure>
+<p>Aider (one maintainer plus drive-by contributors): 87% REFUTE. Brooks'
+support factors are absent there.</p>
+
+<h2>C3.2 aiwork: Aider, two AI eras</h2>
+<p><b>Method (GitClear churn construct).</b> Only commits by the same author
+(Paul Gauthier), within the same period, to <code>aider/*.py</code>. A commit is AI if
+tagged "(aider)" (2024-07 to 2025-07) or prefixed "aider:" (2023-05 to
+2024-06, the GPT-4 era). For sampled (commit, file) pairs, <code>git blame</code> at
+the last commit before +14 days counts surviving lines. Results are
+stratified by change size (strata with fewer than 15 pairs per arm are
+dropped). <code>churn_mult = churn_AI / churn_human − 1</code>, with 800 bootstraps.</p>
+<figure><img src="img/churn.png" alt="churn">
+<figcaption>About 49–53% of AI lines vs 36–40% of human lines are gone
+within 14 days. churn_mult is 0.35 [0.18, 0.54] (2024-25) and 0.32
+[0.16, 0.52] (2023-24): stable across model generations, and about 6×
+smaller than the model default of 2.0.</figcaption></figure>
+<p><b>Placement.</b> Measured churn alone lowers P(CONFIRM) from 88% to 65%.
+The factors that decide the verdict are not in git:</p>
+<figure><img src="img/sens_aiwork.png" alt="aiwork borrowed factors">
+<figcaption>Borrowing speed/verification values from other studies swings
+the verdict: METR-like gives 100% CONFIRM, Peng-like gives 85% REFUTE.
+Which study Aider resembles is itself an empirical claim. VOI ranks
+<code>verify_drag</code> first (gain 0.34) and <code>gen_boost</code> second (0.15).</figcaption></figure>
+<p>No second open repo with AI attribution was found. kaiaulu has none,
+and this repo has 90 Claude-co-authored commits but only 8 days of
+history. That scarcity is a finding in itself.</p>
+
+<h2>C3.3 archpat: Helix</h2>
+<p><b>Method.</b> 674 production <code>.java</code> files in the pattern4-scanned modules
+at the 2026-05-24 snapshot (149 patterned, from Part A's pattern4
+output). History is mapped through renames. Per file: bytes, commits,
+bug-fix commits (subject regex), SZZ bug-introductions (Part A's
+<code>szz_pairs.csv</code>). Negative-binomial GLMs give rate ratios, patterned vs
+not, controlling for log size and log churn, with 300 bootstraps.
+Patterned is compared with <i>non-patterned</i>, not with Legacy, because Legacy is
+<i>defined</i> by bug count, so comparing against it would be circular.</p>
+<figure><img src="img/archpat_ratios.png" alt="archpat ratios">
+<figcaption>Bug-fix rate ratio 0.83 [0.71, 0.93] (SZZ: 0.68 [0.54, 0.86])
+vs assumed 0.25. Productivity proxy 1.05 [0.91, 1.27] vs assumed 2.5.
+Patterns help a little with bugs and not at all with output.</figcaption></figure>
+<figure><img src="img/sens_archpat.png" alt="archpat sensitivity">
+<figcaption>Which link carries the Helix verdict? Not the measured ratios.
+With free migration Helix CONFIRMs (74–83%); with an uncertain price it
+REFUTEs (92–94%), whatever the ratios.</figcaption></figure>
+<figure><img src="img/breakeven.png" alt="break-even">
+<figcaption>Break-even for Helix: aggressive migration pays only if moving a
+module costs less than about 1 feature-item of effort with no injected
+bugs, or about 0.1 if each migration injects 0.25 debt. Both are
+measurable with RefactoringMiner + SZZ.</figcaption></figure>
+
+<h2>C3.4 All placements</h2>
+<figure><img src="img/placements.png" alt="placements">
+<figcaption>P(claim holds | evidence) for each project.</figcaption></figure>
+
+<h2>C3.5 Caveats (the long chain from data to parameter)</h2>
+<table>
+<tr><th>link</th><th>caveat</th></tr>
+<tr><td>commits → productivity</td><td>commit counts hide size and review work</td></tr>
+<tr><td>OSS arrivals → "hiring"</td><td>newcomers follow activity (reverse causation); no deadlines</td></tr>
+<tr><td>survivors → mature_rate</td><td>only newcomers still active a year later</td></tr>
+<tr><td>identity</td><td>e-mail address; no kaiaulu <code>identity_match</code></td></tr>
+<tr><td>AI tag → AI use</td><td>self-declared; untagged AI use in the human arm shrinks the gap</td></tr>
+<tr><td>within-author → causal</td><td>controls skill and period, not task choice</td></tr>
+<tr><td>patterned files → effect of migrating</td><td>cross-sectional association; one pattern4 snapshot</td></tr>
+<tr><td>3-stock archpat</td><td>74% of files are "Other"; the model has no place for them</td></tr>
+</table>

@@ -1,0 +1,68 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Files and how to reproduce</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="index.html">Overview</a> <a href="before.html">A. The project as received</a> <a href="brooks.html">B1. Your Brooks work</a> <a href="review.html">B2. Review of the Brooks work</a> <a href="lawkit.html">C1. lawkit framework</a> <a href="results.html">C2. Results per law</a> <a href="evidence.html">C3. Real-world evidence</a> <a href="strategy.html">D. Strategy, Cartwright, next steps</a> <a href="reproduce.html" class=on>Files & reproduce</a> <a href="cards/index.html">Evidence cards</a></nav><h1>Files and how to reproduce</h1>
+
+<h2>Commands</h2>
+<pre># Part B (your Brooks work)
+make test-100k forrester plot        # 100k MC + Forrester + plots
+make all-modified                    # architectures
+
+# Part C (lawkit)
+make laws                            # evidence cards (~4 min)
+make evidence REPOS=&lt;dir with helix/ and aider/ clones&gt;
+make sensitivity
+make lawkit-test
+
+# this site
+python research_docs/build.py
+python -m http.server 8765 -d research_docs/site</pre>
+<p>Clones (read-only): <code>git clone https://github.com/apache/helix</code>,
+<code>git clone https://github.com/Aider-AI/aider</code>. On Windows, add
+<code>-c http.sslBackend=schannel</code> if you hit SSL certificate errors.</p>
+
+<h2>File map</h2>
+<table>
+<tr><th>file</th><th>part</th><th>role</th></tr>
+<tr><td><code>paper/sd.py</code>, <code>paper/tests.py</code>, <code>paper/stats.py</code></td><td>A</td><td>models, 8-test bank, stats (your small uncommitted edits: 4-tuple fix, CLI)</td></tr>
+<tr><td><code>extract/</code></td><td>A</td><td>kaiaulu lifts, derived data used by <code>mine/archpat_evidence.py</code></td></tr>
+<tr><td><code>run_brooks.py</code></td><td>B</td><td>14 single-shot scenarios</td></tr>
+<tr><td><code>monte_carlo_brooks.py</code>, <code>monte_carlo_modified.py</code></td><td>B</td><td>100k-run MC + stats</td></tr>
+<tr><td><code>forrester_brooks.py</code>, <code>forrester_modified.py</code></td><td>B</td><td>F&amp;S suites</td></tr>
+<tr><td><code>brooks_modifications.py</code></td><td>B</td><td>6 architectures</td></tr>
+<tr><td><code>plot_brooks.py</code>, <code>plot_modified.py</code></td><td>B</td><td>figures in <code>outputs/*.png</code></td></tr>
+<tr><td><code>outputs/brooks_100k_*</code>, <code>outputs/modified_*</code>, <code>outputs/forrester_*</code></td><td>B</td><td>results</td></tr>
+<tr><td><code>lawkit/</code></td><td>C</td><td>framework + specs + tests (<a href="lawkit.html">C1</a>)</td></tr>
+<tr><td><code>mine/gitlog.py</code></td><td>C</td><td>shared git reader + bootstrap</td></tr>
+<tr><td><code>mine/brooks_evidence.py</code>, <code>aiwork_evidence.py</code>, <code>archpat_evidence.py</code></td><td>C</td><td>miners (<a href="evidence.html">C3</a>)</td></tr>
+<tr><td><code>run_laws.py</code>, <code>sensitivity.py</code></td><td>C</td><td>runners</td></tr>
+<tr><td><code>outputs/laws/*_card.md|json</code></td><td>C</td><td>evidence cards (<a href="cards/index.html">rendered</a>)</td></tr>
+<tr><td><code>outputs/laws/SYNTHESIS.md</code>, <code>sensitivity.md</code>, <code>archpat_breakeven.txt</code></td><td>C/D</td><td>written synthesis and sensitivity</td></tr>
+<tr><td><code>outputs/evidence/*.json|csv</code></td><td>C</td><td>mined estimates + raw pairs/file tables</td></tr>
+<tr><td><code>research_docs/</code></td><td>—</td><td>this site: <code>pages/*.html</code> (hand-written), <code>figs.py</code> (charts from outputs), <code>build.py</code></td></tr>
+</table>
+
+<h2>Status</h2>
+<ul>
+<li>Nothing from Parts B or C is committed to git yet.</li>
+<li>The miners are Python + plain git, not kaiaulu <code>.Rmd</code>/<code>.R</code> (no R on this machine).</li>
+<li>Diagrams use Mermaid 10.9.1, vendored in <code>research_docs/vendor/</code>, so the site works offline. Charts are PNGs generated by <code>figs.py</code>.</li>
+</ul>
+<script src="vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

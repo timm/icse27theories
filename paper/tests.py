@@ -72,10 +72,10 @@ def extreme_eqn(model_factory):
   Flag NaN/inf in any output."""
   m = model_factory()
   fails = []
-  for k, (default, lo, hi) in m.init.items():
+  for k, (default, lo, hi, units) in m.init.items():
     if not k[0].isupper(): continue
     for label, val in [('lo', lo), ('hi', hi)]:
-      test_init = {**m.init, k: [val, lo, hi]}
+      test_init = {**m.init, k: [val, lo, hi, units]}
       try:
         out = sd.run(test_init, m.step)
         if out is None: continue
@@ -180,11 +180,11 @@ def mr_scale(model_factory, factor=2.0):
   m = model_factory()
   base = sd.run(m.init, m.step)
   scaled_init = {}
-  for k, (d, lo, hi) in m.init.items():
+  for k, (d, lo, hi, units) in m.init.items():
     if k[0].isupper():
-      scaled_init[k] = [d * factor, lo, hi * factor]
+      scaled_init[k] = [d * factor, lo, hi * factor, units]
     else:
-      scaled_init[k] = [d, lo, hi]
+      scaled_init[k] = [d, lo, hi, units]
   scaled = sd.run(scaled_init, m.step)
   if base is None or scaled is None:
     return {'test':'mr_scale','status':SKIP,'detail':'run failed'}

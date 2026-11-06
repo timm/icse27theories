@@ -39,6 +39,7 @@ Refs (see evidence.md for parameter justifications and quotes):
 [8]  Harding GitClear (2024)
 """
 
+import argparse
 import math, random
 from collections import namedtuple
 
@@ -267,17 +268,22 @@ def diapers():
 
 def brooks():
   """Brooks [1]: late hires hurt.  RQ: boost=10 newcomers @t=10 hurt y."""
-  init = {'Vet':[10,0,100,'devs'], 'New':[0,0,100,'devs'], 'Done':[0,0,500,'items'],
+  # Done's hi is a physical bound, not a prior: it must hold any backlog
+  # (Forrester & Senge conservation test), so it is not 500.
+  init = {'Vet':[10,0,100,'devs'], 'New':[0,0,100,'devs'], 'Done':[0,0,1e5,'items'],
           'Todo':[500,0,500,'items'], 'boost':[0,0,100,'devs'],
-          'comm_coef':[0.005,0,0.05,'frac/pair'], 'train_coef':[0.2,0,1,'frac/newhire'],
-          'prod_rate':[5,0.1,20,'items/vet/tick'], 'mature_rate':[0.1,0,1,'frac/tick']}
+          # one unit vocabulary (devs) so the step is dimensionally consistent:
+          # pairs = Vet(Vet-1)/2 are devs^2; a newhire and a vet are devs
+          'comm_coef':[0.005,0,0.05,'frac/devs^2'], 'train_coef':[0.2,0,1,'frac/devs'],
+          'prod_rate':[5,0.1,20,'items/devs/tick'], 'mature_rate':[0.1,0,1,'frac/tick']}
 
   def step(dt, t, u, v):
     comm  = u.Vet * (u.Vet - 1) / 2 * u.comm_coef
     train = u.New * u.train_coef
-    prod  = u.Vet * (1 - comm - train) * u.prod_rate
-    v.Todo = u.Todo - dt * max(0, prod)
-    v.Done = u.Done + dt * max(0, prod)
+    prod  = max(0, u.Vet * (1 - comm - train) * u.prod_rate)
+    prod  = min(prod, u.Todo / dt)          # no work once the backlog is empty
+    v.Todo = u.Todo - dt * prod
+    v.Done = u.Done + dt * prod
     v.New  = u.New - dt * u.mature_rate * u.New + (u.boost if t == 10 else 0)
     v.Vet  = u.Vet + dt * u.mature_rate * u.New
     for p in ('boost','comm_coef','train_coef','prod_rate','mature_rate'):
@@ -1716,7 +1722,27 @@ ALL_MODELS = [diapers, brooks, bugs, debt, sir, rework, learn, brooksq,
               maturity]
 
 
-def main():
+def main(argv=None):
+  models = {f.__name__: f for f in ALL_MODELS}
+  parser = argparse.ArgumentParser(description='Run system-dynamics models.')
+  parser.add_argument('-m', '--model', choices=sorted(models),
+                      help='model to run, for example brooks')
+  parser.add_argument('--run', action='store_true',
+                      help='print the model trajectory')
+  args = parser.parse_args(argv)
+
+  if args.model:
+    m = models[args.model]()
+    if args.run:
+      out = run(m.init, m.step)
+      print(f'model={args.model} y={m.y(out):.2f}')
+      for t, state in out:
+        values = ' '.join(f'{k}={getattr(state, k):.4g}' for k in m.init)
+        print(f't={t:g} {values}')
+    else:
+      print(m.rq())
+    return
+
   print(f"{'model':<10} {'verdict':<8} {'y0':>10} {'y1':>10} {'gap':>10}")
   print("-" * 60)
   for f in ALL_MODELS:

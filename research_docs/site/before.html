@@ -1,0 +1,281 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>A. The project as received</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="index.html">Overview</a> <a href="before.html" class=on>A. The project as received</a> <a href="brooks.html">B1. Your Brooks work</a> <a href="review.html">B2. Review of the Brooks work</a> <a href="lawkit.html">C1. lawkit framework</a> <a href="results.html">C2. Results per law</a> <a href="evidence.html">C3. Real-world evidence</a> <a href="strategy.html">D. Strategy, Cartwright, next steps</a> <a href="reproduce.html">Files & reproduce</a> <a href="cards/index.html">Evidence cards</a></nav><h1>A. The project as received</h1>
+
+<p class="note">Everything on this page was in the repository before your
+work and this session (git history up to commit <code>2949f60</code>).
+Sources: <code>STATE.md</code>, <code>paper/MODELS_README.md</code>,
+<code>findings.md</code>, <code>CLAUDE.md</code>.</p>
+
+<h2>A1. Purpose</h2>
+<p>This is a methodology paper for ICSE 2027 (NIER first, then EMSE) by
+Menzies and Kazman with Umar, with Carlos on tooling. The
+framing is <i>"what to measure next: model-based triage for SE
+empirical research"</i>. The project doesn't collect new data. It
+triages which data are worth collecting by building small simulations
+of SE laws and checking which of their parameters can be "lifted" from
+existing open-source data.</p>
+
+<h2>A2. Repository layout</h2>
+<table>
+<tr><th>folder</th><th>role</th></tr>
+<tr><td><code>paper/</code></td><td>Inference layer. <code>sd.py</code> (35 models + engine),
+<code>tests.py</code> (validation bank), <code>stats.py</code> (Cliff's δ, KS, Scott-Knott from ezr),
+<code>full_audit.py</code>, <code>calibrate.py</code>, <code>boundary_check.py</code>,
+<code>cross_project.py</code>, and <code>outputs/*.csv</code>.</td></tr>
+<tr><td><code>extract/</code></td><td>Data layer. kaiaulu-style <code>.Rmd</code> lift notebooks + <code>functions.R</code>,
+per-project configs (<code>conf/*.yml</code>), derived CSVs (SZZ pairs, bug-fix commits,
+pattern4 output, LOC), helper scripts (SZZ, pattern4 parser).</td></tr>
+<tr><td><code>docs/</code></td><td>The public site: one page per model with a V&amp;V scorecard, generated
+by <code>docs/scripts/gen_rich.py</code> from the CSVs.</td></tr>
+<tr><td><code>feasibility/</code></td><td>Scorecard of which models can be lifted with which tools.</td></tr>
+<tr><td><code>smells/</code></td><td><code>radio_silence.py</code>: a Python port of a kaiaulu communication smell.</td></tr>
+<tr><td><code>diary/</code>, <code>meta/</code></td><td>Collaborator e-mails and session logs.</td></tr>
+</table>
+
+<h2>A3. How a "law" is represented</h2>
+<p>Every law is a function in <code>paper/sd.py</code> returning
+<code>Model(init, step, y, rq, ctrl)</code>:</p>
+<ul>
+<li><code>init</code>: <code>{name: [default, lo, hi, unit]}</code>. UPPER-case names are
+<b>inputs</b> (state of the world), lower-case names are <b>parameters</b> (the process).</li>
+<li><code>step(dt, t, u, v)</code>: one Euler step of the stocks and flows.</li>
+<li><code>y(trajectory)</code>: the success measure (higher = better).</li>
+<li><code>rq()</code>: the research question. Run the model with the control
+variable <code>ctrl</code> at two values and compare <code>y</code>, giving CONFIRM / REFUTE / neutral
+(5%-of-y0 threshold).</li>
+</ul>
+
+<div class="mermaid">
+flowchart LR
+  I["init<br/>defaults and lo/hi ranges"] --> R["sd.run<br/>Euler steps,<br/>states clipped to lo/hi"]
+  S["step<br/>flow equations"] --> R
+  R --> T0["trajectory, ctrl = arm 0"]
+  R --> T1["trajectory, ctrl = arm 1"]
+  T0 --> Y["y() on each"]
+  T1 --> Y
+  Y --> V{"gap = y1 − y0<br/>vs 5% threshold"}
+  V --> C["CONFIRM"]
+  V --> F["REFUTE"]
+  V --> N["neutral"]
+</div>
+
+<h3>The three laws this work focuses on</h3>
+<table>
+<tr><th>model</th><th>claim (rq)</th><th>lever</th><th>stocks</th><th>sources</th></tr>
+<tr><td><code>brooks</code></td><td>adding 10 people at t=10 lowers Done−Todo at t=20</td>
+<td><code>boost</code> 0 → 10</td><td>Vet, New, Done, Todo</td><td>Brooks 1975</td></tr>
+<tr><td><code>aiwork</code></td><td>full AI use (ai=1) lowers kept code</td><td><code>ai</code> 0 → 1</td>
+<td>Todo → Wip → Kept / Churned</td><td>GitClear 2024, METR 2025</td></tr>
+<tr><td><code>archpat</code></td><td>aggressive migration to patterns repairs a bad project</td>
+<td><code>migrate</code> 0.2 → 1.5</td><td>Patterned, Legacy, Drift, Debt, Feat</td>
+<td>Perry &amp; Wolf 1992, Martin 2008</td></tr>
+</table>
+
+<h3>The Brooks equations (shared by A and B)</h3>
+<pre>comm  = Vet·(Vet−1)/2 · comm_coef        # flat clique: all pairs
+train = New · train_coef                 # every newcomer taxes every vet
+prod  = Vet · (1 − comm − train) · prod_rate,  clipped at ≥ 0
+New  ← New − mature_rate·New + boost (at t=10)
+Vet  ← Vet + mature_rate·New
+y     = Done − Todo at t=20</pre>
+
+<h2>A4. Internal validation, as received</h2>
+<p><code>paper/tests.py</code> holds 8 tests (the docs call it the "9-test
+bank"):</p>
+<table>
+<tr><th>test</th><th>origin</th><th>checks</th></tr>
+<tr><td>boundary_adq</td><td>Forrester &amp; Senge §4/7</td><td>verdict does not flip at tmax=80</td></tr>
+<tr><td>anomaly_check</td><td>F&amp;S §3</td><td>y does not change sign with all inputs at hi</td></tr>
+<tr><td>extreme_eqn</td><td>F&amp;S §3</td><td>no NaN/inf with inputs at lo/hi</td></tr>
+<tr><td>mr_zero_input</td><td>metamorphic MR3</td><td>ctrl at 0 is reproducible</td></tr>
+<tr><td>mr_monotone</td><td>MR1</td><td>y monotone across 5 ctrl values</td></tr>
+<tr><td>mr_dt_halving</td><td>Sterman test 6</td><td>y within 10% when dt halves</td></tr>
+<tr><td>mr_bound_consist</td><td>MR9</td><td>clipping is not load-bearing</td></tr>
+<tr><td>mr_scale</td><td>MR2</td><td>2× stocks gives no sign flip or explosion</td></tr>
+</table>
+<p>The <b>2×2 stress matrix</b> perturbs inputs and parameters separately
+(200 triangular draws each) and labels each model:</p>
+<table>
+<tr><th></th><th>robust to inputs</th><th>fragile to inputs</th></tr>
+<tr><th>robust to params</th><td>universal</td><td>world-conditional</td></tr>
+<tr><th>fragile to params</th><td>process-conditional</td><td>fragile</td></tr>
+</table>
+<p>As received: <code>brooks</code> = <b>fragile</b> (only 12/200 input and 68/200
+parameter backgrounds CONFIRM; stats-grade verdict neutral);
+<code>aiwork</code> = universal; <code>archpat</code> = universal.</p>
+
+<h2>A5. External validation, as received ("lifts")</h2>
+<div class="mermaid">
+flowchart LR
+  G["8 OSS projects<br/>helix, ambari, junit5, tomcat,<br/>camel, airflow, openssl, kaiaulu"]
+  K["kaiaulu + tools<br/>Perceval, PyDriller SZZ, scc,<br/>RefactoringMiner, pattern4"]
+  L["extract/lifts/*.Rmd"]
+  C["lift_model_project.csv<br/>melted into lifts.csv"]
+  B["boundary_check.py<br/>lifted value outside lo/hi?"]
+  CA["calibrate.py<br/>re-run rq with lifted values"]
+  X["cross_project.py"]
+  D["docs/models/*.html<br/>scorecards"]
+  G --> K --> L --> C
+  C --> B --> D
+  C --> CA --> D
+  C --> X --> D
+</div>
+<ul>
+<li><b>Brooks lift:</b> <code>brooks_tax</code> is the veterans' commit velocity in the 90 days after
+a newcomer's first commit, relative to the 90 days before. Median values
+range from −1.13 (kaiaulu) to 0.31 (airflow). This is the "11× spread" of
+finding F3. <code>calibrated_verdicts.csv</code> notes it is <i>not</i> an input to the
+model, so no calibration was applied.</li>
+<li><b>archpat lift:</b> pattern4 (GoF detector) on compiled Helix/Ambari bytecode gives the
+Patterned files; files with ≥3 SZZ bug-introductions are Legacy; files
+with high recent churn are Drift. Helix: 149 / 384 / 0, with 1,452 "Other".</li>
+<li><b>aiwork:</b> marked "dark". No open dataset attributes commits to AI. The
+repo's only aiwork result is a parameter sweep (<code>grid_aiwork</code>) showing that METR,
+GitClear and the GitHub RCT sample different regions.</li>
+</ul>
+<figure><svg xmlns="http://www.w3.org/2000/svg" width="808" height="414" viewBox="0 0 808 414" font-family="-apple-system, Segoe UI, sans-serif">
+<style>
+  .lbl  { font-size: 11px; fill: #444; }
+  .axl  { font-size: 12px; fill: #222; font-weight: 600; }
+  .ttl  { font-size: 14px; fill: #111; font-weight: 700; }
+  .cell { font-size: 12px; fill: #111; font-weight: 600; text-anchor: middle; }
+  .cellneg { fill: #fff; }
+</style>
+<text class="ttl" x="404" y="22" text-anchor="middle">aiwork: gap = y(ai=1) − y(ai=0) over (gen_boost, churn_mult)</text>
+<text class="lbl" x="404" y="40" text-anchor="middle" fill="#666">red = AI hurts &middot; blue = AI helps &middot; diagonal contour = regime boundary</text>
+<text class="lbl" x="149" y="62" text-anchor="middle">+0%</text>
+<text class="lbl" x="227" y="62" text-anchor="middle">+20%</text>
+<text class="lbl" x="305" y="62" text-anchor="middle">+50%</text>
+<text class="lbl" x="383" y="62" text-anchor="middle">+100%</text>
+<text class="lbl" x="461" y="62" text-anchor="middle">+150%</text>
+<text class="lbl" x="539" y="62" text-anchor="middle">+200%</text>
+<text class="axl" x="344" y="42" text-anchor="middle">gen_boost (AI speedup)</text>
+<text class="lbl" x="100" y="96" text-anchor="end">churn 0×</text>
+<text class="lbl" x="100" y="140" text-anchor="end">churn 1×</text>
+<text class="lbl" x="100" y="184" text-anchor="end">churn 2×</text>
+<text class="lbl" x="100" y="228" text-anchor="end">churn 3×</text>
+<text class="lbl" x="100" y="272" text-anchor="end">churn 4×</text>
+<text class="lbl" x="100" y="316" text-anchor="end">churn 5×</text>
+<text class="axl" x="20" y="202" text-anchor="middle" transform="rotate(-90 20 202)">churn_mult (AI rework inflation)</text>
+<rect x="110" y="70" width="78" height="44" fill="#e0b086" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="149" y="96">-51</text>
+<rect x="110" y="114" width="78" height="44" fill="#daa06e" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="140">-61</text>
+<rect x="110" y="158" width="78" height="44" fill="#d6945b" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="184">-69</text>
+<rect x="110" y="202" width="78" height="44" fill="#d28b4c" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="228">-76</text>
+<rect x="110" y="246" width="78" height="44" fill="#cf8340" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="272">-81</text>
+<rect x="110" y="290" width="78" height="44" fill="#cd7d37" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="149" y="316">-85</text>
+<rect x="188" y="70" width="78" height="44" fill="#e9c8aa" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="227" y="96">-36</text>
+<rect x="188" y="114" width="78" height="44" fill="#e2b58d" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="227" y="140">-48</text>
+<rect x="188" y="158" width="78" height="44" fill="#dda677" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="184">-58</text>
+<rect x="188" y="202" width="78" height="44" fill="#d89b65" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="228">-65</text>
+<rect x="188" y="246" width="78" height="44" fill="#d59157" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="272">-71</text>
+<rect x="188" y="290" width="78" height="44" fill="#d28a4b" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="227" y="316">-76</text>
+<rect x="266" y="70" width="78" height="44" fill="#f7ebe0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="96">-13</text>
+<rect x="266" y="114" width="78" height="44" fill="#eed3bc" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="140">-28</text>
+<rect x="266" y="158" width="78" height="44" fill="#e7c1a0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="184">-40</text>
+<rect x="266" y="202" width="78" height="44" fill="#e1b38a" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="305" y="228">-49</text>
+<rect x="266" y="246" width="78" height="44" fill="#dda778" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="305" y="272">-57</text>
+<rect x="266" y="290" width="78" height="44" fill="#d99e69" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="305" y="316">-63</text>
+<rect x="344" y="70" width="78" height="44" fill="#cddef2" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="96">+26</text>
+<rect x="344" y="114" width="78" height="44" fill="#f4f8fc" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="140">+5</text>
+<rect x="344" y="158" width="78" height="44" fill="#f8eee6" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="184">-11</text>
+<rect x="344" y="202" width="78" height="44" fill="#f1dbc8" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="228">-23</text>
+<rect x="344" y="246" width="78" height="44" fill="#ebccb0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="272">-33</text>
+<rect x="344" y="290" width="78" height="44" fill="#e6bf9c" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="383" y="316">-42</text>
+<rect x="422" y="70" width="78" height="44" fill="#82addf" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="461" y="96">+64</text>
+<rect x="422" y="114" width="78" height="44" fill="#b3ceec" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="140">+39</text>
+<rect x="422" y="158" width="78" height="44" fill="#dae7f5" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="184">+19</text>
+<rect x="422" y="202" width="78" height="44" fill="#f8fbfd" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="228">+3</text>
+<rect x="422" y="246" width="78" height="44" fill="#f9f0e8" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="272">-10</text>
+<rect x="422" y="290" width="78" height="44" fill="#f3e0cf" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="461" y="316">-20</text>
+<rect x="500" y="70" width="78" height="44" fill="#377dcd" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="539" y="96">+102</text>
+<rect x="500" y="114" width="78" height="44" fill="#72a3db" stroke="#fff" stroke-width="1"/>
+<text class="cell cellneg" x="539" y="140">+72</text>
+<rect x="500" y="158" width="78" height="44" fill="#a0c1e7" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="184">+48</text>
+<rect x="500" y="202" width="78" height="44" fill="#c5d9f0" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="228">+29</text>
+<rect x="500" y="246" width="78" height="44" fill="#e3edf8" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="272">+14</text>
+<rect x="500" y="290" width="78" height="44" fill="#fcfdfe" stroke="#fff" stroke-width="1"/>
+<text class="cell" x="539" y="316">+1</text>
+<circle cx="383" cy="92" r="7" fill="none" stroke="#1f6db8" stroke-width="2.2"/>
+<circle cx="598" cy="76" r="5" fill="none" stroke="#1f6db8" stroke-width="2"/>
+<text class="lbl" x="608" y="80">GitHub RCT 2024 (+2–4%)</text>
+<circle cx="227" cy="180" r="7" fill="none" stroke="#a83232" stroke-width="2.2"/>
+<circle cx="598" cy="94" r="5" fill="none" stroke="#a83232" stroke-width="2"/>
+<text class="lbl" x="608" y="98">GitClear 2024 (~2× churn)</text>
+<circle cx="149" cy="136" r="7" fill="none" stroke="#a83232" stroke-width="2.2"/>
+<circle cx="598" cy="112" r="5" fill="none" stroke="#a83232" stroke-width="2"/>
+<text class="lbl" x="608" y="116">METR 2025 (−19%)</text>
+<text class="lbl" x="110" y="362">○ marks the approximate parameter region each study samples (heuristic placement, not derived from study artifacts).</text>
+<text class="lbl" x="110" y="380">Source: paper/scripts/grid_aiwork.py — deps-free, reproducible.</text>
+</svg>
+<figcaption>Received figure <code>docs/figs/grid_aiwork.svg</code>: the aiwork gap over
+<code>gen_boost × churn_mult</code>. Orange: AI hurts. Blue: AI helps. Circles mark where each study roughly sits.</figcaption></figure>
+
+<h2>A6. Findings as received</h2>
+<table>
+<tr><th>id</th><th>finding</th></tr>
+<tr><td>F0</td><td>5 parameters fail boundary adequacy: mature OSS exceeds the "small project" ranges (e.g. archpat.Legacy hi=200; Helix has 384).</td></tr>
+<tr><td>F1</td><td>brooksq.leak_rate exceeds hi=0.5 on 7/8 projects.</td></tr>
+<tr><td>F2</td><td>debt.pay_rate converges across Java projects (0.36–0.59).</td></tr>
+<tr><td>F3</td><td>Brooks effect varies 11× across 8 projects.</td></tr>
+<tr><td>F4</td><td>brooksq quality thesis splits (Ambari supports, junit5 refutes).</td></tr>
+</table>
+<p class="note">Known caveats recorded in the repo: <code>archpat.pat_strength</code> is unused
+in <code>step()</code>. The committed <code>full_audit.csv</code> shows
+<code>ERR:ValueError</code> for two tests (fixed by your uncommitted 4-tuple edit
+in <code>tests.py</code>). This session also found that <code>full_audit.py</code> swaps
+the world-/process-conditional labels relative to <code>tests.py</code> and the
+README (this affects aidebt, not the three laws here).</p>
+<script src="vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

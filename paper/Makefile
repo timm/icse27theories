@@ -324,3 +324,13 @@ export RSSH
 	      --font-size=$(Font) --columns $(Cols) \
 	      -o - $< | ps2pdf - $@
 	@$(OPEN) $@
+  
+rq1: tests.py  ## does brooks run?
+	python3 tests.py
+
+rq2 : ## in 1000 runs hw often does the defa;t ex[ectation hold
+
+rq3: ## dp the static rules run?
+
+rq4: ## dp the static rules report errors in brooks?
+

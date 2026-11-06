@@ -1,0 +1,490 @@
+{
+ "battery": [
+  {
+   "test": "units declared",
+   "status": "PASS",
+   "detail": "every var has units",
+   "ref": "F&S dimensional consistency"
+  },
+  {
+   "test": "dead parameters",
+   "status": "FAIL",
+   "detail": "no influence on y: ['pat_strength']",
+   "ref": "F&S parameter verification"
+  },
+  {
+   "test": "extreme conditions",
+   "status": "PASS",
+   "detail": "all finite. claim not CONFIRMed at 9 extremes: Patterned=200:neutral, Legacy=0:neutral, decay_rate=0.5:REFUTE, gen_pat=0.1:REFUTE, born_pat=1:REFUTE, intr_rate=0.5:REFUTE, pay_rate=0:REFUTE, mig_cost=10:REFUTE",
+   "ref": "F&S extreme conditions"
+  },
+  {
+   "test": "clamp dependence",
+   "status": "WARN",
+   "detail": "37% of prior backgrounds escape declared bounds; 2% are CONFIRMs that need clamping",
+   "ref": "Sterman boundary/structure; sd.mr_bound_consist"
+  },
+  {
+   "test": "integration step (dt)",
+   "status": "PASS",
+   "detail": "gap dt=1:+97.0 dt=.25:+96.7 (0%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']",
+   "ref": "Sterman test 6"
+  },
+  {
+   "test": "time-horizon adequacy",
+   "status": "PASS",
+   "detail": "t=15:CONFIRM(+44); t=20:CONFIRM(+97); t=40:CONFIRM(+302); t=80:CONFIRM(+677)",
+   "ref": "F&S 4/7 boundary"
+  },
+  {
+   "test": "dose-response monotone",
+   "status": "PASS",
+   "detail": "gaps 0.2:+0, 0.5:+24, 0.8:+47, 1.1:+69, 1.4:+90, 1.7:+110, 2:+127",
+   "ref": "Chen MR1"
+  },
+  {
+   "test": "mechanism knock-out",
+   "status": "PASS",
+   "detail": "channels ['gen_pat', 'born_pat'] neutral -> REFUTE (-81.9)",
+   "ref": "Cartwright capacities / causal cake"
+  },
+  {
+   "test": "refutability (uniform)",
+   "status": "PASS",
+   "detail": "uniform over ranges: {'CONFIRM': 6.0, 'REFUTE': 86.6, 'neutral': 7.4}",
+   "ref": "Popper; anti-tautology"
+  },
+  {
+   "test": "scale x2 (MR2)",
+   "status": "PASS",
+   "detail": "CONFIRM(+97) -> CONFIRM(+106)",
+   "ref": "Chen MR2"
+  }
+ ],
+ "robustness": {
+  "local": {
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    56.04788403709665,
+    96.5341010402692,
+    138.93873150112785
+   ]
+  },
+  "prior": {
+   "CONFIRM": 5.3,
+   "REFUTE": 83.2,
+   "neutral": 11.4,
+   "gap": [
+    -679.8431677737872,
+    -159.92438865386248,
+    49.58522547039843
+   ]
+  },
+  "uniform": {
+   "CONFIRM": 4.2,
+   "REFUTE": 85.5,
+   "neutral": 10.2,
+   "gap": [
+    -1146.0317191420158,
+    -228.08415628055081,
+    42.306829519346365
+   ]
+  }
+ },
+ "tipping": {
+  "Patterned": [
+   "CONFIRM->neutral@120"
+  ],
+  "Legacy": [
+   "neutral->CONFIRM@5"
+  ],
+  "Debt": [],
+  "decay_rate": [
+   "CONFIRM->neutral@0.113",
+   "neutral->REFUTE@0.2"
+  ],
+  "drift_to_legacy": [],
+  "gen_pat": [
+   "REFUTE->neutral@0.608",
+   "neutral->CONFIRM@0.752"
+  ],
+  "gen_leg": [
+   "CONFIRM->neutral@1.19",
+   "neutral->CONFIRM@1.33"
+  ],
+  "born_pat": [
+   "CONFIRM->neutral@0.3",
+   "neutral->REFUTE@0.525"
+  ],
+  "born_leg": [],
+  "intr_rate": [
+   "CONFIRM->neutral@0.212",
+   "neutral->REFUTE@0.225"
+  ],
+  "pay_rate": [
+   "REFUTE->neutral@0.05",
+   "neutral->CONFIRM@0.075"
+  ],
+  "mig_cost": [
+   "CONFIRM->neutral@4",
+   "neutral->REFUTE@5.25"
+  ],
+  "mig_bugs": [
+   "CONFIRM->neutral@0.75",
+   "neutral->REFUTE@1.1"
+  ],
+  "pressure": []
+ },
+ "rules": {
+  "text": "|--- decay_rate <= 0.068\n|   |--- gen_pat <= 1.524\n|   |   |--- Patterned <= 55.744\n|   |   |   |--- class: 0\n|   |   |--- Patterned >  55.744\n|   |   |   |--- class: 0\n|   |--- gen_pat >  1.524\n|   |   |--- pay_rate <= 0.312\n|   |   |   |--- class: 0\n|   |   |--- pay_rate >  0.312\n|   |   |   |--- class: 1\n|--- decay_rate >  0.068\n|   |--- mig_cost <= 1.253\n|   |   |--- gen_leg <= 0.806\n|   |   |   |--- class: 0\n|   |   |--- gen_leg >  0.806\n|   |   |   |--- class: 0\n|   |--- mig_cost >  1.253\n|   |   |--- gen_pat <= 1.956\n|   |   |   |--- class: 0\n|   |   |--- gen_pat >  1.956\n|   |   |   |--- class: 0\n",
+  "importance": [
+   [
+    "decay_rate",
+    0.282
+   ],
+   [
+    "gen_pat",
+    0.277
+   ],
+   [
+    "pay_rate",
+    0.163
+   ],
+   [
+    "gen_leg",
+    0.12
+   ],
+   [
+    "mig_cost",
+    0.104
+   ],
+   [
+    "Patterned",
+    0.054
+   ],
+   [
+    "Legacy",
+    0.0
+   ],
+   [
+    "Debt",
+    0.0
+   ],
+   [
+    "drift_to_legacy",
+    0.0
+   ],
+   [
+    "born_pat",
+    0.0
+   ],
+   [
+    "born_leg",
+    0.0
+   ],
+   [
+    "intr_rate",
+    0.0
+   ],
+   [
+    "mig_bugs",
+    0.0
+   ],
+   [
+    "pressure",
+    0.0
+   ]
+  ],
+  "accuracy": 0.944,
+  "base_rate": 0.059
+ },
+ "scenarios": {
+  "big_bang": {
+   "story": "rewrite: migrate=2.0",
+   "over": {
+    "_arms": [
+     0.2,
+     2.0
+    ]
+   },
+   "at_default": [
+    "CONFIRM",
+    127.44287959508512
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    76.03392778316334,
+    127.27932722771578,
+    180.9953772733602
+   ]
+  },
+  "no_governance": {
+   "story": "patterns erode 6x faster",
+   "over": {
+    "decay_rate": 0.3
+   },
+   "at_default": [
+    "REFUTE",
+    -58.59348462115986
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 99.7,
+   "neutral": 0.3,
+   "gap": [
+    -82.94019209641294,
+    -57.25275602362092,
+    -34.38738651356084
+   ]
+  },
+  "already_good": {
+   "story": "90 patterned / 10 legacy",
+   "over": {
+    "Patterned": 90,
+    "Legacy": 10
+   },
+   "at_default": [
+    "neutral",
+    13.300551744225459
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 0.0,
+   "neutral": 100.0,
+   "gap": [
+    0.7299151144762845,
+    13.49298945662133,
+    25.913185284120345
+   ]
+  },
+  "debt_crisis": {
+   "story": "Debt=120 at start",
+   "over": {
+    "Debt": 120
+   },
+   "at_default": [
+    "CONFIRM",
+    84.06601879388546
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    47.57609221351822,
+    84.12785369592478,
+    125.54389547767289
+   ]
+  },
+  "overengineered": {
+   "story": "abstraction tax: patterned code ships slower",
+   "over": {
+    "gen_pat": 0.35
+   },
+   "at_default": [
+    "REFUTE",
+    -80.79244244338895
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 100.0,
+   "neutral": 0.0,
+   "gap": [
+    -107.89000246874343,
+    -79.84608099113734,
+    -54.64924492166324
+   ]
+  },
+  "patterns_no_safer": {
+   "story": "patterned code as bug-prone as legacy",
+   "over": {
+    "born_pat": 0.2
+   },
+   "at_default": [
+    "CONFIRM",
+    49.17691991710194
+   ],
+   "CONFIRM": 86.5,
+   "REFUTE": 0.0,
+   "neutral": 13.5,
+   "gap": [
+    13.68017038691039,
+    48.15859128458595,
+    84.48045433016358
+   ]
+  },
+  "helix_scale": {
+   "story": "Helix partition: 149 patterned, 384 legacy",
+   "over": {
+    "Patterned": 149,
+    "Legacy": 384
+   },
+   "at_default": [
+    "REFUTE",
+    -163.0284973784951
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 86.0,
+   "neutral": 14.0,
+   "gap": [
+    -247.11237674003564,
+    -144.41995687470603,
+    -35.272939126425854
+   ]
+  },
+  "short_horizon": {
+   "story": "evaluate after 8 ticks",
+   "over": {
+    "_tmax": 8
+   },
+   "at_default": [
+    "REFUTE",
+    -14.715396560822313
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 73.3,
+   "neutral": 26.7,
+   "gap": [
+    -28.27885537478008,
+    -14.396771892197421,
+    -1.2353294888583832
+   ]
+  }
+ },
+ "variants": {},
+ "evidence": [
+  {
+   "project": "helix",
+   "population": "helix: production Java files in pattern4-scanned modules at 2026-05-24; stocks from lift_archpat (149 / 384 / 0 Drift)",
+   "measured": [
+    "snapshot 2c566eea27: 674 production files, 149 patterned",
+    "born_pat/born_leg (fix commits | size, churn) 0.83 [0.71, 0.93]",
+    "same, SZZ bug-introducing 0.68 [0.54, 0.86]",
+    "gen_pat/gen_leg proxy (non-fix commits | size) 1.05 [0.91, 1.27]"
+   ],
+   "notes": [
+    "Cross-sectional: patterned files differ from others in ways other than patterns (age, centrality, ownership). Rate ratios are associations, not the effect of migrating a file.",
+    "gen proxy = non-fix commits per file; change activity is not feature delivery (may even signal instability).",
+    "The lever itself (migrating Legacy -> Patterned) is unobserved: pattern4 ran on one snapshot only, so migrate, decay_rate and the price of migration (mig_cost, mig_bugs) remain priors.",
+    "74% of files are 'Other' (neither patterned nor legacy); the 3-stock model has no place for them (boundary adequacy).",
+    "Fix commits found by subject regex; SZZ pairs are the repo's committed B-SZZ output (older history only)."
+   ],
+   "place": {
+    "CONFIRM": 2.9,
+    "REFUTE": 93.5,
+    "neutral": 3.6,
+    "gap": [
+     -1751.6825642202737,
+     -547.3766241329956,
+     -19.48040087295982
+    ]
+   },
+   "voi": {
+    "p_confirm": 0.029,
+    "entropy": 0.187,
+    "ranked": [
+     {
+      "factor": "gen_leg",
+      "gain": 0.028,
+      "p_by_quartile": [
+       0.0,
+       0.01,
+       0.02,
+       0.08
+      ]
+     },
+     {
+      "factor": "pay_rate",
+      "gain": 0.028,
+      "p_by_quartile": [
+       0.0,
+       0.0,
+       0.03,
+       0.08
+      ]
+     },
+     {
+      "factor": "mig_bugs",
+      "gain": 0.015,
+      "p_by_quartile": [
+       0.06,
+       0.04,
+       0.01,
+       0.0
+      ]
+     },
+     {
+      "factor": "born_leg",
+      "gain": 0.014,
+      "p_by_quartile": [
+       0.0,
+       0.01,
+       0.04,
+       0.06
+      ]
+     },
+     {
+      "factor": "mig_cost",
+      "gain": 0.013,
+      "p_by_quartile": [
+       0.05,
+       0.05,
+       0.02,
+       0.0
+      ]
+     },
+     {
+      "factor": "Debt",
+      "gain": 0.002,
+      "p_by_quartile": [
+       0.04,
+       0.03,
+       0.01,
+       0.03
+      ]
+     },
+     {
+      "factor": "drift_to_legacy",
+      "gain": 0.002,
+      "p_by_quartile": [
+       0.04,
+       0.02,
+       0.03,
+       0.02
+      ]
+     },
+     {
+      "factor": "intr_rate",
+      "gain": 0.002,
+      "p_by_quartile": [
+       0.04,
+       0.03,
+       0.02,
+       0.02
+      ]
+     },
+     {
+      "factor": "decay_rate",
+      "gain": 0.001,
+      "p_by_quartile": [
+       0.03,
+       0.04,
+       0.03,
+       0.02
+      ]
+     },
+     {
+      "factor": "pressure",
+      "gain": 0.0,
+      "p_by_quartile": [
+       0.03,
+       0.02,
+       0.03,
+       0.03
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

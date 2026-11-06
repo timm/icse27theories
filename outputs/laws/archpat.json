@@ -1,0 +1,457 @@
+{
+ "battery": [
+  {
+   "test": "units declared",
+   "status": "PASS",
+   "detail": "every var has units",
+   "ref": "F&S dimensional consistency"
+  },
+  {
+   "test": "dead parameters",
+   "status": "FAIL",
+   "detail": "no influence on y: ['pat_strength']",
+   "ref": "F&S parameter verification"
+  },
+  {
+   "test": "extreme conditions",
+   "status": "PASS",
+   "detail": "all finite. claim not CONFIRMed at 3 extremes: Legacy=0:neutral, gen_pat=0.1:REFUTE, born_pat=1:REFUTE",
+   "ref": "F&S extreme conditions"
+  },
+  {
+   "test": "clamp dependence",
+   "status": "WARN",
+   "detail": "34% of prior backgrounds escape declared bounds; 19% are CONFIRMs that need clamping",
+   "ref": "Sterman boundary/structure; sd.mr_bound_consist"
+  },
+  {
+   "test": "integration step (dt)",
+   "status": "PASS",
+   "detail": "gap dt=1:+228.7 dt=.25:+228.6 (0%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']",
+   "ref": "Sterman test 6"
+  },
+  {
+   "test": "time-horizon adequacy",
+   "status": "PASS",
+   "detail": "t=15:CONFIRM(+149); t=20:CONFIRM(+229); t=40:CONFIRM(+542); t=80:CONFIRM(+1127)",
+   "ref": "F&S 4/7 boundary"
+  },
+  {
+   "test": "dose-response monotone",
+   "status": "PASS",
+   "detail": "gaps 0.2:+0, 0.5:+64, 0.8:+121, 1.1:+171, 1.4:+215, 1.7:+254, 2:+288",
+   "ref": "Chen MR1"
+  },
+  {
+   "test": "mechanism knock-out",
+   "status": "FAIL",
+   "detail": "channels ['gen_pat', 'born_pat'] neutral -> CONFIRM (+26.8)",
+   "ref": "Cartwright capacities / causal cake"
+  },
+  {
+   "test": "refutability (uniform)",
+   "status": "PASS",
+   "detail": "uniform over ranges: {'CONFIRM': 58.3, 'REFUTE': 12.9, 'neutral': 28.8}",
+   "ref": "Popper; anti-tautology"
+  },
+  {
+   "test": "scale x2 (MR2)",
+   "status": "PASS",
+   "detail": "CONFIRM(+229) -> CONFIRM(+351)",
+   "ref": "Chen MR2"
+  }
+ ],
+ "robustness": {
+  "local": {
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    182.87779736746103,
+    226.95556599771385,
+    275.3148590084919
+   ]
+  },
+  "prior": {
+   "CONFIRM": 65.3,
+   "REFUTE": 10.4,
+   "neutral": 24.2,
+   "gap": [
+    -110.57819521161991,
+    66.92434975933134,
+    358.60763106505965
+   ]
+  },
+  "uniform": {
+   "CONFIRM": 59.1,
+   "REFUTE": 14.5,
+   "neutral": 26.4,
+   "gap": [
+    -264.4730677772234,
+    57.674635016439765,
+    462.80588313002863
+   ]
+  }
+ },
+ "tipping": {
+  "Patterned": [],
+  "Legacy": [
+   "neutral->CONFIRM@5"
+  ],
+  "Debt": [],
+  "decay_rate": [],
+  "drift_to_legacy": [],
+  "gen_pat": [
+   "REFUTE->neutral@0.245",
+   "neutral->CONFIRM@0.318"
+  ],
+  "gen_leg": [],
+  "born_pat": [
+   "CONFIRM->neutral@0.7",
+   "neutral->REFUTE@0.975"
+  ],
+  "born_leg": [],
+  "intr_rate": [],
+  "pay_rate": []
+ },
+ "rules": {
+  "text": "|--- gen_leg <= 0.817\n|   |--- gen_pat <= 0.737\n|   |   |--- gen_leg <= 0.497\n|   |   |   |--- class: 1\n|   |   |--- gen_leg >  0.497\n|   |   |   |--- class: 0\n|   |--- gen_pat >  0.737\n|   |   |--- born_leg <= 0.164\n|   |   |   |--- class: 1\n|   |   |--- born_leg >  0.164\n|   |   |   |--- class: 1\n|--- gen_leg >  0.817\n|   |--- born_leg <= 0.348\n|   |   |--- born_pat <= 0.255\n|   |   |   |--- class: 1\n|   |   |--- born_pat >  0.255\n|   |   |   |--- class: 0\n|   |--- born_leg >  0.348\n|   |   |--- pay_rate <= 0.200\n|   |   |   |--- class: 0\n|   |   |--- pay_rate >  0.200\n|   |   |   |--- class: 1\n",
+  "importance": [
+   [
+    "gen_leg",
+    0.402
+   ],
+   [
+    "born_leg",
+    0.237
+   ],
+   [
+    "born_pat",
+    0.151
+   ],
+   [
+    "pay_rate",
+    0.139
+   ],
+   [
+    "gen_pat",
+    0.071
+   ],
+   [
+    "Patterned",
+    0.0
+   ],
+   [
+    "Legacy",
+    0.0
+   ],
+   [
+    "Debt",
+    0.0
+   ],
+   [
+    "decay_rate",
+    0.0
+   ],
+   [
+    "drift_to_legacy",
+    0.0
+   ],
+   [
+    "intr_rate",
+    0.0
+   ]
+  ],
+  "accuracy": 0.789,
+  "base_rate": 0.65
+ },
+ "scenarios": {
+  "big_bang": {
+   "story": "rewrite: migrate=2.0",
+   "over": {
+    "_arms": [
+     0.2,
+     2.0
+    ]
+   },
+   "at_default": [
+    "CONFIRM",
+    287.826838498043
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    229.62875612315833,
+    286.5586627694937,
+    348.4077252985894
+   ]
+  },
+  "no_governance": {
+   "story": "patterns erode 6x faster",
+   "over": {
+    "decay_rate": 0.3
+   },
+   "at_default": [
+    "CONFIRM",
+    83.65900606240035
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    65.87890542175342,
+    83.24063919358082,
+    105.17431463647199
+   ]
+  },
+  "already_good": {
+   "story": "90 patterned / 10 legacy",
+   "over": {
+    "Patterned": 90,
+    "Legacy": 10
+   },
+   "at_default": [
+    "CONFIRM",
+    59.54033925757676
+   ],
+   "CONFIRM": 93.0,
+   "REFUTE": 0.0,
+   "neutral": 7.0,
+   "gap": [
+    47.241244529887695,
+    58.94566286977033,
+    71.55827744840303
+   ]
+  },
+  "debt_crisis": {
+   "story": "Debt=120 at start",
+   "over": {
+    "Debt": 120
+   },
+   "at_default": [
+    "CONFIRM",
+    209.44572126528425
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    167.12302703819165,
+    207.73472001723837,
+    253.8837351911519
+   ]
+  },
+  "overengineered": {
+   "story": "abstraction tax: patterned code ships slower",
+   "over": {
+    "gen_pat": 0.35
+   },
+   "at_default": [
+    "CONFIRM",
+    38.19156000916479
+   ],
+   "CONFIRM": 85.5,
+   "REFUTE": 0.0,
+   "neutral": 14.5,
+   "gap": [
+    17.4131393158342,
+    38.74740972942868,
+    60.339208722598414
+   ]
+  },
+  "patterns_no_safer": {
+   "story": "patterned code as bug-prone as legacy",
+   "over": {
+    "born_pat": 0.2
+   },
+   "at_default": [
+    "CONFIRM",
+    160.72086482369104
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    124.86678830422784,
+    159.1426134801688,
+    196.336495170165
+   ]
+  },
+  "helix_scale": {
+   "story": "Helix partition: 149 patterned, 384 legacy",
+   "over": {
+    "Patterned": 149,
+    "Legacy": 384
+   },
+   "at_default": [
+    "CONFIRM",
+    341.0142970812715
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    281.7879473456976,
+    346.44655837946516,
+    425.37841484669116
+   ]
+  },
+  "short_horizon": {
+   "story": "evaluate after 8 ticks",
+   "over": {
+    "_tmax": 8
+   },
+   "at_default": [
+    "CONFIRM",
+    52.07413374433588
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    40.720284339268005,
+    51.915696622737784,
+    64.40703641803148
+   ]
+  }
+ },
+ "variants": {
+  "sd.archpat": {
+   "story": "reference: migration is free",
+   "at_default": [
+    "CONFIRM",
+    228.69120383908717
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     182.64788225184066,
+     227.82921639079143,
+     276.6825893473929
+    ]
+   },
+   "prior": {
+    "CONFIRM": 66.0,
+    "REFUTE": 11.1,
+    "neutral": 22.9,
+    "gap": [
+     -118.71322170278108,
+     63.57516723307526,
+     355.3690366062117
+    ]
+   }
+  },
+  "migration costs": {
+   "story": "4 feature-items of effort per module moved",
+   "at_default": [
+    "CONFIRM",
+    74.23017322017716
+   ],
+   "local": {
+    "CONFIRM": 96.9,
+    "REFUTE": 0.0,
+    "neutral": 3.1,
+    "gap": [
+     29.666825428029597,
+     75.23919547459138,
+     120.82957188635191
+    ]
+   },
+   "prior": {
+    "CONFIRM": 19.9,
+    "REFUTE": 59.3,
+    "neutral": 20.8,
+    "gap": [
+     -375.43780262391374,
+     -61.31943857157353,
+     187.70388131731625
+    ]
+   }
+  },
+  "refactoring bugs": {
+   "story": "0.5 debt per module moved (Bavota 2012)",
+   "at_default": [
+    "CONFIRM",
+    152.90160863503218
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     111.77672192119655,
+     151.9363025492288,
+     194.1572880375287
+    ]
+   },
+   "prior": {
+    "CONFIRM": 38.4,
+    "REFUTE": 27.1,
+    "neutral": 34.5,
+    "gap": [
+     -209.15530039976665,
+     8.344075562346859,
+     250.46490954014007
+    ]
+   }
+  },
+  "erosion ~ pressure": {
+   "story": "decay grows with delivery pressure",
+   "at_default": [
+    "CONFIRM",
+    200.8147602799803
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     160.9934732587816,
+     199.26484200150526,
+     243.23016587354277
+    ]
+   },
+   "prior": {
+    "CONFIRM": 63.9,
+    "REFUTE": 9.5,
+    "neutral": 26.6,
+    "gap": [
+     -95.37389094112268,
+     58.76774322474313,
+     322.86926558239975
+    ]
+   }
+  },
+  "all three": {
+   "story": "cost + bugs + pressure",
+   "at_default": [
+    "REFUTE",
+    -35.40266883001999
+   ],
+   "local": {
+    "CONFIRM": 0.2,
+    "REFUTE": 68.7,
+    "neutral": 31.1,
+    "gap": [
+     -71.41150498385156,
+     -34.8262318953777,
+     2.3634079326880624
+    ]
+   },
+   "prior": {
+    "CONFIRM": 3.9,
+    "REFUTE": 87.6,
+    "neutral": 8.5,
+    "gap": [
+     -498.8607528427219,
+     -150.15179113626652,
+     37.17450933398368
+    ]
+   }
+  }
+ },
+ "evidence": []
+}
