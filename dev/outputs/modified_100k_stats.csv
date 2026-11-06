@@ -1,0 +1,11 @@
+rank,id,label,median,mean,sd,p05,p95,iqr,completed_pct,cliffs_delta_vs_base,cliffs_delta_vs_brooks
+1,synergistic_surge_50,"Synergistic Surge (50 Hires)",2361.4,2365.4,273.8,1931.5,2818.1,431.2,100.0%,1.000,1.000
+2,synergistic_10,"Synergistic Modern Org (10 Hires)",1632.9,1632.3,188.3,1339.4,1925.3,320.5,100.0%,0.996,1.000
+3,baseline,"Baseline Control (0 Hires)",1049.0,1050.3,142.9,827.3,1279.8,233.0,100.0%,0.012,1.000
+3,dedicated_mentor_10,"Dedicated Mentors (10 Hires)",1038.5,1040.5,145.9,811.6,1278.9,231.8,100.0%,-0.029,1.000
+4,ambassador_10,"Ambassador Partitioning (10 Hires)",946.3,949.2,145.3,719.3,1190.7,222.0,100.0%,-0.363,1.000
+5,async_ci_10,"Async Documentation & CI (10 Hires)",671.7,674.3,120.3,484.9,875.4,181.1,90.8%,-0.960,0.980
+6,ambassador_surge_50,"Ambassador Surge (50 Hires)",594.3,595.3,105.5,430.5,764.3,165.7,77.3%,-0.996,0.935
+7,staged_wave_10,"Staged Wave Influx (10 Hires)",392.4,393.4,86.4,256.3,533.6,135.2,15.7%,-1.000,0.272
+8,standard_brooks,"Standard Brooks (10 Hires, Flat)",351.8,352.6,82.1,221.9,485.7,128.5,6.8%,-1.000,-0.012
+8,standard_surge_50,"Standard Surge (50 Hires, Flat)",351.8,352.6,82.1,221.9,485.7,128.5,6.8%,-1.000,0.007

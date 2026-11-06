@@ -1,0 +1,265 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>card: archpat_cost</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="../index.html">Overview</a> <a href="../before.html">A. The project as received</a> <a href="../brooks.html">B1. Your Brooks work</a> <a href="../review.html">B2. Review of the Brooks work</a> <a href="../lawkit.html">C1. lawkit framework</a> <a href="../results.html">C2. Results per law</a> <a href="../evidence.html">C3. Real-world evidence</a> <a href="../strategy.html">D. Strategy, Cartwright, next steps</a> <a href="../reproduce.html">Files & reproduce</a> <a href="../cards/index.html" class=on>Evidence cards</a></nav><h1>Evidence card: <code>archpat_cost</code></h1>
+<p><strong>Claim.</strong> aggressive migration to patterns (1.5 vs 0.2) raises Feat - mean(Debt) of an already-bad project when migration has an uncertain price.<br />
+<strong>Lever.</strong> <code>migrate</code> 0.2 -&gt; 1.5; expected y up.<br />
+<strong>Support factors.</strong> Patterned, Legacy, Debt, decay_rate, drift_to_legacy, gen_pat, gen_leg, born_pat, born_leg, intr_rate, pay_rate, mig_cost, mig_bugs, pressure.<br />
+<strong>Sources.</strong> Perry &amp; Wolf 1992; Martin 2008; Bavota et al. 2012; sd.archpat; priors on the three missing mechanisms</p>
+<h2>1. Is the machine sound? (structure battery)</h2>
+<table>
+<thead>
+<tr>
+<th>status</th>
+<th>test</th>
+<th>detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASS</td>
+<td>units declared</td>
+<td>every var has units</td>
+</tr>
+<tr>
+<td>FAIL</td>
+<td>dead parameters</td>
+<td>no influence on y: ['pat_strength']</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>extreme conditions</td>
+<td>all finite. claim not CONFIRMed at 9 extremes: Patterned=200:neutral, Legacy=0:neutral, decay_rate=0.5:REFUTE, gen_pat=0.1:REFUTE, born_pat=1:REFUTE, intr_rate=0.5:REFUTE, pay_rate=0:REFUTE, mig_cost=10:REFUTE</td>
+</tr>
+<tr>
+<td>WARN</td>
+<td>clamp dependence</td>
+<td>37% of prior backgrounds escape declared bounds; 2% are CONFIRMs that need clamping</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>integration step (dt)</td>
+<td>gap dt=1:+97.0 dt=.25:+96.7 (0%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>time-horizon adequacy</td>
+<td>t=15:CONFIRM(+44); t=20:CONFIRM(+97); t=40:CONFIRM(+302); t=80:CONFIRM(+677)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>dose-response monotone</td>
+<td>gaps 0.2:+0, 0.5:+24, 0.8:+47, 1.1:+69, 1.4:+90, 1.7:+110, 2:+127</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>mechanism knock-out</td>
+<td>channels ['gen_pat', 'born_pat'] neutral -&gt; REFUTE (-81.9)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>refutability (uniform)</td>
+<td>uniform over ranges: {'CONFIRM': 6.0, 'REFUTE': 86.6, 'neutral': 7.4}</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>scale x2 (MR2)</td>
+<td>CONFIRM(+97) -&gt; CONFIRM(+106)</td>
+</tr>
+</tbody>
+</table>
+<h2>2. How robust is the claim? (CONFIRM / REFUTE / neutral)</h2>
+<table>
+<thead>
+<tr>
+<th>neighbourhood</th>
+<th>verdicts</th>
+<th>gap median [5%, 95%]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+-15% around defaults (old MC protocol)</td>
+<td>100% / 0% / 0%</td>
+<td>+97 [+56, +139]</td>
+</tr>
+<tr>
+<td>triangular over declared ranges</td>
+<td>5% / 83% / 11%</td>
+<td>-160 [-680, +50]</td>
+</tr>
+<tr>
+<td>uniform over declared ranges</td>
+<td>4% / 86% / 10%</td>
+<td>-228 [-1146, +42]</td>
+</tr>
+</tbody>
+</table>
+<h2>3. What decides it? (tree on prior draws, base rate 6% CONFIRM, accuracy 94%)</h2>
+<p>Importance: <code>decay_rate</code> 0.28, <code>gen_pat</code> 0.28, <code>pay_rate</code> 0.16, <code>gen_leg</code> 0.12, <code>mig_cost</code> 0.10, <code>Patterned</code> 0.05</p>
+<pre><code>|--- decay_rate &lt;= 0.068
+|   |--- gen_pat &lt;= 1.524
+|   |   |--- Patterned &lt;= 55.744
+|   |   |   |--- class: 0
+|   |   |--- Patterned &gt;  55.744
+|   |   |   |--- class: 0
+|   |--- gen_pat &gt;  1.524
+|   |   |--- pay_rate &lt;= 0.312
+|   |   |   |--- class: 0
+|   |   |--- pay_rate &gt;  0.312
+|   |   |   |--- class: 1
+|--- decay_rate &gt;  0.068
+|   |--- mig_cost &lt;= 1.253
+|   |   |--- gen_leg &lt;= 0.806
+|   |   |   |--- class: 0
+|   |   |--- gen_leg &gt;  0.806
+|   |   |   |--- class: 0
+|   |--- mig_cost &gt;  1.253
+|   |   |--- gen_pat &lt;= 1.956
+|   |   |   |--- class: 0
+|   |   |--- gen_pat &gt;  1.956
+|   |   |   |--- class: 0
+</code></pre>
+<p>One-at-a-time tipping points (others at default):</p>
+<ul>
+<li><code>Patterned</code>: CONFIRM-&gt;neutral@120</li>
+<li><code>Legacy</code>: neutral-&gt;CONFIRM@5</li>
+<li><code>decay_rate</code>: CONFIRM-&gt;neutral@0.113, neutral-&gt;REFUTE@0.2</li>
+<li><code>gen_pat</code>: REFUTE-&gt;neutral@0.608, neutral-&gt;CONFIRM@0.752</li>
+<li><code>gen_leg</code>: CONFIRM-&gt;neutral@1.19, neutral-&gt;CONFIRM@1.33</li>
+<li><code>born_pat</code>: CONFIRM-&gt;neutral@0.3, neutral-&gt;REFUTE@0.525</li>
+<li><code>intr_rate</code>: CONFIRM-&gt;neutral@0.212, neutral-&gt;REFUTE@0.225</li>
+<li><code>pay_rate</code>: REFUTE-&gt;neutral@0.05, neutral-&gt;CONFIRM@0.075</li>
+<li><code>mig_cost</code>: CONFIRM-&gt;neutral@4, neutral-&gt;REFUTE@5.25</li>
+<li><code>mig_bugs</code>: CONFIRM-&gt;neutral@0.75, neutral-&gt;REFUTE@1.1</li>
+<li>no flip inside declared range: Debt, drift_to_legacy, born_leg, pressure</li>
+</ul>
+<h2>4. Business scenarios (same mechanism, different world)</h2>
+<table>
+<thead>
+<tr>
+<th>scenario</th>
+<th>story</th>
+<th>default</th>
+<th>C/R/n under +-15%</th>
+<th>gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>big_bang</td>
+<td>rewrite: migrate=2.0</td>
+<td>CONFIRM (+127)</td>
+<td>100% / 0% / 0%</td>
+<td>+127 [+76, +181]</td>
+</tr>
+<tr>
+<td>no_governance</td>
+<td>patterns erode 6x faster</td>
+<td>REFUTE (-59)</td>
+<td>0% / 100% / 0%</td>
+<td>-57 [-83, -34]</td>
+</tr>
+<tr>
+<td>already_good</td>
+<td>90 patterned / 10 legacy</td>
+<td>neutral (+13)</td>
+<td>0% / 0% / 100%</td>
+<td>+13 [+1, +26]</td>
+</tr>
+<tr>
+<td>debt_crisis</td>
+<td>Debt=120 at start</td>
+<td>CONFIRM (+84)</td>
+<td>100% / 0% / 0%</td>
+<td>+84 [+48, +126]</td>
+</tr>
+<tr>
+<td>overengineered</td>
+<td>abstraction tax: patterned code ships slower</td>
+<td>REFUTE (-81)</td>
+<td>0% / 100% / 0%</td>
+<td>-80 [-108, -55]</td>
+</tr>
+<tr>
+<td>patterns_no_safer</td>
+<td>patterned code as bug-prone as legacy</td>
+<td>CONFIRM (+49)</td>
+<td>86% / 0% / 14%</td>
+<td>+48 [+14, +84]</td>
+</tr>
+<tr>
+<td>helix_scale</td>
+<td>Helix partition: 149 patterned, 384 legacy</td>
+<td>REFUTE (-163)</td>
+<td>0% / 86% / 14%</td>
+<td>-144 [-247, -35]</td>
+</tr>
+<tr>
+<td>short_horizon</td>
+<td>evaluate after 8 ticks</td>
+<td>REFUTE (-15)</td>
+<td>0% / 73% / 27%</td>
+<td>-14 [-28, -1]</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Mechanism variants (same world, different structure; arms compared <em>within</em> each structure)</h2>
+<table>
+<thead>
+<tr>
+<th>variant</th>
+<th>story</th>
+<th>default</th>
+<th>local C/R/n</th>
+<th>prior C/R/n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>6. Will it work <em>here</em>? (real-project placement)</h2>
+<h3>helix</h3>
+<p>Population: helix: production Java files in pattern4-scanned modules at 2026-05-24; stocks from lift_archpat (149 / 384 / 0 Drift)</p>
+<p>Measured: snapshot 2c566eea27: 674 production files, 149 patterned; born_pat/born_leg (fix commits | size, churn) 0.83 [0.71, 0.93]; same, SZZ bug-introducing 0.68 [0.54, 0.86]; gen_pat/gen_leg proxy (non-fix commits | size) 1.05 [0.91, 1.27]</p>
+<p><strong>P(claim holds | evidence)</strong> = 3% / 94% / 4%, gap -547 [-1752, -19]</p>
+<p>What to measure next (verdict-entropy reduction, P(CONFIRM) by quartile):</p>
+<ul>
+<li><code>gen_leg</code> gain 0.028 [0.0, 0.01, 0.02, 0.08]</li>
+<li><code>pay_rate</code> gain 0.028 [0.0, 0.0, 0.03, 0.08]</li>
+<li><code>mig_bugs</code> gain 0.015 [0.06, 0.04, 0.01, 0.0]</li>
+<li><code>born_leg</code> gain 0.014 [0.0, 0.01, 0.04, 0.06]</li>
+<li><code>mig_cost</code> gain 0.013 [0.05, 0.05, 0.02, 0.0]</li>
+</ul>
+<p>Caveats (the long chain from data to parameter):</p>
+<ul>
+<li>Cross-sectional: patterned files differ from others in ways other than patterns (age, centrality, ownership). Rate ratios are associations, not the effect of migrating a file.</li>
+<li>gen proxy = non-fix commits per file; change activity is not feature delivery (may even signal instability).</li>
+<li>The lever itself (migrating Legacy -&gt; Patterned) is unobserved: pattern4 ran on one snapshot only, so migrate, decay_rate and the price of migration (mig_cost, mig_bugs) remain priors.</li>
+<li>74% of files are 'Other' (neither patterned nor legacy); the 3-stock model has no place for them (boundary adequacy).</li>
+<li>Fix commits found by subject regex; SZZ pairs are the repo's committed B-SZZ output (older history only).</li>
+</ul><script src="../vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

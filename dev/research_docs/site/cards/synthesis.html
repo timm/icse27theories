@@ -1,0 +1,460 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>SYNTHESIS</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="../index.html">Overview</a> <a href="../before.html">A. The project as received</a> <a href="../brooks.html">B1. Your Brooks work</a> <a href="../review.html">B2. Review of the Brooks work</a> <a href="../lawkit.html">C1. lawkit framework</a> <a href="../results.html">C2. Results per law</a> <a href="../evidence.html">C3. Real-world evidence</a> <a href="../strategy.html">D. Strategy, Cartwright, next steps</a> <a href="../reproduce.html">Files & reproduce</a> <a href="../cards/index.html" class=on>Evidence cards</a></nav><h1>Testing SE laws: what Brooks, aiwork and archpat taught us, and a protocol for the next law</h1>
+<p><em>Status: 2026-10-28. Reproduce with <code>make laws evidence sensitivity</code>
+(evidence needs clones of apache/helix and Aider-AI/aider). Per-law
+detail lives in the evidence cards next to this file:
+<a href="brooks.html">brooks</a> (the standard Brooks model),
+<a href="aiwork.html">aiwork</a>, <a href="archpat.html">archpat</a>,
+<a href="archpat_cost.html">archpat_cost</a>, <a href="sensitivity.html">sensitivity</a>.</em></p>
+<h2>TL;DR</h2>
+<ol>
+<li><strong>None of the three laws is true or false on its own terms.</strong> Each
+   is a <em>capacity</em> (Cartwright) that shows up only when particular
+   support factors are present. The useful output is the map of where
+   it holds, plus a test of whether a given project sits inside it.</li>
+<li><strong>All three turn on the price of pulling the lever:</strong> coordination
+   for Brooks, verification for aiwork, migration for archpat. In
+   every case the original model either fixed that price or left it
+   out, and git history records it worst.</li>
+<li><strong>Real data mostly overturned the defaults.</strong></li>
+<li>Helix's onboarding drag is about 1/24 of the Brooks default, and
+     its coordination optimum is about 5.4 veterans. So doubling Helix's
+     typical 3-person core <em>helps</em>; doubling it at its peak size
+     (6–8) <em>hurts</em>.</li>
+<li>Aider's AI-written lines churn about 1.33× as much as the same
+     author's own lines, stable across two model generations. The
+     default assumes 3×.</li>
+<li>Helix's patterned files are only modestly safer than other files
+     (0.68–0.83×, against an assumed 0.25×) and no more productive
+     (1.05×, against an assumed 2.5×).</li>
+<li><strong>Sample size bought nothing.</strong> 100k Monte Carlo runs at ±15% give
+   "100% CONFIRMED". The same Brooks claim sampled over its declared
+   ranges holds in about 10% of worlds. Robustness depends on how big
+   the neighbourhood is, not on how many runs.</li>
+<li><strong>The structural battery is necessary but was too weak.</strong> The
+   existing 8-test bank passes archpat on every test, yet archpat has
+   a dead parameter, a hard-coded benefit channel and free migration.
+   Tests must state their expectation first and check the declared
+   mechanism, or they can't fail.</li>
+</ol>
+<hr />
+<h2>1. What was done</h2>
+<table>
+<thead>
+<tr>
+<th>piece</th>
+<th>file(s)</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>generic framework</td>
+<td><code>lawkit/</code></td>
+<td>Law spec → 10-test battery → regime map → scenarios → variants → real-project placement → value of information</td>
+</tr>
+<tr>
+<td>law specs</td>
+<td><code>lawkit/laws.py</code></td>
+<td>brooks (the one standard model: late project, finish time, five literature structures, bounded overload), aiwork, archpat, archpat_cost; 8–14 business scenarios and 4–7 mechanism variants each</td>
+</tr>
+<tr>
+<td>evidence miners</td>
+<td><code>mine/*.py</code></td>
+<td>plain-git miners (no Perceval needed) for Helix and Aider</td>
+</tr>
+<tr>
+<td>runs</td>
+<td><code>run_laws.py</code>, <code>sensitivity.py</code></td>
+<td>cards + sensitivity tables</td>
+</tr>
+<tr>
+<td>regression tests</td>
+<td><code>lawkit/test_lawkit.py</code></td>
+<td>lawkit reproduces <code>sd.py</code> exactly; detectors fire where they should</td>
+</tr>
+</tbody>
+</table>
+<p>"Forrester and metamorphic tests" from the original plan are the
+battery's Forrester &amp; Senge / Sterman structure tests plus Chen et al.
+metamorphic relations. "Dynamic tests from real-world scenarios" became
+evidence placement (section 4).</p>
+<h2>2. Corrections to the earlier Brooks work</h2>
+<p>These change headline claims in <code>project_status_report.md</code>, so they
+come first.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>issue</th>
+<th>evidence</th>
+<th>consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td><strong>Modified architectures were compared against the <em>flat</em> baseline.</strong> Squads and async-docs already beat flat with zero hires (1455 and 1334 vs 1050).</td>
+<td><code>brooks_modifications.simulate_modified_vectorized</code>, 0 vs 10 hires per architecture</td>
+<td>Measured within each architecture at t=20, hiring still <strong>hurts</strong> in 5 of 6: squads −507, async −665, waves −659, mentor pods −10. Only "synergistic" helps (+145). "Ambassadors restore the crossover at t=11" really says squads beat a flat clique; it says nothing about hiring.</td>
+</tr>
+<tr>
+<td>B2</td>
+<td><strong>Score rewards phantom work.</strong> <code>Done − Todo</code> keeps rising after the backlog hits 0.</td>
+<td>baseline 1050 = done 775 − todo (−275)</td>
+<td>Early finishers bank imaginary output. <code>sd.py</code> clamps, so its numbers differ.</td>
+</tr>
+<tr>
+<td>B3</td>
+<td><strong>Saturation, not the law, produced "100%".</strong> brooks_law, massive_surge and steep_learning give identical results (352.6).</td>
+<td>even 5 hires zero all production for 4+ ticks (<code>train = 5×0.2 = 1.0</code>)</td>
+<td>The verdict is the <code>max(0, ·)</code> clamp: each newcomer costs every veteran 20% of their time, i.e. 2 FTE per newcomer. Real Helix data: 0.012 (section 4).</td>
+</tr>
+<tr>
+<td>B4</td>
+<td><strong>The ±15% noise is uniform, not triangular as the report says</strong>, and it only covers the neighbourhood of the defaults.</td>
+<td><code>monte_carlo_brooks.py</code> noise factors</td>
+<td>Local robustness 68–100%; over declared ranges about 10% (the paper's own stress matrix already says "fragile", 12/200).</td>
+</tr>
+<tr>
+<td>B5</td>
+<td><strong>Tests that cannot fail.</strong> The boundary-adequacy and tipping-point tests return PASS even with "no crossover found" / "none found". The modified-model invariants print "All physical invariants held" whatever the status.</td>
+<td><code>forrester_brooks.py</code>, <code>forrester_modified.py</code></td>
+<td>Reported confidence is overstated.</td>
+</tr>
+<tr>
+<td>B6</td>
+<td><strong>Report prose is hard-coded.</strong> It says early_hire, break_training and fast_onboarding "break the law", while the table beside it shows CONFIRMED/AMBIGUOUS.</td>
+<td><code>write_markdown_report</code></td>
+<td>Regenerate the prose from the data.</td>
+</tr>
+<tr>
+<td>B7</td>
+<td><strong>The default Brooks project is not late.</strong> Ten veterans finish 500 items by t≈13 &lt; 20.</td>
+<td><code>brooks_late</code> scenario <code>on_time_project</code></td>
+<td>Brooks's antecedent ("a late project") was false in the default world. <code>brooks_late</code> fixes this (Todo=1000, outcome = completion time).</td>
+</tr>
+<tr>
+<td>B8</td>
+<td><strong>The flat clique comm term kills any team above ~20</strong> (comm ≥ 1).</td>
+<td>tipping <code>Vet: CONFIRM→neutral@22.5</code></td>
+<td>Contradicted by every Apache project with 20+ active developers. The structure fails a family-member test against reality.</td>
+</tr>
+</tbody>
+</table>
+<p>Also in <code>paper/</code>: <code>full_audit.py</code> swaps the world-/process-conditional
+labels relative to <code>tests.py</code> and the README typology (this affects
+aidebt, not these three laws). The committed <code>full_audit.csv</code> still
+shows <code>ERR:ValueError</code> for extreme_eqn and mr_scale; the uncommitted
+<code>tests.py</code> 4-tuple fix resolves that.</p>
+<h2>3. Results per law</h2>
+<h3>Brooks (the standard model)</h3>
+<p><em>Since 2026-11-06 lawkit keeps one Brooks model for every test and report:</em>
+- a late project (backlog 1000), scored by finish time;
+- <code>sd.brooks</code>' communication and training costs, plus five literature
+  structures as uncertain settings (newcomer output, attrition,
+  unsplittable work, overtime, rework), each off at the default;
+- bounded overload (time left for work = exp(-overhead));
+- dt 0.125.</p>
+<p><em>The four earlier Brooks models are archived in
+<code>outputs/archive/2026-11-06_before_standard_brooks/</code>.</em></p>
+<ul>
+<li><strong>Machine:</strong> all 10 structure tests pass. The time-step error is 1%.
+  The knock-out passes: with talking and training neutralised, hiring helps,
+  +2. Every data-free Forrester test passes (<code>outputs/forrester_all.md</code>).</li>
+<li><strong>Robustness:</strong> ±15%: 100% CONFIRM. Prior: 44 / 16 / 40
+  (CONFIRM / REFUTE / neutral). Uniform: 27 / 33 / 40.</li>
+<li><strong>Default effect:</strong> 10 hires delay the finish by 11 ticks (25 → 36).
+  The earlier straight-line model said 88, because its overloaded teams
+  froze at zero output.</li>
+<li><strong>Decided by team size and talking cost</strong> (importance <code>Vet</code> 0.66,
+  <code>comm_coef</code> 0.25, <code>leave</code> 0.09). The coordination optimum is
+  V*: V(2V − 1) = 2/c, i.e. V* ≈ 14 for c=0.005 and ≈ 5.4 for Helix's
+  c≈0.038. The law holds when the post-hire team overshoots V*. It
+  fails for small cores (<code>small_core</code>: REFUTE, +51). Tipping point on
+  team size: 7.5.</li>
+<li><strong>Timing barely matters once the project is truly late:</strong> early, mid
+  and last-minute hires all CONFIRM (−12, −11, −9).</li>
+<li><strong>Variants:</strong> squads (−5), async (−3) and per-person communication (−6)
+  shrink the delay. Mentor pods and shared mentoring remove it at the
+  default.</li>
+<li><strong>Helix</strong> (152 months; re-fitted with the same bounded formula):
+  c = 0.038 [0.021, 0.066], train = 0.008 [0, 0.037], and newcomers who
+  stay are productive almost at once.</li>
+<li>Doubling the median core of 3 → <strong>REFUTE 70%</strong> (hiring helps).</li>
+<li>Doubling 6 or 8 → <strong>CONFIRM 87–94%</strong>.</li>
+<li>Doubling 12 is outside Helix's observed range (max 8): extrapolation.</li>
+<li>Policy sensitivity within Helix's measured values:
+    <code>outputs/forrester_all.md</code> §2.</li>
+<li><strong>Aider</strong> (one maintainer plus drive-bys): REFUTE 87%. The support
+  factors for Brooks are absent.</li>
+</ul>
+<h3>aiwork (does full AI use lower kept code?)</h3>
+<ul>
+<li><strong>Machine:</strong> knock-out passes (removing churn and verify drag makes AI
+  help, +38). The FAIL is a real structural defect: churn + mature
+  outflow can exceed the Wip stock in one tick (<code>churn_base</code> up to 1,
+  <code>churn_mult</code> up to 5), so 24% of CONFIRMs exist only because a
+  negative stock is clamped to 0. Bound the outflows.</li>
+<li><strong>Robustness:</strong> ±15%: 100%. Prior: 88%. Uniform: 74%.</li>
+<li><strong>Decided by speed vs verification, not churn.</strong> Importance:
+  <code>gen_boost</code> 0.42, <code>verify_drag</code> 0.40, <code>churn_mult</code> 0.07.
+  Approximate steady-state condition for AI to <em>help</em>:
+  (1 + gen_boost)(1 − verify_drag) &gt; 1 + churn_mult · churn_base /
+  (mature_rate + churn_base). The defaults give 0.78 &lt; 1.40, so AI
+  hurts mainly because default AI is <em>slower</em> (1.3 × 0.6), with churn
+  secondary.</li>
+<li><strong>Scenarios split cleanly:</strong> vibe_coding, boilerplate and
+  copilot_rct REFUTE; review_gate, legacy_expert, half_adoption and
+  short_sprint CONFIRM. METR, GitClear and Peng sample different
+  regions, which agrees with the repo's existing <code>grid_aiwork</code>
+  reading.</li>
+<li><strong>Aider evidence</strong> (same author, same period, size-stratified
+  14-day blame survival): AI 49.7% vs human 37.2% churn →
+  <strong>churn_mult = 0.35 [0.18, 0.54]</strong>. The GPT-4 era (2023-05..2024-06)
+  gives <strong>0.32 [0.16, 0.52]</strong>. The churn premium is real, about 6×
+  smaller than the default, and stable across model generations.</li>
+<li><strong>Placement:</strong> measured churn alone → CONFIRM 65%. With METR-like
+  speed/verify factors borrowed → 100%; with Peng-like → 3% (REFUTE
+  85%). What to measure next: <code>verify_drag</code> (gain 0.34), then
+  <code>gen_boost</code> (0.15). Neither is visible in git.</li>
+</ul>
+<h3>archpat (does aggressive migration to patterns repair a bad project?)</h3>
+<ul>
+<li><strong>Machine, reference model:</strong> the dead parameter <code>pat_strength</code> FAILs.
+  The knock-out FAILs: with patterned code given the same productivity
+  and bug rate as legacy, migration still helps (+27), via the
+  hard-coded <code>pay × (1 + 0.5·share)</code>. Migration is free: <code>available</code>
+  is computed and never used.</li>
+<li><strong>Robustness (reference):</strong> ±15%: 100%. Prior: 65%. Uniform: 59%.
+  Decided by <code>gen_leg</code> / <code>gen_pat</code> and <code>born_*</code>.</li>
+<li><strong>Mechanism variants reverse it.</strong> Give migration a price (4 items
+  per module) and prior CONFIRM falls from 66% to 20% (REFUTE 59%).
+  Add refactoring-induced bugs (Bavota 2012) and pressure-driven
+  erosion and it becomes 4% CONFIRM / 88% REFUTE.</li>
+<li><strong>Helix evidence</strong> (674 production files, 149 patterned; NB-GLM
+  controlling size and churn): fix-commit rate ratio
+  <strong>0.83 [0.71, 0.93]</strong>, SZZ bug-introduction ratio <strong>0.68 [0.54,
+  0.86]</strong> (model assumes 0.25), productivity proxy <strong>1.05 [0.91,
+  1.27]</strong> (assumes 2.5).</li>
+<li><strong>Placement:</strong> with free migration, Helix CONFIRMs (82%). With an
+  uncertain price it REFUTEs (94%). The measured ratios barely move
+  either number. <strong>Break-even (Helix stocks): migrating a module must
+  cost less than about 1 feature-item of effort with no injected bugs,
+  or less than about 0.1 if each migration injects 0.25 debt.</strong> That
+  price is the measurement that decides the law, and it can be
+  measured: RefactoringMiner + SZZ, both kaiaulu-wrapped.</li>
+</ul>
+<h2>4. A conclusive strategy for testing SE laws (goal 1)</h2>
+<p>What each test family can establish, judged by what actually changed
+a conclusion in this study:</p>
+<table>
+<thead>
+<tr>
+<th>test family</th>
+<th>establishes</th>
+<th>cannot establish</th>
+<th>changed a conclusion here?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forrester/Sterman structure + metamorphic</td>
+<td>the model is a coherent machine (no dead knobs, no hidden channels, no clamp-made verdicts)</td>
+<td>that the law is true anywhere</td>
+<td><strong>Yes</strong>: found 7 model defects (B3, B7, B8, archpat ×3, aiwork overshoot)</td>
+</tr>
+<tr>
+<td>Monte Carlo at ±15%</td>
+<td>precision of the default verdict</td>
+<td>robustness</td>
+<td><strong>No</strong>: always "100%"</td>
+</tr>
+<tr>
+<td>Sampling over declared ranges</td>
+<td>how much the claim depends on the author's priors</td>
+<td>where real projects are</td>
+<td><strong>Yes</strong>: 100% → 6–11% (Brooks)</td>
+</tr>
+<tr>
+<td>Regime map (tipping + rules)</td>
+<td>which support factors decide, and thresholds (V*, the aiwork inequality, archpat break-even)</td>
+<td>which side a real project is on</td>
+<td><strong>Yes</strong>: turned verdicts into conditions</td>
+</tr>
+<tr>
+<td>Business scenarios</td>
+<td>consequences in named worlds</td>
+<td>whether those worlds exist</td>
+<td>Partly: exposed B7 (not late)</td>
+</tr>
+<tr>
+<td>Mechanism variants</td>
+<td>whether the verdict survives rival structures</td>
+<td>which structure is right</td>
+<td><strong>Yes</strong>: archpat reverses</td>
+</tr>
+<tr>
+<td>Real-project placement</td>
+<td>P(law holds here | measured support factors)</td>
+<td>the law's average effect</td>
+<td><strong>Yes</strong>: Helix flips Brooks and archpat</td>
+</tr>
+<tr>
+<td>Value of information</td>
+<td>what to measure next</td>
+<td>—</td>
+<td><strong>Yes</strong>: always pointed away from what git records</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommended order</strong> (cheap → expensive; stop when a step fails):</p>
+<ol>
+<li><strong>Claim hygiene.</strong> State the lever, arms, outcome <em>in the law's own
+   words</em>, the antecedent (e.g. "late"), the support factors and the
+   causal channels. Stop if the default world violates the antecedent.</li>
+<li><strong>Machine battery.</strong> Stop on a dead parameter, a failed knock-out, a
+   dt-flip, or clamp-made CONFIRMs above 20%.</li>
+<li><strong>Three-neighbourhood robustness.</strong> Never report one number.</li>
+<li><strong>Regime map</strong>, then derive the dimensionless threshold
+   analytically where possible.</li>
+<li><strong>Rival mechanisms</strong> for the term that prices the lever.</li>
+<li><strong>Placement</strong> on at least two populations that differ in the
+   deciding factor, with a written caveat chain per estimate.</li>
+<li><strong>VOI → next measurement</strong>, phrased as a tool + column (kaiaulu
+   function where one exists).</li>
+</ol>
+<p><strong>Verdict format.</strong> "<code>L</code> plays a causal role in <code>Y</code> in populations
+where <code>S</code> holds; Helix satisfies <code>S</code> with probability p; the deciding
+unknown is <code>F</code>." Not "the law is CONFIRMED".</p>
+<h2>5. Reading the results through Cartwright</h2>
+<ul>
+<li><strong>It worked there vs. it will work here</strong> (Cartwright &amp; Hardie 2012).
+  METR, Peng and GitClear each show "it worked there". Section 6 of
+  each card asks the policy question for a named project. The two
+  answers diverge: Brooks holds in the textbook world and fails for
+  Helix's typical core.</li>
+<li><strong>Laws as capacities in nomological machines</strong> (Cartwright 1983,
+  1989, 1999). A law shows up only inside a shielded arrangement of
+  support factors. The regime map <em>is</em> the machine description: for
+  Brooks, a late project + post-hire team &gt; V*(c) + training drag
+  that's large relative to pre-deadline output. Outside it, "adding
+  people" is just adding capacity.</li>
+<li><strong>The causal cake / INUS</strong> (Mackie 1965). The lever is one slice.
+  <code>rules()</code> and <code>tipping()</code> find the other slices. The knock-out
+  test checks that the slices the model <em>declares</em> are the ones doing
+  the work; archpat failed this, because a hidden slice baked the
+  conclusion in.</li>
+<li><strong>Vertical and horizontal search.</strong> Vertical: re-describe the lever
+  more abstractly until it travels ("adding people" → "adding
+  coordination load past the optimum"; "using AI" → "trading
+  verification time for generation speed"; "migrating to patterns" →
+  "paying a migration price for lower future defect rates").
+  Horizontal: list the support factors that must be present
+  (variants + scenarios).</li>
+<li><strong>Evidence for use is a long chain.</strong> Data → construct → parameter →
+  model → verdict. Every mined number carries its caveat list
+  (commits ≠ productivity; within-author ≠ randomised; cross-sectional
+  pattern associations ≠ the effect of migrating). Sensitivity
+  tables show which link holds the weight. For archpat it's the
+  <em>unmeasured</em> price, not the measured ratios.</li>
+<li><strong>The streetlight.</strong> VOI always ranked the factor git can't see
+  (verification time, migration price, lateness) above the one it
+  can (churn, file bug rates). That points the measurement agenda,
+  rather than collecting more of what is easy.</li>
+<li><strong>Borrowing support factors needs a similarity argument.</strong> Plugging
+  METR's or Peng's speed/verify numbers into Aider swings the verdict
+  from 100% to 3%. Which population Aider resembles is an empirical
+  claim that has to be argued, not assumed.</li>
+<li><strong>Gold standards don't travel by themselves.</strong> The within-author
+  Aider design is strong on internal validity (same person, same
+  months, same files) and still says nothing about teams with real
+  code review. Rigour at the study site does not license export.</li>
+</ul>
+<h2>6. A generic framework for future SE laws (goal 2)</h2>
+<p>Implemented as <code>lawkit/</code> (see its README). A new law is one <code>Law(...)</code>
+spec plus, optionally, one miner that writes
+<code>outputs/evidence/&lt;law&gt;_&lt;project&gt;.json</code>. On the untouched <code>sd.debt</code>
+it immediately reports a hard-coded channel (knock-out FAIL) and a
+claim no background in its ranges can refute (100% CONFIRM). Those
+are the same failure types found in archpat.</p>
+<p><strong>Reusable knowledge each run extracts:</strong></p>
+<ol>
+<li><strong>A defect catalogue for models</strong>: dead parameters, hard-coded
+   channels, clamp-made verdicts, outflow overshoot, outcome ≠ the
+   law's words, antecedent false by default. These recur across the
+   35 <code>sd.py</code> models and can be checked automatically.</li>
+<li><strong>Regime thresholds</strong> in dimensionless form (V*, the aiwork
+   inequality, the archpat break-even price). These travel between
+   projects where raw parameters don't.</li>
+<li><strong>A measurement agenda</strong> (VOI), mapped to tools and columns.</li>
+<li><strong>A cross-law heuristic: price the lever first.</strong> Every "doing L
+   improves/hurts Y" law is a claim about the sign of
+   (benefit − price of L). Before building anything, ask (a) what
+   pulling L costs, (b) is that cost in the model, and (c) is it in
+   any data source. Missing (b) gives a tautology (archpat); missing
+   (c) gives an undecidable verdict (aiwork).</li>
+<li><strong>A composition path.</strong> <code>resources.txt</code> sketches chaining Brooks →
+   aiwork → archpat. lawkit composes laws as one Law over a combined
+   model whose factors are the union of the parts' factors. The
+   battery then checks the joint machine, and VOI ranks unknowns
+   across the chain. Not built yet; the specs are designed so it can
+   be.</li>
+</ol>
+<h2>7. Limitations and next steps</h2>
+<ul>
+<li><strong>Python, not <code>.Rmd</code> + <code>.R</code>.</strong> The miners use plain git, not kaiaulu
+  (no R on this machine). Porting <code>mine/</code> to kaiaulu notebooks per
+  Carlos's format is mechanical but not done. Identity merging
+  (<code>identity_match</code>) isn't applied.</li>
+<li><strong>Two projects, one ecosystem each.</strong> Brooks and archpat have Helix
+  only (Ambari has pattern4 output too); aiwork has Aider only. No
+  other open repo with AI attribution turned up (kaiaulu has none).
+  That scarcity is itself a finding.</li>
+<li><strong>Priors I chose.</strong> The archpat_cost price priors (mode 2
+  items/module, 0.25 debt/module) and the aiwork scenario values are
+  my judgement. The break-even table exists so readers can replace
+  them.</li>
+<li><strong>Next measurements, by VOI:</strong></li>
+<li>archpat <code>mig_cost</code> / <code>mig_bugs</code>: RefactoringMiner
+     (<code>parse_java_code_refactoring_json</code>) + SZZ, in the style of
+     Bavota et al. 2012, on Helix and Ambari.</li>
+<li>aiwork <code>verify_drag</code>: review latency and review-comment counts on
+     AI-tagged vs. untagged PRs (GitHub API).</li>
+<li>Brooks lateness: JIRA fixVersion due dates (<code>parse_jira</code>), so
+     "late" is observed rather than assumed.</li>
+<li><strong>Model fixes to upstream to <code>paper/sd.py</code>:</strong> use completion time for
+  brooks; bound the aiwork outflows; for archpat, use <code>available</code>
+  and price migration, remove or wire <code>pat_strength</code>, and make the
+  0.5 paydown a declared parameter.</li>
+</ul>
+<h2>References</h2>
+<p>Abdel-Hamid &amp; Madnick 1991, <em>Software Project Dynamics</em>. Bavota et
+al. 2012, "When does a refactoring induce bugs?", SCAM. Becker et al.
+2025 (METR). Brooks 1975. Cartwright 1983, <em>How the Laws of Physics
+Lie</em>; 1989, <em>Nature's Capacities and their Measurement</em>; 1999, <em>The
+Dappled World</em>; 2007, <em>Hunting Causes and Using Them</em>. Cartwright &amp;
+Hardie 2012, <em>Evidence-Based Policy: A Practical Guide to Doing It
+Better</em>. Chen et al. 1998 (metamorphic testing). Forrester &amp; Senge
+1980. GitClear (Harding) 2024. Mackie 1965 (INUS). Peng et al. 2023.
+Perry &amp; Wolf 1992. Scholtes et al. 2016, "From Aristotle to
+Ringelmann", EMSE. Sterman 2000, <em>Business Dynamics</em>.</p><script src="../vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

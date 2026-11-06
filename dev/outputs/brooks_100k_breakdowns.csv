@@ -1,0 +1,14 @@
+scenario,pct_worse_than_base,pct_better_than_base,pct_tied,cliffs_delta,verdict
+brooks_law,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)
+break_communication,100.0%,0.0%,0.0%,-0.991,CONFIRMED (Hiring Hurts)
+break_training,67.7%,32.3%,0.0%,-0.075,AMBIGUOUS / PARITY
+fast_onboarding,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)
+early_hire,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)
+massive_surge,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)
+micro_hire,100.0%,0.0%,0.0%,-0.449,CONFIRMED (Hiring Hurts)
+high_productivity,0.0%,100.0%,0.0%,1.000,BROKEN (Hiring Helps)
+long_horizon,100.0%,0.0%,0.0%,-0.966,CONFIRMED (Hiring Hurts)
+small_core_team,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)
+steep_learning_curve,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)
+last_minute_panic,100.0%,0.0%,0.0%,-0.319,CONFIRMED (Hiring Hurts)
+asynchronous_remote,100.0%,0.0%,0.0%,-1.000,CONFIRMED (Hiring Hurts)

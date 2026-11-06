@@ -1,0 +1,117 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>C2. Results per law (internal tests)</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="index.html">Overview</a> <a href="before.html">A. The project as received</a> <a href="brooks.html">B1. Your Brooks work</a> <a href="review.html">B2. Review of the Brooks work</a> <a href="lawkit.html">C1. lawkit framework</a> <a href="results.html" class=on>C2. Results per law</a> <a href="evidence.html">C3. Real-world evidence</a> <a href="strategy.html">D. Strategy, Cartwright, next steps</a> <a href="reproduce.html">Files & reproduce</a> <a href="cards/index.html">Evidence cards</a></nav><h1>C2. Results per law (internal tests)</h1>
+
+<p>All numbers come from the generated <a href="cards/index.html">evidence cards</a>
+(n = 2000 worlds per neighbourhood). Real-project results are on
+<a href="evidence.html">C3</a>.</p>
+
+<h2>C2.1 Robustness in three neighbourhoods</h2>
+<figure><img src="img/robustness.png" alt="robustness">
+<figcaption>Every law looks 100% robust under the old ±15% protocol. Sampled
+over declared ranges they separate: the standard Brooks model holds in 44%
+of worlds (16% the opposite, 40% no difference), aiwork 88%, archpat 65%,
+and priced archpat flips to 83% REFUTE.</figcaption></figure>
+<table>
+<tr><th>law</th><th>±15%</th><th>prior over ranges</th><th>uniform</th></tr>
+<tr><td>brooks (standard)</td><td>100 / 0 / 0</td><td>44 / 16 / 40</td><td>27 / 33 / 40</td></tr>
+<tr><td>aiwork</td><td>100 / 0 / 0</td><td>88 / 8 / 4</td><td>74 / 21 / 5</td></tr>
+<tr><td>archpat</td><td>100 / 0 / 0</td><td>65 / 10 / 24</td><td>59 / 14 / 26</td></tr>
+<tr><td>archpat_cost</td><td>100 / 0 / 0</td><td>5 / 83 / 11</td><td>4 / 86 / 10</td></tr>
+</table>
+<p>Format: % CONFIRM / REFUTE / neutral. Earlier Brooks models (archived in
+<code>outputs/archive/2026-11-06_before_standard_brooks/</code>): the
+original late-project model held in 11% of prior worlds (0% opposite, 88%
+neutral), because overloaded teams froze at zero output.</p>
+
+<h2>C2.2 What decides each verdict</h2>
+<figure><img src="img/importance.png" alt="importance">
+<figcaption>Decision-tree importance over prior-sampled worlds. Brooks is
+decided by team size; aiwork by generation speed vs verification;
+archpat by productivity and bug-rate differences, and, once migration is
+priced, by erosion and the price itself.</figcaption></figure>
+
+<h2>C2.3 Brooks (the standard model)</h2>
+<p>One model for every test and report: a late project (backlog 1000)
+scored by finish time; <code>sd.brooks</code>' communication and training
+costs plus five literature structures as uncertain settings (newcomer
+output, attrition, unsplittable work, overtime, rework; all off at the
+default); bounded overload (time left for work = e<sup>−overhead</sup>);
+time step 0.125.</p>
+<ul>
+<li><b>Machine:</b> all 10 structure tests PASS (time-step error 1%; knock-out passes).</li>
+<li><b>Default:</b> 10 hires make the project finish <b>11 ticks later</b>
+(the earlier model, whose overloaded teams froze at zero, said 88).</li>
+<li><b>Threshold:</b> the coordination optimum V* solves V(2V − 1) = 2/c (≈ 14 at
+c = 0.005). The law holds when the post-hire team overshoots V*. Tipping
+point on team size: hiring helps below 7.5 veterans, hurts above. A tiny core
+(2 vets) REFUTEs (+51).</li>
+<li><b>Decided by</b> team size (importance 0.66), talking cost (0.25) and
+veterans leaving (0.09).</li>
+<li><b>Timing:</b> early, mid and last-minute hires all CONFIRM (−12, −11, −9).</li>
+<li><b>on_time_project</b> (backlog 500): CONFIRMs only weakly (−6), and 20% of nearby worlds go neutral. The antecedent matters.</li>
+</ul>
+<figure><img src="img/team_optimum_std.png" alt="team output vs size, standard model">
+<figcaption>Team output vs size in the standard model. Output peaks at V*,
+then decays without ever reaching zero.</figcaption></figure>
+<figure><img src="img/variants_brooks.png" alt="brooks variants">
+<figcaption>Most structures still CONFIRM at default. Squads (−5), async
+(−3) and per-person communication (−6) shrink the 11-tick delay; mentor pods
+and shared mentoring make it vanish (neutral).</figcaption></figure>
+
+<h2>C2.4 aiwork</h2>
+<ul>
+<li><b>Machine:</b> knock-out passes (without churn and verification, AI helps, +38).
+<b>Clamp FAIL:</b> churn + maturation can drain more than the Wip stock in
+one tick, so 24% of CONFIRMs rely on clamping a negative stock.</li>
+<li><b>Approximate threshold</b> for AI to help:
+<code>(1 + gen_boost)(1 − verify_drag) &gt; 1 + churn_mult·churn_base/(mature_rate + churn_base)</code>.
+Defaults give 0.78 &lt; 1.40, so default AI hurts mainly because it is
+<i>slower</i> (1.3 × 0.6), not because of churn.</li>
+<li><b>Scenarios:</b> vibe_coding, boilerplate and copilot_rct REFUTE. review_gate,
+legacy_expert, half_adoption, short_sprint and slow_review_pipe CONFIRM.</li>
+</ul>
+<figure><img src="img/variants_aiwork.png" alt="aiwork variants">
+<figcaption>Rival mechanisms barely move aiwork, except "team learns AI"
+(verification drag decays), which cuts CONFIRM from 88% to 69%.</figcaption></figure>
+
+<h2>C2.5 archpat</h2>
+<ul>
+<li><b>Machine (reference):</b> dead parameter <code>pat_strength</code> (FAIL). The knock-out FAILs:
+with patterned code given the same productivity and bug rate as legacy,
+migration still helps (+27) through the hard-coded paydown
+<code>pay × (1 + 0.5·share)</code>. Migration costs nothing: <code>available</code> is computed and never used.</li>
+<li><b>Scenarios:</b> all 8 CONFIRM, even "overengineered" and "patterns no safer".
+The claim is close to built in.</li>
+</ul>
+<figure><img src="img/variants_archpat.png" alt="archpat variants">
+<figcaption>Give migration a price (4 items/module) and prior CONFIRM drops
+from 66% to 20%. Add refactoring-induced bugs and pressure-driven
+erosion and it becomes 4% CONFIRM / 88% REFUTE.</figcaption></figure>
+
+<h2>C2.6 Summary</h2>
+<table>
+<tr><th>law</th><th>machine defects found</th><th>deciding factor</th><th>survives rival mechanisms?</th></tr>
+<tr><td>brooks</td><td>phantom work, saturation clamp, not-late default, comm wall</td><td>team size vs V*(c)</td><td>yes, but the harm shrinks 8–40×</td></tr>
+<tr><td>aiwork</td><td>outflow overshoot (clamp)</td><td>gen_boost vs verify_drag</td><td>mostly</td></tr>
+<tr><td>archpat</td><td>dead param, hard-coded channel, free migration</td><td>price of migration</td><td><b>no</b></td></tr>
+</table>
+<script src="vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

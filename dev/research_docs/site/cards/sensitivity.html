@@ -1,0 +1,140 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>sensitivity</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="../index.html">Overview</a> <a href="../before.html">A. The project as received</a> <a href="../brooks.html">B1. Your Brooks work</a> <a href="../review.html">B2. Review of the Brooks work</a> <a href="../lawkit.html">C1. lawkit framework</a> <a href="../results.html">C2. Results per law</a> <a href="../evidence.html">C3. Real-world evidence</a> <a href="../strategy.html">D. Strategy, Cartwright, next steps</a> <a href="../reproduce.html">Files & reproduce</a> <a href="../cards/index.html" class=on>Evidence cards</a></nav><h1>Sensitivity of real-project placements</h1>
+<h2>archpat on Helix: free vs priced migration x evidence links</h2>
+<table>
+<thead>
+<tr>
+<th>evidence used</th>
+<th>CONFIRM</th>
+<th>REFUTE</th>
+<th>median gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>archpat: stocks only</td>
+<td>74%</td>
+<td>10%</td>
+<td>+149</td>
+</tr>
+<tr>
+<td>archpat: + born ratio</td>
+<td>83%</td>
+<td>5%</td>
+<td>+183</td>
+</tr>
+<tr>
+<td>archpat: + born + gen proxy</td>
+<td>82%</td>
+<td>5%</td>
+<td>+165</td>
+</tr>
+<tr>
+<td>archpat_cost: stocks only</td>
+<td>4%</td>
+<td>92%</td>
+<td>-519</td>
+</tr>
+<tr>
+<td>archpat_cost: + born ratio</td>
+<td>4%</td>
+<td>93%</td>
+<td>-529</td>
+</tr>
+<tr>
+<td>archpat_cost: + born + gen proxy</td>
+<td>3%</td>
+<td>94%</td>
+<td>-551</td>
+</tr>
+</tbody>
+</table>
+<h2>brooks on Helix: team size vs measured optimum</h2>
+<p>Helix comm_coef ~0.038 puts the per-team output optimum near V* = 5.4 (V(2V - 1) = 2/c, bounded overload).</p>
+<table>
+<thead>
+<tr>
+<th>evidence used</th>
+<th>CONFIRM</th>
+<th>REFUTE</th>
+<th>median gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vet=3, doubled</td>
+<td>4%</td>
+<td>70%</td>
+<td>+4</td>
+</tr>
+<tr>
+<td>Vet=6, doubled</td>
+<td>87%</td>
+<td>1%</td>
+<td>-21</td>
+</tr>
+<tr>
+<td>Vet=8, doubled</td>
+<td>94%</td>
+<td>0%</td>
+<td>-47</td>
+</tr>
+<tr>
+<td>Vet=12, doubled</td>
+<td>96%</td>
+<td>0%</td>
+<td>-58</td>
+</tr>
+</tbody>
+</table>
+<h2>aiwork on Aider: measured churn + borrowed support factors</h2>
+<p>Factors git cannot see are borrowed from other populations; that borrowing is itself a similarity claim.</p>
+<table>
+<thead>
+<tr>
+<th>evidence used</th>
+<th>CONFIRM</th>
+<th>REFUTE</th>
+<th>median gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>measured churn only (priors elsewhere)</td>
+<td>65%</td>
+<td>27%</td>
+<td>-17</td>
+</tr>
+<tr>
+<td>+ METR-like: gen .1-.4, verify .3-.5</td>
+<td>100%</td>
+<td>0%</td>
+<td>-31</td>
+</tr>
+<tr>
+<td>+ Peng-like: gen .4-.7, verify .05-.2</td>
+<td>3%</td>
+<td>85%</td>
+<td>+18</td>
+</tr>
+</tbody>
+</table><script src="../vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

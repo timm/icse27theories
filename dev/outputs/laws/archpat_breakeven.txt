@@ -1,0 +1,9 @@
+mig_bugs 0 mig_cost=0: C85/R4 | mig_cost=0.1: C78/R8 | mig_cost=0.25: C68/R15 | mig_cost=0.5: C61/R24 | mig_cost=1: C50/R31 | mig_cost=2: C30/R43
+mig_bugs 0.25 mig_cost=0: C38/R18 | mig_cost=0.1: C30/R24 | mig_cost=0.25: C18/R34 | mig_cost=0.5: C12/R49 | mig_cost=1: C11/R62 | mig_cost=2: C9/R74
+toy stocks mig_cost 0 ('CONFIRM', 228.69120383908717)
+toy stocks mig_cost 0.5 ('CONFIRM', 209.38357501172334)
+toy stocks mig_cost 1 ('CONFIRM', 190.07594618435974)
+toy stocks mig_cost 1.5 ('CONFIRM', 170.76831735699602)
+toy stocks mig_cost 2 ('CONFIRM', 151.4606885296323)
+toy stocks mig_cost 3 ('CONFIRM', 112.8454308749046)
+toy stocks mig_cost 4 ('CONFIRM', 74.23017322017716)

@@ -1,0 +1,103 @@
+<h1>C1. The lawkit framework</h1>
+
+<p><code>lawkit/</code> makes the Part B testing generic. It works on <b>any</b>
+<code>paper/sd.py</code> model and produces the same <b>evidence card</b> for each
+law. About 750 lines in total, including specs and tests; the miners add about 440.</p>
+
+<h2>C1.1 Pipeline</h2>
+<div class="mermaid">
+flowchart TB
+  S0["0 · Claim spec · core.Law<br/>lever, arms, expected direction, support factors,<br/>causal channels, scenarios, variants, outcome"]
+  S1["1 · Machine battery · battery.py<br/>10 tests, expectation stated first"]
+  S2["2 · Robustness · regimes.robustness<br/>±15% / prior / uniform"]
+  S3["3 · Regime map<br/>tipping points + decision-tree rules"]
+  S4["4 · Business scenarios<br/>same mechanism, different world"]
+  S5["5 · Mechanism variants<br/>rival structures, arms compared within each"]
+  S6["6 · Placement · evidence.place<br/>P(claim holds, given this project's data)"]
+  S7["7 · Value of information · evidence.voi<br/>what to measure next"]
+  CARD["outputs/laws/law_card.md + .json"]
+  MINE["mine/*.py<br/>git → bootstrap estimates<br/>→ outputs/evidence/law_project.json"]
+  S0 --> S1 --> S2 --> S3 --> S4 --> S5 --> CARD
+  MINE --> S6 --> S7 --> CARD
+  S1 -.->|"stop if dead params, undeclared channel,<br/>dt flip, or clamp-made verdicts"| X(("fix the model"))
+</div>
+
+<h2>C1.2 Modules</h2>
+<table>
+<tr><th>file</th><th>contents</th></tr>
+<tr><td><code>core.py</code></td><td><code>Law</code> spec; <code>gap()</code> runs both arms (custom dt, horizon, outcome); <code>verdict()</code> uses the same 5% rule as <code>sd.verdict</code>; <code>draw()</code> samples worlds (local / prior / uniform)</td></tr>
+<tr><td><code>battery.py</code></td><td>10 structure + metamorphic tests (below)</td></tr>
+<tr><td><code>regimes.py</code></td><td>robustness, one-at-a-time tipping points, depth-3 decision tree (sklearn), scenarios, variants</td></tr>
+<tr><td><code>evidence.py</code></td><td><code>Evidence</code> (measured bootstrap samples, ratio constraints, fixed values, caveats); <code>place()</code>; <code>voi()</code></td></tr>
+<tr><td><code>laws.py</code></td><td>specs: <code>brooks</code> (the one standard Brooks model), <code>aiwork</code>, <code>archpat</code>, <code>archpat_cost</code></td></tr>
+<tr><td><code>card.py</code></td><td>markdown card writer</td></tr>
+<tr><td><code>test_lawkit.py</code></td><td>10 regression tests: the standard Brooks default (−11), <code>sd.py</code> gaps (−147.5, −51.69, +228.69), dimensions, no phantom work, work conserved; the detectors fire where they should</td></tr>
+</table>
+
+<h2>C1.3 The battery: what changed from the received 8-test bank</h2>
+<table>
+<tr><th>test</th><th>fails when</th><th>new?</th><th>what it caught</th></tr>
+<tr><td>units &amp; dimensions</td><td>a variable has no unit, or an equation adds unlike units (checked by stepping the model on unit-carrying numbers, <code>lawkit/units.py</code>)</td><td>new</td><td>brooks unit labels (fixed: one vocabulary, devs); aiwork, archpat (open)</td></tr>
+<tr><td>dead parameters</td><td>a parameter moves y in neither arm</td><td>new</td><td>archpat <code>pat_strength</code></td></tr>
+<tr><td>extreme conditions</td><td>NaN or a crash at lo/hi; also lists the extremes where the claim fails</td><td>extended</td><td>—</td></tr>
+<tr><td>clamp dependence</td><td>more than 20% of CONFIRMs need state clipping</td><td>extended (sampled, not one run)</td><td>aiwork: 24% (outflow > stock)</td></tr>
+<tr><td>integration step</td><td>the verdict flips at dt=0.5 or 0.25</td><td>on the <i>effect</i>, not y</td><td>old Brooks: 28% error</td></tr>
+<tr><td>time horizon</td><td>the verdict changes at 4× horizon (WARN)</td><td>reports the flip time</td><td>—</td></tr>
+<tr><td>dose-response</td><td>non-monotone in the lever (WARN)</td><td>same</td><td>—</td></tr>
+<tr><td><b>mechanism knock-out</b></td><td>the effect survives with every declared channel neutralised</td><td><b>new</b></td><td><b>archpat</b>'s hard-coded paydown; <b>sd.debt</b>'s hard-coded speed</td></tr>
+<tr><td><b>refutability</b></td><td>no world in the declared ranges refutes, or none confirms (WARN)</td><td><b>new</b></td><td>sd.debt (100% CONFIRM)</td></tr>
+<tr><td>scale ×2</td><td>doubling the stocks reverses the verdict (WARN)</td><td>same</td><td>—</td></tr>
+</table>
+<p class="warn">The received 8-test bank gives archpat a PASS on all 8
+tests, despite the dead parameter, the hard-coded channel and free
+migration. A test that can't fail doesn't test anything.</p>
+
+<h2>C1.4 Scenarios vs variants</h2>
+<div class="mermaid">
+flowchart LR
+  subgraph SC["Scenario: change the WORLD"]
+    a1["same equations"] --> a2["different inputs, e.g.<br/>backlog 3000, 2-vet core,<br/>vibe coding, debt crisis"]
+  end
+  subgraph VA["Variant: change the MECHANISM"]
+    b1["same world"] --> b2["different equations, e.g.<br/>squads, mentor pods,<br/>migration has a cost"]
+  end
+  SC --> Q["Both: arm 0 vs arm 1<br/>inside the SAME scenario / structure"]
+  VA --> Q
+</div>
+
+<h2>C1.5 How real data enters</h2>
+<div class="mermaid">
+flowchart LR
+  G["git clone"] --> M["miner<br/>mine/law_evidence.py"]
+  M --> B["bootstrap samples<br/>e.g. 300 values of train_coef"]
+  B --> E["Evidence<br/>measured / ratio / fixed + caveats"]
+  P["priors for everything unmeasured"] --> E
+  E --> D["2000 sampled worlds<br/>measured factors from bootstrap,<br/>others from prior"]
+  D --> PL["P(CONFIRM / REFUTE / neutral)"]
+  D --> V["VOI: split each unmeasured factor<br/>into quartiles; entropy reduction"]
+</div>
+<p>The data <b>places</b> a project in the law's regime map. It doesn't
+estimate an average "Brooks effect". That is Cartwright's distinction
+between "it worked there" and "it will work here" (<a href="strategy.html">D</a>).</p>
+
+<h2>C1.6 The law specs</h2>
+<table>
+<tr><th>spec</th><th>model</th><th>why it exists</th><th>scenarios</th><th>variants</th></tr>
+<tr><td>brooks</td><td>sd.brooks costs + 5 literature structures (off at default) + bounded overload, dt 0.125</td><td>the standard: a genuinely late project (backlog 1000), outcome = completion time; passes every data-free Forrester test</td><td>14</td><td>7</td></tr>
+<tr><td>aiwork</td><td>sd.aiwork</td><td>reference</td><td>8</td><td>4</td></tr>
+<tr><td>archpat</td><td>sd.archpat (Feat bound widened)</td><td>reference</td><td>8</td><td>5</td></tr>
+<tr><td>archpat_cost</td><td>archpat + priced migration</td><td>migration cost, refactoring bugs and erosion pressure as uncertain factors, so VOI can rank them</td><td>8</td><td>—</td></tr>
+</table>
+
+<h2>C1.7 Adding a new law</h2>
+<pre>from lawkit.core import Law
+import sd
+DEBT = Law("debt", sd.debt, "starting with Debt=50 slows delivery",
+           lever="Debt", arms=(0, 50), expect="down",
+           factors=["born_rate", "pay_rate", "intr_rate"],
+           channels={"intr_rate": 0})
+# add to LAWS in lawkit/laws.py, then:  python run_laws.py debt</pre>
+<p>Run on the untouched <code>sd.debt</code>, the battery immediately reports a
+knock-out FAIL (its main channel is the hard-coded <code>speed = 1 − Debt/100</code>)
+and a refutability WARN (100% CONFIRM). These are the same defect types
+archpat has.</p>

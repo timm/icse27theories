@@ -1,0 +1,127 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>SE laws under test: project documentation</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="index.html" class=on>Overview</a> <a href="before.html">A. The project as received</a> <a href="brooks.html">B1. Your Brooks work</a> <a href="review.html">B2. Review of the Brooks work</a> <a href="lawkit.html">C1. lawkit framework</a> <a href="results.html">C2. Results per law</a> <a href="evidence.html">C3. Real-world evidence</a> <a href="strategy.html">D. Strategy, Cartwright, next steps</a> <a href="reproduce.html">Files & reproduce</a> <a href="cards/index.html">Evidence cards</a></nav><h1>SE laws under test: project documentation</h1>
+
+<p>This site documents the <code>icse27theories</code> research project in
+three layers, kept separate so it is always clear who did what and
+when:</p>
+
+<table>
+<tr><th>part</th><th>what</th><th>who / when</th><th>where in the repo</th></tr>
+<tr><td><a href="before.html">A</a></td><td>The project as received: 35 system-dynamics (SD)
+models of SE "laws", an 8-test validation bank, a 2×2 stress typology,
+and kaiaulu-based data lifts from 8 open-source projects.</td>
+<td>Tim, Carlos and collaborators (to May 2026), committed in git</td>
+<td><code>paper/</code>, <code>extract/</code>, <code>docs/</code>,
+<code>feasibility/</code>, <code>smells/</code></td></tr>
+<tr><td><a href="brooks.html">B1</a></td><td>Your Brooks' Law work: 14 business scenarios,
+100,000-run Monte Carlo, a Forrester &amp; Senge test suite, 5
+architectural modifications, plots.</td>
+<td>You (Sep–Oct 2026), not yet committed</td>
+<td><code>run_brooks.py</code>, <code>monte_carlo_*.py</code>,
+<code>forrester_*.py</code>, <code>brooks_modifications.py</code>,
+<code>plot_*.py</code>, <code>outputs/*.png|csv|md</code></td></tr>
+<tr><td><a href="review.html">B2</a></td><td>A review of B1: eight issues that change its
+headline claims, each with the evidence.</td><td>this session (Oct 2026)</td>
+<td>this site; <code>outputs/laws/SYNTHESIS.md</code> §2</td></tr>
+<tr><td><a href="lawkit.html">C</a></td><td>Extension: a law-agnostic test framework
+(<code>lawkit</code>), applied to Brooks, aiwork and archpat, plus
+evidence mined from Apache Helix and Aider.</td><td>this session (Oct 2026)</td>
+<td><code>lawkit/</code>, <code>mine/</code>, <code>run_laws.py</code>,
+<code>sensitivity.py</code>, <code>outputs/laws/</code>,
+<code>outputs/evidence/</code></td></tr>
+<tr><td><a href="strategy.html">D</a></td><td>Conclusions: a testing strategy, a generic
+framework for future laws, Nancy Cartwright's evidence-for-use lens,
+next steps.</td><td>this session</td><td><code>outputs/laws/SYNTHESIS.md</code></td></tr>
+</table>
+
+<h2>The research question in one picture</h2>
+
+<div class="mermaid">
+flowchart LR
+  L["SE law<br/><i>e.g. adding people to a late project makes it later</i>"]
+  M["SD model<br/>stocks, flows, a lever"]
+  T1["Internal tests<br/>Forrester and Senge, metamorphic,<br/>Monte Carlo, scenarios"]
+  T2["External tests<br/>data from real repositories"]
+  V["Verdict<br/>does it hold, where, and here?"]
+  K["Reusable knowledge<br/>thresholds, defects, what to measure next"]
+  L --> M --> T1 --> V
+  M --> T2 --> V --> K
+</div>
+
+<p>The project turns each law into a small simulation, checks that the
+simulation is a sound machine (internal tests), and then asks whether
+real projects sit in the region where the law holds (external tests).
+Part A built the catalogue and the data pipeline. Part B pushed Brooks'
+Law through many scenarios. Part C made that testing generic and
+evidence-driven, and applied it to two more laws: <b>aiwork</b> (AI-assisted
+coding) and <b>archpat</b> (architectural patterns as repair).</p>
+
+<h2>How the parts connect</h2>
+
+<div class="mermaid">
+flowchart TB
+  subgraph A["A · received (committed)"]
+    sd["paper/sd.py<br/>35 models"]
+    tb["paper/tests.py<br/>8-test bank + 2×2 stress"]
+    ex["extract/<br/>kaiaulu lifts, 8 projects"]
+  end
+  subgraph B["B · your Brooks work"]
+    rb["run_brooks.py<br/>14 scenarios"]
+    mc["monte_carlo_brooks.py<br/>100k runs"]
+    fb["forrester_brooks.py"]
+    bm["brooks_modifications.py<br/>5 architectures"]
+  end
+  subgraph C["C · this session"]
+    lk["lawkit/<br/>battery, regimes, evidence"]
+    mn["mine/<br/>Helix, Aider miners"]
+    out["outputs/laws/<br/>cards + synthesis"]
+  end
+  sd -->|"same equations"| rb
+  tb -->|"inspired"| fb
+  rb --> mc
+  rb --> bm
+  sd -->|"models imported unchanged"| lk
+  B -->|"ported as scenarios + variants"| lk
+  ex -->|"pattern4 output, SZZ pairs"| mn
+  mn --> lk --> out
+</div>
+
+<h2>Headline results</h2>
+<ol>
+<li><b>No law is simply true or false.</b> Each holds only when particular
+support factors are present. The useful output is a map of where it holds,
+plus a test of whether a given project sits inside it.</li>
+<li><b>All three turn on the price of the lever.</b> That is coordination
+for Brooks, verification time for aiwork, and migration effort for archpat.
+The original models fixed that price or left it out.</li>
+<li><b>Real data overturned most defaults.</b> Helix's onboarding drag is
+about 1/24 of the default. AI-written lines in Aider churn about 1.33×
+(the model assumes 3×). Patterned Helix files are only 0.68–0.83× as
+bug-prone (the model assumes 0.25×).</li>
+<li><b>Sample size bought nothing; neighbourhood size did.</b> Run 100k
+times at ±15%, Brooks holds 100% of the time. Sampled over its declared
+ranges, the original model holds about 10% of the time; the standard model,
+with the missing structures added, 44%.</li>
+</ol>
+<p>Details: <a href="results.html">C2</a>, <a href="evidence.html">C3</a>,
+<a href="strategy.html">D</a>.</p>
+<script src="vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

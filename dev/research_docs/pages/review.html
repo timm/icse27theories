@@ -1,0 +1,101 @@
+<h1>B2. Review of the Brooks work</h1>
+
+<p>Each issue below was reproduced by re-running your own simulators (the
+charts are drawn live by <code>research_docs/figs.py</code>). They are ordered by how
+much they change the conclusions.</p>
+
+<table>
+<tr><th>#</th><th>issue</th><th>effect on conclusions</th></tr>
+<tr><td>1</td><td>Architectures compared against the <i>flat</i> baseline</td><td>"mitigates / restores crossover" is mostly "squads beat a clique". Within each architecture, hiring still hurts in 5 of 6.</td></tr>
+<tr><td>2</td><td>Score keeps counting work after the backlog is empty</td><td>early finishers bank phantom output</td></tr>
+<tr><td>3</td><td>"100%" comes from a clamp: 5, 10 and 50 hires all freeze output</td><td>the verdict is an artefact of a 2-FTE-per-newcomer training cost</td></tr>
+<tr><td>4</td><td>±15% uniform noise around defaults only</td><td>local precision, not robustness (100% → ~10%)</td></tr>
+<tr><td>5</td><td>Tests that cannot fail</td><td>reported confidence is overstated</td></tr>
+<tr><td>6</td><td>Hard-coded report prose</td><td>prose contradicts the table next to it</td></tr>
+<tr><td>7</td><td>The default project is not late</td><td>Brooks' own precondition is false by default</td></tr>
+<tr><td>8</td><td>The flat clique zeroes any team above ~20</td><td>contradicted by every large Apache project</td></tr>
+</table>
+
+<h2>Issue 1 · The wrong baseline for the architectures</h2>
+<p>The modified runs compare <i>architecture X with 10 hires</i> against <i>flat
+team with 0 hires</i>. But squads and async-docs are already much better than
+a flat clique with <b>zero</b> hires (1455 and 1334 vs 1050), so the comparison
+mixes two questions: "is X a better org?" and "does hiring help inside X?".</p>
+<figure><img src="img/confound.png" alt="effect of hires vs two baselines">
+<figcaption>Grey: what was reported. Blue: the hiring effect within the
+same architecture. Only the synergistic stack has hiring help at t=20
+(+145, not +586). The t=60 "crossover at t=11" has the same confound.</figcaption></figure>
+<table><tr><th>architecture</th><th>vs flat, 0 hires (reported)</th><th>vs same architecture, 0 hires</th></tr>
+<tr><td>Standard</td><td>−698</td><td>−698</td></tr>
+<tr><td>Ambassador</td><td>−102</td><td><b>−507</b></td></tr>
+<tr><td>Mentor pod</td><td>−10</td><td>−10</td></tr>
+<tr><td>Async docs + CI</td><td>−381</td><td><b>−665</b></td></tr>
+<tr><td>Staged waves</td><td>−659</td><td>−659</td></tr>
+<tr><td>Synergistic</td><td>+586</td><td><b>+145</b></td></tr></table>
+
+<h2>Issue 2 · Phantom work after completion</h2>
+<p>In <code>monte_carlo_brooks.py</code>, <code>todo</code> goes negative once the backlog is done
+while <code>done</code> keeps growing. The baseline's 1050 is 775 done − (−275)
+todo: 275 items of work that never existed. <code>sd.py</code> clips Done and Todo,
+so its numbers differ (gap −147.5 vs −697.5). Fix: measure what Brooks
+claims, which is <b>completion time</b>. That is what <code>brooks_late</code> in Part C did, and what the standard <code>brooks</code> model now does.</p>
+
+<h2>Issue 3 · A clamp, not a law, makes "100%"</h2>
+<figure><img src="img/saturation.png" alt="production freezes">
+<figcaption>Production per tick in your <code>simulate_stepwise</code>. Any surge of 5 or more
+drives <code>train = New × 0.2 ≥ 1</code>, so production is clamped to 0. This is why
+brooks_law, massive_surge and steep_learning_curve have identical results
+(352.6).</figcaption></figure>
+<p>The formula charges <i>every</i> veteran 20% of their time <i>per</i> newcomer, so
+each newcomer consumes 2 full-time veterans. Helix data puts
+<code>train_coef</code> at 0.008 [0, 0.037], about 1/24 of the default
+(<a href="evidence.html">C3</a>).</p>
+
+<h2>Issue 4 · Precision is not robustness</h2>
+<p>Your noise is <code>uniform(0.85, 1.15)</code> (the report says triangular) around
+the defaults. 100,000 draws from a ±15% box measure the default verdict
+very precisely; they don't test whether it holds elsewhere. Sampled over
+the model's declared ranges, Brooks CONFIRMs in about 10% of worlds. The
+repo's own stress matrix already labelled Brooks <b>fragile</b> (12/200).</p>
+<figure><img src="img/robustness.png" alt="robustness three neighbourhoods">
+<figcaption>Verdicts for each law under three neighbourhoods. The top
+row of each panel is the old ±15% protocol.</figcaption></figure>
+
+<h2>Issue 5 · Tests that cannot fail</h2>
+<ul>
+<li><code>test_boundary_adequacy</code> and <code>test_tipping_points</code> return PASS
+unconditionally, including "No crossover found" and "none found".</li>
+<li><code>forrester_modified.py</code> prints "All physical invariants held" for every
+architecture whatever the status.</li>
+</ul>
+<p>Rule adopted in Part C: every check states its expected result before it runs.</p>
+
+<h2>Issue 6 · Hard-coded prose</h2>
+<p><code>write_markdown_report</code> always writes that early_hire, break_training and
+fast_onboarding "break the law". In the table beside it they are
+CONFIRMED, AMBIGUOUS and CONFIRMED.</p>
+
+<h2>Issue 7 · The default project isn't late</h2>
+<p>Ten veterans at 38.75 items/tick finish 500 items at t≈13, before the
+t=20 deadline. "Adding manpower to a <i>late</i> project" is tested on a
+project that was never late. Many "neutral" verdicts just mean both arms
+finished. <code>brooks_late</code> fixes this with backlog 1000 (about 775 doable
+by t=20) and outcome = completion tick.</p>
+
+<h2>Issue 8 · The comm wall</h2>
+<figure><img src="img/team_optimum.png" alt="team output vs size">
+<figcaption>Output of a flat team: V(1 − c·V(V−1)/2). It peaks at
+V* (3V² − 2V = 2/c) and reaches 0 near 2V*. With the default c, any team
+above about 20 produces nothing. That is why your 20 matured vets "lose
+95% to meetings forever", and why no crossover ever appears. Real Apache
+projects with 20+ active developers contradict this structure.</figcaption></figure>
+
+<h2>What survives</h2>
+<ul>
+<li>Inside a genuinely late project, with timing fixed, adding people does
+lengthen completion in the flat model and in all 7 rival structures
+(<a href="results.html">C2</a>). Structure shrinks the harm 8–40×; it doesn't reverse it.</li>
+<li>Your scenario catalogue and the five architectures were ported into
+Part C as <i>scenarios</i> (same mechanism, different world) and <i>variants</i>
+(same world, different mechanism), now compared fairly.</li>
+</ul>

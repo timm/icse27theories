@@ -1,0 +1,554 @@
+{
+ "battery": [
+  {
+   "test": "units declared",
+   "status": "PASS",
+   "detail": "every var has units",
+   "ref": "F&S dimensional consistency"
+  },
+  {
+   "test": "dead parameters",
+   "status": "PASS",
+   "detail": "all params live",
+   "ref": "F&S parameter verification"
+  },
+  {
+   "test": "extreme conditions",
+   "status": "PASS",
+   "detail": "all finite. claim not CONFIRMed at 3 extremes: gen_boost=2:REFUTE, verify_drag=0:neutral, mature_rate=0:neutral",
+   "ref": "F&S extreme conditions"
+  },
+  {
+   "test": "clamp dependence",
+   "status": "FAIL",
+   "detail": "26% of prior backgrounds escape declared bounds; 24% are CONFIRMs that need clamping",
+   "ref": "Sterman boundary/structure; sd.mr_bound_consist"
+  },
+  {
+   "test": "integration step (dt)",
+   "status": "PASS",
+   "detail": "gap dt=1:-51.7 dt=.25:-51.8 (0%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']",
+   "ref": "Sterman test 6"
+  },
+  {
+   "test": "time-horizon adequacy",
+   "status": "PASS",
+   "detail": "t=15:CONFIRM(-34); t=20:CONFIRM(-52); t=40:CONFIRM(-122); t=80:CONFIRM(-264)",
+   "ref": "F&S 4/7 boundary"
+  },
+  {
+   "test": "dose-response monotone",
+   "status": "PASS",
+   "detail": "gaps 0:+0, 0.166667:-9, 0.333333:-17, 0.5:-26, 0.666667:-34, 0.833333:-43, 1:-52",
+   "ref": "Chen MR1"
+  },
+  {
+   "test": "mechanism knock-out",
+   "status": "PASS",
+   "detail": "channels ['churn_mult', 'verify_drag'] neutral -> REFUTE (+38.4)",
+   "ref": "Cartwright capacities / causal cake"
+  },
+  {
+   "test": "refutability (uniform)",
+   "status": "PASS",
+   "detail": "uniform over ranges: {'CONFIRM': 72.5, 'REFUTE': 22.3, 'neutral': 5.2}",
+   "ref": "Popper; anti-tautology"
+  },
+  {
+   "test": "scale x2 (MR2)",
+   "status": "PASS",
+   "detail": "CONFIRM(-52) -> CONFIRM(-52)",
+   "ref": "Chen MR2"
+  }
+ ],
+ "robustness": {
+  "local": {
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -59.58231648473456,
+    -51.610942188074986,
+    -43.049586444673906
+   ]
+  },
+  "prior": {
+   "CONFIRM": 88.5,
+   "REFUTE": 7.8,
+   "neutral": 3.8,
+   "gap": [
+    -100.13461367145348,
+    -38.63241567483806,
+    16.922042969694473
+   ]
+  },
+  "uniform": {
+   "CONFIRM": 74.0,
+   "REFUTE": 20.6,
+   "neutral": 5.4,
+   "gap": [
+    -112.8241627410864,
+    -26.32962012928578,
+    65.98188106528565
+   ]
+  }
+ },
+ "tipping": {
+  "gen_boost": [
+   "CONFIRM->neutral@1.1",
+   "neutral->REFUTE@1.3"
+  ],
+  "churn_mult": [],
+  "verify_drag": [
+   "neutral->CONFIRM@0.05"
+  ],
+  "mature_rate": [
+   "neutral->CONFIRM@0.025"
+  ],
+  "churn_base": []
+ },
+ "rules": {
+  "text": "|--- verify_drag <= 0.343\n|   |--- gen_boost <= 0.829\n|   |   |--- churn_mult <= 1.319\n|   |   |   |--- class: 1\n|   |   |--- churn_mult >  1.319\n|   |   |   |--- class: 1\n|   |--- gen_boost >  0.829\n|   |   |--- mature_rate <= 0.276\n|   |   |   |--- class: 1\n|   |   |--- mature_rate >  0.276\n|   |   |   |--- class: 0\n|--- verify_drag >  0.343\n|   |--- gen_boost <= 1.348\n|   |   |--- churn_base <= 0.071\n|   |   |   |--- class: 1\n|   |   |--- churn_base >  0.071\n|   |   |   |--- class: 1\n|   |--- gen_boost >  1.348\n|   |   |--- verify_drag <= 0.475\n|   |   |   |--- class: 1\n|   |   |--- verify_drag >  0.475\n|   |   |   |--- class: 1\n",
+  "importance": [
+   [
+    "gen_boost",
+    0.425
+   ],
+   [
+    "verify_drag",
+    0.396
+   ],
+   [
+    "mature_rate",
+    0.09
+   ],
+   [
+    "churn_mult",
+    0.071
+   ],
+   [
+    "churn_base",
+    0.017
+   ]
+  ],
+  "accuracy": 0.926,
+  "base_rate": 0.889
+ },
+ "scenarios": {
+  "vibe_coding": {
+   "story": "accept AI output with little review",
+   "over": {
+    "gen_boost": 1.5,
+    "verify_drag": 0.1,
+    "churn_mult": 4
+   },
+   "at_default": [
+    "REFUTE",
+    49.676441570041135
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 100.0,
+   "neutral": 0.0,
+   "gap": [
+    28.287931421478163,
+    48.981417778438214,
+    73.74059511040181
+   ]
+  },
+  "review_gate": {
+   "story": "strict review: slow but low churn",
+   "over": {
+    "gen_boost": 0.5,
+    "verify_drag": 0.6,
+    "churn_mult": 0.5
+   },
+   "at_default": [
+    "CONFIRM",
+    -56.67097686401581
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -72.53296589579728,
+    -56.834727409704215,
+    -41.27609965920061
+   ]
+  },
+  "boilerplate": {
+   "story": "greenfield CRUD/tests: AI is very fast",
+   "over": {
+    "gen_boost": 1.5,
+    "verify_drag": 0.2,
+    "churn_mult": 1
+   },
+   "at_default": [
+    "REFUTE",
+    94.15620666964196
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 100.0,
+   "neutral": 0.0,
+   "gap": [
+    72.50984818324494,
+    92.68425403483695,
+    116.77957798128784
+   ]
+  },
+  "legacy_expert": {
+   "story": "METR setting: experts in big familiar repos",
+   "over": {
+    "gen_boost": 0.2,
+    "verify_drag": 0.5,
+    "churn_mult": 2.5
+   },
+   "at_default": [
+    "CONFIRM",
+    -72.63410625458982
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -81.55556803901611,
+    -72.5287565081023,
+    -63.88369073668764
+   ]
+  },
+  "copilot_rct": {
+   "story": "Peng 2023-like: +55% speed, modest churn",
+   "over": {
+    "gen_boost": 0.55,
+    "verify_drag": 0.15,
+    "churn_mult": 1
+   },
+   "at_default": [
+    "REFUTE",
+    18.31077150925347
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 99.2,
+   "neutral": 0.8,
+   "gap": [
+    9.241058940093382,
+    17.843721973586725,
+    28.212893553324193
+   ]
+  },
+  "half_adoption": {
+   "story": "ai=0.5 instead of 1",
+   "over": {
+    "_arms": [
+     0,
+     0.5
+    ]
+   },
+   "at_default": [
+    "CONFIRM",
+    -25.862943474269457
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -30.422504986236376,
+    -25.948350606322933,
+    -21.014475308986846
+   ]
+  },
+  "short_sprint": {
+   "story": "deadline t=5: pipeline delay dominates",
+   "over": {
+    "_tmax": 5
+   },
+   "at_default": [
+    "CONFIRM",
+    -4.565135
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -5.893889233721241,
+    -4.564166540930181,
+    -3.373328476673443
+   ]
+  },
+  "slow_review_pipe": {
+   "story": "code sits in Wip longer (mature 0.05)",
+   "over": {
+    "mature_rate": 0.05
+   },
+   "at_default": [
+    "CONFIRM",
+    -26.716422882829292
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -31.16135139041554,
+    -26.633131746817178,
+    -22.240379766692243
+   ]
+  }
+ },
+ "variants": {
+  "sd.aiwork": {
+   "story": "reference",
+   "at_default": [
+    "CONFIRM",
+    -51.69100741131081
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -59.75919538945253,
+     -51.790351808683155,
+     -43.098832371353126
+    ]
+   },
+   "prior": {
+    "CONFIRM": 88.4,
+    "REFUTE": 7.8,
+    "neutral": 3.8,
+    "gap": [
+     -101.44130077634182,
+     -39.12320412097964,
+     19.423873173297636
+    ]
+   }
+  },
+  "team learns AI": {
+   "story": "verify drag decays, tau=8 ticks",
+   "at_default": [
+    "CONFIRM",
+    -22.916236153851017
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -29.127954434631874,
+     -22.984249898144384,
+     -15.851582494932813
+    ]
+   },
+   "prior": {
+    "CONFIRM": 68.7,
+    "REFUTE": 23.9,
+    "neutral": 7.4,
+    "gap": [
+     -50.213003351410265,
+     -16.202248736797955,
+     58.91967915394207
+    ]
+   }
+  },
+  "churn costs time": {
+   "story": "each churned item costs 0.5 items of capacity",
+   "at_default": [
+    "CONFIRM",
+    -54.27561522059504
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -61.28589102480346,
+     -54.34435409874632,
+     -46.54538526302049
+    ]
+   },
+   "prior": {
+    "CONFIRM": 86.1,
+    "REFUTE": 9.2,
+    "neutral": 4.7,
+    "gap": [
+     -91.63052685521163,
+     -30.722502326037684,
+     14.71767064762551
+    ]
+   }
+  },
+  "latent defects": {
+   "story": "churn leaves defects that tax capacity",
+   "at_default": [
+    "CONFIRM",
+    -52.33018763190094
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -59.22199552104617,
+     -52.40661815357413,
+     -44.833458613130986
+    ]
+   },
+   "prior": {
+    "CONFIRM": 92.8,
+    "REFUTE": 3.9,
+    "neutral": 3.3,
+    "gap": [
+     -91.00545010963032,
+     -37.21044012467277,
+     1.7711814628408433
+    ]
+   }
+  }
+ },
+ "evidence": [
+  {
+   "project": "aider",
+   "population": "aider: commits by Paul Gauthier 2024-07-01..2025-07-01, AI = /\\(aider\\)/",
+   "measured": [
+    "(from saved pairs)",
+    "blamed pairs: AI 428, human 373 (dropped 0 renamed/deleted); strata used [(3, 20), (21, 80)]",
+    "14-day churn: AI 49.7%, human 37.2%",
+    "churn_mult = ratio - 1 = 0.35 [0.18, 0.54]"
+   ],
+   "notes": [
+    "Within-author, within-period comparison controls author skill and project phase, not task type: the author chooses which tasks to give the AI (selection on difficulty).",
+    "GitClear churn construct: lines rewritten/removed within 14 days; moved lines count as churned (blame -w, no -C).",
+    "Pairs whose file was renamed or deleted by +14d are dropped (unknown survival), biasing churn down for both arms.",
+    "Only churn_mult is measured. gen_boost and verify_drag (the factors that decide the verdict) are invisible in git history.",
+    "AI attribution is self-declared by the tool/author; unlabelled AI use in the 'human' arm would shrink the measured difference."
+   ],
+   "place": {
+    "CONFIRM": 64.5,
+    "REFUTE": 26.4,
+    "neutral": 9.1,
+    "gap": [
+     -83.02902016587733,
+     -16.348421467293832,
+     60.44727388315812
+    ]
+   },
+   "voi": {
+    "p_confirm": 0.644,
+    "entropy": 0.939,
+    "ranked": [
+     {
+      "factor": "verify_drag",
+      "gain": 0.336,
+      "p_by_quartile": [
+       0.2,
+       0.55,
+       0.83,
+       1.0
+      ]
+     },
+     {
+      "factor": "gen_boost",
+      "gain": 0.151,
+      "p_by_quartile": [
+       0.92,
+       0.73,
+       0.59,
+       0.34
+      ]
+     },
+     {
+      "factor": "churn_base",
+      "gain": 0.009,
+      "p_by_quartile": [
+       0.56,
+       0.64,
+       0.67,
+       0.71
+      ]
+     },
+     {
+      "factor": "mature_rate",
+      "gain": 0.002,
+      "p_by_quartile": [
+       0.67,
+       0.67,
+       0.61,
+       0.62
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "project": "aider2023",
+   "population": "aider2023: commits by Paul Gauthier, paul-gauthier 2023-05-01..2024-07-01, AI = /\\(aider\\)/",
+   "measured": [
+    "(from saved pairs)",
+    "blamed pairs: AI 197, human 475 (dropped 0 renamed/deleted); strata used [(3, 20)]",
+    "14-day churn: AI 53.2%, human 39.9%",
+    "churn_mult = ratio - 1 = 0.32 [0.16, 0.52]"
+   ],
+   "notes": [
+    "Within-author, within-period comparison controls author skill and project phase, not task type: the author chooses which tasks to give the AI (selection on difficulty).",
+    "GitClear churn construct: lines rewritten/removed within 14 days; moved lines count as churned (blame -w, no -C).",
+    "Pairs whose file was renamed or deleted by +14d are dropped (unknown survival), biasing churn down for both arms.",
+    "Only churn_mult is measured. gen_boost and verify_drag (the factors that decide the verdict) are invisible in git history.",
+    "AI attribution is self-declared by the tool/author; unlabelled AI use in the 'human' arm would shrink the measured difference."
+   ],
+   "place": {
+    "CONFIRM": 64.2,
+    "REFUTE": 26.8,
+    "neutral": 9.1,
+    "gap": [
+     -82.89554664780366,
+     -15.91963108511733,
+     60.54391065725726
+    ]
+   },
+   "voi": {
+    "p_confirm": 0.641,
+    "entropy": 0.941,
+    "ranked": [
+     {
+      "factor": "verify_drag",
+      "gain": 0.351,
+      "p_by_quartile": [
+       0.2,
+       0.52,
+       0.85,
+       1.0
+      ]
+     },
+     {
+      "factor": "gen_boost",
+      "gain": 0.142,
+      "p_by_quartile": [
+       0.91,
+       0.73,
+       0.58,
+       0.35
+      ]
+     },
+     {
+      "factor": "churn_base",
+      "gain": 0.008,
+      "p_by_quartile": [
+       0.57,
+       0.62,
+       0.66,
+       0.71
+      ]
+     },
+     {
+      "factor": "mature_rate",
+      "gain": 0.002,
+      "p_by_quartile": [
+       0.66,
+       0.67,
+       0.61,
+       0.62
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

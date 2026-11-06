@@ -1,0 +1,591 @@
+{
+ "battery": [
+  {
+   "test": "units & dimensions",
+   "status": "PASS",
+   "detail": "every equation consistent; literals: literal 1 + tick, literal 1 - dev",
+   "ref": "F&S dimensional consistency"
+  },
+  {
+   "test": "dead parameters",
+   "status": "PASS",
+   "detail": "all params live",
+   "ref": "F&S parameter verification"
+  },
+  {
+   "test": "extreme conditions",
+   "status": "PASS",
+   "detail": "all finite. claim not CONFIRMed at 9 extremes: Vet=0:neutral, Vet=100:neutral, Todo=0:neutral, comm_coef=0:neutral, comm_coef=0.05:neutral, train_coef=0:neutral, prod_rate=0.1:neutral, prod_rate=20:neutral",
+   "ref": "F&S extreme conditions"
+  },
+  {
+   "test": "clamp dependence",
+   "status": "PASS",
+   "detail": "0% of prior backgrounds escape declared bounds; 0% are CONFIRMs that need clamping",
+   "ref": "Sterman boundary/structure; sd.mr_bound_consist"
+  },
+  {
+   "test": "integration step (dt)",
+   "status": "WARN",
+   "detail": "gap dt=1:-147.5 dt=0.25:-205.6 (28%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']",
+   "ref": "Sterman test 6"
+  },
+  {
+   "test": "time-horizon adequacy",
+   "status": "WARN",
+   "detail": "t=15:CONFIRM(-148); t=20:CONFIRM(-148); t=40:CONFIRM(-148); t=80:neutral(-0)",
+   "ref": "F&S 4/7 boundary"
+  },
+  {
+   "test": "dose-response monotone",
+   "status": "PASS",
+   "detail": "gaps 0:+0, 16.6667:-148, 33.3333:-148, 50:-148, 66.6667:-148, 83.3333:-148, 100:-148",
+   "ref": "Chen MR1"
+  },
+  {
+   "test": "mechanism knock-out",
+   "status": "PASS",
+   "detail": "channels ['comm_coef', 'train_coef'] neutral -> neutral (+0.0)",
+   "ref": "Cartwright capacities / causal cake"
+  },
+  {
+   "test": "refutability (uniform)",
+   "status": "PASS",
+   "detail": "uniform over ranges: {'CONFIRM': 3.9, 'REFUTE': 0.2, 'neutral': 95.9}",
+   "ref": "Popper; anti-tautology"
+  },
+  {
+   "test": "scale x2 (MR2)",
+   "status": "PASS",
+   "detail": "CONFIRM(-148) -> CONFIRM(-90)",
+   "ref": "Chen MR2"
+  }
+ ],
+ "robustness": {
+  "local": {
+   "CONFIRM": 68.2,
+   "REFUTE": 0.0,
+   "neutral": 31.8,
+   "gap": [
+    -273.5422866354562,
+    -84.45773233100789,
+    0.0
+   ]
+  },
+  "prior": {
+   "CONFIRM": 6.8,
+   "REFUTE": 0.2,
+   "neutral": 92.9,
+   "gap": [
+    -79.53274511747566,
+    0.0,
+    0.0
+   ]
+  },
+  "uniform": {
+   "CONFIRM": 4.2,
+   "REFUTE": 0.4,
+   "neutral": 95.4,
+   "gap": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ },
+ "tipping": {
+  "Vet": [
+   "neutral->CONFIRM@2.5",
+   "CONFIRM->neutral@22.5"
+  ],
+  "Todo": [
+   "neutral->CONFIRM@438"
+  ],
+  "comm_coef": [
+   "neutral->CONFIRM@0.00375",
+   "CONFIRM->neutral@0.0225"
+  ],
+  "train_coef": [
+   "neutral->CONFIRM@0.075"
+  ],
+  "prod_rate": [
+   "neutral->CONFIRM@0.597",
+   "CONFIRM->neutral@6.07"
+  ],
+  "mature_rate": [],
+  "hire_at": [
+   "CONFIRM->neutral@11.4"
+  ]
+ },
+ "rules": {
+  "text": "|--- Vet <= 12.412\n|   |--- prod_rate <= 5.559\n|   |   |--- class: 1\n|   |--- prod_rate >  5.559\n|   |   |--- hire_at <= 7.725\n|   |   |   |--- class: 1\n|   |   |--- hire_at >  7.725\n|   |   |   |--- class: 0\n|--- Vet >  12.412\n|   |--- Vet <= 22.367\n|   |   |--- comm_coef <= 0.011\n|   |   |   |--- class: 0\n|   |   |--- comm_coef >  0.011\n|   |   |   |--- class: 0\n|   |--- Vet >  22.367\n|   |   |--- comm_coef <= 0.003\n|   |   |   |--- class: 0\n|   |   |--- comm_coef >  0.003\n|   |   |   |--- class: 0\n",
+  "importance": [
+   [
+    "Vet",
+    0.593
+   ],
+   [
+    "prod_rate",
+    0.187
+   ],
+   [
+    "hire_at",
+    0.115
+   ],
+   [
+    "comm_coef",
+    0.105
+   ],
+   [
+    "Todo",
+    0.0
+   ],
+   [
+    "train_coef",
+    0.0
+   ],
+   [
+    "mature_rate",
+    0.0
+   ]
+  ],
+  "accuracy": 0.941,
+  "base_rate": 0.073
+ },
+ "scenarios": {
+  "early_hire": {
+   "story": "hire at t=2 instead of t=10",
+   "over": {
+    "hire_at": 2
+   },
+   "at_default": [
+    "CONFIRM",
+    -767.5
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -790.3468074771189,
+    -699.2660222771369,
+    -575.2995750573476
+   ]
+  },
+  "last_minute": {
+   "story": "panic hire 2 ticks before deadline",
+   "over": {
+    "hire_at": 18
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 0.0,
+   "neutral": 100.0,
+   "gap": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "micro_hire": {
+   "story": "hire 1 person",
+   "over": {
+    "_arms": [
+     0,
+     1
+    ]
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 0.0,
+   "neutral": 100.0,
+   "gap": [
+    -5.684341886080802e-14,
+    0.0,
+    5.684341886080802e-14
+   ]
+  },
+  "massive_surge": {
+   "story": "hire 50 people",
+   "over": {
+    "_arms": [
+     0,
+     50
+    ]
+   },
+   "at_default": [
+    "CONFIRM",
+    -147.5
+   ],
+   "CONFIRM": 68.2,
+   "REFUTE": 0.0,
+   "neutral": 31.8,
+   "gap": [
+    -270.93251672729025,
+    -85.64172868086973,
+    0.0
+   ]
+  },
+  "small_core": {
+   "story": "10 hires onto a core team of 2",
+   "over": {
+    "Vet": 2
+   },
+   "at_default": [
+    "CONFIRM",
+    -178.3105577784948
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -217.12641056620873,
+    -164.73094096523346,
+    -124.20143733810369
+   ]
+  },
+  "high_prod": {
+   "story": "very productive devs",
+   "over": {
+    "prod_rate": 15
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 0.0,
+   "neutral": 100.0,
+   "gap": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "fast_onboard": {
+   "story": "mature_rate 0.5",
+   "over": {
+    "mature_rate": 0.5
+   },
+   "at_default": [
+    "CONFIRM",
+    -119.73572343587875
+   ],
+   "CONFIRM": 52.0,
+   "REFUTE": 0.0,
+   "neutral": 48.0,
+   "gap": [
+    -235.28836554810078,
+    -32.02902952260126,
+    0.0
+   ]
+  },
+  "steep_learning": {
+   "story": "spaghetti code: slow, costly onboarding",
+   "over": {
+    "mature_rate": 0.02,
+    "train_coef": 0.4
+   },
+   "at_default": [
+    "CONFIRM",
+    -147.5
+   ],
+   "CONFIRM": 68.2,
+   "REFUTE": 0.0,
+   "neutral": 31.8,
+   "gap": [
+    -270.93251672729025,
+    -85.64172868086973,
+    0.0
+   ]
+  },
+  "async_remote": {
+   "story": "comm_coef 0.001",
+   "over": {
+    "comm_coef": 0.001
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 16.4,
+   "REFUTE": 0.0,
+   "neutral": 83.6,
+   "gap": [
+    -96.69647405929436,
+    0.0,
+    0.0
+   ]
+  },
+  "no_training": {
+   "story": "no mentoring drag",
+   "over": {
+    "train_coef": 0
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 0.0,
+   "neutral": 100.0,
+   "gap": [
+    -5.684341886080802e-14,
+    0.0,
+    5.684341886080802e-14
+   ]
+  },
+  "no_comm": {
+   "story": "no coordination drag",
+   "over": {
+    "comm_coef": 0
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 7.0,
+   "REFUTE": 0.0,
+   "neutral": 93.0,
+   "gap": [
+    -43.59786820772507,
+    0.0,
+    0.0
+   ]
+  },
+  "light_mentoring": {
+   "story": "each newcomer costs 2% of each vet (not 20%)",
+   "over": {
+    "train_coef": 0.02
+   },
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 0.0,
+   "neutral": 100.0,
+   "gap": [
+    -5.684341886080802e-14,
+    0.0,
+    5.684341886080802e-14
+   ]
+  },
+  "long_horizon": {
+   "story": "deadline at t=50, 4x backlog",
+   "over": {
+    "_tmax": 50,
+    "Todo": 2000
+   },
+   "at_default": [
+    "CONFIRM",
+    -2986.3762577283915
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -3075.5410616749177,
+    -2683.426643359524,
+    -2079.52836655801
+   ]
+  }
+ },
+ "variants": {
+  "flat (sd.brooks)": {
+   "story": "reference clique",
+   "at_default": [
+    "CONFIRM",
+    -147.5
+   ],
+   "local": {
+    "CONFIRM": 68.2,
+    "REFUTE": 0.0,
+    "neutral": 31.8,
+    "gap": [
+     -270.93251672729025,
+     -85.64172868086973,
+     0.0
+    ]
+   },
+   "prior": {
+    "CONFIRM": 7.5,
+    "REFUTE": 0.1,
+    "neutral": 92.4,
+    "gap": [
+     -93.72681487563068,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "squads of 10": {
+   "story": "Conway/surgical teams: pairs inside a squad + between squads",
+   "at_default": [
+    "CONFIRM",
+    -147.5
+   ],
+   "local": {
+    "CONFIRM": 62.0,
+    "REFUTE": 0.0,
+    "neutral": 38.0,
+    "gap": [
+     -254.42410412368517,
+     -63.02785485526465,
+     0.0
+    ]
+   },
+   "prior": {
+    "CONFIRM": 10.6,
+    "REFUTE": 0.4,
+    "neutral": 89.0,
+    "gap": [
+     -133.41327376159802,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "mentor pods": {
+   "story": "ceil(New/5) vets mentor full-time, others untaxed",
+   "at_default": [
+    "neutral",
+    -5.684341886080802e-14
+   ],
+   "local": {
+    "CONFIRM": 0.0,
+    "REFUTE": 0.0,
+    "neutral": 100.0,
+    "gap": [
+     -5.684341886080802e-14,
+     0.0,
+     5.684341886080802e-14
+    ]
+   },
+   "prior": {
+    "CONFIRM": 4.7,
+    "REFUTE": 3.2,
+    "neutral": 92.1,
+    "gap": [
+     -1.1171649946840603,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "async docs + CI": {
+   "story": "O(N log N) comm, 40% less training",
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "local": {
+    "CONFIRM": 3.9,
+    "REFUTE": 0.0,
+    "neutral": 96.1,
+    "gap": [
+     -9.238855603962293,
+     0.0,
+     0.0
+    ]
+   },
+   "prior": {
+    "CONFIRM": 9.7,
+    "REFUTE": 0.4,
+    "neutral": 89.9,
+    "gap": [
+     -134.13566906897418,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "staged waves": {
+   "story": "hires arrive in 5 waves",
+   "at_default": [
+    "CONFIRM",
+    -109.44920000000002
+   ],
+   "local": {
+    "CONFIRM": 57.2,
+    "REFUTE": 0.0,
+    "neutral": 42.8,
+    "gap": [
+     -234.84959247299946,
+     -44.36444988845102,
+     0.0
+    ]
+   },
+   "prior": {
+    "CONFIRM": 7.5,
+    "REFUTE": 0.1,
+    "neutral": 92.4,
+    "gap": [
+     -99.62456631607427,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "per-person comm": {
+   "story": "each dev bears (V-1) channels, not all V(V-1)/2",
+   "at_default": [
+    "CONFIRM",
+    -122.75
+   ],
+   "local": {
+    "CONFIRM": 60.3,
+    "REFUTE": 0.0,
+    "neutral": 39.7,
+    "gap": [
+     -253.47174618269577,
+     -53.461994677120515,
+     0.0
+    ]
+   },
+   "prior": {
+    "CONFIRM": 10.6,
+    "REFUTE": 0.2,
+    "neutral": 89.2,
+    "gap": [
+     -128.5380742938852,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "shared mentoring": {
+   "story": "train_coef is FTE per newcomer, spread over vets",
+   "at_default": [
+    "neutral",
+    0.0
+   ],
+   "local": {
+    "CONFIRM": 0.0,
+    "REFUTE": 0.0,
+    "neutral": 100.0,
+    "gap": [
+     -5.684341886080802e-14,
+     0.0,
+     5.684341886080802e-14
+    ]
+   },
+   "prior": {
+    "CONFIRM": 6.6,
+    "REFUTE": 0.2,
+    "neutral": 93.2,
+    "gap": [
+     -70.16726575843813,
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "evidence": []
+}

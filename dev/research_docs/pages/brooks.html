@@ -1,0 +1,111 @@
+<h1>B1. Your Brooks' Law work</h1>
+
+<p class="note">This page documents the work as i am  building and reports it
+(<code>project_status_report.md</code>, Oct 2026). The numbers are from the committed
+outputs in <code>outputs/</code>. The <a href="review.html">next page (B2)</a> reviews it, and
+some of these headline claims don't survive that review.</p>
+
+<h2>B1.1 What you built</h2>
+<div class="mermaid">
+flowchart TB
+  RB["run_brooks.py<br/>single-shot runs of 14 scenarios"]
+  MC["monte_carlo_brooks.py<br/>vectorised NumPy, 100k runs per scenario,<br/>±15% noise, common random numbers"]
+  ST["paper/stats.py<br/>Cliff's δ, KS, Scott-Knott"]
+  FB["forrester_brooks.py<br/>6 test sections"]
+  BM["brooks_modifications.py<br/>6 architectures"]
+  MM["monte_carlo_modified.py<br/>100k runs per architecture"]
+  FM["forrester_modified.py<br/>invariants + J-curve crossover"]
+  PL["plot_brooks.py, plot_modified.py"]
+  O["outputs/<br/>CSV, JSON, MD reports, 12 PNGs"]
+  RB --> MC --> ST
+  MC --> O
+  FB --> O
+  BM --> MM --> O
+  BM --> FM --> O
+  O --> PL --> O
+  MK["Makefile targets<br/>test-100k, forrester, plot, landscape,<br/>test-modified, forrester-modified, all-modified"] -.-> RB
+</div>
+
+<h2>B1.2 Fourteen business scenarios</h2>
+<p>Same equations as <code>sd.brooks</code>, except that <code>Done − Todo</code> is <i>not</i> clipped
+when the backlog empties (see <a href="review.html">B2</a>, issue 2). Defaults: 10 veterans,
+Todo 500, comm 0.005, train 0.2, prod 5, mature 0.1, 10 hires at t=10,
+horizon 20.</p>
+<table>
+<tr><th>scenario</th><th>change from default</th><th>median score (100k)</th><th>runs where hiring hurts</th><th>your verdict</th></tr>
+<tr><td>baseline</td><td>0 hires</td><td>1049.0</td><td>—</td><td>control</td></tr>
+<tr><td>brooks_law</td><td>—</td><td>351.8</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>break_communication</td><td>comm 0</td><td>635.1</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>break_training</td><td>train 0</td><td>1030.6</td><td>67.7%</td><td>AMBIGUOUS</td></tr>
+<tr><td>fast_onboarding</td><td>mature 0.5</td><td>394.8</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>early_hire</td><td>hire at t=2</td><td>−267.4</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>massive_surge</td><td>50 hires</td><td>351.8</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>micro_hire</td><td>1 hire</td><td>930.4</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>high_productivity</td><td>prod 15</td><td>2056.3</td><td>0%</td><td>BROKEN</td></tr>
+<tr><td>long_horizon</td><td>50 ticks</td><td>423.0</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>small_core_team</td><td>2 veterans</td><td>−276.7</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>steep_learning_curve</td><td>mature 0.02, train 0.4</td><td>351.8</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>last_minute_panic</td><td>hire at t=18</td><td>971.4</td><td>100%</td><td>CONFIRMED</td></tr>
+<tr><td>asynchronous_remote</td><td>comm 0.001</td><td>561.5</td><td>100%</td><td>CONFIRMED</td></tr>
+</table>
+<p>Verdict rule: CONFIRMED if more than 70% of paired runs score worse than
+baseline, BROKEN if more than 70% score better, else AMBIGUOUS.</p>
+
+<figure><img src="img/prior/brooks_master_dashboard.png" alt="Brooks master dashboard">
+<figcaption><code>brooks_master_dashboard.png</code>. (A) Scenario ranking with 90% intervals.
+(B) Share of runs where hiring hurts. (C) Production after the hire. (D)
+Cumulative advantage over 50 ticks; no recovery.</figcaption></figure>
+
+<h2>B1.3 Forrester &amp; Senge suite (<code>forrester_brooks.py</code>)</h2>
+<table>
+<tr><th>section</th><th>tests</th><th>reported</th></tr>
+<tr><td>1. Extreme conditions</td><td>zero workforce, novice-only, 10<sup>6</sup> hires, zero backlog, comm 1.0/0, train 0, mature 0/1</td><td>9 PASS</td></tr>
+<tr><td>2. Behaviour anomaly</td><td>causality, Done monotone, headcount conservation, non-negative stocks</td><td>4 PASS</td></tr>
+<tr><td>3. Boundary adequacy / J-curve</td><td>horizons 10–80; search for crossover up to 120 ticks</td><td>PASS, "no crossover found"</td></tr>
+<tr><td>4. dt invariance</td><td>dt 1 → 0.05</td><td>WARN, 28% error</td></tr>
+<tr><td>5. Metamorphic monotonicity</td><td>surge 0…100</td><td>PASS</td></tr>
+<tr><td>6. Tipping points</td><td>sweep comm, train, mature</td><td>PASS, "none found"</td></tr>
+</table>
+<figure><img src="img/prior/brooks_j_curve_horizon.png" alt="J-curve horizon">
+<figcaption><code>brooks_j_curve_horizon.png</code>: the hire arm never recovers under the flat model.</figcaption></figure>
+<figure><img src="img/prior/brooks_tipping_heatmap.png" alt="tipping heatmap">
+<figcaption><code>brooks_tipping_heatmap.png</code>: where hiring stops hurting in parameter space.</figcaption></figure>
+
+<h2>B1.4 Five architectural modifications (<code>brooks_modifications.py</code>)</h2>
+<table>
+<tr><th>architecture</th><th>equation change</th><th>reported median</th><th>reported verdict</th></tr>
+<tr><td>Standard (flat)</td><td>reference</td><td>351.8</td><td>collapse</td></tr>
+<tr><td>Ambassador partitioning</td><td>squads of 10; comm = (intra + inter channels)/V · c</td><td>946.3</td><td>mitigates, crossover t=11</td></tr>
+<tr><td>Dedicated mentor pod</td><td>ceil(New/5) vets mentor full time; the rest have no training drag</td><td>1038.5</td><td>parity with baseline</td></tr>
+<tr><td>Async docs + CI</td><td>comm = V·log₂V · c/2; training × 0.6</td><td>671.7</td><td>mitigates</td></tr>
+<tr><td>Staged waves</td><td>10 hires as 2/tick over 5 ticks</td><td>392.4</td><td>minor</td></tr>
+<tr><td>Synergistic</td><td>squads + log comm + mentor pods</td><td>1632.9 (10 hires), 2361.4 (50)</td><td>"Brooks broken"</td></tr>
+</table>
+<figure><img src="img/prior/modified_master_dashboard.png" alt="modified dashboard">
+<figcaption><code>modified_master_dashboard.png</code>: (A) rankings, (B) points gained over
+flat Brooks, (C) production after the hire, (D) the "diminishing
+returns" curve.</figcaption></figure>
+<figure><img src="img/prior/modified_j_curve_crossover.png" alt="crossover">
+<figcaption><code>modified_j_curve_crossover.png</code>: long-horizon crossover per architecture
+(t=60, Todo 4000).</figcaption></figure>
+
+<h2>B1.5 Other figures you produced</h2>
+<figure><img src="img/prior/brooks_trajectories.png" alt=""><figcaption><code>brooks_trajectories.png</code></figcaption></figure>
+<figure><img src="img/prior/brooks_breakdown_bars.png" alt=""><figcaption><code>brooks_breakdown_bars.png</code></figcaption></figure>
+<figure><img src="img/prior/brooks_ranking_distributions.png" alt=""><figcaption><code>brooks_ranking_distributions.png</code></figcaption></figure>
+<figure><img src="img/prior/modified_trajectories.png" alt=""><figcaption><code>modified_trajectories.png</code></figcaption></figure>
+<figure><img src="img/prior/modified_breakdown_bars.png" alt=""><figcaption><code>modified_breakdown_bars.png</code></figcaption></figure>
+<figure><img src="img/prior/modified_ranking_distributions.png" alt=""><figcaption><code>modified_ranking_distributions.png</code></figcaption></figure>
+<figure><img src="img/prior/diminishing_returns_curve.png" alt=""><figcaption><code>diminishing_returns_curve.png</code></figcaption></figure>
+
+<h2>B1.6 Claims made in the status report</h2>
+<ol>
+<li>Brooks' Law is "inviolable" under flat structures: hiring hurt in 100% of 100k runs.</li>
+<li>No crossover in 120 ticks: 20 vets lose 95% of their time to meetings forever.</li>
+<li>High productivity breaks the law; zero training gives parity.</li>
+<li>Mentor pods reach parity; ambassadors restore the J-curve crossover at t=11
+(+3,550 points at t=60); synergy is "super-additive".</li>
+<li>Next steps: generalise the harness to other models; calibrate with kaiaulu.</li>
+</ol>
+<p>Claims 1, 2 and 4 are re-examined in <a href="review.html">B2</a>. Claim 5 is
+what <a href="lawkit.html">Part C</a> does.</p>

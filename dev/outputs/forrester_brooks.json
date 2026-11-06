@@ -1,0 +1,147 @@
+{
+  "1. Extreme Conditions Tests (F&S Section3)": [
+    {
+      "name": "Zero Workforce (vet_start=0, boost=0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Zero workforce -> zero productivity, Done=0 across all time"
+    },
+    {
+      "name": "Novice-Only Start (vet_start=0, boost=10)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Novices cannot produce until maturation occurs"
+    },
+    {
+      "name": "Mega Hiring Surge (boost=1,000,000)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Graceful bounding, no overflow/NaN"
+    },
+    {
+      "name": "Zero Backlog (todo_start=0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Non-negative Done, no crash"
+    },
+    {
+      "name": "Extreme Comm Tax (comm_coef=1.0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Net prod clamped to 0, no un-doing work"
+    },
+    {
+      "name": "Zero Comm Tax (comm_coef=0.0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Linear scaling without coordination drag"
+    },
+    {
+      "name": "Zero Training Cost (train_coef=0.0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: No mentoring penalty on seniors"
+    },
+    {
+      "name": "Zero Maturation (mature_rate=0.0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: Novices stay novices, vets unchanged"
+    },
+    {
+      "name": "Instant Maturation (mature_rate=1.0, dt=1.0)",
+      "status": "PASS",
+      "detail": "Outcome matches expectation: All new hires transition to vets in 1 tick"
+    }
+  ],
+  "2. Behavior Anomaly & Invariant Tests (F&S Section3-beh)": [
+    {
+      "name": "Causality Invariant (t < boost_time unaffected)",
+      "status": "PASS",
+      "detail": "Past trajectory strictly invariant to future hiring event"
+    },
+    {
+      "name": "Work Done Monotonicity (d(Done)/dt >= 0)",
+      "status": "PASS",
+      "detail": "Done is non-decreasing across all ticks (min delta: 0.00)"
+    },
+    {
+      "name": "Headcount Conservation (Vets + New = Total)",
+      "status": "PASS",
+      "detail": "Headcount exactly conserved (10 before t=10, 20 after t=10)"
+    },
+    {
+      "name": "Non-negative Stock Domain",
+      "status": "PASS",
+      "detail": "All state variables strictly non-negative"
+    }
+  ],
+  "3. Boundary Adequacy & J-Curve Test (F&S Section4, Section7)": [
+    {
+      "name": "Boundary Adequacy & J-Curve Horizon Test",
+      "status": "PASS",
+      "crossover_tick": null,
+      "detail": "No crossover found within 120 ticks.",
+      "horizon_breakdown": [
+        {
+          "horizon": 10,
+          "base_score": -1225.0,
+          "boost_score": -1225.0,
+          "diff": 0.0,
+          "verdict": "Hiring Hurts (Brooks Law)"
+        },
+        {
+          "horizon": 20,
+          "base_score": -450.0,
+          "boost_score": -1147.5,
+          "diff": -697.5,
+          "verdict": "Hiring Hurts (Brooks Law)"
+        },
+        {
+          "horizon": 30,
+          "base_score": 325.0,
+          "boost_score": -1147.5,
+          "diff": -1472.5,
+          "verdict": "Hiring Hurts (Brooks Law)"
+        },
+        {
+          "horizon": 40,
+          "base_score": 1100.0,
+          "boost_score": -1147.5,
+          "diff": -2247.5,
+          "verdict": "Hiring Hurts (Brooks Law)"
+        },
+        {
+          "horizon": 50,
+          "base_score": 1875.0,
+          "boost_score": -1111.3762577283915,
+          "diff": -2986.3762577283915,
+          "verdict": "Hiring Hurts (Brooks Law)"
+        },
+        {
+          "horizon": 80,
+          "base_score": 4200.0,
+          "boost_score": -844.3281644902538,
+          "diff": -5044.328164490254,
+          "verdict": "Hiring Hurts (Brooks Law)"
+        }
+      ]
+    }
+  ],
+  "4. Integration Step (dt) Invariance Test (Sterman Section6)": [
+    {
+      "name": "Integration Step Invariance (Sterman dt halving)",
+      "status": "WARN",
+      "detail": "Max relative discretization error = 28.18% (dt=1.0: 352.5, dt=0.05: 275.0)"
+    }
+  ],
+  "5. Metamorphic Monotonicity Sweep (MR1)": [
+    {
+      "name": "Metamorphic Monotonicity (MR1: More Hires -> Worse Delivery)",
+      "status": "PASS",
+      "detail": "Monotonically non-increasing: scores=[1050.0, 805.3, 423.8, 352.5, 352.5, 352.5, 352.5]"
+    }
+  ],
+  "6. Parameter Bifurcation & Tipping Points": [
+    {
+      "name": "Bifurcation & Tipping Point Analysis",
+      "status": "PASS",
+      "comm_tipping_point": null,
+      "mature_tipping_point": null,
+      "train_tipping_point": null,
+      "detail": "Brooks Law ceases to hold when: requires joint reduction with training OR none found OR none found in [0.1, 1.0]."
+    }
+  ]
+}

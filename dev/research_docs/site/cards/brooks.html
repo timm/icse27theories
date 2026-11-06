@@ -1,0 +1,363 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>card: brooks</title><style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;
+ margin:0 auto;padding:0 16px 60px;line-height:1.55;color:#111;
+ background:#fff}
+nav{border-bottom:1px solid #ccc;padding:10px 0;font-size:14px}
+nav a{margin-right:12px;white-space:nowrap}
+nav a.on{font-weight:bold;color:#000;text-decoration:none}
+h1{font-size:26px;margin-top:24px}h2{font-size:20px;margin-top:34px;
+ border-bottom:1px solid #eee;padding-bottom:4px}h3{font-size:16px}
+table{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left;
+ vertical-align:top}th{background:#f3f3f3}
+code{background:#f3f3f3;padding:1px 4px;font-size:90%}
+pre{background:#f6f6f6;padding:10px;overflow-x:auto;font-size:13px}
+img{max-width:100%;border:1px solid #eee}figure{margin:16px 0}
+figcaption{font-size:13px;color:#444;margin-top:4px}
+.note{border-left:4px solid #888;background:#f7f7f7;padding:8px 12px}
+.warn{border-left:4px solid #c05621;background:#fff7f0;padding:8px 12px}
+.mermaid{margin:16px 0;text-align:center}
+.tag{font-size:12px;border:1px solid #999;padding:0 5px;border-radius:3px}
+</style></head><body><nav><a href="../index.html">Overview</a> <a href="../before.html">A. The project as received</a> <a href="../brooks.html">B1. Your Brooks work</a> <a href="../review.html">B2. Review of the Brooks work</a> <a href="../lawkit.html">C1. lawkit framework</a> <a href="../results.html">C2. Results per law</a> <a href="../evidence.html">C3. Real-world evidence</a> <a href="../strategy.html">D. Strategy, Cartwright, next steps</a> <a href="../reproduce.html">Files & reproduce</a> <a href="../cards/index.html" class=on>Evidence cards</a></nav><h1>Evidence card: <code>brooks</code></h1>
+<p><strong>Claim.</strong> adding 10 people to a project that is already late (backlog 1000, 10 vets can do ~800 by t=20) makes it finish later.<br />
+<strong>Lever.</strong> <code>boost</code> 0 -&gt; 10; expected y down.<br />
+<strong>Support factors.</strong> Vet, Todo, comm_coef, train_coef, prod_rate, mature_rate, hire_at, newprod, leave, serial, overtime, rework.<br />
+<strong>Sources.</strong> Brooks 1975; Abdel-Hamid &amp; Madnick 1991; sd.brooks; outcome = completion time; extra structures and bounded overload</p>
+<h2>1. Is the machine sound? (structure battery)</h2>
+<table>
+<thead>
+<tr>
+<th>status</th>
+<th>test</th>
+<th>detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASS</td>
+<td>units &amp; dimensions</td>
+<td>every equation consistent; literals: literal 1 + tick, literal 1 - dev</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>dead parameters</td>
+<td>all params live (deadline only together with another factor)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>extreme conditions</td>
+<td>all finite. claim not CONFIRMed at 6 extremes: Vet=0:REFUTE, Vet=100:neutral, Todo=0:neutral, train_coef=0:neutral, prod_rate=0.1:neutral, prod_rate=20:neutral</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>clamp dependence</td>
+<td>0% of prior backgrounds escape declared bounds; 0% are CONFIRMs that need clamping</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>integration step (dt)</td>
+<td>gap dt=0.125:-11.0 dt=0.03125:-11.1 (1%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>time-horizon adequacy</td>
+<td>t=45:CONFIRM(-11); t=80:CONFIRM(-11); t=160:CONFIRM(-11); t=320:CONFIRM(-11)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>dose-response monotone</td>
+<td>gaps 0:+0, 16.6667:-23, 33.3333:-92, 50:-102, 66.6667:-103, 83.3333:-103, 100:-103</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>mechanism knock-out</td>
+<td>channels ['comm_coef', 'train_coef'] neutral -&gt; REFUTE (+2.2)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>refutability (uniform)</td>
+<td>uniform over ranges: {'CONFIRM': 26.9, 'REFUTE': 33.8, 'neutral': 39.3}</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>scale x2 (MR2)</td>
+<td>CONFIRM(-11) -&gt; CONFIRM(-50)</td>
+</tr>
+</tbody>
+</table>
+<h2>2. How robust is the claim? (CONFIRM / REFUTE / neutral)</h2>
+<table>
+<thead>
+<tr>
+<th>neighbourhood</th>
+<th>verdicts</th>
+<th>gap median [5%, 95%]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+-15% around defaults (old MC protocol)</td>
+<td>100% / 0% / 0%</td>
+<td>-11 [-14, -8]</td>
+</tr>
+<tr>
+<td>triangular over declared ranges</td>
+<td>44% / 16% / 40%</td>
+<td>-1 [-60, +24]</td>
+</tr>
+<tr>
+<td>uniform over declared ranges</td>
+<td>27% / 33% / 40%</td>
+<td>+2 [-42, +118]</td>
+</tr>
+</tbody>
+</table>
+<h2>3. What decides it? (tree on prior draws, base rate 46% CONFIRM, accuracy 83%)</h2>
+<p>Importance: <code>Vet</code> 0.66, <code>comm_coef</code> 0.25, <code>leave</code> 0.09</p>
+<pre><code>|--- Vet &lt;= 35.838
+|   |--- Vet &lt;= 24.620
+|   |   |--- Vet &lt;= 4.940
+|   |   |   |--- class: 0
+|   |   |--- Vet &gt;  4.940
+|   |   |   |--- class: 1
+|   |--- Vet &gt;  24.620
+|   |   |--- comm_coef &lt;= 0.013
+|   |   |   |--- class: 1
+|   |   |--- comm_coef &gt;  0.013
+|   |   |   |--- class: 0
+|--- Vet &gt;  35.838
+|   |--- comm_coef &lt;= 0.008
+|   |   |--- leave &lt;= 0.006
+|   |   |   |--- class: 0
+|   |   |--- leave &gt;  0.006
+|   |   |   |--- class: 1
+|   |--- comm_coef &gt;  0.008
+|   |   |--- leave &lt;= 0.012
+|   |   |   |--- class: 0
+|   |   |--- leave &gt;  0.012
+|   |   |   |--- class: 0
+</code></pre>
+<p>One-at-a-time tipping points (others at default):</p>
+<ul>
+<li><code>Vet</code>: REFUTE-&gt;CONFIRM@7.5, CONFIRM-&gt;neutral@47.5</li>
+<li><code>Todo</code>: neutral-&gt;CONFIRM@425</li>
+<li><code>train_coef</code>: neutral-&gt;CONFIRM@0.05</li>
+<li><code>prod_rate</code>: neutral-&gt;CONFIRM@1.09, CONFIRM-&gt;neutral@12.5</li>
+<li>no flip inside declared range: comm_coef, mature_rate, hire_at, newprod, leave, serial, overtime, rework</li>
+</ul>
+<h2>4. Business scenarios (same mechanism, different world)</h2>
+<table>
+<thead>
+<tr>
+<th>scenario</th>
+<th>story</th>
+<th>default</th>
+<th>C/R/n under +-15%</th>
+<th>gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>early_hire</td>
+<td>hire at t=2 instead of t=10</td>
+<td>CONFIRM (-12)</td>
+<td>100% / 0% / 0%</td>
+<td>-12 [-16, -8]</td>
+</tr>
+<tr>
+<td>last_minute</td>
+<td>panic hire 2 ticks before deadline</td>
+<td>CONFIRM (-9)</td>
+<td>99% / 0% / 1%</td>
+<td>-8 [-11, -5]</td>
+</tr>
+<tr>
+<td>micro_hire</td>
+<td>hire 1 person</td>
+<td>neutral (-1)</td>
+<td>34% / 0% / 66%</td>
+<td>-1 [-1, -1]</td>
+</tr>
+<tr>
+<td>massive_surge</td>
+<td>hire 50 people</td>
+<td>CONFIRM (-102)</td>
+<td>100% / 0% / 0%</td>
+<td>-100 [-105, -94]</td>
+</tr>
+<tr>
+<td>small_core</td>
+<td>10 hires onto a core team of 2</td>
+<td>REFUTE (+51)</td>
+<td>0% / 100% / 0%</td>
+<td>+48 [+36, +59]</td>
+</tr>
+<tr>
+<td>high_prod</td>
+<td>very productive devs</td>
+<td>neutral (+0)</td>
+<td>2% / 0% / 98%</td>
+<td>+0 [+0, +0]</td>
+</tr>
+<tr>
+<td>fast_onboard</td>
+<td>mature_rate 0.5</td>
+<td>CONFIRM (-3)</td>
+<td>84% / 0% / 16%</td>
+<td>-3 [-5, -0]</td>
+</tr>
+<tr>
+<td>steep_learning</td>
+<td>spaghetti code: slow, costly onboarding</td>
+<td>CONFIRM (-64)</td>
+<td>100% / 0% / 0%</td>
+<td>-62 [-75, -49]</td>
+</tr>
+<tr>
+<td>async_remote</td>
+<td>comm_coef 0.001</td>
+<td>CONFIRM (-6)</td>
+<td>100% / 0% / 0%</td>
+<td>-6 [-8, -5]</td>
+</tr>
+<tr>
+<td>no_training</td>
+<td>no mentoring drag</td>
+<td>neutral (+1)</td>
+<td>0% / 43% / 57%</td>
+<td>+1 [+0, +2]</td>
+</tr>
+<tr>
+<td>no_comm</td>
+<td>no coordination drag</td>
+<td>CONFIRM (-6)</td>
+<td>100% / 0% / 0%</td>
+<td>-6 [-7, -4]</td>
+</tr>
+<tr>
+<td>light_mentoring</td>
+<td>each newcomer costs 2% of each vet (not 20%)</td>
+<td>neutral (-0)</td>
+<td>12% / 2% / 85%</td>
+<td>-0 [-2, +1]</td>
+</tr>
+<tr>
+<td>on_time_project</td>
+<td>antecedent false: backlog 500 (done by t=13)</td>
+<td>CONFIRM (-6)</td>
+<td>80% / 0% / 20%</td>
+<td>-4 [-8, +0]</td>
+</tr>
+<tr>
+<td>huge_backlog</td>
+<td>backlog 3000</td>
+<td>CONFIRM (-14)</td>
+<td>95% / 0% / 5%</td>
+<td>-14 [-23, -4]</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Mechanism variants (same world, different structure; arms compared <em>within</em> each structure)</h2>
+<table>
+<thead>
+<tr>
+<th>variant</th>
+<th>story</th>
+<th>default</th>
+<th>local C/R/n</th>
+<th>prior C/R/n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>flat (reference)</td>
+<td>reference clique</td>
+<td>CONFIRM (-11)</td>
+<td>100% / 0% / 0%</td>
+<td>42% / 16% / 42%</td>
+</tr>
+<tr>
+<td>squads of 10</td>
+<td>Conway/surgical teams: pairs inside a squad + between squads</td>
+<td>CONFIRM (-5)</td>
+<td>100% / 0% / 0%</td>
+<td>51% / 6% / 42%</td>
+</tr>
+<tr>
+<td>mentor pods</td>
+<td>ceil(New/5) vets mentor full-time, others untaxed</td>
+<td>neutral (+1)</td>
+<td>0% / 21% / 79%</td>
+<td>35% / 19% / 46%</td>
+</tr>
+<tr>
+<td>async docs + CI</td>
+<td>O(N log N) comm, 40% less training</td>
+<td>CONFIRM (-3)</td>
+<td>97% / 0% / 3%</td>
+<td>65% / 6% / 29%</td>
+</tr>
+<tr>
+<td>staged waves</td>
+<td>hires arrive in 5 waves</td>
+<td>CONFIRM (-11)</td>
+<td>100% / 0% / 0%</td>
+<td>42% / 16% / 42%</td>
+</tr>
+<tr>
+<td>per-person comm</td>
+<td>each dev bears (V-1) channels, not all V(V-1)/2</td>
+<td>CONFIRM (-6)</td>
+<td>100% / 0% / 0%</td>
+<td>62% / 9% / 29%</td>
+</tr>
+<tr>
+<td>shared mentoring</td>
+<td>train_coef is FTE per newcomer, spread over vets</td>
+<td>neutral (+0)</td>
+<td>3% / 5% / 92%</td>
+<td>39% / 17% / 44%</td>
+</tr>
+</tbody>
+</table>
+<h2>6. Will it work <em>here</em>? (real-project placement)</h2>
+<h3>aider</h3>
+<p>Population: aider: monthly git panel since 2023; lever = doubling a late team of 2 veterans</p>
+<p>Measured: months=28; median vets/month=2 (max 3); comm_coef 2.298e-21 [7.866e-30, 0.1421] (not identified); train_coef 5.396e-14 [1.267e-20, 0.007703]; newcomers who stayed: 4; mature_rate/month 1 [0.0005011, 1]</p>
+<p><strong>P(claim holds | evidence)</strong> = 0% / 87% / 13%, gap +12 [+0, +38]</p>
+<p>What to measure next (verdict-entropy reduction, P(CONFIRM) by quartile):</p>
+<ul>
+<li><code>Todo</code> gain 0.001 [0.0, 0.0, 0.0, 0.0]</li>
+<li><code>comm_coef</code> gain 0.001 [0.0, 0.0, 0.0, 0.0]</li>
+<li><code>prod_rate</code> gain 0.001 [0.0, 0.0, 0.0, 0.0]</li>
+<li><code>hire_at</code> gain 0.001 [0.0, 0.0, 0.0, 0.0]</li>
+<li><code>newprod</code> gain 0.001 [0.0, 0.0, 0.0, 0.0]</li>
+</ul>
+<p>Caveats (the long chain from data to parameter):</p>
+<ul>
+<li>Commits/month stand in for productivity (construct validity: commit size and review work are invisible).</li>
+<li>OSS newcomers are not 'hired' onto a deadline; arrivals follow activity, so train_coef may be biased toward 0 (reverse causation).</li>
+<li>Identity = e-mail address; no kaiaulu identity_match merge.</li>
+<li>mature_rate uses only newcomers still active a year later (survivorship: onboarding looks faster than it is).</li>
+<li>Lateness, prod_rate and backlog are not measured: the project is <em>assumed</em> late (Todo=1000), i.e. this tests the counterfactual 'if this team were late'.</li>
+</ul>
+<h3>helix</h3>
+<p>Population: helix: monthly git panel since 2013; lever = doubling a late team of 3 veterans</p>
+<p>Measured: months=152; median vets/month=3 (max 8); comm_coef 0.03833 [0.02089, 0.06644]; train_coef 0.008356 [2.39e-18, 0.0373]; newcomers who stayed: 29; mature_rate/month 1 [1, 1]</p>
+<p><strong>P(claim holds | evidence)</strong> = 4% / 71% / 25%, gap +4 [-1, +25]</p>
+<p>What to measure next (verdict-entropy reduction, P(CONFIRM) by quartile):</p>
+<ul>
+<li><code>leave</code> gain 0.027 [0.09, 0.06, 0.01, 0.0]</li>
+<li><code>serial</code> gain 0.017 [0.01, 0.02, 0.04, 0.09]</li>
+<li><code>prod_rate</code> gain 0.003 [0.02, 0.05, 0.04, 0.04]</li>
+<li><code>newprod</code> gain 0.003 [0.04, 0.06, 0.04, 0.02]</li>
+<li><code>overtime</code> gain 0.002 [0.03, 0.04, 0.06, 0.03]</li>
+</ul>
+<p>Caveats (the long chain from data to parameter):</p>
+<ul>
+<li>Commits/month stand in for productivity (construct validity: commit size and review work are invisible).</li>
+<li>OSS newcomers are not 'hired' onto a deadline; arrivals follow activity, so train_coef may be biased toward 0 (reverse causation).</li>
+<li>Identity = e-mail address; no kaiaulu identity_match merge.</li>
+<li>mature_rate uses only newcomers still active a year later (survivorship: onboarding looks faster than it is).</li>
+<li>Lateness, prod_rate and backlog are not measured: the project is <em>assumed</em> late (Todo=1000), i.e. this tests the counterfactual 'if this team were late'.</li>
+</ul><script src="../vendor/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}});</script></body></html>

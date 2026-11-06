@@ -1,0 +1,156 @@
+{
+  "invariants": {
+    "standard_brooks": [
+      {
+        "test": "Zero Workforce Invariant",
+        "status": "PASS",
+        "detail": "Done=0.0 (expected 0.0)"
+      },
+      {
+        "test": "Mega-Surge Extreme Handling (100k hires)",
+        "status": "PASS",
+        "detail": "Graceful bounding: Done=426.2, no NaN/overflow"
+      },
+      {
+        "test": "Work Monotonicity (Non-negative Production)",
+        "status": "PASS",
+        "detail": "Min rate: 0.00"
+      }
+    ],
+    "ambassador_partitioning": [
+      {
+        "test": "Zero Workforce Invariant",
+        "status": "PASS",
+        "detail": "Done=0.0 (expected 0.0)"
+      },
+      {
+        "test": "Mega-Surge Extreme Handling (100k hires)",
+        "status": "PASS",
+        "detail": "Graceful bounding: Done=537.6, no NaN/overflow"
+      },
+      {
+        "test": "Work Monotonicity (Non-negative Production)",
+        "status": "PASS",
+        "detail": "Min rate: 0.00"
+      }
+    ],
+    "dedicated_mentor_pod": [
+      {
+        "test": "Zero Workforce Invariant",
+        "status": "PASS",
+        "detail": "Done=0.0 (expected 0.0)"
+      },
+      {
+        "test": "Mega-Surge Extreme Handling (100k hires)",
+        "status": "PASS",
+        "detail": "Graceful bounding: Done=426.2, no NaN/overflow"
+      },
+      {
+        "test": "Work Monotonicity (Non-negative Production)",
+        "status": "PASS",
+        "detail": "Min rate: 34.40"
+      }
+    ],
+    "async_documentation_ci": [
+      {
+        "test": "Zero Workforce Invariant",
+        "status": "PASS",
+        "detail": "Done=0.0 (expected 0.0)"
+      },
+      {
+        "test": "Mega-Surge Extreme Handling (100k hires)",
+        "status": "PASS",
+        "detail": "Graceful bounding: Done=504.3, no NaN/overflow"
+      },
+      {
+        "test": "Work Monotonicity (Non-negative Production)",
+        "status": "PASS",
+        "detail": "Min rate: 0.00"
+      }
+    ],
+    "staged_wave_hiring": [
+      {
+        "test": "Zero Workforce Invariant",
+        "status": "PASS",
+        "detail": "Done=0.0 (expected 0.0)"
+      },
+      {
+        "test": "Mega-Surge Extreme Handling (100k hires)",
+        "status": "PASS",
+        "detail": "Graceful bounding: Done=426.2, no NaN/overflow"
+      },
+      {
+        "test": "Work Monotonicity (Non-negative Production)",
+        "status": "PASS",
+        "detail": "Min rate: 0.00"
+      }
+    ],
+    "synergistic_modern_org": [
+      {
+        "test": "Zero Workforce Invariant",
+        "status": "PASS",
+        "detail": "Done=0.0 (expected 0.0)"
+      },
+      {
+        "test": "Mega-Surge Extreme Handling (100k hires)",
+        "status": "PASS",
+        "detail": "Graceful bounding: Done=436748.2, no NaN/overflow"
+      },
+      {
+        "test": "Work Monotonicity (Non-negative Production)",
+        "status": "PASS",
+        "detail": "Min rate: 39.83"
+      }
+    ]
+  },
+  "j_curve_recovery": {
+    "standard_brooks": {
+      "name": "Standard Brooks (Unmodified Reference)",
+      "base_score_t60": 650.0,
+      "mod_score_t60": -3033.7736503552755,
+      "score_diff_t60": -3683.7736503552755,
+      "crossover_tick": null,
+      "crossover_status": "NO CROSSOVER (Perpetual Deficit)"
+    },
+    "ambassador_partitioning": {
+      "name": "Ambassador Team Partitioning",
+      "base_score_t60": 650.0,
+      "mod_score_t60": 4200.3277812960805,
+      "score_diff_t60": 3550.3277812960805,
+      "crossover_tick": 11,
+      "crossover_status": "CONFIRMED CROSSOVER (J-Curve Payoff)"
+    },
+    "dedicated_mentor_pod": {
+      "name": "Dedicated Mentoring Pod",
+      "base_score_t60": 650.0,
+      "mod_score_t60": -847.3216082577428,
+      "score_diff_t60": -1497.3216082577428,
+      "crossover_tick": null,
+      "crossover_status": "NO CROSSOVER (Perpetual Deficit)"
+    },
+    "async_documentation_ci": {
+      "name": "Async Documentation & Automated CI/CD",
+      "base_score_t60": 650.0,
+      "mod_score_t60": 2417.4017375751155,
+      "score_diff_t60": 1767.4017375751155,
+      "crossover_tick": 11,
+      "crossover_status": "CONFIRMED CROSSOVER (J-Curve Payoff)"
+    },
+    "staged_wave_hiring": {
+      "name": "Staged Wave Influx",
+      "base_score_t60": 650.0,
+      "mod_score_t60": -3013.8292275597564,
+      "score_diff_t60": -3663.8292275597564,
+      "crossover_tick": null,
+      "crossover_status": "NO CROSSOVER (Perpetual Deficit)"
+    },
+    "synergistic_modern_org": {
+      "name": "Synergistic Modern Engineering Org",
+      "base_score_t60": 650.0,
+      "mod_score_t60": 5322.356756029355,
+      "score_diff_t60": 4672.356756029355,
+      "crossover_tick": 11,
+      "crossover_status": "CONFIRMED CROSSOVER (J-Curve Payoff)"
+    }
+  }
+}

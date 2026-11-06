@@ -1,0 +1,744 @@
+{
+ "battery": [
+  {
+   "test": "units & dimensions",
+   "status": "PASS",
+   "detail": "every equation consistent; literals: literal 1 + tick, literal 1 - dev",
+   "ref": "F&S dimensional consistency"
+  },
+  {
+   "test": "dead parameters",
+   "status": "PASS",
+   "detail": "all params live",
+   "ref": "F&S parameter verification"
+  },
+  {
+   "test": "extreme conditions",
+   "status": "PASS",
+   "detail": "all finite. claim not CONFIRMed at 6 extremes: Vet=0:REFUTE, Vet=100:neutral, Todo=0:neutral, comm_coef=0.05:neutral, prod_rate=0.1:neutral, prod_rate=20:neutral",
+   "ref": "F&S extreme conditions"
+  },
+  {
+   "test": "clamp dependence",
+   "status": "PASS",
+   "detail": "1% of prior backgrounds escape declared bounds; 0% are CONFIRMs that need clamping",
+   "ref": "Sterman boundary/structure; sd.mr_bound_consist"
+  },
+  {
+   "test": "integration step (dt)",
+   "status": "PASS",
+   "detail": "gap dt=1:-87.8 dt=0.25:-90.3 (3%); verdicts ['CONFIRM', 'CONFIRM', 'CONFIRM']",
+   "ref": "Sterman test 6"
+  },
+  {
+   "test": "time-horizon adequacy",
+   "status": "PASS",
+   "detail": "t=45:CONFIRM(-45); t=80:CONFIRM(-88); t=160:CONFIRM(-138); t=320:CONFIRM(-139)",
+   "ref": "F&S 4/7 boundary"
+  },
+  {
+   "test": "dose-response monotone",
+   "status": "PASS",
+   "detail": "gaps 0:+0, 16.6667:-100, 33.3333:-100, 50:-100, 66.6667:-100, 83.3333:-100, 100:-100",
+   "ref": "Chen MR1"
+  },
+  {
+   "test": "mechanism knock-out",
+   "status": "PASS",
+   "detail": "channels ['comm_coef', 'train_coef'] neutral -> neutral (+1.0)",
+   "ref": "Cartwright capacities / causal cake"
+  },
+  {
+   "test": "refutability (uniform)",
+   "status": "PASS",
+   "detail": "uniform over ranges: {'CONFIRM': 5.2, 'REFUTE': 0.7, 'neutral': 94.1}",
+   "ref": "Popper; anti-tautology"
+  },
+  {
+   "test": "scale x2 (MR2)",
+   "status": "PASS",
+   "detail": "CONFIRM(-88) -> CONFIRM(-14)",
+   "ref": "Chen MR2"
+  }
+ ],
+ "robustness": {
+  "local": {
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -101.93469765509322,
+    -83.54064682000455,
+    -34
+   ]
+  },
+  "prior": {
+   "CONFIRM": 10.9,
+   "REFUTE": 0.5,
+   "neutral": 88.5,
+   "gap": [
+    -88.8557915921181,
+    0.0,
+    0.0
+   ]
+  },
+  "uniform": {
+   "CONFIRM": 6.4,
+   "REFUTE": 0.9,
+   "neutral": 92.7,
+   "gap": [
+    -41,
+    0.0,
+    0.0
+   ]
+  }
+ },
+ "tipping": {
+  "Vet": [
+   "REFUTE->CONFIRM@5",
+   "CONFIRM->neutral@22.5"
+  ],
+  "Todo": [
+   "neutral->CONFIRM@450"
+  ],
+  "comm_coef": [
+   "CONFIRM->neutral@0.0225"
+  ],
+  "train_coef": [],
+  "prod_rate": [
+   "neutral->CONFIRM@0.597",
+   "CONFIRM->neutral@12"
+  ],
+  "mature_rate": [],
+  "hire_at": []
+ },
+ "rules": {
+  "text": "|--- Vet <= 10.426\n|   |--- Todo <= 659.701\n|   |   |--- class: 0\n|   |--- Todo >  659.701\n|   |   |--- prod_rate <= 7.673\n|   |   |   |--- class: 1\n|   |   |--- prod_rate >  7.673\n|   |   |   |--- class: 1\n|--- Vet >  10.426\n|   |--- Vet <= 19.489\n|   |   |--- comm_coef <= 0.012\n|   |   |   |--- class: 1\n|   |   |--- comm_coef >  0.012\n|   |   |   |--- class: 0\n|   |--- Vet >  19.489\n|   |   |--- comm_coef <= 0.004\n|   |   |   |--- class: 0\n|   |   |--- comm_coef >  0.004\n|   |   |   |--- class: 0\n",
+  "importance": [
+   [
+    "Vet",
+    0.727
+   ],
+   [
+    "comm_coef",
+    0.19
+   ],
+   [
+    "Todo",
+    0.074
+   ],
+   [
+    "prod_rate",
+    0.009
+   ],
+   [
+    "train_coef",
+    0.0
+   ],
+   [
+    "mature_rate",
+    0.0
+   ],
+   [
+    "hire_at",
+    0.0
+   ]
+  ],
+  "accuracy": 0.931,
+  "base_rate": 0.115
+ },
+ "scenarios": {
+  "early_hire": {
+   "story": "hire at t=2 instead of t=10",
+   "over": {
+    "hire_at": 2
+   },
+   "at_default": [
+    "CONFIRM",
+    -109.40642888066839
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -125.90741779292205,
+    -106.63243465503945,
+    -41
+   ]
+  },
+  "last_minute": {
+   "story": "panic hire 2 ticks before deadline",
+   "over": {
+    "hire_at": 18
+   },
+   "at_default": [
+    "CONFIRM",
+    -66.0957768515909
+   ],
+   "CONFIRM": 99.1,
+   "REFUTE": 0.0,
+   "neutral": 0.9,
+   "gap": [
+    -79.3043944037436,
+    -62.85969900465901,
+    -27
+   ]
+  },
+  "micro_hire": {
+   "story": "hire 1 person",
+   "over": {
+    "_arms": [
+     0,
+     1
+    ]
+   },
+   "at_default": [
+    "CONFIRM",
+    -2
+   ],
+   "CONFIRM": 79.4,
+   "REFUTE": 0.0,
+   "neutral": 20.6,
+   "gap": [
+    -3,
+    -2,
+    -1
+   ]
+  },
+  "massive_surge": {
+   "story": "hire 50 people",
+   "over": {
+    "_arms": [
+     0,
+     50
+    ]
+   },
+   "at_default": [
+    "CONFIRM",
+    -99.9
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -102.76639777579285,
+    -97.59659862573783,
+    -91.68011423554142
+   ]
+  },
+  "small_core": {
+   "story": "10 hires onto a core team of 2",
+   "over": {
+    "Vet": 2
+   },
+   "at_default": [
+    "REFUTE",
+    43.31999999999985
+   ],
+   "CONFIRM": 0.0,
+   "REFUTE": 100.0,
+   "neutral": 0.0,
+   "gap": [
+    29,
+    41.65630310765788,
+    52.68397704306514
+   ]
+  },
+  "high_prod": {
+   "story": "very productive devs",
+   "over": {
+    "prod_rate": 15
+   },
+   "at_default": [
+    "neutral",
+    0
+   ],
+   "CONFIRM": 0.9,
+   "REFUTE": 0.0,
+   "neutral": 99.1,
+   "gap": [
+    0,
+    0,
+    0
+   ]
+  },
+  "fast_onboard": {
+   "story": "mature_rate 0.5",
+   "over": {
+    "mature_rate": 0.5
+   },
+   "at_default": [
+    "CONFIRM",
+    -74.82223074776788
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -101.63858559373614,
+    -71.33946352951689,
+    -13
+   ]
+  },
+  "steep_learning": {
+   "story": "spaghetti code: slow, costly onboarding",
+   "over": {
+    "mature_rate": 0.02,
+    "train_coef": 0.4
+   },
+   "at_default": [
+    "CONFIRM",
+    -99.9
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -102.76639777579285,
+    -97.59659862573783,
+    -91.68011423554142
+   ]
+  },
+  "async_remote": {
+   "story": "comm_coef 0.001",
+   "over": {
+    "comm_coef": 0.001
+   },
+   "at_default": [
+    "CONFIRM",
+    -12
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -15,
+    -12,
+    -9
+   ]
+  },
+  "no_training": {
+   "story": "no mentoring drag",
+   "over": {
+    "train_coef": 0
+   },
+   "at_default": [
+    "CONFIRM",
+    -4
+   ],
+   "CONFIRM": 56.9,
+   "REFUTE": 1.0,
+   "neutral": 42.1,
+   "gap": [
+    -69.01139123570536,
+    -2,
+    1
+   ]
+  },
+  "no_comm": {
+   "story": "no coordination drag",
+   "over": {
+    "comm_coef": 0
+   },
+   "at_default": [
+    "CONFIRM",
+    -10
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -13,
+    -10,
+    -8
+   ]
+  },
+  "light_mentoring": {
+   "story": "each newcomer costs 2% of each vet (not 20%)",
+   "over": {
+    "train_coef": 0.02
+   },
+   "at_default": [
+    "CONFIRM",
+    -15
+   ],
+   "CONFIRM": 97.6,
+   "REFUTE": 0.0,
+   "neutral": 2.4,
+   "gap": [
+    -78.8826007725622,
+    -10,
+    -2
+   ]
+  },
+  "on_time_project": {
+   "story": "antecedent false: backlog 500 (done by t=13)",
+   "over": {
+    "Todo": 500
+   },
+   "at_default": [
+    "CONFIRM",
+    -51
+   ],
+   "CONFIRM": 74.4,
+   "REFUTE": 0.0,
+   "neutral": 25.6,
+   "gap": [
+    -83.71474204668178,
+    -33,
+    0
+   ]
+  },
+  "huge_backlog": {
+   "story": "backlog 3000",
+   "over": {
+    "Todo": 3000
+   },
+   "at_default": [
+    "CONFIRM",
+    -66.5910421932034
+   ],
+   "CONFIRM": 100.0,
+   "REFUTE": 0.0,
+   "neutral": 0.0,
+   "gap": [
+    -80.0368154233033,
+    -65.2127377908966,
+    -42.926986255062175
+   ]
+  }
+ },
+ "variants": {
+  "flat (sd.brooks)": {
+   "story": "reference clique",
+   "at_default": [
+    "CONFIRM",
+    -87.77312657961014
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -101.86250748365563,
+     -84.29643026136496,
+     -35
+    ]
+   },
+   "prior": {
+    "CONFIRM": 12.2,
+    "REFUTE": 0.3,
+    "neutral": 87.5,
+    "gap": [
+     -92.38774258584478,
+     0,
+     0.0
+    ]
+   }
+  },
+  "squads of 10": {
+   "story": "Conway/surgical teams: pairs inside a squad + between squads",
+   "at_default": [
+    "CONFIRM",
+    -11
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -14,
+     -11,
+     -8
+    ]
+   },
+   "prior": {
+    "CONFIRM": 21.7,
+    "REFUTE": 3.0,
+    "neutral": 75.3,
+    "gap": [
+     -64,
+     0,
+     0
+    ]
+   }
+  },
+  "mentor pods": {
+   "story": "ceil(New/5) vets mentor full-time, others untaxed",
+   "at_default": [
+    "CONFIRM",
+    -2
+   ],
+   "local": {
+    "CONFIRM": 38.7,
+    "REFUTE": 0.2,
+    "neutral": 61.1,
+    "gap": [
+     -55.92412506463356,
+     -1,
+     1
+    ]
+   },
+   "prior": {
+    "CONFIRM": 9.9,
+    "REFUTE": 1.2,
+    "neutral": 88.9,
+    "gap": [
+     -81.30051982648554,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "async docs + CI": {
+   "story": "O(N log N) comm, 40% less training",
+   "at_default": [
+    "CONFIRM",
+    -8
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -10,
+     -8,
+     -5
+    ]
+   },
+   "prior": {
+    "CONFIRM": 22.1,
+    "REFUTE": 1.9,
+    "neutral": 76.0,
+    "gap": [
+     -94.99101345649171,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "staged waves": {
+   "story": "hires arrive in 5 waves",
+   "at_default": [
+    "CONFIRM",
+    -87.08007260676871
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -100.3925836641977,
+     -83.4742817920989,
+     -36
+    ]
+   },
+   "prior": {
+    "CONFIRM": 12.3,
+    "REFUTE": 0.2,
+    "neutral": 87.5,
+    "gap": [
+     -92.3697285612212,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "per-person comm": {
+   "story": "each dev bears (V-1) channels, not all V(V-1)/2",
+   "at_default": [
+    "CONFIRM",
+    -15
+   ],
+   "local": {
+    "CONFIRM": 100.0,
+    "REFUTE": 0.0,
+    "neutral": 0.0,
+    "gap": [
+     -20,
+     -16,
+     -12
+    ]
+   },
+   "prior": {
+    "CONFIRM": 16.6,
+    "REFUTE": 0.9,
+    "neutral": 82.5,
+    "gap": [
+     -88.19667552007078,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "shared mentoring": {
+   "story": "train_coef is FTE per newcomer, spread over vets",
+   "at_default": [
+    "CONFIRM",
+    -10
+   ],
+   "local": {
+    "CONFIRM": 93.4,
+    "REFUTE": 0.0,
+    "neutral": 6.6,
+    "gap": [
+     -75.70800578859144,
+     -7,
+     -1
+    ]
+   },
+   "prior": {
+    "CONFIRM": 11.4,
+    "REFUTE": 0.7,
+    "neutral": 87.9,
+    "gap": [
+     -89.13486971025833,
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "evidence": [
+  {
+   "project": "aider",
+   "population": "aider: monthly git panel since 2023; lever = doubling a late team of 2 veterans",
+   "measured": [
+    "months=28",
+    "median vets/month=2 (max 3)",
+    "comm_coef 1.446e-18 [5.314e-27, 0.1299] (not identified)",
+    "train_coef 6.073e-14 [1.883e-19, 0.007528]",
+    "newcomers who stayed: 4",
+    "mature_rate/month 1 [0.0005011, 1]"
+   ],
+   "notes": [
+    "Commits/month stand in for productivity (construct validity: commit size and review work are invisible).",
+    "OSS newcomers are not 'hired' onto a deadline; arrivals follow activity, so train_coef may be biased toward 0 (reverse causation).",
+    "Identity = e-mail address; no kaiaulu identity_match merge.",
+    "mature_rate uses only newcomers still active a year later (survivorship: onboarding looks faster than it is).",
+    "Lateness, prod_rate and backlog are not measured: the project is *assumed* late (Todo=1000), i.e. this tests the counterfactual 'if this team were late'."
+   ],
+   "place": {
+    "CONFIRM": 0.0,
+    "REFUTE": 71.0,
+    "neutral": 29.1,
+    "gap": [
+     0,
+     9,
+     34.28399022952537
+    ]
+   },
+   "voi": {
+    "p_confirm": 0.0,
+    "entropy": 0.0,
+    "ranked": [
+     {
+      "factor": "Todo",
+      "gain": 0.0,
+      "p_by_quartile": [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "factor": "comm_coef",
+      "gain": 0.0,
+      "p_by_quartile": [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "factor": "prod_rate",
+      "gain": 0.0,
+      "p_by_quartile": [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "factor": "hire_at",
+      "gain": 0.0,
+      "p_by_quartile": [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "project": "helix",
+   "population": "helix: monthly git panel since 2013; lever = doubling a late team of 3 veterans",
+   "measured": [
+    "months=151",
+    "median vets/month=3 (max 8)",
+    "comm_coef 0.02327 [0.0139, 0.0323]",
+    "train_coef 0.01183 [5.216e-17, 0.02939]",
+    "newcomers who stayed: 29",
+    "mature_rate/month 1 [1, 1]"
+   ],
+   "notes": [
+    "Commits/month stand in for productivity (construct validity: commit size and review work are invisible).",
+    "OSS newcomers are not 'hired' onto a deadline; arrivals follow activity, so train_coef may be biased toward 0 (reverse causation).",
+    "Identity = e-mail address; no kaiaulu identity_match merge.",
+    "mature_rate uses only newcomers still active a year later (survivorship: onboarding looks faster than it is).",
+    "Lateness, prod_rate and backlog are not measured: the project is *assumed* late (Todo=1000), i.e. this tests the counterfactual 'if this team were late'."
+   ],
+   "place": {
+    "CONFIRM": 0.9,
+    "REFUTE": 80.5,
+    "neutral": 18.6,
+    "gap": [
+     0,
+     5,
+     19.89874683924016
+    ]
+   },
+   "voi": {
+    "p_confirm": 0.009,
+    "entropy": 0.074,
+    "ranked": [
+     {
+      "factor": "hire_at",
+      "gain": 0.005,
+      "p_by_quartile": [
+       0.02,
+       0.01,
+       0.0,
+       0.01
+      ]
+     },
+     {
+      "factor": "Todo",
+      "gain": 0.001,
+      "p_by_quartile": [
+       0.01,
+       0.01,
+       0.01,
+       0.0
+      ]
+     },
+     {
+      "factor": "prod_rate",
+      "gain": 0.001,
+      "p_by_quartile": [
+       0.0,
+       0.01,
+       0.01,
+       0.01
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
